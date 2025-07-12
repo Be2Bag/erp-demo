@@ -40,7 +40,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Use(middleware.TimeoutMiddleware(5 * time.Second))
+	app.Use(middleware.TimeoutMiddleware(1 * time.Minute))
 
 	apiGroup := app.Group("/service/api")
 	userHdl.RegisterRoutes(apiGroup)
