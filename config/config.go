@@ -45,7 +45,11 @@ func LoadConfig() (*Config, error) {
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, err
 	}
-	// build URI from individual parts if not provided
+
+	if mongoConn := viper.GetString("MONGO_CONNECTION"); mongoConn != "" {
+		cfg.Mongo.URI = mongoConn
+	}
+
 	if cfg.Mongo.URI == "" {
 		auth := ""
 		if cfg.Mongo.User != "" && cfg.Mongo.Password != "" {
