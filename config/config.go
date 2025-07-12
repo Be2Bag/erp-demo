@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -8,6 +9,10 @@ import (
 
 type MongoConfig struct {
 	URI      string `mapstructure:"connection"`
+	Host     string `mapstructure:"host"`
+	Port     string `mapstructure:"port"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
 	Database string `mapstructure:"database"`
 }
 
@@ -39,6 +44,19 @@ func LoadConfig() (*Config, error) {
 	var cfg Config
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, err
+	}
+	// build URI from individual parts if not provided
+	if cfg.Mongo.URI == "" {
+		auth := ""
+		if cfg.Mongo.User != "" && cfg.Mongo.Password != "" {
+			auth = fmt.Sprintf("%s:%s@", cfg.Mongo.User, cfg.Mongo.Password)
+		}
+		addr := cfg.Mongo.Host
+		if cfg.Mongo.Port != "" {
+			addr = fmt.Sprintf("%s:%s", cfg.Mongo.Host, cfg.Mongo.Port)
+		}
+		cfg.Mongo.URI = fmt.Sprintf("mongodb://%s%s/%s?retryWrites=true&w=majority",
+			auth, addr, cfg.Mongo.Database)
 	}
 	return &cfg, nil
 }
