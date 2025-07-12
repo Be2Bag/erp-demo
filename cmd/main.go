@@ -3,7 +3,7 @@ package main
 // @title        ERP Demo API
 // @version      1.0
 // @description  This is an ERP API demo.
-// @host         localhost:3000
+// @host         https://erp-demo-9ux8.onrender.com
 // @BasePath     /service/api
 
 import (
