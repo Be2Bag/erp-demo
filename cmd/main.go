@@ -8,6 +8,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
@@ -16,6 +17,7 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	_ "github.com/Be2Bag/erp-demo/docs"
 	"github.com/Be2Bag/erp-demo/handler"
+	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/pkg/db"
 	"github.com/Be2Bag/erp-demo/repository"
 	"github.com/Be2Bag/erp-demo/service"
@@ -38,14 +40,14 @@ func main() {
 
 	app := fiber.New()
 
-	// app.Use(middleware.TimeoutMiddleware(1 * time.Minute))
+	app.Use(middleware.TimeoutMiddleware(30 * time.Second))
 
 	apiGroup := app.Group("/service/api")
 	userHdl.RegisterRoutes(apiGroup)
-
+	log.Println(cfg.Swagger.Key)
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{
-			"admin": "123456",
+			"admin": cfg.Swagger.Key,
 		},
 	}))
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)

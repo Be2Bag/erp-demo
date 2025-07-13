@@ -21,9 +21,14 @@ type EncryptionConfig struct {
 	Key string
 }
 
+type SwaggerConfig struct {
+	Key string
+}
+
 type Config struct {
 	Mongo      MongoConfig
 	Encryption EncryptionConfig
+	Swagger    SwaggerConfig
 }
 
 func LoadConfig() (*Config, error) {
@@ -36,6 +41,7 @@ func LoadConfig() (*Config, error) {
 	cfg.Mongo.Password = os.Getenv("MONGO_PASSWORD")
 	cfg.Mongo.Database = os.Getenv("MONGO_DATABASE")
 	cfg.Encryption.Key = os.Getenv("ENCRYPTION_KEY")
+	cfg.Swagger.Key = os.Getenv("SWAGGER_KEY")
 
 	if cfg.Mongo.URI == "" && cfg.Mongo.Host == "" {
 		viper.SetConfigName("config")
@@ -58,6 +64,7 @@ func LoadConfig() (*Config, error) {
 		cfg.Mongo.Password = viper.GetString("mongo.password")
 		cfg.Mongo.Database = viper.GetString("mongo.database")
 		cfg.Encryption.Key = viper.GetString("encryption.key")
+		cfg.Swagger.Key = viper.GetString("swagger.key")
 	}
 
 	if cfg.Mongo.URI == "" {

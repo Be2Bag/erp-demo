@@ -30,6 +30,12 @@ const docTemplate = `{
                 "summary": "Get all users",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
                         "type": "integer",
                         "description": "Page number",
                         "name": "page",

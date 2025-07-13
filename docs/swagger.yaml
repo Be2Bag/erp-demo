@@ -415,6 +415,10 @@ paths:
       - application/json
       description: ใช้สำหรับดึงรายการผู้ใช้งานแบบแบ่งหน้า
       parameters:
+      - description: Search term
+        in: query
+        name: search
+        type: string
       - description: Page number
         in: query
         name: page

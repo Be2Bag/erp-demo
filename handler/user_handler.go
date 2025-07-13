@@ -80,6 +80,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Tags user
 // @Accept json
 // @Produce json
+// @Param search query string false "Search term"
 // @Param page query int false "Page number"
 // @Param limit query int false "Items per page"
 // @Param sortBy query string false "Field to sort by"
