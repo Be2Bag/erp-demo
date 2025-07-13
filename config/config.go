@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -30,7 +29,6 @@ type Config struct {
 func LoadConfig() (*Config, error) {
 	cfg := &Config{}
 
-	// Load from ENV first
 	cfg.Mongo.URI = os.Getenv("MONGO_CONNECTION")
 	cfg.Mongo.Host = os.Getenv("MONGO_HOST")
 	cfg.Mongo.Port = os.Getenv("MONGO_PORT")
@@ -39,7 +37,6 @@ func LoadConfig() (*Config, error) {
 	cfg.Mongo.Database = os.Getenv("MONGO_DATABASE")
 	cfg.Encryption.Key = os.Getenv("ENCRYPTION_KEY")
 
-	// If ENV not found, fallback to config.yaml
 	if cfg.Mongo.URI == "" && cfg.Mongo.Host == "" {
 		viper.SetConfigName("config")
 		viper.SetConfigType("yaml")
@@ -54,7 +51,6 @@ func LoadConfig() (*Config, error) {
 			}
 		}
 
-		// Load from file
 		cfg.Mongo.URI = viper.GetString("mongo.connection")
 		cfg.Mongo.Host = viper.GetString("mongo.host")
 		cfg.Mongo.Port = viper.GetString("mongo.port")
@@ -64,7 +60,6 @@ func LoadConfig() (*Config, error) {
 		cfg.Encryption.Key = viper.GetString("encryption.key")
 	}
 
-	// Fallback: Build URI if not set
 	if cfg.Mongo.URI == "" {
 		auth := ""
 		if cfg.Mongo.User != "" && cfg.Mongo.Password != "" {
@@ -77,14 +72,6 @@ func LoadConfig() (*Config, error) {
 		cfg.Mongo.URI = fmt.Sprintf("mongodb://%s%s/%s?retryWrites=true&w=majority",
 			auth, addr, cfg.Mongo.Database)
 	}
-
-	// Debug log
-	log.Println("[Mongo URI]", cfg.Mongo.URI)
-	log.Println("[Mongo Host]", cfg.Mongo.Host)
-	log.Println("[Mongo User]", cfg.Mongo.User)
-	log.Println("[Mongo Password]", cfg.Mongo.Password)
-	log.Println("[Mongo Database]", cfg.Mongo.Database)
-	log.Println("[Encryption Key]", cfg.Encryption.Key)
 
 	return cfg, nil
 }
