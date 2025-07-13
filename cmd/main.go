@@ -42,6 +42,10 @@ func main() {
 	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
 	authHdl := handler.NewAuthHandler(authSvc)
 
+	dropDownRepo := repository.NewDropDownRepository(database)
+	dropDownSvc := service.NewDropDownService(*cfg, dropDownRepo)
+	dropDownHdl := handler.NewDropDownHandler(dropDownSvc)
+
 	app := fiber.New()
 
 	app.Use(middleware.TimeoutMiddleware(30 * time.Second))
@@ -49,6 +53,7 @@ func main() {
 	apiGroup := app.Group("/service/api")
 	userHdl.UserRoutes(apiGroup)
 	authHdl.AuthRoutes(apiGroup)
+	dropDownHdl.DropDownRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{

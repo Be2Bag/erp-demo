@@ -125,6 +125,106 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/dropdown/department": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลแผนกทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dropdown"
+                ],
+                "summary": "Get all departments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetDepartments"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/dropdown/position": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลตำแหน่งงานทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dropdown"
+                ],
+                "summary": "Get all positions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetPositions"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user": {
             "get": {
                 "description": "ใช้สำหรับดึงรายการผู้ใช้งานแบบแบ่งหน้า",
@@ -882,6 +982,32 @@ const docTemplate = `{
                 },
                 "username": {
                     "description": "ชื่อผู้ใช้สำหรับเข้าสู่ระบบ",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ResponseGetDepartments": {
+            "type": "object",
+            "properties": {
+                "department_id": {
+                    "description": "รหัสแผนก (ไม่ซ้ำกัน)",
+                    "type": "string"
+                },
+                "department_name": {
+                    "description": "ชื่อแผนก",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ResponseGetPositions": {
+            "type": "object",
+            "properties": {
+                "position_id": {
+                    "description": "รหัสตำแหน่งงาน (ไม่ซ้ำกัน)",
+                    "type": "string"
+                },
+                "position_name": {
+                    "description": "ชื่อตำแหน่งงาน",
                     "type": "string"
                 }
             }

@@ -364,6 +364,24 @@ definitions:
         description: ชื่อผู้ใช้สำหรับเข้าสู่ระบบ
         type: string
     type: object
+  dto.ResponseGetDepartments:
+    properties:
+      department_id:
+        description: รหัสแผนก (ไม่ซ้ำกัน)
+        type: string
+      department_name:
+        description: ชื่อแผนก
+        type: string
+    type: object
+  dto.ResponseGetPositions:
+    properties:
+      position_id:
+        description: รหัสตำแหน่งงาน (ไม่ซ้ำกัน)
+        type: string
+      position_name:
+        description: ชื่อตำแหน่งงาน
+        type: string
+    type: object
   dto.ResponseGetUserAll:
     properties:
       avatar:
@@ -506,6 +524,66 @@ paths:
       summary: Get user sessions
       tags:
       - auth
+  /v1/dropdown/department:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลแผนกทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetDepartments'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all departments
+      tags:
+      - dropdown
+  /v1/dropdown/position:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลตำแหน่งงานทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetPositions'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all positions
+      tags:
+      - dropdown
   /v1/user:
     get:
       consumes:
