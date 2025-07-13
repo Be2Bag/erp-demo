@@ -46,6 +46,11 @@ func LoadConfig() (*Config, error) {
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return nil, err
 	}
+	log.Println("[Mongo URI]", cfg.Mongo.URI)
+	log.Println("[Mongo Host]", cfg.Mongo.Host)
+	log.Println("[Mongo User]", cfg.Mongo.User)
+	log.Println("[Mongo Password]", cfg.Mongo.Password)
+	log.Println("[Mongo Database]", cfg.Mongo.Database)
 
 	if cfg.Mongo.URI == "" {
 		auth := ""
@@ -56,7 +61,7 @@ func LoadConfig() (*Config, error) {
 		if cfg.Mongo.Port != "" {
 			addr = fmt.Sprintf("%s:%s", cfg.Mongo.Host, cfg.Mongo.Port)
 		}
-		cfg.Mongo.URI = fmt.Sprintf("mongodb+srv://%s%s/%s?retryWrites=true&w=majority",
+		cfg.Mongo.URI = fmt.Sprintf("mongodb://%s%s/%s?retryWrites=true&w=majority",
 			auth, addr, cfg.Mongo.Database)
 	}
 	log.Println(cfg.Mongo.URI)
