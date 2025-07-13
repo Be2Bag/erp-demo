@@ -3,55 +3,68 @@ package config
 import (
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/spf13/viper"
 )
 
 type MongoConfig struct {
-	URI      string `mapstructure:"connection"`
-	Host     string `mapstructure:"host"`
-	Port     string `mapstructure:"port"`
-	User     string `mapstructure:"user"`
-	Password string `mapstructure:"password"`
-	Database string `mapstructure:"database"`
+	URI      string
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Database string
 }
 
 type EncryptionConfig struct {
-	Key string `mapstructure:"key"`
+	Key string
 }
 
 type Config struct {
-	Mongo      MongoConfig      `mapstructure:"mongo"`
-	Encryption EncryptionConfig `mapstructure:"encryption"`
+	Mongo      MongoConfig
+	Encryption EncryptionConfig
 }
 
 func LoadConfig() (*Config, error) {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("./config")
+	cfg := &Config{}
 
-	// map nested keys (dot) to underscores for ENV
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
-	viper.AutomaticEnv()
+	// Load from ENV first
+	cfg.Mongo.URI = os.Getenv("MONGO_CONNECTION")
+	cfg.Mongo.Host = os.Getenv("MONGO_HOST")
+	cfg.Mongo.Port = os.Getenv("MONGO_PORT")
+	cfg.Mongo.User = os.Getenv("MONGO_USER")
+	cfg.Mongo.Password = os.Getenv("MONGO_PASSWORD")
+	cfg.Mongo.Database = os.Getenv("MONGO_DATABASE")
+	cfg.Encryption.Key = os.Getenv("ENCRYPTION_KEY")
 
-	// ignore missing config file, but error on other issues
-	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
-			return nil, err
+	// If ENV not found, fallback to config.yaml
+	if cfg.Mongo.URI == "" && cfg.Mongo.Host == "" {
+		viper.SetConfigName("config")
+		viper.SetConfigType("yaml")
+		viper.AddConfigPath(".")
+		viper.AddConfigPath("./config")
+		viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+		viper.AutomaticEnv()
+
+		if err := viper.ReadInConfig(); err != nil {
+			if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+				return nil, fmt.Errorf("failed to read config file: %w", err)
+			}
 		}
-	}
-	var cfg Config
-	if err := viper.Unmarshal(&cfg); err != nil {
-		return nil, err
-	}
-	log.Println("[Mongo URI]", cfg.Mongo.URI)
-	log.Println("[Mongo Host]", cfg.Mongo.Host)
-	log.Println("[Mongo User]", cfg.Mongo.User)
-	log.Println("[Mongo Password]", cfg.Mongo.Password)
-	log.Println("[Mongo Database]", cfg.Mongo.Database)
 
+		// Load from file
+		cfg.Mongo.URI = viper.GetString("mongo.connection")
+		cfg.Mongo.Host = viper.GetString("mongo.host")
+		cfg.Mongo.Port = viper.GetString("mongo.port")
+		cfg.Mongo.User = viper.GetString("mongo.user")
+		cfg.Mongo.Password = viper.GetString("mongo.password")
+		cfg.Mongo.Database = viper.GetString("mongo.database")
+		cfg.Encryption.Key = viper.GetString("encryption.key")
+	}
+
+	// Fallback: Build URI if not set
 	if cfg.Mongo.URI == "" {
 		auth := ""
 		if cfg.Mongo.User != "" && cfg.Mongo.Password != "" {
@@ -64,7 +77,14 @@ func LoadConfig() (*Config, error) {
 		cfg.Mongo.URI = fmt.Sprintf("mongodb://%s%s/%s?retryWrites=true&w=majority",
 			auth, addr, cfg.Mongo.Database)
 	}
-	log.Println(cfg.Mongo.URI)
 
-	return &cfg, nil
+	// Debug log
+	log.Println("[Mongo URI]", cfg.Mongo.URI)
+	log.Println("[Mongo Host]", cfg.Mongo.Host)
+	log.Println("[Mongo User]", cfg.Mongo.User)
+	log.Println("[Mongo Password]", cfg.Mongo.Password)
+	log.Println("[Mongo Database]", cfg.Mongo.Database)
+	log.Println("[Encryption Key]", cfg.Encryption.Key)
+
+	return cfg, nil
 }
