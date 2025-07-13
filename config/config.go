@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -46,10 +47,6 @@ func LoadConfig() (*Config, error) {
 		return nil, err
 	}
 
-	if mongoConn := viper.GetString("MONGO_CONNECTION"); mongoConn != "" {
-		cfg.Mongo.URI = mongoConn
-	}
-
 	if cfg.Mongo.URI == "" {
 		auth := ""
 		if cfg.Mongo.User != "" && cfg.Mongo.Password != "" {
@@ -59,8 +56,10 @@ func LoadConfig() (*Config, error) {
 		if cfg.Mongo.Port != "" {
 			addr = fmt.Sprintf("%s:%s", cfg.Mongo.Host, cfg.Mongo.Port)
 		}
-		cfg.Mongo.URI = fmt.Sprintf("mongodb://%s%s/%s?retryWrites=true&w=majority",
+		cfg.Mongo.URI = fmt.Sprintf("mongodb+srv://%s%s/%s?retryWrites=true&w=majority",
 			auth, addr, cfg.Mongo.Database)
 	}
+	log.Println(cfg.Mongo.URI)
+
 	return &cfg, nil
 }

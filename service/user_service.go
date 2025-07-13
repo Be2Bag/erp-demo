@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
 	"math"
 	"strings"
 	"time"
@@ -189,6 +190,7 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 
 func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dto.Pagination, error) {
 
+	log.Println("GetAll Users with pagination:", req)
 	filter := bson.M{"deleted_at": nil}
 	if req.Search != "" {
 

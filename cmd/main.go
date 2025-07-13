@@ -8,7 +8,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
@@ -17,7 +16,6 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	_ "github.com/Be2Bag/erp-demo/docs"
 	"github.com/Be2Bag/erp-demo/handler"
-	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/pkg/db"
 	"github.com/Be2Bag/erp-demo/repository"
 	"github.com/Be2Bag/erp-demo/service"
@@ -40,7 +38,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Use(middleware.TimeoutMiddleware(1 * time.Minute))
+	// app.Use(middleware.TimeoutMiddleware(1 * time.Minute))
 
 	apiGroup := app.Group("/service/api")
 	userHdl.RegisterRoutes(apiGroup)
