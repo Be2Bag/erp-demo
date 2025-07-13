@@ -204,6 +204,16 @@ definitions:
         example: 10
         type: integer
     type: object
+  dto.RequestConfirmResetPassword:
+    properties:
+      new_password:
+        type: string
+      token:
+        type: string
+    required:
+    - new_password
+    - token
+    type: object
   dto.RequestCreateUser:
     properties:
       address:
@@ -284,6 +294,12 @@ definitions:
         type: string
       password:
         description: รหัสผ่าน
+        type: string
+    type: object
+  dto.RequestResetPassword:
+    properties:
+      email:
+        description: อีเมลของผู้ใช้
         type: string
     type: object
   dto.RequestUpdateUser:
@@ -452,6 +468,41 @@ info:
   title: ERP Demo API
   version: "1.0"
 paths:
+  /v1/auth/confirm-reset:
+    post:
+      consumes:
+      - application/json
+      description: ใช้สำหรับยืนยันการรีเซ็ตรหัสผ่านของผู้ใช้ token จะหมดอายุภายใน
+        15 นาที
+      parameters:
+      - description: Confirm reset password payload
+        in: body
+        name: confirm
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestConfirmResetPassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseError400ResponseSwagger'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseError401ResponseSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseError500ResponseSwagger'
+      summary: Confirm reset password
+      tags:
+      - auth
   /v1/auth/login:
     post:
       consumes:
@@ -499,6 +550,36 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: User logout
+      tags:
+      - auth
+  /v1/auth/reset:
+    post:
+      consumes:
+      - application/json
+      description: ใช้สำหรับรีเซ็ตรหัสผ่านของผู้ใช้
+      parameters:
+      - description: Reset password payload
+        in: body
+        name: reset
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestResetPassword'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseError400ResponseSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseError500ResponseSwagger'
+      summary: Reset user password
       tags:
       - auth
   /v1/auth/sessions:

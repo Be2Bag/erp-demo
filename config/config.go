@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -33,12 +34,21 @@ type JWTConfig struct {
 	SecretKey string
 }
 
+type EmailConfig struct {
+	Host     string
+	Port     int
+	Username string
+	Password string
+	From     string
+}
+
 type Config struct {
 	Mongo      MongoConfig
 	Encryption EncryptionConfig
 	Swagger    SwaggerConfig
 	Hash       HashConfig
 	JWT        JWTConfig
+	Email      EmailConfig
 }
 
 func LoadConfig() (*Config, error) {
@@ -54,6 +64,17 @@ func LoadConfig() (*Config, error) {
 	cfg.Swagger.Key = os.Getenv("SWAGGER_KEY")
 	cfg.Hash.Salt = os.Getenv("HASH_SALT")
 	cfg.JWT.SecretKey = os.Getenv("JWT_SECRET")
+	cfg.Email.Host = os.Getenv("EMAIL_HOST")
+	if portStr := os.Getenv("EMAIL_PORT"); portStr != "" {
+		port, err := strconv.Atoi(portStr)
+		if err != nil {
+			return nil, fmt.Errorf("invalid EMAIL_PORT: %v", err)
+		}
+		cfg.Email.Port = port
+	}
+	cfg.Email.Username = os.Getenv("EMAIL_USERNAME")
+	cfg.Email.Password = os.Getenv("EMAIL_PASSWORD")
+	cfg.Email.From = os.Getenv("EMAIL_FROM")
 
 	if cfg.Mongo.URI == "" && cfg.Mongo.Host == "" {
 		viper.SetConfigName("config")
@@ -79,6 +100,11 @@ func LoadConfig() (*Config, error) {
 		cfg.Swagger.Key = viper.GetString("swagger.key")
 		cfg.Hash.Salt = viper.GetString("hash.salt")
 		cfg.JWT.SecretKey = viper.GetString("jwt.secret")
+		cfg.Email.Host = viper.GetString("email.host")
+		cfg.Email.Port = viper.GetInt("email.port")
+		cfg.Email.Username = viper.GetString("email.username")
+		cfg.Email.Password = viper.GetString("email.password")
+		cfg.Email.From = viper.GetString("email.from")
 
 	}
 

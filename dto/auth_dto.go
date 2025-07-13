@@ -17,3 +17,12 @@ type JWTClaims struct {
 	Avatar       string `json:"avatar"`        // User avatar URL
 	Status       string `json:"status"`        // User status (e.g., active, inactive)
 }
+
+type RequestResetPassword struct {
+	Email string `json:"email"` // อีเมลของผู้ใช้
+}
+
+type RequestConfirmResetPassword struct {
+	Token       string `json:"token" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
+}

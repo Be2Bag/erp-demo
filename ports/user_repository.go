@@ -15,4 +15,5 @@ type UserRepository interface {
 	CountUsers(ctx context.Context, filter interface{}) (int64, error)
 	UpdateUserByID(ctx context.Context, id string, user *models.User) (*models.User, error)
 	GetUserByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.User, error)
+	UpdateUserByFilter(ctx context.Context, filter interface{}, update interface{}) (*models.User, error)
 }

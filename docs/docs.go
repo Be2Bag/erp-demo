@@ -15,6 +15,58 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/auth/confirm-reset": {
+            "post": {
+                "description": "ใช้สำหรับยืนยันการรีเซ็ตรหัสผ่านของผู้ใช้ token จะหมดอายุภายใน 15 นาที",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Confirm reset password",
+                "parameters": [
+                    {
+                        "description": "Confirm reset password payload",
+                        "name": "confirm",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestConfirmResetPassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError400ResponseSwagger"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError401ResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError500ResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/auth/login": {
             "post": {
                 "description": "ใช้สำหรับเข้าสู่ระบบผู้ใช้",
@@ -79,6 +131,52 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError500ResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/reset": {
+            "post": {
+                "description": "ใช้สำหรับรีเซ็ตรหัสผ่านของผู้ใช้",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Reset user password",
+                "parameters": [
+                    {
+                        "description": "Reset password payload",
+                        "name": "reset",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestResetPassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError400ResponseSwagger"
                         }
                     },
                     "500": {
@@ -758,6 +856,21 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.RequestConfirmResetPassword": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "token"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.RequestCreateUser": {
             "type": "object",
             "properties": {
@@ -871,6 +984,15 @@ const docTemplate = `{
                 },
                 "password": {
                     "description": "รหัสผ่าน",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequestResetPassword": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "อีเมลของผู้ใช้",
                     "type": "string"
                 }
             }

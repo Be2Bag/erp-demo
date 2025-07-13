@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/Be2Bag/erp-demo/dto"
@@ -26,6 +27,8 @@ func (h *AuthHandler) AuthRoutes(router fiber.Router) {
 	auth.Post("/login", h.Login)
 	auth.Get("/sessions", h.GetSessions)
 	auth.Post("/logout", h.Logout)
+	auth.Post("/reset", h.ResetPassword)
+	auth.Post("/confirm-reset", h.ConfirmResetPassword)
 
 }
 
@@ -174,6 +177,117 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Logout successful",
 		MessageTH:  "ออกจากระบบสำเร็จ",
+		Status:     "success",
+		Data:       nil,
+	})
+}
+
+// @Summary Reset user password
+// @Description ใช้สำหรับรีเซ็ตรหัสผ่านของผู้ใช้
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param reset body dto.RequestResetPassword true "Reset password payload"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseError400ResponseSwagger
+// @Failure 500 {object} dto.BaseError500ResponseSwagger
+// @Router /v1/auth/reset [post]
+func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
+	var reset dto.RequestResetPassword
+	if err := c.BodyParser(&reset); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request payload",
+			MessageTH:  "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	scheme := "http"
+	if c.Protocol() == "https" {
+		scheme = "https"
+	}
+	baseURL := fmt.Sprintf("%s://%s", scheme, c.Hostname())
+
+	err := h.svc.ResetPassword(c.Context(), reset, baseURL)
+	if err != nil {
+
+		if err.Error() == mongo.ErrNoDocuments.Error() {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "User not found",
+				MessageTH:  "ไม่พบผู้ใช้",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to reset password: " + err.Error(),
+			MessageTH:  "ไม่สามารถรีเซ็ตรหัสผ่านได้: " + err.Error(),
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Password reset successfully",
+		MessageTH:  "รีเซ็ตรหัสผ่านสำเร็จ",
+		Status:     "success",
+		Data:       nil,
+	})
+}
+
+// @Summary Confirm reset password
+// @Description ใช้สำหรับยืนยันการรีเซ็ตรหัสผ่านของผู้ใช้ token จะหมดอายุภายใน 15 นาที
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param confirm body dto.RequestConfirmResetPassword true "Confirm reset password payload"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseError400ResponseSwagger
+// @Failure 401 {object} dto.BaseError401ResponseSwagger
+// @Failure 500 {object} dto.BaseError500ResponseSwagger
+// @Router /v1/auth/confirm-reset [post]
+func (h *AuthHandler) ConfirmResetPassword(c *fiber.Ctx) error {
+	var req dto.RequestConfirmResetPassword
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request payload",
+			MessageTH:  "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	err := h.svc.ConfirmResetPassword(c.Context(), req)
+	if err != nil {
+		if err.Error() == "token expired" || err.Error() == "invalid token" {
+			return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusUnauthorized,
+				MessageEN:  "Invalid or expired token",
+				MessageTH:  "โทเค็นไม่ถูกต้องหรือหมดอายุ",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to confirm reset password: " + err.Error(),
+			MessageTH:  "ยืนยันการรีเซ็ตรหัสผ่านล้มเหลว: " + err.Error(),
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Password has been reset successfully",
+		MessageTH:  "รีเซ็ตรหัสผ่านสำเร็จ",
 		Status:     "success",
 		Data:       nil,
 	})

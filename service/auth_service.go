@@ -87,3 +87,64 @@ func (s *authService) GetSessions(ctx context.Context, token string) (map[string
 
 	return claims, nil
 }
+
+func (s *authService) ResetPassword(ctx context.Context, req dto.RequestResetPassword, url string) error {
+
+	filter := bson.M{"email": req.Email, "deleted_at": nil}
+	projection := bson.M{}
+	userData, errOnGetUserData := s.userRepo.GetUserByFilter(ctx, filter, projection)
+	if errOnGetUserData != nil {
+		return errOnGetUserData
+	}
+	if len(userData) == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	token, err := util.GenerateJWTToken(map[string]interface{}{"email": req.Email}, s.config.JWT.SecretKey, 15*time.Minute) // 15 minutes expiration
+	if err != nil {
+		return fmt.Errorf("failed to generate reset token: %w", err)
+	}
+
+	resetLink := fmt.Sprintf("%s/reset-password?token=%s", url, token)
+
+	emailCfg := util.EmailConfig{
+		Host:     s.config.Email.Host,
+		Port:     s.config.Email.Port,
+		Username: s.config.Email.Username,
+		Password: s.config.Email.Password,
+		From:     s.config.Email.From,
+	}
+
+	if err := util.SendResetPasswordEmail(emailCfg, req.Email, resetLink); err != nil {
+		return fmt.Errorf("failed to send reset email: %w", err)
+	}
+
+	return nil
+}
+
+func (s *authService) ConfirmResetPassword(ctx context.Context, req dto.RequestConfirmResetPassword) error {
+
+	claims, err := util.VerifyJWTToken(req.Token, s.config.JWT.SecretKey)
+	if err != nil {
+		return err
+	}
+
+	email, ok := claims["email"].(string)
+	if !ok {
+		return fmt.Errorf("token payload missing email")
+	}
+
+	hashed := util.HashPassword(req.NewPassword, s.config.Hash.Salt)
+
+	filter := bson.M{"email": email, "deleted_at": nil}
+	update := bson.M{"$set": bson.M{"password": hashed, "updated_at": time.Now()}}
+	_, errOnUpdate := s.userRepo.UpdateUserByFilter(ctx, filter, update)
+	if errOnUpdate != nil {
+		if errOnUpdate == mongo.ErrNoDocuments {
+			return fmt.Errorf("user not found")
+		}
+		return fmt.Errorf("failed to update password: %w", errOnUpdate)
+	}
+
+	return nil
+}

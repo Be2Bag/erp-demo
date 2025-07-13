@@ -128,3 +128,16 @@ func (r *userRepo) GetUserByFilter(ctx context.Context, filter interface{}, proj
 
 	return users, nil
 }
+
+func (r *userRepo) UpdateUserByFilter(ctx context.Context, filter interface{}, update interface{}) (*models.User, error) {
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var user models.User
+	err := r.coll.FindOneAndUpdate(ctx, filter, update, opts).Decode(&user)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, mongo.ErrNoDocuments
+		}
+		return nil, err
+	}
+	return &user, nil
+}
