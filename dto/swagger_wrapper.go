@@ -16,6 +16,14 @@ type BaseError400ResponseSwagger struct {
 	Data       any    `json:"data"`
 }
 
+type BaseError401ResponseSwagger struct {
+	StatusCode int    `json:"status_code" example:"401"`
+	MessageTH  string `json:"message_th" example:"การเข้าถึงถูกปฏิเสธ"`
+	MessageEN  string `json:"message_en" example:"Unauthorized"`
+	Status     string `json:"status" example:"error"`
+	Data       any    `json:"data"`
+}
+
 type BaseError500ResponseSwagger struct {
 	StatusCode int    `json:"status_code" example:"500"`
 	MessageTH  string `json:"message_th" example:"เกิดข้อผิดพลาดในระบบ"`

@@ -15,6 +15,116 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/auth/login": {
+            "post": {
+                "description": "ใช้สำหรับเข้าสู่ระบบผู้ใช้",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User login",
+                "parameters": [
+                    {
+                        "description": "User login payload",
+                        "name": "auth",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError400ResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError500ResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/logout": {
+            "post": {
+                "description": "ใช้สำหรับออกจากระบบผู้ใช้",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "User logout",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError500ResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/auth/sessions": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลคุกกี้ auth token ของผู้ใช้",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Get user sessions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError401ResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError500ResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user": {
             "get": {
                 "description": "ใช้สำหรับดึงรายการผู้ใช้งานแบบแบ่งหน้า",
@@ -219,6 +329,48 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "ใช้สำหรับลบผู้ใช้ตาม ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Delete user by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError400ResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError500ResponseSwagger"
+                        }
+                    }
+                }
             }
         }
     },
@@ -292,6 +444,28 @@ const docTemplate = `{
                 "status_code": {
                     "type": "integer",
                     "example": 400
+                }
+            }
+        },
+        "dto.BaseError401ResponseSwagger": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message_en": {
+                    "type": "string",
+                    "example": "Unauthorized"
+                },
+                "message_th": {
+                    "type": "string",
+                    "example": "การเข้าถึงถูกปฏิเสธ"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "error"
+                },
+                "status_code": {
+                    "type": "integer",
+                    "example": 401
                 }
             }
         },
@@ -584,6 +758,19 @@ const docTemplate = `{
                 },
                 "username": {
                     "description": "ชื่อผู้ใช้สำหรับเข้าสู่ระบบ",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequestLogin": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "description": "อีเมลของผู้ใช้",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "รหัสผ่าน",
                     "type": "string"
                 }
             }

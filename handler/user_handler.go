@@ -2,11 +2,13 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserHandler struct {
@@ -17,7 +19,7 @@ func NewUserHandler(s ports.UserService) *UserHandler {
 	return &UserHandler{svc: s}
 }
 
-func (h *UserHandler) RegisterRoutes(router fiber.Router) {
+func (h *UserHandler) UserRoutes(router fiber.Router) {
 
 	versionOne := router.Group("v1")
 	user := versionOne.Group("user")
@@ -26,7 +28,7 @@ func (h *UserHandler) RegisterRoutes(router fiber.Router) {
 	user.Get("/", h.GetAllUser)
 	user.Get("/:id", h.GetUserByID)
 	user.Put("/:id", h.UpdateUserByID)
-	// user.Delete("/:id", h.delete)
+	user.Delete("/:id", h.DeleteUserByID)
 
 }
 
@@ -43,7 +45,13 @@ func (h *UserHandler) RegisterRoutes(router fiber.Router) {
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	var user dto.RequestCreateUser
 	if err := c.BodyParser(&user); err != nil {
-		return c.Status(400).JSON(err.Error())
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request payload",
+			MessageTH:  "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
 	}
 	err := h.svc.Create(context.Background(), user)
 	if err != nil {
@@ -53,6 +61,16 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 				StatusCode: fiber.StatusBadRequest,
 				MessageEN:  "User with this ID card already exists",
 				MessageTH:  "มีผู้ใช้ที่มีบัตรประชาชนนี้อยู่แล้ว",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
+		if strings.Contains(err.Error(), "invalid ID card format") {
+			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusBadRequest,
+				MessageEN:  "Invalid ID card format",
+				MessageTH:  "รูปแบบบัตรประชาชนไม่ถูกต้อง",
 				Status:     "error",
 				Data:       nil,
 			})
@@ -227,5 +245,58 @@ func (h *UserHandler) UpdateUserByID(c *fiber.Ctx) error {
 		MessageTH:  "อัปเดตผู้ใช้สำเร็จ",
 		Status:     "success",
 		Data:       updatedUser,
+	})
+}
+
+// @Summary Delete user by ID
+// @Description ใช้สำหรับลบผู้ใช้ตาม ID
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseError400ResponseSwagger
+// @Failure 500 {object} dto.BaseError500ResponseSwagger
+// @Router /v1/user/{id} [delete]
+func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "ID is required",
+			MessageTH:  "ต้องระบุ ID",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	err := h.svc.DeleteUserByID(context.Background(), id)
+	if err != nil {
+
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusBadRequest,
+				MessageEN:  "User not found",
+				MessageTH:  "ไม่พบผู้ใช้",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to delete user",
+			MessageTH:  "ไม่สามารถลบผู้ใช้ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "User deleted successfully",
+		MessageTH:  "ลบผู้ใช้สำเร็จ",
+		Status:     "success",
+		Data:       nil,
 	})
 }

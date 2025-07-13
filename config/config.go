@@ -25,10 +25,20 @@ type SwaggerConfig struct {
 	Key string
 }
 
+type HashConfig struct {
+	Salt string
+}
+
+type JWTConfig struct {
+	SecretKey string
+}
+
 type Config struct {
 	Mongo      MongoConfig
 	Encryption EncryptionConfig
 	Swagger    SwaggerConfig
+	Hash       HashConfig
+	JWT        JWTConfig
 }
 
 func LoadConfig() (*Config, error) {
@@ -42,6 +52,8 @@ func LoadConfig() (*Config, error) {
 	cfg.Mongo.Database = os.Getenv("MONGO_DATABASE")
 	cfg.Encryption.Key = os.Getenv("ENCRYPTION_KEY")
 	cfg.Swagger.Key = os.Getenv("SWAGGER_KEY")
+	cfg.Hash.Salt = os.Getenv("HASH_SALT")
+	cfg.JWT.SecretKey = os.Getenv("JWT_SECRET")
 
 	if cfg.Mongo.URI == "" && cfg.Mongo.Host == "" {
 		viper.SetConfigName("config")
@@ -65,6 +77,9 @@ func LoadConfig() (*Config, error) {
 		cfg.Mongo.Database = viper.GetString("mongo.database")
 		cfg.Encryption.Key = viper.GetString("encryption.key")
 		cfg.Swagger.Key = viper.GetString("swagger.key")
+		cfg.Hash.Salt = viper.GetString("hash.salt")
+		cfg.JWT.SecretKey = viper.GetString("jwt.secret")
+
 	}
 
 	if cfg.Mongo.URI == "" {

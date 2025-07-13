@@ -52,6 +52,22 @@ definitions:
         example: 400
         type: integer
     type: object
+  dto.BaseError401ResponseSwagger:
+    properties:
+      data: {}
+      message_en:
+        example: Unauthorized
+        type: string
+      message_th:
+        example: การเข้าถึงถูกปฏิเสธ
+        type: string
+      status:
+        example: error
+        type: string
+      status_code:
+        example: 401
+        type: integer
+    type: object
   dto.BaseError500ResponseSwagger:
     properties:
       data: {}
@@ -261,6 +277,15 @@ definitions:
         description: ชื่อผู้ใช้สำหรับเข้าสู่ระบบ
         type: string
     type: object
+  dto.RequestLogin:
+    properties:
+      email:
+        description: อีเมลของผู้ใช้
+        type: string
+      password:
+        description: รหัสผ่าน
+        type: string
+    type: object
   dto.RequestUpdateUser:
     properties:
       address:
@@ -409,6 +434,78 @@ info:
   title: ERP Demo API
   version: "1.0"
 paths:
+  /v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: ใช้สำหรับเข้าสู่ระบบผู้ใช้
+      parameters:
+      - description: User login payload
+        in: body
+        name: auth
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseError400ResponseSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseError500ResponseSwagger'
+      summary: User login
+      tags:
+      - auth
+  /v1/auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: ใช้สำหรับออกจากระบบผู้ใช้
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseError500ResponseSwagger'
+      summary: User logout
+      tags:
+      - auth
+  /v1/auth/sessions:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลคุกกี้ auth token ของผู้ใช้
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseError401ResponseSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseError500ResponseSwagger'
+      summary: Get user sessions
+      tags:
+      - auth
   /v1/user:
     get:
       consumes:
@@ -483,6 +580,34 @@ paths:
       tags:
       - user
   /v1/user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: ใช้สำหรับลบผู้ใช้ตาม ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseError400ResponseSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseError500ResponseSwagger'
+      summary: Delete user by ID
+      tags:
+      - user
     get:
       consumes:
       - application/json

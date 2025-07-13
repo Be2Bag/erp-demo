@@ -12,4 +12,5 @@ type UserService interface {
 	GetByID(ctx context.Context, id string) (*dto.ResponseGetUserByID, error)
 	GetAll(ctx context.Context, req dto.RequestGetUserAll) (dto.Pagination, error)
 	UpdateUserByID(ctx context.Context, id string, req dto.RequestUpdateUser) (*models.User, error)
+	DeleteUserByID(ctx context.Context, id string) error
 }

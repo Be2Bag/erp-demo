@@ -4,19 +4,15 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"io"
-	"strings"
-
-	"golang.org/x/crypto/bcrypt"
 )
 
-func HashPassword(password string) (string, error) {
-	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedBytes), nil
+func HashPassword(password string, base64Key string) string {
+	sum := sha256.Sum256([]byte(base64Key + password))
+	return hex.EncodeToString(sum[:])
 }
 
 func EncryptGCM(plaintext string, base64Key string) (string, error) {
@@ -73,14 +69,4 @@ func DecryptGCM(ciphertextB64 string, base64Key string) (string, error) {
 		return ciphertextB64, nil
 	}
 	return string(ptBytes), nil
-}
-
-func MaskIDCard(id string) string {
-	runes := []rune(id)
-	l := len(runes)
-	if l <= 6 {
-		return id
-	}
-	maskCount := l - 6
-	return strings.Repeat("X", maskCount) + string(runes[maskCount:])
 }

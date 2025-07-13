@@ -38,13 +38,18 @@ func main() {
 	userSvc := service.NewUserService(*cfg, userRepo)
 	userHdl := handler.NewUserHandler(userSvc)
 
+	authRepo := repository.NewAuthRepository(database)
+	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
+	authHdl := handler.NewAuthHandler(authSvc)
+
 	app := fiber.New()
 
 	app.Use(middleware.TimeoutMiddleware(30 * time.Second))
 
 	apiGroup := app.Group("/service/api")
-	userHdl.RegisterRoutes(apiGroup)
-	log.Println(cfg.Swagger.Key)
+	userHdl.UserRoutes(apiGroup)
+	authHdl.AuthRoutes(apiGroup)
+
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{
 			"admin": cfg.Swagger.Key,

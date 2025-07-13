@@ -28,9 +28,11 @@ func NewUserService(cfg config.Config, r ports.UserRepository) ports.UserService
 
 func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) error {
 
-	hashPassword, errOnHashPassword := util.HashPassword(req.Password)
-	if errOnHashPassword != nil {
-		return errOnHashPassword
+	hashPassword := util.HashPassword(req.Password, s.config.Hash.Salt)
+
+	checkIDCard := util.ValidateThaiID(req.IDCard)
+	if !checkIDCard {
+		return fmt.Errorf("invalid ID card format")
 	}
 
 	user := &models.User{
@@ -269,10 +271,8 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 	}
 
 	if req.Password != "" {
-		hashPassword, errOnHashPassword := util.HashPassword(req.Password)
-		if errOnHashPassword != nil {
-			return nil, errOnHashPassword
-		}
+		hashPassword := util.HashPassword(req.Password, s.config.Hash.Salt)
+
 		user.Password = hashPassword
 	}
 
@@ -394,4 +394,30 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 
 	return updateUser, nil
 
+}
+
+func (s *userService) DeleteUserByID(ctx context.Context, id string) error {
+
+	user, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return fmt.Errorf("failed to get user by ID: %w", err)
+	}
+	if user == nil {
+		return mongo.ErrNoDocuments
+	}
+
+	now := time.Now()
+	user.DeletedAt = &now
+	user.UpdatedAt = time.Now()
+
+	result, err := s.repo.UpdateUserByID(ctx, id, user)
+	if err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+
+	if result == nil {
+		return mongo.ErrNoDocuments
+	}
+
+	return nil
 }
