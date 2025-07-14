@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"strings"
+
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type AdminHandler struct {
@@ -48,6 +51,27 @@ func (h *AdminHandler) UpdateStatusUser(c *fiber.Ctx) error {
 
 	err := h.svc.UpdateUserStatus(c.Context(), req)
 	if err != nil {
+
+		if err == mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "User not found",
+				MessageTH:  "ไม่พบผู้ใช้",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
+		if strings.Contains(err.Error(), "user status is not pending") {
+			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusBadRequest,
+				MessageEN:  "User status is not pending",
+				MessageTH:  "สถานะผู้ใช้ไม่ใช่ pending",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
 			MessageEN:  "Failed to update user status",
