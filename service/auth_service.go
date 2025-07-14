@@ -105,7 +105,9 @@ func (s *authService) ResetPassword(ctx context.Context, req dto.RequestResetPas
 		return fmt.Errorf("failed to generate reset token: %w", err)
 	}
 
-	resetLink := fmt.Sprintf("%s/reset-password?token=%s", url, token)
+	urlTest := "http://localhost:5173"
+
+	resetLink := fmt.Sprintf("%s/reset-password?token=%s", urlTest, token)
 
 	emailCfg := util.EmailConfig{
 		Host:     s.config.Email.Host,

@@ -12,6 +12,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/basicauth"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 
 	"github.com/Be2Bag/erp-demo/config"
@@ -51,6 +52,12 @@ func main() {
 	adminHdl := handler.NewAdminHandler(adminSvc)
 
 	app := fiber.New()
+
+	// Enable CORS for your frontend
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "http://localhost:5173",
+		AllowCredentials: true,
+	}))
 
 	app.Use(middleware.TimeoutMiddleware(30 * time.Second))
 
