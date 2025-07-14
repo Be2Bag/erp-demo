@@ -15,6 +15,52 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/admin/update-status-user": {
+            "put": {
+                "description": "สำหรับจัดการอนุมัติผู้ใช้ pending approved rejected cancelled",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update User Status",
+                "parameters": [
+                    {
+                        "description": "Request Update User Status",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestUpdateUserStatus"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/auth/confirm-reset": {
             "post": {
                 "description": "ใช้สำหรับยืนยันการรีเซ็ตรหัสผ่านของผู้ใช้ token จะหมดอายุภายใน 15 นาที",
@@ -1105,6 +1151,29 @@ const docTemplate = `{
                 "username": {
                     "description": "ชื่อผู้ใช้สำหรับเข้าสู่ระบบ",
                     "type": "string"
+                }
+            }
+        },
+        "dto.RequestUpdateUserStatus": {
+            "type": "object",
+            "required": [
+                "status",
+                "user_id"
+            ],
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "enum": [
+                        "pending",
+                        "approved",
+                        "rejected",
+                        "cancelled"
+                    ],
+                    "example": "approved"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "50f7a957-8c2c-4a76-88ed-7c247471f28f"
                 }
             }
         },
