@@ -718,9 +718,13 @@ paths:
       - application/json
       description: ใช้สำหรับดึงรายการผู้ใช้งานแบบแบ่งหน้า
       parameters:
-      - description: Search term
+      - description: Search employee_code first_name_th last_name_th
         in: query
         name: search
+        type: string
+      - description: Filter by user status (e.g., pending, approved, rejected, cancelled)
+        in: query
+        name: status
         type: string
       - description: Page number
         in: query

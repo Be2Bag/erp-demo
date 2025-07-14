@@ -385,8 +385,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Search term",
+                        "description": "Search employee_code first_name_th last_name_th",
                         "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by user status (e.g., pending, approved, rejected, cancelled)",
+                        "name": "status",
                         "in": "query"
                     },
                     {

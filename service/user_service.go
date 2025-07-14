@@ -192,6 +192,11 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dto.Pagination, error) {
 
 	filter := bson.M{"deleted_at": nil}
+
+	if req.Status != "" {
+		filter["status"] = req.Status
+	}
+
 	if req.Search != "" {
 
 		filter["$or"] = []bson.M{
