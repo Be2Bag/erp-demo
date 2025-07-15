@@ -5,7 +5,6 @@ import "time"
 // Request
 
 type RequestCreateUser struct {
-	Username       string     `json:"username"`                          // ชื่อผู้ใช้สำหรับเข้าสู่ระบบ
 	Email          string     `json:"email" validate:"required"`         // อีเมลของผู้ใช้
 	Password       string     `json:"password" validate:"required"`      // รหัสผ่าน
 	TitleTH        string     `json:"title_th" validate:"required"`      // คำนำหน้าชื่อ (ภาษาไทย)
@@ -64,7 +63,6 @@ type RequestGetUserAll struct {
 }
 
 type RequestUpdateUser struct {
-	Username          string              `json:"username"`           // ชื่อผู้ใช้สำหรับเข้าสู่ระบบ
 	Email             string              `json:"email"`              // อีเมลของผู้ใช้
 	Password          string              `json:"password"`           // รหัสผ่าน (อาจไม่ต้องการอัปเดต)
 	TitleTH           string              `json:"title_th"`           // คำนำหน้าชื่อ (ภาษาไทย)
@@ -93,7 +91,6 @@ type RequestUpdateUser struct {
 
 type ResponseGetUserByID struct {
 	UserID            string              `json:"user_id"`            // รหัสประจำตัวผู้ใช้ (ไม่ซ้ำกัน)
-	Username          string              `json:"username"`           // ชื่อผู้ใช้สำหรับเข้าสู่ระบบ
 	Email             string              `json:"email"`              // อีเมลของผู้ใช้
 	TitleTH           string              `json:"title_th"`           // คำนำหน้าชื่อ (ภาษาไทย)
 	TitleEN           string              `json:"title_en"`           // คำนำหน้าชื่อ (ภาษาอังกฤษ)

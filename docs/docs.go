@@ -925,6 +925,15 @@ const docTemplate = `{
         },
         "dto.RequestCreateUser": {
             "type": "object",
+            "required": [
+                "email",
+                "first_name_th",
+                "gender",
+                "id_card",
+                "last_name_th",
+                "password",
+                "title_th"
+            ],
             "properties": {
                 "address": {
                     "description": "ที่อยู่ของพนักงาน",
@@ -1019,10 +1028,6 @@ const docTemplate = `{
                 },
                 "title_th": {
                     "description": "คำนำหน้าชื่อ (ภาษาไทย)",
-                    "type": "string"
-                },
-                "username": {
-                    "description": "ชื่อผู้ใช้สำหรับเข้าสู่ระบบ",
                     "type": "string"
                 }
             }
@@ -1152,10 +1157,6 @@ const docTemplate = `{
                 },
                 "title_th": {
                     "description": "คำนำหน้าชื่อ (ภาษาไทย)",
-                    "type": "string"
-                },
-                "username": {
-                    "description": "ชื่อผู้ใช้สำหรับเข้าสู่ระบบ",
                     "type": "string"
                 }
             }

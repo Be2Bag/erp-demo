@@ -37,7 +37,6 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 
 	user := &models.User{
 		UserID:            uuid.New().String(),
-		Username:          req.Username,
 		Email:             req.Email,
 		Password:          hashPassword,
 		TitleTH:           req.TitleTH,
@@ -146,7 +145,6 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 
 	dtoUser := &dto.ResponseGetUserByID{
 		UserID:            user.UserID,
-		Username:          user.Username,
 		Email:             user.Email,
 		TitleTH:           user.TitleTH,
 		TitleEN:           user.TitleEN,
@@ -315,9 +313,6 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 		user.Documents = documents
 	}
 
-	if req.Username != "" {
-		user.Username = req.Username
-	}
 	if req.Email != "" {
 		user.Email = req.Email
 	}
