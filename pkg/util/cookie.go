@@ -51,8 +51,8 @@ func SetSessionCookie(c *fiber.Ctx, name, value string, duration time.Duration) 
 		Value:    value,
 		Expires:  time.Now().Add(duration),
 		HTTPOnly: true,
-		Secure:   false, // เปลี่ยนเป็น false ถ้าไม่ได้ใช้ HTTPS ใน local dev
-		SameSite: "Lax",
+		Secure:   true, // บังคับใช้บน HTTPS
+		SameSite: "None",
 		Path:     "/",
 	}
 	c.Cookie(cookie)
