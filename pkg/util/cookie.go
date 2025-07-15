@@ -67,6 +67,6 @@ func DeleteCookie(ctx *fiber.Ctx, name string) {
 		MaxAge:   -1,
 		HTTPOnly: true,
 		Secure:   true,
-		SameSite: "Lax",
+		SameSite: "None",
 	})
 }
