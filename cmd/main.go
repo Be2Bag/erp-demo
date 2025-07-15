@@ -55,7 +55,7 @@ func main() {
 
 	// Enable CORS for your frontend
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:5173",
+		AllowOrigins:     "http://localhost:5173,https://erp-demo-frontend.onrender.com",
 		AllowCredentials: true,
 	}))
 
