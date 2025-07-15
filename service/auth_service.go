@@ -32,7 +32,6 @@ func (s *authService) Login(ctx context.Context, user dto.RequestLogin) (string,
 
 	projection := bson.M{
 		"user_id":       1,
-		"username":      1,
 		"email":         1,
 		"password":      1,
 		"role":          1,
@@ -60,7 +59,6 @@ func (s *authService) Login(ctx context.Context, user dto.RequestLogin) (string,
 
 	claims := map[string]interface{}{
 		"UserID":       userData[0].UserID,
-		"Username":     userData[0].Username,
 		"EmployeeCode": userData[0].EmployeeCode,
 		"Role":         userData[0].Role,
 		"TitleTH":      userData[0].TitleTH,

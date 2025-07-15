@@ -7,7 +7,6 @@ import (
 // User ใช้เก็บข้อมูลพนักงานในระบบ HR พร้อมเชื่อมโยงตำแหน่งงาน (PositionID) และแผนก (DepartmentID) ผ่าน FK
 type User struct {
 	UserID            string              `bson:"user_id" json:"user_id"`                       // รหัสประจำตัวผู้ใช้ (ไม่ซ้ำกัน)
-	Username          string              `bson:"username" json:"username"`                     // ชื่อผู้ใช้สำหรับเข้าสู่ระบบ
 	Email             string              `bson:"email" json:"email"`                           // อีเมลของผู้ใช้
 	Password          string              `bson:"password" json:"password"`                     // รหัสผ่าน (ควรเข้ารหัสก่อนจัดเก็บ)
 	TitleTH           string              `bson:"title_th" json:"title_th"`                     // คำนำหน้าชื่อ (ภาษาไทย)
