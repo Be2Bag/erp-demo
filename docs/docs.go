@@ -1050,11 +1050,13 @@ const docTemplate = `{
             "properties": {
                 "email": {
                     "description": "อีเมลของผู้ใช้",
-                    "type": "string"
+                    "type": "string",
+                    "example": "example@mail.com"
                 },
                 "redirect_url": {
                     "description": "URL ที่จะเปลี่ยนเส้นทางหลังจากรีเซ็ตรหัสผ่าน",
-                    "type": "string"
+                    "type": "string",
+                    "example": "https://erp-demo-frontend.onrender.com"
                 }
             }
         },

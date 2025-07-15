@@ -19,8 +19,8 @@ type JWTClaims struct {
 }
 
 type RequestResetPassword struct {
-	Email       string `json:"email"`        // อีเมลของผู้ใช้
-	RedirectURL string `json:"redirect_url"` // URL ที่จะเปลี่ยนเส้นทางหลังจากรีเซ็ตรหัสผ่าน
+	Email       string `json:"email" example:"example@mail.com"`                              // อีเมลของผู้ใช้
+	RedirectURL string `json:"redirect_url" example:"https://erp-demo-frontend.onrender.com"` // URL ที่จะเปลี่ยนเส้นทางหลังจากรีเซ็ตรหัสผ่าน
 }
 
 type RequestConfirmResetPassword struct {

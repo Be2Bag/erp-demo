@@ -305,9 +305,11 @@ definitions:
     properties:
       email:
         description: อีเมลของผู้ใช้
+        example: example@mail.com
         type: string
       redirect_url:
         description: URL ที่จะเปลี่ยนเส้นทางหลังจากรีเซ็ตรหัสผ่าน
+        example: https://erp-demo-frontend.onrender.com
         type: string
     type: object
   dto.RequestUpdateUser:
