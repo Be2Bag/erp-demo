@@ -1051,6 +1051,10 @@ const docTemplate = `{
                 "email": {
                     "description": "อีเมลของผู้ใช้",
                     "type": "string"
+                },
+                "redirect_url": {
+                    "description": "URL ที่จะเปลี่ยนเส้นทางหลังจากรีเซ็ตรหัสผ่าน",
+                    "type": "string"
                 }
             }
         },

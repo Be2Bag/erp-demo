@@ -86,7 +86,7 @@ func (s *authService) GetSessions(ctx context.Context, token string) (map[string
 	return claims, nil
 }
 
-func (s *authService) ResetPassword(ctx context.Context, req dto.RequestResetPassword, url string) error {
+func (s *authService) ResetPassword(ctx context.Context, req dto.RequestResetPassword) error {
 
 	filter := bson.M{"email": req.Email, "deleted_at": nil}
 	projection := bson.M{}
@@ -103,7 +103,7 @@ func (s *authService) ResetPassword(ctx context.Context, req dto.RequestResetPas
 		return fmt.Errorf("failed to generate reset token: %w", err)
 	}
 
-	resetLink := fmt.Sprintf("%s/reset-password?token=%s", url, token)
+	resetLink := fmt.Sprintf("%s/reset-password?token=%s", req.RedirectURL, token)
 
 	emailCfg := util.EmailConfig{
 		Host:     s.config.Email.Host,

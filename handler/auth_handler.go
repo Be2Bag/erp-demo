@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/Be2Bag/erp-demo/dto"
@@ -204,13 +203,7 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 		})
 	}
 
-	scheme := "http"
-	if c.Protocol() == "https" {
-		scheme = "https"
-	}
-	baseURL := fmt.Sprintf("%s://%s", scheme, c.Hostname())
-
-	err := h.svc.ResetPassword(c.Context(), reset, baseURL)
+	err := h.svc.ResetPassword(c.Context(), reset)
 	if err != nil {
 
 		if err.Error() == mongo.ErrNoDocuments.Error() {
