@@ -46,12 +46,13 @@ func VerifyJWTToken(tokenStr, secretKey string) (map[string]interface{}, error) 
 }
 
 func SetSessionCookie(c *fiber.Ctx, name, value string, duration time.Duration) {
+	secure := c.Protocol() == "https"
 	cookie := &fiber.Cookie{
 		Name:     name,
 		Value:    value,
 		Expires:  time.Now().Add(duration),
 		HTTPOnly: true,
-		Secure:   true, // บังคับใช้บน HTTPS
+		Secure:   secure,
 		SameSite: "None",
 		Path:     "/",
 	}
