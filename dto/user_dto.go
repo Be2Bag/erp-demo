@@ -32,7 +32,7 @@ type Address struct {
 	AddressLine1 string `json:"address_line1"`           // ที่อยู่บรรทัด 1
 	AddressLine2 string `json:"address_line2,omitempty"` // ที่อยู่บรรทัด 2
 	Subdistrict  string `json:"subdistrict"`             // ตำบล
-	District     string `json:"district"`                // อำเภอๅ
+	District     string `json:"district"`                // อำเภอ
 	Province     string `json:"province"`                // จังหวัด
 	PostalCode   string `json:"postal_code"`             // รหัสไปรษณีย์
 	Country      string `json:"country"`                 // ประเทศ
