@@ -319,6 +319,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/dropdown/district/{id}": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลอำเภอทั้งหมดตามรหัสจังหวัด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dropdown"
+                ],
+                "summary": "Get all districts by province ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Province ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetDistricts"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dropdown/position": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลตำแหน่งงานทั้งหมด",
@@ -347,6 +406,115 @@ const docTemplate = `{
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/definitions/dto.ResponseGetPositions"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/dropdown/province": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลจังหวัดทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dropdown"
+                ],
+                "summary": "Get all provinces",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetProvinces"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/dropdown/subdistrict/{id}": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลตำบลทั้งหมดตามรหัสอำเภอ",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dropdown"
+                ],
+                "summary": "Get all sub-districts by district ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "District ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetSubDistricts"
                                             }
                                         }
                                     }
@@ -641,7 +809,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "district": {
-                    "description": "อำเภอๅ",
+                    "description": "อำเภอ",
                     "type": "string"
                 },
                 "postal_code": {
@@ -1203,6 +1371,19 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ResponseGetDistricts": {
+            "type": "object",
+            "properties": {
+                "district_id": {
+                    "description": "รหัสอำเภอ (",
+                    "type": "string"
+                },
+                "district_name": {
+                    "description": "ชื่ออำเภอ",
+                    "type": "string"
+                }
+            }
+        },
         "dto.ResponseGetPositions": {
             "type": "object",
             "properties": {
@@ -1212,6 +1393,32 @@ const docTemplate = `{
                 },
                 "position_name": {
                     "description": "ชื่อตำแหน่งงาน",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ResponseGetProvinces": {
+            "type": "object",
+            "properties": {
+                "province_id": {
+                    "description": "รหัสจังหวัด (ไม่ซ้ำกัน)",
+                    "type": "string"
+                },
+                "province_name": {
+                    "description": "ชื่อจังหวัด",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ResponseGetSubDistricts": {
+            "type": "object",
+            "properties": {
+                "sub_district_id": {
+                    "description": "รหัสตำบล (ไม่ซ้ำกัน)",
+                    "type": "string"
+                },
+                "sub_district_name": {
+                    "description": "ชื่อตำบล",
                     "type": "string"
                 }
             }

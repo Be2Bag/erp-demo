@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log"
 
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
@@ -19,12 +20,12 @@ func NewDropDownService(cfg config.Config, dropDownRepo ports.DropDownRepository
 	return &dropDownService{config: cfg, dropDownRepo: dropDownRepo}
 }
 
-func (s *dropDownService) GetPositions() ([]dto.ResponseGetPositions, error) {
+func (s *dropDownService) GetPositions(ctx context.Context) ([]dto.ResponseGetPositions, error) {
 
 	filter := bson.M{"deleted_at": nil}
 	projection := bson.M{}
 
-	positions, errOnGetPositions := s.dropDownRepo.GetPositions(context.Background(), filter, projection)
+	positions, errOnGetPositions := s.dropDownRepo.GetPositions(ctx, filter, projection)
 	if errOnGetPositions != nil {
 		return nil, errOnGetPositions
 	}
@@ -44,11 +45,11 @@ func (s *dropDownService) GetPositions() ([]dto.ResponseGetPositions, error) {
 	return response, nil
 }
 
-func (s *dropDownService) GetDepartments() ([]dto.ResponseGetDepartments, error) {
+func (s *dropDownService) GetDepartments(ctx context.Context) ([]dto.ResponseGetDepartments, error) {
 	filter := bson.M{"deleted_at": nil}
 	projection := bson.M{}
 
-	departments, errOnGetDepartments := s.dropDownRepo.GetDepartments(context.Background(), filter, projection)
+	departments, errOnGetDepartments := s.dropDownRepo.GetDepartments(ctx, filter, projection)
 	if errOnGetDepartments != nil {
 		return nil, errOnGetDepartments
 	}
@@ -62,6 +63,79 @@ func (s *dropDownService) GetDepartments() ([]dto.ResponseGetDepartments, error)
 		response = append(response, dto.ResponseGetDepartments{
 			DepartmentID:   department.DepartmentID,
 			DepartmentName: department.DepartmentName,
+		})
+	}
+
+	return response, nil
+}
+
+func (s *dropDownService) GetProvinces(ctx context.Context) ([]dto.ResponseGetProvinces, error) {
+	filter := bson.M{"deleted_at": nil}
+	projection := bson.M{}
+
+	provinces, errOnGetProvinces := s.dropDownRepo.GetProvinces(ctx, filter, projection)
+	if errOnGetProvinces != nil {
+		return nil, errOnGetProvinces
+	}
+	log.Println("Provinces fetched:", len(provinces))
+
+	if len(provinces) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetProvinces
+	for _, province := range provinces {
+		response = append(response, dto.ResponseGetProvinces{
+			ProvinceID:   province.ID,
+			ProvinceName: province.NameTH,
+		})
+	}
+
+	return response, nil
+}
+
+func (s *dropDownService) GetDistricts(ctx context.Context, provinceID string) ([]dto.ResponseGetDistricts, error) {
+	filter := bson.M{"deleted_at": nil, "province_id": provinceID}
+	projection := bson.M{}
+
+	districts, errOnGetDistricts := s.dropDownRepo.GetDistricts(ctx, filter, projection)
+	if errOnGetDistricts != nil {
+		return nil, errOnGetDistricts
+	}
+
+	if len(districts) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetDistricts
+	for _, district := range districts {
+		response = append(response, dto.ResponseGetDistricts{
+			DistrictID:   district.ID,
+			DistrictName: district.NameTH,
+		})
+	}
+
+	return response, nil
+}
+
+func (s *dropDownService) GetSubDistricts(ctx context.Context, districtID string) ([]dto.ResponseGetSubDistricts, error) {
+	filter := bson.M{"deleted_at": nil, "district_id": districtID}
+	projection := bson.M{}
+
+	subDistricts, errOnGetSubDistricts := s.dropDownRepo.GetSubDistricts(ctx, filter, projection)
+	if errOnGetSubDistricts != nil {
+		return nil, errOnGetSubDistricts
+	}
+
+	if len(subDistricts) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetSubDistricts
+	for _, subDistrict := range subDistricts {
+		response = append(response, dto.ResponseGetSubDistricts{
+			SubDistrictID:   subDistrict.ID,
+			SubDistrictName: subDistrict.NameTH,
 		})
 	}
 

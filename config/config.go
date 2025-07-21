@@ -42,7 +42,7 @@ type EmailConfig struct {
 	From     string
 }
 
-type WasabiConfig struct {
+type SupabaseConfig struct {
 	AccessKey string
 	SecretKey string
 	Bucket    string
@@ -57,7 +57,7 @@ type Config struct {
 	Hash       HashConfig
 	JWT        JWTConfig
 	Email      EmailConfig
-	Wasabi     WasabiConfig
+	Supabase   SupabaseConfig
 }
 
 func LoadConfig() (*Config, error) {
@@ -84,11 +84,11 @@ func LoadConfig() (*Config, error) {
 	cfg.Email.Username = os.Getenv("EMAIL_USERNAME")
 	cfg.Email.Password = os.Getenv("EMAIL_PASSWORD")
 	cfg.Email.From = os.Getenv("EMAIL_FROM")
-	cfg.Wasabi.AccessKey = os.Getenv("WASABI_ACCESS_KEY")
-	cfg.Wasabi.SecretKey = os.Getenv("WASABI_SECRET_KEY")
-	cfg.Wasabi.Bucket = os.Getenv("WASABI_BUCKET")
-	cfg.Wasabi.Region = os.Getenv("WASABI_REGION")
-	cfg.Wasabi.Endpoint = os.Getenv("WASABI_ENDPOINT")
+	cfg.Supabase.AccessKey = os.Getenv("SUPABASE_ACCESS_KEY")
+	cfg.Supabase.SecretKey = os.Getenv("SUPABASE_SECRET_KEY")
+	cfg.Supabase.Bucket = os.Getenv("SUPABASE_BUCKET")
+	cfg.Supabase.Region = os.Getenv("SUPABASE_REGION")
+	cfg.Supabase.Endpoint = os.Getenv("SUPABASE_ENDPOINT")
 
 	if cfg.Mongo.URI == "" && cfg.Mongo.Host == "" {
 		viper.SetConfigName("config")
@@ -119,11 +119,11 @@ func LoadConfig() (*Config, error) {
 		cfg.Email.Username = viper.GetString("email.username")
 		cfg.Email.Password = viper.GetString("email.password")
 		cfg.Email.From = viper.GetString("email.from")
-		cfg.Wasabi.AccessKey = viper.GetString("wasabi.access_key")
-		cfg.Wasabi.SecretKey = viper.GetString("wasabi.secret_key")
-		cfg.Wasabi.Bucket = viper.GetString("wasabi.bucket")
-		cfg.Wasabi.Region = viper.GetString("wasabi.region")
-		cfg.Wasabi.Endpoint = viper.GetString("wasabi.endpoint")
+		cfg.Supabase.AccessKey = viper.GetString("supabase.access_key")
+		cfg.Supabase.SecretKey = viper.GetString("supabase.secret_key")
+		cfg.Supabase.Bucket = viper.GetString("supabase.bucket")
+		cfg.Supabase.Region = viper.GetString("supabase.region")
+		cfg.Supabase.Endpoint = viper.GetString("supabase.endpoint")
 
 	}
 

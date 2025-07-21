@@ -35,6 +35,14 @@ func main() {
 	}
 	database := db.GetDB(client, cfg.Mongo.Database)
 
+	// storage := storage.NewSupabaseS3Storage(
+	// 	cfg.Supabase.AccessKey,
+	// 	cfg.Supabase.SecretKey,
+	// 	cfg.Supabase.Endpoint,
+	// 	cfg.Supabase.Region,
+	// 	cfg.Supabase.Bucket,
+	// )
+
 	userRepo := repository.NewUserRepository(database)
 	userSvc := service.NewUserService(*cfg, userRepo)
 	userHdl := handler.NewUserHandler(userSvc)
@@ -55,7 +63,7 @@ func main() {
 
 	// Enable CORS for your frontend
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:5173,https://erp-demo-frontend.onrender.com,https://erp-demo-frontend.vercel.app,https://gorgeous-manatee-2226f1.netlify.app/",
+		AllowOrigins:     "http://localhost:5173,https://erp-demo-frontend.vercel.app",
 		AllowCredentials: true,
 	}))
 

@@ -12,7 +12,7 @@ definitions:
         description: ประเทศ
         type: string
       district:
-        description: อำเภอๅ
+        description: อำเภอ
         type: string
       postal_code:
         description: รหัสไปรษณีย์
@@ -413,6 +413,15 @@ definitions:
         description: ชื่อแผนก
         type: string
     type: object
+  dto.ResponseGetDistricts:
+    properties:
+      district_id:
+        description: รหัสอำเภอ (
+        type: string
+      district_name:
+        description: ชื่ออำเภอ
+        type: string
+    type: object
   dto.ResponseGetPositions:
     properties:
       position_id:
@@ -420,6 +429,24 @@ definitions:
         type: string
       position_name:
         description: ชื่อตำแหน่งงาน
+        type: string
+    type: object
+  dto.ResponseGetProvinces:
+    properties:
+      province_id:
+        description: รหัสจังหวัด (ไม่ซ้ำกัน)
+        type: string
+      province_name:
+        description: ชื่อจังหวัด
+        type: string
+    type: object
+  dto.ResponseGetSubDistricts:
+    properties:
+      sub_district_id:
+        description: รหัสตำบล (ไม่ซ้ำกัน)
+        type: string
+      sub_district_name:
+        description: ชื่อตำบล
         type: string
     type: object
   dto.ResponseGetUserAll:
@@ -689,6 +716,42 @@ paths:
       summary: Get all departments
       tags:
       - dropdown
+  /v1/dropdown/district/{id}:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลอำเภอทั้งหมดตามรหัสจังหวัด
+      parameters:
+      - description: Province ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetDistricts'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all districts by province ID
+      tags:
+      - dropdown
   /v1/dropdown/position:
     get:
       consumes:
@@ -717,6 +780,72 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Get all positions
+      tags:
+      - dropdown
+  /v1/dropdown/province:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลจังหวัดทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetProvinces'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all provinces
+      tags:
+      - dropdown
+  /v1/dropdown/subdistrict/{id}:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลตำบลทั้งหมดตามรหัสอำเภอ
+      parameters:
+      - description: District ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetSubDistricts'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all sub-districts by district ID
       tags:
       - dropdown
   /v1/user:
