@@ -437,7 +437,7 @@ definitions:
         example: 1d5855c2-7d14-4f8d-8b5d-ef20cb5cb3cf
         type: string
     type: object
-host: https://erp-demo-9ux8.onrender.com
+host: erp-demo-9ux8.onrender.com
 info:
   contact: {}
   description: This is an ERP API demo.
