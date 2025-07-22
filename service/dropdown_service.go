@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"log"
 
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
@@ -71,13 +70,15 @@ func (s *dropDownService) GetDepartments(ctx context.Context) ([]dto.ResponseGet
 
 func (s *dropDownService) GetProvinces(ctx context.Context) ([]dto.ResponseGetProvinces, error) {
 	filter := bson.M{"deleted_at": nil}
+	// if nameTH != "" {
+	// 	filter["name_th"] = bson.M{"$regex": nameTH, "$options": "i"}
+	// }
 	projection := bson.M{}
 
 	provinces, errOnGetProvinces := s.dropDownRepo.GetProvinces(ctx, filter, projection)
 	if errOnGetProvinces != nil {
 		return nil, errOnGetProvinces
 	}
-	log.Println("Provinces fetched:", len(provinces))
 
 	if len(provinces) == 0 {
 		return nil, mongo.ErrNoDocuments
@@ -136,6 +137,7 @@ func (s *dropDownService) GetSubDistricts(ctx context.Context, districtID string
 		response = append(response, dto.ResponseGetSubDistricts{
 			SubDistrictID:   subDistrict.ID,
 			SubDistrictName: subDistrict.NameTH,
+			ZipCode:         subDistrict.ZipCode,
 		})
 	}
 

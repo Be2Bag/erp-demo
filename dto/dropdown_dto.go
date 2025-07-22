@@ -23,4 +23,5 @@ type ResponseGetDistricts struct {
 type ResponseGetSubDistricts struct {
 	SubDistrictID   string `json:"sub_district_id"`   // รหัสตำบล (ไม่ซ้ำกัน)
 	SubDistrictName string `json:"sub_district_name"` // ชื่อตำบล
+	ZipCode         string `json:"zip_code"`          // รหัสไปรษณีย์
 }
