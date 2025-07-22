@@ -3,20 +3,28 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/Be2Bag/erp-demo/dto"
+	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserHandler struct {
-	svc ports.UserService
+	svc    ports.UserService
+	upload ports.UpLoadService
 }
 
-func NewUserHandler(s ports.UserService) *UserHandler {
-	return &UserHandler{svc: s}
+func NewUserHandler(s ports.UserService, upload ports.UpLoadService) *UserHandler {
+	return &UserHandler{svc: s, upload: upload}
 }
 
 func (h *UserHandler) UserRoutes(router fiber.Router) {
@@ -27,6 +35,7 @@ func (h *UserHandler) UserRoutes(router fiber.Router) {
 	user.Post("/", h.CreateUser)
 	user.Get("/", h.GetAllUser)
 	user.Get("/:id", h.GetUserByID)
+	user.Put("/documents", h.UpdateDocuments)
 	user.Put("/:id", h.UpdateUserByID)
 	user.Delete("/:id", h.DeleteUserByID)
 
@@ -35,42 +44,185 @@ func (h *UserHandler) UserRoutes(router fiber.Router) {
 // @Summary Create a new user
 // @Description ใช้สำหรับสร้างผู้ใช้ใหม่ โดยจะไม่สามารถสร้างผู้ใช้ที่มีบัตรประชาชนซ้ำได้
 // @Tags user
-// @Accept json
+// @Accept multipart/form-data
 // @Produce json
-// @Param user body dto.RequestCreateUser true "User create payload"
+// @Param email formData string true "อีเมล"
+// @Param password formData string true "รหัสผ่าน"
+// @Param title_th formData string false "คำนำหน้าชื่อ (TH)"
+// @Param title_en formData string false "คำนำหน้าชื่อ (EN)"
+// @Param first_name_th formData string true "ชื่อ (TH)"
+// @Param last_name_th formData string true "นามสกุล (TH)"
+// @Param first_name_en formData string false "ชื่อ (EN)"
+// @Param last_name_en formData string false "นามสกุล (EN)"
+// @Param id_card formData string true "เลขบัตรประชาชน (13 หลัก)"
+// @Param avatar formData file true "ไฟล์รูปโปรไฟล์"
+// @Param phone formData string false "เบอร์โทร"
+// @Param employee_code formData string false "รหัสพนักงาน"
+// @Param gender formData string false "เพศ"
+// @Param birth_date formData string false "วันเกิด (YYYY-MM-DD)"
+// @Param hire_date formData string false "วันที่เริ่มงาน (YYYY-MM-DD)"
+// @Param position_id formData string false "ตำแหน่งงาน"
+// @Param department_id formData string false "แผนก"
+// @Param employment_type formData string false "ประเภทพนักงาน"
+// @Param address_line1 formData string false "ที่อยู่บรรทัดที่ 1"
+// @Param address_line2 formData string false "ที่อยู่บรรทัดที่ 2"
+// @Param subdistrict formData string false "ตำบล/แขวง"
+// @Param district formData string false "อำเภอ/เขต"
+// @Param province formData string false "จังหวัด"
+// @Param postal_code formData string false "รหัสไปรษณีย์"
+// @Param country formData string false "ประเทศ"
+// @Param bank_name formData string false "ชื่อธนาคาร"
+// @Param account_no formData string false "เลขบัญชี"
+// @Param account_name formData string false "ชื่อบัญชี"
 // @Success 201 {object} dto.BaseSuccess201ResponseSwagger
 // @Failure 400 {object} dto.BaseError400ResponseSwagger
 // @Failure 500 {object} dto.BaseError500ResponseSwagger
 // @Router /v1/user [post]
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	var user dto.RequestCreateUser
-	if err := c.BodyParser(&user); err != nil {
+	if _, err := c.MultipartForm(); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Invalid request payload",
+			MessageEN:  "Invalid form-data payload",
 			MessageTH:  "ข้อมูลที่ส่งมาไม่ถูกต้อง",
 			Status:     "error",
 			Data:       nil,
 		})
 	}
-	err := h.svc.Create(context.Background(), user)
-	if err != nil {
 
-		if strings.Contains(err.Error(), "user with ID card") {
+	user.Email = c.FormValue("email")
+	user.Password = c.FormValue("password")
+	user.TitleTH = c.FormValue("title_th")
+	user.TitleEN = c.FormValue("title_en")
+	user.FirstNameTH = c.FormValue("first_name_th")
+	user.LastNameTH = c.FormValue("last_name_th")
+	user.FirstNameEN = c.FormValue("first_name_en")
+	user.LastNameEN = c.FormValue("last_name_en")
+	user.IDCard = c.FormValue("id_card")
+
+	checkIDCard := util.ValidateThaiID(user.IDCard)
+	if !checkIDCard {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid ID card format",
+			MessageTH:  "รูปแบบบัตรประชาชนไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	fileHeader, err := c.FormFile("avatar")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Failed to parse uploaded file",
+			MessageTH:  "ไม่สามารถแยกไฟล์ที่อัปโหลดได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	// Save the file temporarily
+	tempFilePath := fmt.Sprintf("./temp/%s", fileHeader.Filename)
+	if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to save uploaded file",
+			MessageTH:  "ไม่สามารถบันทึกไฟล์ที่อัปโหลดได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	defer os.Remove(tempFilePath) // Clean up the temporary file
+
+	ext := filepath.Ext(fileHeader.Filename) // .jpg .png .pdf
+	uuid := uuid.New().String()
+	newName := fmt.Sprintf("%s/%s%s", "avatars", uuid, ext)
+
+	errOnUpload := h.upload.UploadFile(c.Context(), tempFilePath, newName)
+	if errOnUpload != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to upload file to storage: " + errOnUpload.Error(),
+			MessageTH:  "ไม่สามารถอัปโหลดไฟล์ไปยังที่เก็บข้อมูลได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	url, errOnGetURL := h.upload.GetFileURL(c.Context(), dto.RequestGetFile{
+		Folder: "avatars",
+		File:   uuid + ext,
+	})
+	if errOnGetURL != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to get file URL: " + errOnGetURL.Error(),
+			MessageTH:  "ไม่สามารถดึง URL ของไฟล์ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	user.Avatar = url
+	user.Phone = c.FormValue("phone")
+	user.EmployeeCode = c.FormValue("employee_code")
+	user.Gender = c.FormValue("gender")
+
+	if birthDate := c.FormValue("birth_date"); birthDate != "" {
+		parsedDate, err := time.Parse("2006-01-02", birthDate)
+		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusBadRequest,
-				MessageEN:  "User with this ID card already exists",
-				MessageTH:  "มีผู้ใช้ที่มีบัตรประชาชนนี้อยู่แล้ว",
+				MessageEN:  "Invalid birth_date format",
+				MessageTH:  "รูปแบบวันเกิดไม่ถูกต้อง",
 				Status:     "error",
 				Data:       nil,
 			})
 		}
-
-		if strings.Contains(err.Error(), "invalid ID card format") {
+		user.BirthDate = parsedDate
+	}
+	if hireDate := c.FormValue("hire_date"); hireDate != "" {
+		parsedDate, err := time.Parse("2006-01-02", hireDate)
+		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusBadRequest,
-				MessageEN:  "Invalid ID card format",
-				MessageTH:  "รูปแบบบัตรประชาชนไม่ถูกต้อง",
+				MessageEN:  "Invalid hire_date format",
+				MessageTH:  "รูปแบบวันที่เริ่มงานไม่ถูกต้อง",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+		user.HireDate = parsedDate
+	}
+	user.PositionID = c.FormValue("position_id")
+	user.DepartmentID = c.FormValue("department_id")
+	user.EmploymentType = c.FormValue("employment_type")
+
+	user.Address = dto.Address{
+		AddressLine1: c.FormValue("address_line1"),
+		AddressLine2: c.FormValue("address_line2"),
+		Subdistrict:  c.FormValue("subdistrict"),
+		District:     c.FormValue("district"),
+		Province:     c.FormValue("province"),
+		PostalCode:   c.FormValue("postal_code"),
+		Country:      c.FormValue("country"),
+	}
+
+	user.BankInfo = dto.BankInfo{
+		BankName:    c.FormValue("bank_name"),
+		AccountNo:   c.FormValue("account_no"),
+		AccountName: c.FormValue("account_name"),
+	}
+
+	errOnCreateUser := h.svc.Create(context.Background(), user)
+	if errOnCreateUser != nil {
+
+		if strings.Contains(errOnCreateUser.Error(), "user with ID card") {
+			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusBadRequest,
+				MessageEN:  "User with this ID card already exists",
+				MessageTH:  "มีผู้ใช้ที่มีบัตรประชาชนนี้อยู่แล้ว",
 				Status:     "error",
 				Data:       nil,
 			})
@@ -299,5 +451,100 @@ func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
 		MessageTH:  "ลบผู้ใช้สำเร็จ",
 		Status:     "success",
 		Data:       nil,
+	})
+}
+
+// @Summary Update user documents
+// @Description ใช้สำหรับอัปเดตเอกสารของผู้ใช้
+// @Tags user
+// @Accept multipart/form-data
+// @Produce json
+// @Param user_id formData string true "User ID"
+// @Param type formData string true "Document type (avatars = รูปโปรไฟล์ , idcards = หลักฐานสำเนาบัตรประชาชน, graduation = หลักฐานการจบการศึกษา, transcript = หลักฐานการศึกษา, resume = หลักฐานการสมัครงาน, health = หลักฐานการตรวจสุขภาพ, military = หลักฐานการผ่านการเกณฑ์ทหาร, criminal = หลักฐานการตรวจประวัติอาชญากรรม, other = โฟลเดอร์อัปโหลดทั่วไป)"
+// @Param file formData file true "Document file"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseError400ResponseSwagger
+// @Failure 500 {object} dto.BaseError500ResponseSwagger
+// @Router /v1/user/documents [put]
+func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
+
+	var req dto.RequestUpdateDocuments
+	log.Println("Updating documents for user:", req)
+
+	req.UserID = c.FormValue("user_id")
+	req.Type = c.FormValue("type")
+
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Failed to parse uploaded file",
+			MessageTH:  "ไม่สามารถแยกไฟล์ที่อัปโหลดได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	tempFilePath := fmt.Sprintf("./temp/%s", fileHeader.Filename)
+	if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to save uploaded file",
+			MessageTH:  "ไม่สามารถบันทึกไฟล์ที่อัปโหลดได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	defer os.Remove(tempFilePath) // Clean up the temporary file
+
+	ext := filepath.Ext(fileHeader.Filename) // .jpg .png .pdf
+	uuid := uuid.New().String()
+	newName := fmt.Sprintf("%s/%s%s", req.Type, uuid, ext)
+
+	errOnUpload := h.upload.UploadFile(c.Context(), tempFilePath, newName)
+	if errOnUpload != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to upload file to storage: " + errOnUpload.Error(),
+			MessageTH:  "ไม่สามารถอัปโหลดไฟล์ไปยังที่เก็บข้อมูลได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	url, errOnGetURL := h.upload.GetFileURL(c.Context(), dto.RequestGetFile{
+		Folder: req.Type,
+		File:   uuid + ext,
+	})
+	if errOnGetURL != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to get file URL: " + errOnGetURL.Error(),
+			MessageTH:  "ไม่สามารถดึง URL ของไฟล์ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	req.Name = uuid + ext
+	req.FileURL = url
+
+	_, errOnUpdate := h.svc.UpdateDocuments(context.Background(), req)
+	if errOnUpdate != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to update documents",
+			MessageTH:  "ไม่สามารถอัปเดตเอกสารได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Documents updated successfully",
+		MessageTH:  "อัปเดตเอกสารสำเร็จ",
+		Status:     "success",
+		Data:       url,
 	})
 }

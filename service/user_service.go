@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"log"
 	"math"
 	"strings"
 	"time"
@@ -29,11 +30,6 @@ func NewUserService(cfg config.Config, r ports.UserRepository) ports.UserService
 func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) error {
 
 	hashPassword := util.HashPassword(req.Password, s.config.Hash.Salt)
-
-	checkIDCard := util.ValidateThaiID(req.IDCard)
-	if !checkIDCard {
-		return fmt.Errorf("invalid ID card format")
-	}
 
 	user := &models.User{
 		UserID:            uuid.New().String(),
@@ -72,7 +68,16 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 			AccountNo:   req.BankInfo.AccountNo,
 			AccountName: req.BankInfo.AccountName,
 		},
-		Documents: []models.Document{},
+		Documents: []models.Document{
+			{Name: "", FileURL: "", Type: "idcards", CreatedAt: time.Now(), UploadedAt: time.Now(), DeletedAt: nil},
+			{Name: "", FileURL: "", Type: "graduation", CreatedAt: time.Now(), UploadedAt: time.Now(), DeletedAt: nil},
+			{Name: "", FileURL: "", Type: "transcript", CreatedAt: time.Now(), UploadedAt: time.Now(), DeletedAt: nil},
+			{Name: "", FileURL: "", Type: "resume", CreatedAt: time.Now(), UploadedAt: time.Now(), DeletedAt: nil},
+			{Name: "", FileURL: "", Type: "health", CreatedAt: time.Now(), UploadedAt: time.Now(), DeletedAt: nil},
+			{Name: "", FileURL: "", Type: "military", CreatedAt: time.Now(), UploadedAt: time.Now(), DeletedAt: nil},
+			{Name: "", FileURL: "", Type: "criminal", CreatedAt: time.Now(), UploadedAt: time.Now(), DeletedAt: nil},
+			{Name: "", FileURL: "", Type: "other", CreatedAt: time.Now(), UploadedAt: time.Now(), DeletedAt: nil},
+		},
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 		DeletedAt: nil,
@@ -117,6 +122,9 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 
 	var dtoDocuments []dto.Document
 	for _, doc := range user.Documents {
+		if doc.FileURL == "" {
+			continue
+		}
 		dtoDocuments = append(dtoDocuments, dto.Document{
 			Name:       doc.Name,
 			FileURL:    doc.FileURL,
@@ -420,4 +428,38 @@ func (s *userService) DeleteUserByID(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdateDocuments) (*models.User, error) {
+
+	log.Println("Updating documents for user:", req)
+
+	user, err := s.repo.GetByID(ctx, req.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user by ID: %w", err)
+	}
+	log.Println("User found:", user)
+	if user == nil {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var documents []models.Document
+	for _, doc := range user.Documents {
+		if doc.Type == req.Type {
+			doc.Name = req.Name
+			doc.FileURL = req.FileURL
+			doc.UploadedAt = time.Now()
+		}
+		documents = append(documents, doc)
+	}
+
+	user.Documents = documents
+	user.UpdatedAt = time.Now()
+
+	updatedUser, errOnUpdate := s.repo.UpdateUserByID(ctx, req.UserID, user)
+	if errOnUpdate != nil {
+		return nil, fmt.Errorf("failed to update user documents: %w", errOnUpdate)
+	}
+
+	return updatedUser, nil
 }

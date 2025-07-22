@@ -43,11 +43,12 @@ type EmailConfig struct {
 }
 
 type SupabaseConfig struct {
-	AccessKey string
-	SecretKey string
-	Bucket    string
-	Region    string
-	Endpoint  string
+	AccessKey  string
+	SecretKey  string
+	Bucket     string
+	Region     string
+	Endpoint   string
+	PublicBase string
 }
 
 type Config struct {
@@ -89,6 +90,7 @@ func LoadConfig() (*Config, error) {
 	cfg.Supabase.Bucket = os.Getenv("SUPABASE_BUCKET")
 	cfg.Supabase.Region = os.Getenv("SUPABASE_REGION")
 	cfg.Supabase.Endpoint = os.Getenv("SUPABASE_ENDPOINT")
+	cfg.Supabase.PublicBase = os.Getenv("SUPABASE_PUBLIC_BASE")
 
 	if cfg.Mongo.URI == "" && cfg.Mongo.Host == "" {
 		viper.SetConfigName("config")
@@ -124,6 +126,7 @@ func LoadConfig() (*Config, error) {
 		cfg.Supabase.Bucket = viper.GetString("supabase.bucket")
 		cfg.Supabase.Region = viper.GetString("supabase.region")
 		cfg.Supabase.Endpoint = viper.GetString("supabase.endpoint")
+		cfg.Supabase.PublicBase = viper.GetString("supabase.publicbase")
 
 	}
 

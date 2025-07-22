@@ -214,84 +214,6 @@ definitions:
     - new_password
     - token
     type: object
-  dto.RequestCreateUser:
-    properties:
-      address:
-        allOf:
-        - $ref: '#/definitions/dto.Address'
-        description: ที่อยู่ของพนักงาน
-      avatar:
-        description: ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
-        type: string
-      bank_info:
-        allOf:
-        - $ref: '#/definitions/dto.BankInfo'
-        description: ข้อมูลบัญชีธนาคารของพนักงาน
-      birth_date:
-        description: วันเดือนปีเกิดของพนักงาน (รูปแบบ string)
-        type: string
-      department_id:
-        description: รหัสแผนก (FK ไปยัง Departments)
-        type: string
-      documents:
-        description: รายการเอกสารที่เกี่ยวข้องกับพนักงาน
-        items:
-          $ref: '#/definitions/dto.Document'
-        type: array
-      email:
-        description: อีเมลของผู้ใช้
-        type: string
-      employee_code:
-        description: รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
-        type: string
-      employment_type:
-        description: ประเภทการจ้างงาน (เช่น full-time, part-time)
-        type: string
-      first_name_en:
-        description: ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
-        type: string
-      first_name_th:
-        description: ชื่อจริงของพนักงาน (ภาษาไทย)
-        type: string
-      gender:
-        description: เพศของพนักงาน
-        type: string
-      hire_date:
-        description: วันที่เริ่มงาน
-        type: string
-      id_card:
-        description: หมายเลขบัตรประชาชน (อาจเข้ารหัสก่อนจัดเก็บ)
-        type: string
-      last_name_en:
-        description: นามสกุลของพนักงาน (ภาษาอังกฤษ)
-        type: string
-      last_name_th:
-        description: นามสกุลของพนักงาน (ภาษาไทย)
-        type: string
-      password:
-        description: รหัสผ่าน
-        type: string
-      phone:
-        description: เบอร์โทรศัพท์ของพนักงาน
-        type: string
-      position_id:
-        description: รหัสตำแหน่งงาน (FK ไปยัง Positions)
-        type: string
-      title_en:
-        description: คำนำหน้าชื่อ (ภาษาอังกฤษ)
-        type: string
-      title_th:
-        description: คำนำหน้าชื่อ (ภาษาไทย)
-        type: string
-    required:
-    - email
-    - first_name_th
-    - gender
-    - id_card
-    - last_name_th
-    - password
-    - title_th
-    type: object
   dto.RequestLogin:
     properties:
       email:
@@ -448,6 +370,9 @@ definitions:
       sub_district_name:
         description: ชื่อตำบล
         type: string
+      zip_code:
+        description: รหัสไปรษณีย์
+        type: string
     type: object
   dto.ResponseGetUserAll:
     properties:
@@ -512,7 +437,7 @@ definitions:
         example: 1d5855c2-7d14-4f8d-8b5d-ef20cb5cb3cf
         type: string
     type: object
-host: erp-demo-9ux8.onrender.com
+host: https://erp-demo-9ux8.onrender.com
 info:
   contact: {}
   description: This is an ERP API demo.
@@ -898,15 +823,127 @@ paths:
       - user
     post:
       consumes:
-      - application/json
+      - multipart/form-data
       description: ใช้สำหรับสร้างผู้ใช้ใหม่ โดยจะไม่สามารถสร้างผู้ใช้ที่มีบัตรประชาชนซ้ำได้
       parameters:
-      - description: User create payload
-        in: body
-        name: user
+      - description: อีเมล
+        in: formData
+        name: email
         required: true
-        schema:
-          $ref: '#/definitions/dto.RequestCreateUser'
+        type: string
+      - description: รหัสผ่าน
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: คำนำหน้าชื่อ (TH)
+        in: formData
+        name: title_th
+        type: string
+      - description: คำนำหน้าชื่อ (EN)
+        in: formData
+        name: title_en
+        type: string
+      - description: ชื่อ (TH)
+        in: formData
+        name: first_name_th
+        required: true
+        type: string
+      - description: นามสกุล (TH)
+        in: formData
+        name: last_name_th
+        required: true
+        type: string
+      - description: ชื่อ (EN)
+        in: formData
+        name: first_name_en
+        type: string
+      - description: นามสกุล (EN)
+        in: formData
+        name: last_name_en
+        type: string
+      - description: เลขบัตรประชาชน (13 หลัก)
+        in: formData
+        name: id_card
+        required: true
+        type: string
+      - description: ไฟล์รูปโปรไฟล์
+        in: formData
+        name: avatar
+        required: true
+        type: file
+      - description: เบอร์โทร
+        in: formData
+        name: phone
+        type: string
+      - description: รหัสพนักงาน
+        in: formData
+        name: employee_code
+        type: string
+      - description: เพศ
+        in: formData
+        name: gender
+        type: string
+      - description: วันเกิด (YYYY-MM-DD)
+        in: formData
+        name: birth_date
+        type: string
+      - description: วันที่เริ่มงาน (YYYY-MM-DD)
+        in: formData
+        name: hire_date
+        type: string
+      - description: ตำแหน่งงาน
+        in: formData
+        name: position_id
+        type: string
+      - description: แผนก
+        in: formData
+        name: department_id
+        type: string
+      - description: ประเภทพนักงาน
+        in: formData
+        name: employment_type
+        type: string
+      - description: ที่อยู่บรรทัดที่ 1
+        in: formData
+        name: address_line1
+        type: string
+      - description: ที่อยู่บรรทัดที่ 2
+        in: formData
+        name: address_line2
+        type: string
+      - description: ตำบล/แขวง
+        in: formData
+        name: subdistrict
+        type: string
+      - description: อำเภอ/เขต
+        in: formData
+        name: district
+        type: string
+      - description: จังหวัด
+        in: formData
+        name: province
+        type: string
+      - description: รหัสไปรษณีย์
+        in: formData
+        name: postal_code
+        type: string
+      - description: ประเทศ
+        in: formData
+        name: country
+        type: string
+      - description: ชื่อธนาคาร
+        in: formData
+        name: bank_name
+        type: string
+      - description: เลขบัญชี
+        in: formData
+        name: account_no
+        type: string
+      - description: ชื่อบัญชี
+        in: formData
+        name: account_name
+        type: string
       produces:
       - application/json
       responses:
@@ -1014,6 +1051,48 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Update user by ID
+      tags:
+      - user
+  /v1/user/documents:
+    put:
+      consumes:
+      - multipart/form-data
+      description: ใช้สำหรับอัปเดตเอกสารของผู้ใช้
+      parameters:
+      - description: User ID
+        in: formData
+        name: user_id
+        required: true
+        type: string
+      - description: Document type (avatars = รูปโปรไฟล์ , idcards = หลักฐานสำเนาบัตรประชาชน,
+          graduation = หลักฐานการจบการศึกษา, transcript = หลักฐานการศึกษา, resume
+          = หลักฐานการสมัครงาน, health = หลักฐานการตรวจสุขภาพ, military = หลักฐานการผ่านการเกณฑ์ทหาร,
+          criminal = หลักฐานการตรวจประวัติอาชญากรรม, other = โฟลเดอร์อัปโหลดทั่วไป)
+        in: formData
+        name: type
+        required: true
+        type: string
+      - description: Document file
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseError400ResponseSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseError500ResponseSwagger'
+      summary: Update user documents
       tags:
       - user
 swagger: "2.0"

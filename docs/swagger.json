@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "erp-demo-9ux8.onrender.com",
+    "host": "https://erp-demo-9ux8.onrender.com",
     "basePath": "/service/api",
     "paths": {
         "/v1/admin/update-status-user": {
@@ -606,7 +606,7 @@
             "post": {
                 "description": "ใช้สำหรับสร้างผู้ใช้ใหม่ โดยจะไม่สามารถสร้างผู้ใช้ที่มีบัตรประชาชนซ้ำได้",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -617,13 +617,178 @@
                 "summary": "Create a new user",
                 "parameters": [
                     {
-                        "description": "User create payload",
-                        "name": "user",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.RequestCreateUser"
-                        }
+                        "type": "string",
+                        "description": "อีเมล",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "รหัสผ่าน",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "คำนำหน้าชื่อ (TH)",
+                        "name": "title_th",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "คำนำหน้าชื่อ (EN)",
+                        "name": "title_en",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ชื่อ (TH)",
+                        "name": "first_name_th",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "นามสกุล (TH)",
+                        "name": "last_name_th",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "ชื่อ (EN)",
+                        "name": "first_name_en",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "นามสกุล (EN)",
+                        "name": "last_name_en",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เลขบัตรประชาชน (13 หลัก)",
+                        "name": "id_card",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "ไฟล์รูปโปรไฟล์",
+                        "name": "avatar",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "เบอร์โทร",
+                        "name": "phone",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "รหัสพนักงาน",
+                        "name": "employee_code",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เพศ",
+                        "name": "gender",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "วันเกิด (YYYY-MM-DD)",
+                        "name": "birth_date",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "วันที่เริ่มงาน (YYYY-MM-DD)",
+                        "name": "hire_date",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ตำแหน่งงาน",
+                        "name": "position_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "แผนก",
+                        "name": "department_id",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ประเภทพนักงาน",
+                        "name": "employment_type",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ที่อยู่บรรทัดที่ 1",
+                        "name": "address_line1",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ที่อยู่บรรทัดที่ 2",
+                        "name": "address_line2",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ตำบล/แขวง",
+                        "name": "subdistrict",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "อำเภอ/เขต",
+                        "name": "district",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "จังหวัด",
+                        "name": "province",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "รหัสไปรษณีย์",
+                        "name": "postal_code",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ประเทศ",
+                        "name": "country",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ชื่อธนาคาร",
+                        "name": "bank_name",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เลขบัญชี",
+                        "name": "account_no",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ชื่อบัญชี",
+                        "name": "account_name",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -631,6 +796,64 @@
                         "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseSuccess201ResponseSwagger"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError400ResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError500ResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/documents": {
+            "put": {
+                "description": "ใช้สำหรับอัปเดตเอกสารของผู้ใช้",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update user documents",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Document type (avatars = รูปโปรไฟล์ , idcards = หลักฐานสำเนาบัตรประชาชน, graduation = หลักฐานการจบการศึกษา, transcript = หลักฐานการศึกษา, resume = หลักฐานการสมัครงาน, health = หลักฐานการตรวจสุขภาพ, military = หลักฐานการผ่านการเกณฑ์ทหาร, criminal = หลักฐานการตรวจประวัติอาชญากรรม, other = โฟลเดอร์อัปโหลดทั่วไป)",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Document file",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
                         }
                     },
                     "400": {
@@ -1085,115 +1308,6 @@
                 }
             }
         },
-        "dto.RequestCreateUser": {
-            "type": "object",
-            "required": [
-                "email",
-                "first_name_th",
-                "gender",
-                "id_card",
-                "last_name_th",
-                "password",
-                "title_th"
-            ],
-            "properties": {
-                "address": {
-                    "description": "ที่อยู่ของพนักงาน",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/dto.Address"
-                        }
-                    ]
-                },
-                "avatar": {
-                    "description": "ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้",
-                    "type": "string"
-                },
-                "bank_info": {
-                    "description": "ข้อมูลบัญชีธนาคารของพนักงาน",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/dto.BankInfo"
-                        }
-                    ]
-                },
-                "birth_date": {
-                    "description": "วันเดือนปีเกิดของพนักงาน (รูปแบบ string)",
-                    "type": "string"
-                },
-                "department_id": {
-                    "description": "รหัสแผนก (FK ไปยัง Departments)",
-                    "type": "string"
-                },
-                "documents": {
-                    "description": "รายการเอกสารที่เกี่ยวข้องกับพนักงาน",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.Document"
-                    }
-                },
-                "email": {
-                    "description": "อีเมลของผู้ใช้",
-                    "type": "string"
-                },
-                "employee_code": {
-                    "description": "รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)",
-                    "type": "string"
-                },
-                "employment_type": {
-                    "description": "ประเภทการจ้างงาน (เช่น full-time, part-time)",
-                    "type": "string"
-                },
-                "first_name_en": {
-                    "description": "ชื่อจริงของพนักงาน (ภาษาอังกฤษ)",
-                    "type": "string"
-                },
-                "first_name_th": {
-                    "description": "ชื่อจริงของพนักงาน (ภาษาไทย)",
-                    "type": "string"
-                },
-                "gender": {
-                    "description": "เพศของพนักงาน",
-                    "type": "string"
-                },
-                "hire_date": {
-                    "description": "วันที่เริ่มงาน",
-                    "type": "string"
-                },
-                "id_card": {
-                    "description": "หมายเลขบัตรประชาชน (อาจเข้ารหัสก่อนจัดเก็บ)",
-                    "type": "string"
-                },
-                "last_name_en": {
-                    "description": "นามสกุลของพนักงาน (ภาษาอังกฤษ)",
-                    "type": "string"
-                },
-                "last_name_th": {
-                    "description": "นามสกุลของพนักงาน (ภาษาไทย)",
-                    "type": "string"
-                },
-                "password": {
-                    "description": "รหัสผ่าน",
-                    "type": "string"
-                },
-                "phone": {
-                    "description": "เบอร์โทรศัพท์ของพนักงาน",
-                    "type": "string"
-                },
-                "position_id": {
-                    "description": "รหัสตำแหน่งงาน (FK ไปยัง Positions)",
-                    "type": "string"
-                },
-                "title_en": {
-                    "description": "คำนำหน้าชื่อ (ภาษาอังกฤษ)",
-                    "type": "string"
-                },
-                "title_th": {
-                    "description": "คำนำหน้าชื่อ (ภาษาไทย)",
-                    "type": "string"
-                }
-            }
-        },
         "dto.RequestLogin": {
             "type": "object",
             "properties": {
@@ -1413,6 +1527,10 @@
                 },
                 "sub_district_name": {
                     "description": "ชื่อตำบล",
+                    "type": "string"
+                },
+                "zip_code": {
+                    "description": "รหัสไปรษณีย์",
                     "type": "string"
                 }
             }

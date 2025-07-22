@@ -3,7 +3,7 @@ package main
 // @title        ERP Demo API
 // @version      1.0
 // @description  This is an ERP API demo.
-// @host         erp-demo-9ux8.onrender.com
+// @host         https://erp-demo-9ux8.onrender.com
 // @BasePath     /service/api
 
 import (
@@ -20,6 +20,7 @@ import (
 	"github.com/Be2Bag/erp-demo/handler"
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/pkg/db"
+	"github.com/Be2Bag/erp-demo/pkg/storage"
 	"github.com/Be2Bag/erp-demo/repository"
 	"github.com/Be2Bag/erp-demo/service"
 )
@@ -35,17 +36,14 @@ func main() {
 	}
 	database := db.GetDB(client, cfg.Mongo.Database)
 
-	// storage := storage.NewSupabaseS3Storage(
-	// 	cfg.Supabase.AccessKey,
-	// 	cfg.Supabase.SecretKey,
-	// 	cfg.Supabase.Endpoint,
-	// 	cfg.Supabase.Region,
-	// 	cfg.Supabase.Bucket,
-	// )
+	supabaseStorage, err := storage.NewSupabaseStorage(cfg.Supabase)
+	if err != nil {
+		log.Fatal("supabase storage:", err)
+	}
 
 	userRepo := repository.NewUserRepository(database)
 	userSvc := service.NewUserService(*cfg, userRepo)
-	userHdl := handler.NewUserHandler(userSvc)
+	// userHdl := handler.NewUserHandler(userSvc)
 
 	authRepo := repository.NewAuthRepository(database)
 	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
@@ -58,6 +56,12 @@ func main() {
 	adminRepo := repository.NewAdminRepository(database)
 	adminSvc := service.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	adminHdl := handler.NewAdminHandler(adminSvc)
+
+	upLoadRepo := repository.NewUpLoadRepository(database)
+	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage)
+	upLoadHdl := handler.NewUpLoadHandler(upLoadSvc)
+
+	userHdl := handler.NewUserHandler(userSvc, upLoadSvc)
 
 	app := fiber.New()
 
@@ -74,6 +78,7 @@ func main() {
 	authHdl.AuthRoutes(apiGroup)
 	dropDownHdl.DropDownRoutes(apiGroup)
 	adminHdl.AdminRoutes(apiGroup)
+	upLoadHdl.UpLoadRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{

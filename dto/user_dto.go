@@ -5,27 +5,26 @@ import "time"
 // Request
 
 type RequestCreateUser struct {
-	Email          string     `json:"email" validate:"required"`         // อีเมลของผู้ใช้
-	Password       string     `json:"password" validate:"required"`      // รหัสผ่าน
-	TitleTH        string     `json:"title_th" validate:"required"`      // คำนำหน้าชื่อ (ภาษาไทย)
-	TitleEN        string     `json:"title_en"`                          // คำนำหน้าชื่อ (ภาษาอังกฤษ)
-	FirstNameTH    string     `json:"first_name_th" validate:"required"` // ชื่อจริงของพนักงาน (ภาษาไทย)
-	LastNameTH     string     `json:"last_name_th" validate:"required"`  // นามสกุลของพนักงาน (ภาษาไทย)
-	FirstNameEN    string     `json:"first_name_en"`                     // ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
-	LastNameEN     string     `json:"last_name_en"`                      // นามสกุลของพนักงาน (ภาษาอังกฤษ)
-	IDCard         string     `json:"id_card" validate:"required"`       // หมายเลขบัตรประชาชน (อาจเข้ารหัสก่อนจัดเก็บ)
-	Avatar         string     `json:"avatar"`                            // ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
-	Phone          string     `json:"phone"`                             // เบอร์โทรศัพท์ของพนักงาน
-	EmployeeCode   string     `json:"employee_code"`                     // รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
-	Gender         string     `json:"gender" validate:"required"`        // เพศของพนักงาน
-	BirthDate      time.Time  `json:"birth_date"`                        // วันเดือนปีเกิดของพนักงาน (รูปแบบ string)
-	PositionID     string     `json:"position_id"`                       // รหัสตำแหน่งงาน (FK ไปยัง Positions)
-	DepartmentID   string     `json:"department_id"`                     // รหัสแผนก (FK ไปยัง Departments)
-	HireDate       time.Time  `json:"hire_date"`                         // วันที่เริ่มงาน
-	EmploymentType string     `json:"employment_type"`                   // ประเภทการจ้างงาน (เช่น full-time, part-time)
-	Address        Address    `json:"address"`                           // ที่อยู่ของพนักงาน
-	BankInfo       BankInfo   `json:"bank_info"`                         // ข้อมูลบัญชีธนาคารของพนักงาน
-	Documents      []Document `json:"documents"`                         // รายการเอกสารที่เกี่ยวข้องกับพนักงาน
+	Email          string    `json:"email" validate:"required"`         // อีเมลของผู้ใช้
+	Password       string    `json:"password" validate:"required"`      // รหัสผ่าน
+	TitleTH        string    `json:"title_th" validate:"required"`      // คำนำหน้าชื่อ (ภาษาไทย)
+	TitleEN        string    `json:"title_en"`                          // คำนำหน้าชื่อ (ภาษาอังกฤษ)
+	FirstNameTH    string    `json:"first_name_th" validate:"required"` // ชื่อจริงของพนักงาน (ภาษาไทย)
+	LastNameTH     string    `json:"last_name_th" validate:"required"`  // นามสกุลของพนักงาน (ภาษาไทย)
+	FirstNameEN    string    `json:"first_name_en"`                     // ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
+	LastNameEN     string    `json:"last_name_en"`                      // นามสกุลของพนักงาน (ภาษาอังกฤษ)
+	IDCard         string    `json:"id_card" validate:"required"`       // หมายเลขบัตรประชาชน (อาจเข้ารหัสก่อนจัดเก็บ)
+	Avatar         string    `json:"avatar"`                            // ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
+	Phone          string    `json:"phone"`                             // เบอร์โทรศัพท์ของพนักงาน
+	EmployeeCode   string    `json:"employee_code"`                     // รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
+	Gender         string    `json:"gender" validate:"required"`        // เพศของพนักงาน
+	BirthDate      time.Time `json:"birth_date"`                        // วันเดือนปีเกิดของพนักงาน (รูปแบบ string)
+	PositionID     string    `json:"position_id"`                       // รหัสตำแหน่งงาน (FK ไปยัง Positions)
+	DepartmentID   string    `json:"department_id"`                     // รหัสแผนก (FK ไปยัง Departments)
+	HireDate       time.Time `json:"hire_date"`                         // วันที่เริ่มงาน
+	EmploymentType string    `json:"employment_type"`                   // ประเภทการจ้างงาน (เช่น full-time, part-time)
+	Address        Address   `json:"address"`                           // ที่อยู่ของพนักงาน
+	BankInfo       BankInfo  `json:"bank_info"`                         // ข้อมูลบัญชีธนาคารของพนักงาน
 }
 
 type Address struct {
@@ -85,6 +84,13 @@ type RequestUpdateUser struct {
 	Address           Address             `json:"address"`            // ที่อยู่ของพนักงาน
 	BankInfo          BankInfo            `json:"bank_info"`          // ข้อมูลบัญชีธนาคารของพนักงาน
 	Documents         []Document          `json:"documents"`          // รายการเอกสารที่เกี่ยวข้องกับพนักงาน
+}
+
+type RequestUpdateDocuments struct {
+	UserID  string `json:"user_id"`  // รหัสประจำตัวผู้ใช้ (ไม่ซ้ำกัน)
+	Type    string `json:"type"`     // ประเภทเอกสาร เช่น "id_card", "degree"
+	Name    string `json:"name"`     // ชื่อเอกสาร
+	FileURL string `json:"file_url"` // ลิงก์ไฟล์เอกสาร
 }
 
 // Response
