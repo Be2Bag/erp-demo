@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -469,7 +468,6 @@ func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
 func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
 
 	var req dto.RequestUpdateDocuments
-	log.Println("Updating documents for user:", req)
 
 	req.UserID = c.FormValue("user_id")
 	req.Type = c.FormValue("type")
@@ -485,7 +483,7 @@ func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
 		})
 	}
 
-	tempFilePath := fmt.Sprintf("./temp/%s", fileHeader.Filename)
+	tempFilePath := fmt.Sprintf("./tmp/%s", fileHeader.Filename)
 	if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
