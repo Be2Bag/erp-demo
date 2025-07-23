@@ -178,6 +178,7 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 		LastNameTH:        user.LastNameTH,
 		FirstNameEN:       user.FirstNameEN,
 		LastNameEN:        user.LastNameEN,
+		Phone:             user.Phone,
 		Role:              user.Role,
 		Avatar:            user.Avatar,
 		IDCard:            user.IDCard,
