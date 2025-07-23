@@ -46,7 +46,7 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 		Role:              "user",
 		Avatar:            req.Avatar,
 		Phone:             req.Phone,
-		Status:            "active",
+		Status:            "pending",
 		EmployeeCode:      req.EmployeeCode,
 		Gender:            req.Gender,
 		BirthDate:         req.BirthDate,
@@ -120,15 +120,23 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 	}
 
 	user := users[0]
-
+	positionsName := "ไม่พบตำแหน่ง"
+	departmentsName := "ไม่พบแผนก"
 	positions, errOnGetPositions := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": user.PositionID}, bson.M{"_id": 0, "position_name": 1})
 	if errOnGetPositions != nil {
 		return nil, fmt.Errorf("failed to get position: %w", errOnGetPositions)
 	}
 
+	if len(positions) > 0 {
+		positionsName = positions[0].PositionName
+	}
+
 	departments, errOnGetDepartments := s.dropDownRepo.GetDepartments(ctx, bson.M{"department_id": user.DepartmentID}, bson.M{"_id": 0, "department_name": 1})
 	if errOnGetDepartments != nil {
 		return nil, fmt.Errorf("failed to get department: %w", errOnGetDepartments)
+	}
+	if len(departments) > 0 {
+		departmentsName = departments[0].DepartmentName
 	}
 
 	var dtoDocuments []dto.Document
@@ -178,8 +186,8 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 		EmployeeCode:      user.EmployeeCode,
 		Gender:            user.Gender,
 		BirthDate:         user.BirthDate,
-		Position:          positions[0].PositionName,
-		Department:        departments[0].DepartmentName,
+		Position:          positionsName,
+		Department:        departmentsName,
 		HireDate:          user.HireDate,
 		EmploymentType:    user.EmploymentType,
 		EmploymentHistory: dtoEmploymentHistory,
@@ -219,7 +227,8 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 		filter["$or"] = []bson.M{
 			{"first_name_th": bson.M{"$regex": req.Search, "$options": "i"}},
 			{"last_name_th": bson.M{"$regex": req.Search, "$options": "i"}},
-			{"employee_code": bson.M{"$regex": req.Search, "$options": "i"}},
+			{"first_name_en": bson.M{"$regex": req.Search, "$options": "i"}},
+			{"last_name_en": bson.M{"$regex": req.Search, "$options": "i"}},
 		}
 	}
 
@@ -250,19 +259,38 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 
 	var dtoUsers []*dto.ResponseGetUserAll
 	for _, u := range users {
+
+		positionsName := "ไม่พบตำแหน่ง"
+		departmentsName := "ไม่พบแผนก"
+		positions, _ := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": u.PositionID}, bson.M{"_id": 0, "position_name": 1})
+
+		if len(positions) > 0 {
+			positionsName = positions[0].PositionName
+		}
+
+		departments, _ := s.dropDownRepo.GetDepartments(ctx, bson.M{"department_id": u.DepartmentID}, bson.M{"_id": 0, "department_name": 1})
+
+		if len(departments) > 0 {
+			departmentsName = departments[0].DepartmentName
+		}
+
 		dtoUsers = append(dtoUsers, &dto.ResponseGetUserAll{
 			UserID:         u.UserID,
 			TitleTH:        u.TitleTH,
 			FirstNameTH:    u.FirstNameTH,
 			LastNameTH:     u.LastNameTH,
+			TitleEN:        u.TitleEN,
+			FirstNameEN:    u.FirstNameEN,
+			LastNameEN:     u.LastNameEN,
 			Avatar:         u.Avatar,
 			Email:          u.Email,
 			Phone:          u.Phone,
-			EmployeeCode:   u.EmployeeCode,
-			PositionID:     u.PositionID,
-			DepartmentID:   u.DepartmentID,
-			HireDate:       u.HireDate,
-			EmploymentType: u.EmploymentType,
+			Position:       positionsName,
+			Department:     departmentsName,
+			Status:         u.Status,
+			KPIScore:       "92%",
+			TasksCompleted: "16",
+			TasksTotal:     "18",
 			CreatedAt:      u.CreatedAt,
 			UpdatedAt:      u.UpdatedAt,
 			DeletedAt:      u.DeletedAt,

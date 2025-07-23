@@ -388,7 +388,7 @@ definitions:
         description: วันที่ลบข้อมูล (soft delete)
         example: "null"
         type: string
-      department_id:
+      department:
         description: รหัสแผนก (FK ไปยัง Departments)
         example: DEP001
         type: string
@@ -396,21 +396,21 @@ definitions:
         description: อีเมลของผู้ใช้
         example: จันทรสกุล
         type: string
-      employee_code:
-        description: รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
-        example: HR2023025
-        type: string
-      employment_type:
-        description: ประเภทการจ้างงาน (เช่น full-time, part-time)
-        example: part-time
+      first_name_en:
+        description: ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
+        example: Kittiya
         type: string
       first_name_th:
         description: ชื่อจริงของพนักงาน
         example: กิตติยา
         type: string
-      hire_date:
-        description: วันที่เริ่มงาน
-        example: "2023-06-01T00:00:00Z"
+      kpi_score:
+        description: คะแนน KPI ของพนักงาน
+        example: "85"
+        type: string
+      last_name_en:
+        description: นามสกุลของพนักงาน (ภาษาอังกฤษ)
+        example: Chanthasakul
         type: string
       last_name_th:
         description: นามสกุลของพนักงาน
@@ -420,9 +420,25 @@ definitions:
         description: เบอร์โทรศัพท์ของพนักงาน
         example: 094-222-7788
         type: string
-      position_id:
+      position:
         description: รหัสตำแหน่งงาน (FK ไปยัง Positions)
         example: POS126
+        type: string
+      status:
+        description: สถานะของผู้ใช้ (เช่น approved , pending, rejected)
+        example: approved
+        type: string
+      tasks_completed:
+        description: จำนวนงานที่เสร็จสมบูรณ์
+        example: "8"
+        type: string
+      tasks_total:
+        description: จำนวนงานทั้งหมดที่ได้รับมอบหมาย
+        example: "10"
+        type: string
+      title_en:
+        description: คำนำหน้าชื่อ (ภาษาอังกฤษ)
+        example: Miss
         type: string
       title_th:
         description: คำนำหน้าชื่อ (ภาษาไทย)
@@ -448,7 +464,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: สำหรับจัดการอนุมัติผู้ใช้ pending approved rejected cancelled
+      description: สำหรับจัดการอนุมัติผู้ใช้ pending approved rejected
       parameters:
       - description: Request Update User Status
         in: body
@@ -779,11 +795,11 @@ paths:
       - application/json
       description: ใช้สำหรับดึงรายการผู้ใช้งานแบบแบ่งหน้า
       parameters:
-      - description: Search employee_code first_name_th last_name_th
+      - description: Search first_name_th last_name_th first_name_en last_name_en
         in: query
         name: search
         type: string
-      - description: Filter by user status (e.g., pending, approved, rejected, cancelled)
+      - description: Filter by user status (e.g., pending, approved, rejected)
         in: query
         name: status
         type: string

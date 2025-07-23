@@ -143,14 +143,18 @@ type ResponseGetUserAll struct {
 	TitleTH        string     `json:"title_th" example:"นางสาว"`                              // คำนำหน้าชื่อ (ภาษาไทย)
 	FirstNameTH    string     `json:"first_name_th" example:"กิตติยา"`                        // ชื่อจริงของพนักงาน
 	LastNameTH     string     `json:"last_name_th" example:"จันทรสกุล"`                       // นามสกุลของพนักงาน
+	TitleEN        string     `json:"title_en" example:"Miss"`                                // คำนำหน้าชื่อ (ภาษาอังกฤษ)
+	FirstNameEN    string     `json:"first_name_en" example:"Kittiya"`                        // ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
+	LastNameEN     string     `json:"last_name_en" example:"Chanthasakul"`                    // นามสกุลของพนักงาน (ภาษาอังกฤษ)
 	Avatar         string     `json:"avatar" example:"https://example.com/avatar.jpg"`        // ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
 	Email          string     `json:"email" example:"จันทรสกุล"`                              // อีเมลของผู้ใช้
 	Phone          string     `json:"phone" example:"094-222-7788"`                           // เบอร์โทรศัพท์ของพนักงาน
-	EmployeeCode   string     `json:"employee_code" example:"HR2023025"`                      // รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
-	PositionID     string     `json:"position_id" example:"POS126"`                           // รหัสตำแหน่งงาน (FK ไปยัง Positions)
-	DepartmentID   string     `json:"department_id" example:"DEP001"`                         // รหัสแผนก (FK ไปยัง Departments)
-	HireDate       time.Time  `json:"hire_date" example:"2023-06-01T00:00:00Z"`               // วันที่เริ่มงาน
-	EmploymentType string     `json:"employment_type" example:"part-time"`                    // ประเภทการจ้างงาน (เช่น full-time, part-time)
+	Position       string     `json:"position" example:"POS126"`                              // รหัสตำแหน่งงาน (FK ไปยัง Positions)
+	Status         string     `json:"status" example:"approved"`                              // สถานะของผู้ใช้ (เช่น approved , pending, rejected)
+	KPIScore       string     `json:"kpi_score" example:"85"`                                 // คะแนน KPI ของพนักงาน
+	TasksTotal     string     `json:"tasks_total" example:"10"`                               // จำนวนงานทั้งหมดที่ได้รับมอบหมาย
+	TasksCompleted string     `json:"tasks_completed" example:"8"`                            // จำนวนงานที่เสร็จสมบูรณ์
+	Department     string     `json:"department" example:"DEP001"`                            // รหัสแผนก (FK ไปยัง Departments)
 	CreatedAt      time.Time  `json:"created_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่สร้างข้อมูลนี้
 	UpdatedAt      time.Time  `json:"updated_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่แก้ไขข้อมูลล่าสุด
 	DeletedAt      *time.Time `json:"deleted_at" example:"null"`                              // วันที่ลบข้อมูล (soft delete)

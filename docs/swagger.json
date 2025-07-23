@@ -11,7 +11,7 @@
     "paths": {
         "/v1/admin/update-status-user": {
             "put": {
-                "description": "สำหรับจัดการอนุมัติผู้ใช้ pending approved rejected cancelled",
+                "description": "สำหรับจัดการอนุมัติผู้ใช้ pending approved rejected",
                 "consumes": [
                     "application/json"
                 ],
@@ -547,13 +547,13 @@
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Search employee_code first_name_th last_name_th",
+                        "description": "Search first_name_th last_name_th first_name_en last_name_en",
                         "name": "search",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Filter by user status (e.g., pending, approved, rejected, cancelled)",
+                        "description": "Filter by user status (e.g., pending, approved, rejected)",
                         "name": "status",
                         "in": "query"
                     },
@@ -1553,7 +1553,7 @@
                     "type": "string",
                     "example": "null"
                 },
-                "department_id": {
+                "department": {
                     "description": "รหัสแผนก (FK ไปยัง Departments)",
                     "type": "string",
                     "example": "DEP001"
@@ -1563,25 +1563,25 @@
                     "type": "string",
                     "example": "จันทรสกุล"
                 },
-                "employee_code": {
-                    "description": "รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)",
+                "first_name_en": {
+                    "description": "ชื่อจริงของพนักงาน (ภาษาอังกฤษ)",
                     "type": "string",
-                    "example": "HR2023025"
-                },
-                "employment_type": {
-                    "description": "ประเภทการจ้างงาน (เช่น full-time, part-time)",
-                    "type": "string",
-                    "example": "part-time"
+                    "example": "Kittiya"
                 },
                 "first_name_th": {
                     "description": "ชื่อจริงของพนักงาน",
                     "type": "string",
                     "example": "กิตติยา"
                 },
-                "hire_date": {
-                    "description": "วันที่เริ่มงาน",
+                "kpi_score": {
+                    "description": "คะแนน KPI ของพนักงาน",
                     "type": "string",
-                    "example": "2023-06-01T00:00:00Z"
+                    "example": "85"
+                },
+                "last_name_en": {
+                    "description": "นามสกุลของพนักงาน (ภาษาอังกฤษ)",
+                    "type": "string",
+                    "example": "Chanthasakul"
                 },
                 "last_name_th": {
                     "description": "นามสกุลของพนักงาน",
@@ -1593,10 +1593,30 @@
                     "type": "string",
                     "example": "094-222-7788"
                 },
-                "position_id": {
+                "position": {
                     "description": "รหัสตำแหน่งงาน (FK ไปยัง Positions)",
                     "type": "string",
                     "example": "POS126"
+                },
+                "status": {
+                    "description": "สถานะของผู้ใช้ (เช่น approved , pending, rejected)",
+                    "type": "string",
+                    "example": "approved"
+                },
+                "tasks_completed": {
+                    "description": "จำนวนงานที่เสร็จสมบูรณ์",
+                    "type": "string",
+                    "example": "8"
+                },
+                "tasks_total": {
+                    "description": "จำนวนงานทั้งหมดที่ได้รับมอบหมาย",
+                    "type": "string",
+                    "example": "10"
+                },
+                "title_en": {
+                    "description": "คำนำหน้าชื่อ (ภาษาอังกฤษ)",
+                    "type": "string",
+                    "example": "Miss"
                 },
                 "title_th": {
                     "description": "คำนำหน้าชื่อ (ภาษาไทย)",

@@ -27,7 +27,7 @@ func (h *AdminHandler) AdminRoutes(router fiber.Router) {
 }
 
 // @Summary Update User Status
-// @Description สำหรับจัดการอนุมัติผู้ใช้ pending approved rejected cancelled
+// @Description สำหรับจัดการอนุมัติผู้ใช้ pending approved rejected
 // @Tags Admin
 // @Accept json
 // @Produce json

@@ -258,8 +258,8 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Tags user
 // @Accept json
 // @Produce json
-// @Param search query string false "Search employee_code first_name_th last_name_th"
-// @Param status query string false "Filter by user status (e.g., pending, approved, rejected, cancelled)"
+// @Param search query string false "Search first_name_th last_name_th first_name_en last_name_en"
+// @Param status query string false "Filter by user status (e.g., pending, approved, rejected)"
 // @Param page query int false "Page number"
 // @Param limit query int false "Items per page"
 // @Param sortBy query string false "Field to sort by"
