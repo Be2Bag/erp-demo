@@ -131,7 +131,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 	// Save the file temporarily
-	tempFilePath := fmt.Sprintf("./temp/%s", fileHeader.Filename)
+	tempFilePath := fmt.Sprintf("./tmp/%s", fileHeader.Filename)
 	if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
