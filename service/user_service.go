@@ -35,7 +35,7 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 	districtsName := "ไม่พบอำเภอ"
 	subDistrictsName := "ไม่พบตำบล"
 
-	provinces, errOnGetProvinces := s.dropDownRepo.GetProvinces(ctx, bson.M{"id": req.Address.Province}, bson.M{"_id": 0, "province_name": 1})
+	provinces, errOnGetProvinces := s.dropDownRepo.GetProvinces(ctx, bson.M{"id": req.Address.Province}, bson.M{"_id": 0, "name_th": 1})
 	if errOnGetProvinces != nil {
 		return fmt.Errorf("failed to get province: %w", errOnGetProvinces)
 	}
@@ -44,7 +44,7 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 	}
 	provincesName = provinces[0].NameTH
 
-	districts, errOnGetDistricts := s.dropDownRepo.GetDistricts(ctx, bson.M{"id": req.Address.District}, bson.M{"_id": 0, "district_name": 1})
+	districts, errOnGetDistricts := s.dropDownRepo.GetDistricts(ctx, bson.M{"id": req.Address.District}, bson.M{"_id": 0, "name_th": 1})
 	if errOnGetDistricts != nil {
 		return fmt.Errorf("failed to get district: %w", errOnGetDistricts)
 	}
@@ -53,7 +53,7 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 	}
 	districtsName = districts[0].NameTH
 
-	subDistricts, errOnGetSubDistricts := s.dropDownRepo.GetSubDistricts(ctx, bson.M{"id": req.Address.Subdistrict}, bson.M{"_id": 0, "subdistrict_name": 1})
+	subDistricts, errOnGetSubDistricts := s.dropDownRepo.GetSubDistricts(ctx, bson.M{"id": req.Address.Subdistrict}, bson.M{"_id": 0, "name_th": 1})
 	if errOnGetSubDistricts != nil {
 		return fmt.Errorf("failed to get subdistrict: %w", errOnGetSubDistricts)
 	}
