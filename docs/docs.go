@@ -685,8 +685,7 @@ const docTemplate = `{
                         "type": "file",
                         "description": "ไฟล์รูปโปรไฟล์",
                         "name": "avatar",
-                        "in": "formData",
-                        "required": true
+                        "in": "formData"
                     },
                     {
                         "type": "string",

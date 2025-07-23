@@ -55,7 +55,7 @@ func (h *UserHandler) UserRoutes(router fiber.Router) {
 // @Param first_name_en formData string false "ชื่อ (EN)"
 // @Param last_name_en formData string false "นามสกุล (EN)"
 // @Param id_card formData string true "เลขบัตรประชาชน (13 หลัก)"
-// @Param avatar formData file true "ไฟล์รูปโปรไฟล์"
+// @Param avatar formData file false "ไฟล์รูปโปรไฟล์"
 // @Param phone formData string false "เบอร์โทร"
 // @Param employee_code formData string false "รหัสพนักงาน"
 // @Param gender formData string false "เพศ"

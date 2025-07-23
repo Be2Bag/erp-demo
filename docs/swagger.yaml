@@ -886,7 +886,6 @@ paths:
       - description: ไฟล์รูปโปรไฟล์
         in: formData
         name: avatar
-        required: true
         type: file
       - description: เบอร์โทร
         in: formData
