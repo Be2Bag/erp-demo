@@ -121,6 +121,15 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
+	if err := os.MkdirAll("./tmp", os.ModePerm); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to create temporary directory: " + err.Error(),
+			MessageTH:  "ไม่สามารถสร้างโฟลเดอร์ชั่วคราวได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
 	// Save the file temporarily
 	tempFilePath := fmt.Sprintf("./temp/%s", fileHeader.Filename)
 	if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
