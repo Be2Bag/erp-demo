@@ -42,26 +42,22 @@ func main() {
 	}
 
 	userRepo := repository.NewUserRepository(database)
-	userSvc := service.NewUserService(*cfg, userRepo)
-	// userHdl := handler.NewUserHandler(userSvc)
-
 	authRepo := repository.NewAuthRepository(database)
-	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
-	authHdl := handler.NewAuthHandler(authSvc)
-
 	dropDownRepo := repository.NewDropDownRepository(database)
-	dropDownSvc := service.NewDropDownService(*cfg, dropDownRepo)
-	dropDownHdl := handler.NewDropDownHandler(dropDownSvc)
-
 	adminRepo := repository.NewAdminRepository(database)
-	adminSvc := service.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
-	adminHdl := handler.NewAdminHandler(adminSvc)
-
 	upLoadRepo := repository.NewUpLoadRepository(database)
+
+	userSvc := service.NewUserService(*cfg, userRepo, dropDownRepo)
 	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage)
-	upLoadHdl := handler.NewUpLoadHandler(upLoadSvc)
+	adminSvc := service.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
+	dropDownSvc := service.NewDropDownService(*cfg, dropDownRepo)
+	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
 
 	userHdl := handler.NewUserHandler(userSvc, upLoadSvc)
+	upLoadHdl := handler.NewUpLoadHandler(upLoadSvc)
+	adminHdl := handler.NewAdminHandler(adminSvc)
+	dropDownHdl := handler.NewDropDownHandler(dropDownSvc)
+	authHdl := handler.NewAuthHandler(authSvc)
 
 	app := fiber.New()
 

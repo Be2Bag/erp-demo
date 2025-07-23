@@ -112,8 +112,8 @@ type ResponseGetUserByID struct {
 	EmployeeCode      string              `json:"employee_code"`      // รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
 	Gender            string              `json:"gender"`             // เพศของพนักงาน
 	BirthDate         time.Time           `json:"birth_date"`         // วันเดือนปีเกิดของพนักงาน (รูปแบบ string)
-	PositionID        string              `json:"position_id"`        // รหัสตำแหน่งงาน (FK ไปยัง Positions)
-	DepartmentID      string              `json:"department_id"`      // รหัสแผนก (FK ไปยัง Departments)
+	Position          string              `json:"position"`           // รหัสตำแหน่งงาน (FK ไปยัง Positions)
+	Department        string              `json:"department"`         // รหัสแผนก (FK ไปยัง Departments)
 	HireDate          time.Time           `json:"hire_date"`          // วันที่เริ่มงาน
 	EmploymentType    string              `json:"employment_type"`    // ประเภทการจ้างงาน (เช่น full-time, part-time)
 	EmploymentHistory []EmploymentHistory `json:"employment_history"` // ประวัติการจ้างงาน (อาจมีหลายรายการ)

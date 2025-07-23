@@ -19,12 +19,13 @@ import (
 )
 
 type userService struct {
-	config config.Config
-	repo   ports.UserRepository
+	config       config.Config
+	userRepo     ports.UserRepository
+	dropDownRepo ports.DropDownRepository
 }
 
-func NewUserService(cfg config.Config, r ports.UserRepository) ports.UserService {
-	return &userService{config: cfg, repo: r}
+func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository) ports.UserService {
+	return &userService{config: cfg, userRepo: ur, dropDownRepo: dr}
 }
 
 func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) error {
@@ -86,7 +87,7 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 	filter := bson.M{"id_card": user.IDCard, "deleted_at": nil}
 	projection := bson.M{"_id": 0, "id_card": 1}
 
-	checkUser, errOnGetByIDCard := s.repo.GetUserByFilter(ctx, filter, projection)
+	checkUser, errOnGetByIDCard := s.userRepo.GetUserByFilter(ctx, filter, projection)
 	if errOnGetByIDCard != nil {
 		return errOnGetByIDCard
 	}
@@ -95,7 +96,7 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 		return fmt.Errorf("user with ID card %s already exists", user.IDCard)
 	}
 
-	_, errOnCreateUser := s.repo.Create(ctx, user)
+	_, errOnCreateUser := s.userRepo.Create(ctx, user)
 	if errOnCreateUser != nil {
 		return fmt.Errorf("failed to create user: %w", errOnCreateUser)
 	}
@@ -108,7 +109,7 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 	filter := bson.M{"user_id": id, "deleted_at": nil}
 	projection := bson.M{}
 
-	users, errOnGetUser := s.repo.GetUserByFilter(ctx, filter, projection)
+	users, errOnGetUser := s.userRepo.GetUserByFilter(ctx, filter, projection)
 
 	if errOnGetUser != nil {
 		return nil, fmt.Errorf("failed to get user by ID: %w", errOnGetUser)
@@ -119,6 +120,16 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 	}
 
 	user := users[0]
+
+	positions, errOnGetPositions := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": user.PositionID}, bson.M{"_id": 0, "position_name": 1})
+	if errOnGetPositions != nil {
+		return nil, fmt.Errorf("failed to get position: %w", errOnGetPositions)
+	}
+
+	departments, errOnGetDepartments := s.dropDownRepo.GetDepartments(ctx, bson.M{"department_id": user.DepartmentID}, bson.M{"_id": 0, "department_name": 1})
+	if errOnGetDepartments != nil {
+		return nil, fmt.Errorf("failed to get department: %w", errOnGetDepartments)
+	}
 
 	var dtoDocuments []dto.Document
 	for _, doc := range user.Documents {
@@ -167,8 +178,8 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 		EmployeeCode:      user.EmployeeCode,
 		Gender:            user.Gender,
 		BirthDate:         user.BirthDate,
-		PositionID:        user.PositionID,
-		DepartmentID:      user.DepartmentID,
+		Position:          positions[0].PositionName,
+		Department:        departments[0].DepartmentName,
 		HireDate:          user.HireDate,
 		EmploymentType:    user.EmploymentType,
 		EmploymentHistory: dtoEmploymentHistory,
@@ -232,7 +243,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 		bson.D{{Key: "$limit", Value: req.Limit}},
 	)
 
-	users, err := s.repo.AggregateUser(ctx, pipeline)
+	users, err := s.userRepo.AggregateUser(ctx, pipeline)
 	if err != nil {
 		return dto.Pagination{}, err
 	}
@@ -258,7 +269,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 		})
 	}
 
-	totalCount, _ := s.repo.CountUsers(ctx, filter)
+	totalCount, _ := s.userRepo.CountUsers(ctx, filter)
 
 	pagination := dto.Pagination{
 		Page:       req.Page,
@@ -272,7 +283,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 }
 
 func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.RequestUpdateUser) (*models.User, error) {
-	user, err := s.repo.GetByID(ctx, id)
+	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -392,7 +403,7 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 	}
 	user.UpdatedAt = time.Now()
 
-	updateUser, errOnUpdateUserByID := s.repo.UpdateUserByID(ctx, id, user)
+	updateUser, errOnUpdateUserByID := s.userRepo.UpdateUserByID(ctx, id, user)
 	if errOnUpdateUserByID != nil {
 		if errOnUpdateUserByID == mongo.ErrNoDocuments {
 			return nil, mongo.ErrNoDocuments
@@ -406,7 +417,7 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 
 func (s *userService) DeleteUserByID(ctx context.Context, id string) error {
 
-	user, err := s.repo.GetByID(ctx, id)
+	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		return fmt.Errorf("failed to get user by ID: %w", err)
 	}
@@ -418,7 +429,7 @@ func (s *userService) DeleteUserByID(ctx context.Context, id string) error {
 	user.DeletedAt = &now
 	user.UpdatedAt = time.Now()
 
-	result, err := s.repo.UpdateUserByID(ctx, id, user)
+	result, err := s.userRepo.UpdateUserByID(ctx, id, user)
 	if err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
@@ -434,7 +445,7 @@ func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdate
 
 	log.Println("Updating documents for user:", req)
 
-	user, err := s.repo.GetByID(ctx, req.UserID)
+	user, err := s.userRepo.GetByID(ctx, req.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user by ID: %w", err)
 	}
@@ -456,7 +467,7 @@ func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdate
 	user.Documents = documents
 	user.UpdatedAt = time.Now()
 
-	updatedUser, errOnUpdate := s.repo.UpdateUserByID(ctx, req.UserID, user)
+	updatedUser, errOnUpdate := s.userRepo.UpdateUserByID(ctx, req.UserID, user)
 	if errOnUpdate != nil {
 		return nil, fmt.Errorf("failed to update user documents: %w", errOnUpdate)
 	}
