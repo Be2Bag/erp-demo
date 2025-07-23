@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -113,21 +112,24 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 
 	fileHeader, err := c.FormFile("avatar")
 	if err != nil {
-		// ถ้าไม่มีไฟล์แนบมา ให้กำหนด Avatar เป็นค่าว่าง แล้วข้ามการอัปโหลด
-		if err == http.ErrMissingFile {
-			user.Avatar = ""
-		} else {
-			// กรณี error อื่นๆ เช่น ไฟล์เสียหายหรือ parsing ไม่ได้
+		// ถ้ามี error จริง เช่น parsing form ผิด หรือระบบล่ม → ส่ง error กลับ
+		if !strings.Contains(err.Error(), "no such file") {
 			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusBadRequest,
 				MessageEN:  "Failed to parse uploaded file: " + err.Error(),
-				MessageTH:  "ไม่สามารถแยกไฟล์ที่อัปโหลดได้",
+				MessageTH:  "ไม่สามารถอ่านไฟล์ที่อัปโหลดได้",
 				Status:     "error",
 				Data:       nil,
 			})
 		}
+	}
+	if fileHeader == nil {
+		// ไม่ได้แนบไฟล์ avatar มา → ตั้งค่า Avatar เป็นค่าว่าง
+		user.Avatar = ""
 	} else {
-		// มีการแนบไฟล์มา → ดำเนินการอัปโหลด
+		// มีไฟล์แนบ → ดำเนินการอัปโหลดตามปกติ
+
+		// สร้างโฟลเดอร์ชั่วคราว
 		if err := os.MkdirAll("./tmp", os.ModePerm); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusInternalServerError,
@@ -138,6 +140,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 			})
 		}
 
+		// บันทึกไฟล์ไว้ชั่วคราว
 		tempFilePath := fmt.Sprintf("./tmp/%s", fileHeader.Filename)
 		if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
@@ -150,29 +153,30 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		}
 		defer os.Remove(tempFilePath)
 
+		// ตั้งชื่อใหม่และอัปโหลด
 		ext := filepath.Ext(fileHeader.Filename)
 		uuid := uuid.New().String()
-		newName := fmt.Sprintf("%s/%s%s", "avatars", uuid, ext)
+		newName := fmt.Sprintf("avatars/%s%s", uuid, ext)
 
-		errOnUpload := h.upload.UploadFile(c.Context(), tempFilePath, newName)
-		if errOnUpload != nil {
+		if err := h.upload.UploadFile(c.Context(), tempFilePath, newName); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusInternalServerError,
-				MessageEN:  "Failed to upload file to storage: " + errOnUpload.Error(),
+				MessageEN:  "Failed to upload file to storage: " + err.Error(),
 				MessageTH:  "ไม่สามารถอัปโหลดไฟล์ไปยังที่เก็บข้อมูลได้",
 				Status:     "error",
 				Data:       nil,
 			})
 		}
 
-		url, errOnGetURL := h.upload.GetFileURL(c.Context(), dto.RequestGetFile{
+		// ดึง URL ของไฟล์
+		url, err := h.upload.GetFileURL(c.Context(), dto.RequestGetFile{
 			Folder: "avatars",
 			File:   uuid + ext,
 		})
-		if errOnGetURL != nil {
+		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusInternalServerError,
-				MessageEN:  "Failed to get file URL: " + errOnGetURL.Error(),
+				MessageEN:  "Failed to get file URL: " + err.Error(),
 				MessageTH:  "ไม่สามารถดึง URL ของไฟล์ได้",
 				Status:     "error",
 				Data:       nil,
@@ -181,6 +185,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 
 		user.Avatar = url
 	}
+
 	user.Phone = c.FormValue("phone")
 	user.EmployeeCode = c.FormValue("employee_code")
 	user.Gender = c.FormValue("gender")
