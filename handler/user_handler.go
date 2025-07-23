@@ -114,7 +114,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Failed to parse uploaded file",
+			MessageEN:  "Failed to parse uploaded file" + err.Error(),
 			MessageTH:  "ไม่สามารถแยกไฟล์ที่อัปโหลดได้",
 			Status:     "error",
 			Data:       nil,
@@ -126,7 +126,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to save uploaded file",
+			MessageEN:  "Failed to save uploaded file" + err.Error(),
 			MessageTH:  "ไม่สามารถบันทึกไฟล์ที่อัปโหลดได้",
 			Status:     "error",
 			Data:       nil,
@@ -487,7 +487,7 @@ func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
 	if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to save uploaded file",
+			MessageEN:  "Failed to save uploaded file" + err.Error(),
 			MessageTH:  "ไม่สามารถบันทึกไฟล์ที่อัปโหลดได้",
 			Status:     "error",
 			Data:       nil,
