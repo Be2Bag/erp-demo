@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"log"
 	"math"
 	"strings"
 	"time"
@@ -470,14 +469,11 @@ func (s *userService) DeleteUserByID(ctx context.Context, id string) error {
 }
 
 func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdateDocuments) (*models.User, error) {
-
-	log.Println("Updating documents for user:", req)
-
 	user, err := s.userRepo.GetByID(ctx, req.UserID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user by ID: %w", err)
 	}
-	log.Println("User found:", user)
+
 	if user == nil {
 		return nil, mongo.ErrNoDocuments
 	}
