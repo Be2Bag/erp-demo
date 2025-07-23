@@ -31,6 +31,37 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 
 	hashPassword := util.HashPassword(req.Password, s.config.Hash.Salt)
 
+	provincesName := "ไม่พบจังหวัด"
+	districtsName := "ไม่พบอำเภอ"
+	subDistrictsName := "ไม่พบตำบล"
+
+	provinces, errOnGetProvinces := s.dropDownRepo.GetProvinces(ctx, bson.M{"id": req.Address.Province}, bson.M{"_id": 0, "province_name": 1})
+	if errOnGetProvinces != nil {
+		return fmt.Errorf("failed to get province: %w", errOnGetProvinces)
+	}
+	if len(provinces) == 0 {
+		return fmt.Errorf("province not found")
+	}
+	provincesName = provinces[0].NameTH
+
+	districts, errOnGetDistricts := s.dropDownRepo.GetDistricts(ctx, bson.M{"id": req.Address.District}, bson.M{"_id": 0, "district_name": 1})
+	if errOnGetDistricts != nil {
+		return fmt.Errorf("failed to get district: %w", errOnGetDistricts)
+	}
+	if len(districts) == 0 {
+		return fmt.Errorf("district not found")
+	}
+	districtsName = districts[0].NameTH
+
+	subDistricts, errOnGetSubDistricts := s.dropDownRepo.GetSubDistricts(ctx, bson.M{"id": req.Address.Subdistrict}, bson.M{"_id": 0, "subdistrict_name": 1})
+	if errOnGetSubDistricts != nil {
+		return fmt.Errorf("failed to get subdistrict: %w", errOnGetSubDistricts)
+	}
+	if len(subDistricts) == 0 {
+		return fmt.Errorf("subdistrict not found")
+	}
+	subDistrictsName = subDistricts[0].NameTH
+
 	user := &models.User{
 		UserID:            uuid.New().String(),
 		Email:             req.Email,
@@ -57,9 +88,9 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 		Address: models.Address{
 			AddressLine1: req.Address.AddressLine1,
 			AddressLine2: req.Address.AddressLine2,
-			Subdistrict:  req.Address.Subdistrict,
-			District:     req.Address.District,
-			Province:     req.Address.Province,
+			Subdistrict:  subDistrictsName,
+			District:     districtsName,
+			Province:     provincesName,
 			PostalCode:   req.Address.PostalCode,
 			Country:      req.Address.Country,
 		},
