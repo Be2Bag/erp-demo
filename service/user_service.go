@@ -478,18 +478,24 @@ func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdate
 		return nil, mongo.ErrNoDocuments
 	}
 
-	var documents []models.Document
-	for _, doc := range user.Documents {
-		if doc.Type == req.Type {
-			doc.Name = req.Name
-			doc.FileURL = req.FileURL
-			doc.UploadedAt = time.Now()
-		}
-		documents = append(documents, doc)
-	}
+	if req.Type == "avatars" {
+		user.Avatar = req.FileURL
 
-	user.Documents = documents
-	user.UpdatedAt = time.Now()
+	} else {
+
+		var documents []models.Document
+		for _, doc := range user.Documents {
+			if doc.Type == req.Type {
+				doc.Name = req.Name
+				doc.FileURL = req.FileURL
+				doc.UploadedAt = time.Now()
+			}
+			documents = append(documents, doc)
+		}
+
+		user.Documents = documents
+		user.UpdatedAt = time.Now()
+	}
 
 	updatedUser, errOnUpdate := s.userRepo.UpdateUserByID(ctx, req.UserID, user)
 	if errOnUpdate != nil {
