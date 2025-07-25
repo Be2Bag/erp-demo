@@ -159,3 +159,50 @@ func (s *SupabaseStorage) GetFileURLByName(key string) (string, error) {
 	url := fmt.Sprintf("%s/storage/v1/object/public/%s/%s", s.PublicBase, s.Bucket, key)
 	return url, nil
 }
+
+func (s *SupabaseStorage) DeleteFile(folder, fileName string) error {
+	// รวม folder และ fileName เพื่อสร้าง key ที่ถูกต้อง
+	fullKey := fmt.Sprintf("%s/%s", folder, fileName)
+
+	_, err := s.Client.DeleteObject(&s3.DeleteObjectInput{
+		Bucket: aws.String(s.Bucket),
+		Key:    aws.String(fullKey),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to delete file: %w", err)
+	}
+
+	err = s.Client.WaitUntilObjectNotExists(&s3.HeadObjectInput{
+		Bucket: aws.String(s.Bucket),
+		Key:    aws.String(fullKey),
+	})
+	if err != nil {
+		return fmt.Errorf("error while waiting for file deletion: %w", err)
+	}
+
+	return nil
+}
+
+func (s *SupabaseStorage) DownloadFile(key, destinationPath string) error {
+	output, err := s.Client.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(s.Bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to download file: %w", err)
+	}
+	defer output.Body.Close()
+
+	file, err := os.Create(destinationPath)
+	if err != nil {
+		return fmt.Errorf("failed to create destination file: %w", err)
+	}
+	defer file.Close()
+
+	_, err = io.Copy(file, output.Body)
+	if err != nil {
+		return fmt.Errorf("failed to write file to destination: %w", err)
+	}
+
+	return nil
+}

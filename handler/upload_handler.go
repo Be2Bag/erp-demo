@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -26,6 +27,7 @@ func (h *UpLoadHandler) UpLoadRoutes(router fiber.Router) {
 	upload.Post("/file", h.Upload)
 	upload.Get("/list/:key", h.GetListFile)
 	upload.Get("/file", h.GetFile)
+	upload.Put("/file", h.DeleteFile)
 }
 
 func (h *UpLoadHandler) Upload(c *fiber.Ctx) error {
@@ -91,7 +93,6 @@ func (h *UpLoadHandler) Upload(c *fiber.Ctx) error {
 	uuid := uuid.New().String()              // Generate a unique name for the file
 	newName := fmt.Sprintf("%s/%s%s", folder, uuid, ext)
 
-	// Upload the file to storage
 	err = h.svc.UploadFile(c.Context(), tempFilePath, newName)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
@@ -180,5 +181,48 @@ func (h *UpLoadHandler) GetFile(c *fiber.Ctx) error {
 		MessageTH:  "ดึงรายการไฟล์สำเร็จ",
 		Status:     "success",
 		Data:       url,
+	})
+}
+
+// @Summary Delete a file
+// @Description Delete a file
+// @Tags Upload
+// @Accept json
+// @Produce json
+// @Param request body dto.RequestDeleteFile true "Request to delete file"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/upload/file [put]
+func (h *UpLoadHandler) DeleteFile(c *fiber.Ctx) error {
+
+	var req dto.RequestDeleteFile
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request payload: " + err.Error(),
+			MessageTH:  "ข้อมูลที่ส่งไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	log.Println("Delete request received:", req)
+	err := h.svc.DeleteFileByID(c.Context(), req)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to delete file: " + err.Error(),
+			MessageTH:  "ไม่สามารถลบไฟล์ได้: " + err.Error(),
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "File deleted successfully",
+		MessageTH:  "ลบไฟล์สำเร็จ",
+		Status:     "success",
+		Data:       nil,
 	})
 }

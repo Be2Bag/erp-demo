@@ -48,7 +48,7 @@ func main() {
 	upLoadRepo := repository.NewUpLoadRepository(database)
 
 	userSvc := service.NewUserService(*cfg, userRepo, dropDownRepo)
-	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage)
+	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo)
 	adminSvc := service.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	dropDownSvc := service.NewDropDownService(*cfg, dropDownRepo)
 	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
