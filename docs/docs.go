@@ -1352,10 +1352,6 @@ const docTemplate = `{
                         }
                     ]
                 },
-                "avatar": {
-                    "description": "ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้",
-                    "type": "string"
-                },
                 "bank_info": {
                     "description": "ข้อมูลบัญชีธนาคารของพนักงาน",
                     "allOf": [
@@ -1424,10 +1420,6 @@ const docTemplate = `{
                 },
                 "last_name_th": {
                     "description": "นามสกุลของพนักงาน",
-                    "type": "string"
-                },
-                "password": {
-                    "description": "รหัสผ่าน (อาจไม่ต้องการอัปเดต)",
                     "type": "string"
                 },
                 "phone": {

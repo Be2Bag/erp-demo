@@ -240,9 +240,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/dto.Address'
         description: ที่อยู่ของพนักงาน
-      avatar:
-        description: ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
-        type: string
       bank_info:
         allOf:
         - $ref: '#/definitions/dto.BankInfo'
@@ -292,9 +289,6 @@ definitions:
         type: string
       last_name_th:
         description: นามสกุลของพนักงาน
-        type: string
-      password:
-        description: รหัสผ่าน (อาจไม่ต้องการอัปเดต)
         type: string
       phone:
         description: เบอร์โทรศัพท์ของพนักงาน
