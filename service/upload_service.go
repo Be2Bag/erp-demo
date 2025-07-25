@@ -74,3 +74,11 @@ func (s *UpLoadService) DeleteFileByID(ctx context.Context, req dto.RequestDelet
 
 	return nil
 }
+
+func (s *UpLoadService) GetDownloadFile(ctx context.Context, req dto.RequestDownloadFile) ([]byte, error) {
+	fileContent, err := s.storageService.DownloadFile(req.Type, req.Name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to download file: %w", err)
+	}
+	return fileContent, nil
+}

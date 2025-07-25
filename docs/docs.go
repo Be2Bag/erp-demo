@@ -537,6 +537,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/upload/download": {
+            "post": {
+                "description": "Download a file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/octet-stream"
+                ],
+                "tags": [
+                    "Upload"
+                ],
+                "summary": "Download a file",
+                "parameters": [
+                    {
+                        "description": "Request to download file",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestDownloadFile"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "File content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/upload/file": {
             "put": {
                 "description": "Delete a file",
@@ -1360,6 +1406,20 @@ const docTemplate = `{
             }
         },
         "dto.RequestDeleteFile": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequestDownloadFile": {
             "type": "object",
             "properties": {
                 "name": {

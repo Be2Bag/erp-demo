@@ -223,6 +223,15 @@ definitions:
       user_id:
         type: string
     type: object
+  dto.RequestDownloadFile:
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
   dto.RequestLogin:
     properties:
       email:
@@ -792,6 +801,36 @@ paths:
       summary: Get all sub-districts by district ID
       tags:
       - dropdown
+  /v1/upload/download:
+    post:
+      consumes:
+      - application/json
+      description: Download a file
+      parameters:
+      - description: Request to download file
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestDownloadFile'
+      produces:
+      - application/octet-stream
+      responses:
+        "200":
+          description: File content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Download a file
+      tags:
+      - Upload
   /v1/upload/file:
     put:
       consumes:

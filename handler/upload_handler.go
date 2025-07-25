@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -25,6 +24,7 @@ func (h *UpLoadHandler) UpLoadRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	upload := versionOne.Group("upload")
 	upload.Post("/file", h.Upload)
+	upload.Post("/download", h.GetDownloadFile)
 	upload.Get("/list/:key", h.GetListFile)
 	upload.Get("/file", h.GetFile)
 	upload.Put("/file", h.DeleteFile)
@@ -206,7 +206,7 @@ func (h *UpLoadHandler) DeleteFile(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	log.Println("Delete request received:", req)
+
 	err := h.svc.DeleteFileByID(c.Context(), req)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
@@ -225,4 +225,42 @@ func (h *UpLoadHandler) DeleteFile(c *fiber.Ctx) error {
 		Status:     "success",
 		Data:       nil,
 	})
+}
+
+// @Summary Download a file
+// @Description Download a file
+// @Tags Upload
+// @Accept json
+// @Produce octet-stream
+// @Param request body dto.RequestDownloadFile true "Request to download file"
+// @Success 200 {string} string "File content"
+// @Failure 400 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/upload/download [post]
+func (h *UpLoadHandler) GetDownloadFile(c *fiber.Ctx) error {
+	var req dto.RequestDownloadFile
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request payload: " + err.Error(),
+			MessageTH:  "ข้อมูลที่ส่งไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	fileContent, err := h.svc.GetDownloadFile(c.Context(), req)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to get download file: " + err.Error(),
+			MessageTH:  "ไม่สามารถดึงไฟล์ดาวน์โหลดได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", req.Name))
+	c.Set("Content-Type", "application/octet-stream")
+	return c.Send(fileContent)
 }

@@ -16,3 +16,9 @@ type RequestDeleteFile struct {
 	Name   string `json:"name"`
 	Type   string `json:"type"`
 }
+
+type RequestDownloadFile struct {
+	UserID string `json:"user_id"`
+	Name   string `json:"name"`
+	Type   string `json:"type"`
+}

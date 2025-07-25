@@ -183,26 +183,22 @@ func (s *SupabaseStorage) DeleteFile(folder, fileName string) error {
 	return nil
 }
 
-func (s *SupabaseStorage) DownloadFile(key, destinationPath string) error {
+func (s *SupabaseStorage) DownloadFile(folder, fileName string) ([]byte, error) {
+	fullKey := fmt.Sprintf("%s/%s", folder, fileName)
+
 	output, err := s.Client.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(s.Bucket),
-		Key:    aws.String(key),
+		Key:    aws.String(fullKey),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to download file: %w", err)
+		return nil, fmt.Errorf("failed to download file: %w", err)
 	}
 	defer output.Body.Close()
 
-	file, err := os.Create(destinationPath)
+	fileContent, err := io.ReadAll(output.Body)
 	if err != nil {
-		return fmt.Errorf("failed to create destination file: %w", err)
-	}
-	defer file.Close()
-
-	_, err = io.Copy(file, output.Body)
-	if err != nil {
-		return fmt.Errorf("failed to write file to destination: %w", err)
+		return nil, fmt.Errorf("failed to read file content: %w", err)
 	}
 
-	return nil
+	return fileContent, nil
 }
