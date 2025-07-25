@@ -10,6 +10,7 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/models"
+	"github.com/Be2Bag/erp-demo/pkg/storage"
 	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
@@ -18,13 +19,14 @@ import (
 )
 
 type userService struct {
-	config       config.Config
-	userRepo     ports.UserRepository
-	dropDownRepo ports.DropDownRepository
+	config         config.Config
+	userRepo       ports.UserRepository
+	dropDownRepo   ports.DropDownRepository
+	storageService *storage.SupabaseStorage
 }
 
-func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository) ports.UserService {
-	return &userService{config: cfg, userRepo: ur, dropDownRepo: dr}
+func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository, ss *storage.SupabaseStorage) ports.UserService {
+	return &userService{config: cfg, userRepo: ur, dropDownRepo: dr, storageService: ss}
 }
 
 func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) error {
@@ -509,6 +511,18 @@ func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdate
 	}
 
 	if req.Type == "avatars" {
+
+		avatarURL := user.Avatar
+		parts := strings.Split(avatarURL, "/")
+		filename := ""
+		if len(parts) > 0 {
+			filename = parts[len(parts)-1]
+		}
+		errOnDelete := s.storageService.DeleteFile("avatars", filename)
+		if errOnDelete != nil {
+			return nil, fmt.Errorf("failed to delete file: %w", errOnDelete)
+		}
+
 		user.Avatar = req.FileURL
 
 	} else {
