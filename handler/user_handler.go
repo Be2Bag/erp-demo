@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -238,7 +237,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		if strings.Contains(errOnCreateUser.Error(), "user with ID card") {
 			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusBadRequest,
-				MessageEN:  "User with this ID card already exists",
+				MessageEN:  "User with this ID card already exists: " + errOnCreateUser.Error(),
 				MessageTH:  "มีผู้ใช้ที่มีบัตรประชาชนนี้อยู่แล้ว",
 				Status:     "error",
 				Data:       nil,
@@ -403,17 +402,22 @@ func (h *UserHandler) UpdateUserByID(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Invalid request payload",
+			MessageEN:  "Invalid request payload: " + err.Error(),
 			MessageTH:  "ข้อมูลที่ส่งไม่ถูกต้อง",
 			Status:     "error",
 			Data:       nil,
 		})
 	}
-	log.Println("Updating user:", req)
 
 	updatedUser, err := h.svc.UpdateUserByID(context.Background(), id, req)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to update user: " + err.Error(),
+			MessageTH:  "ไม่สามารถอัปเดตผู้ใช้ได้",
+			Status:     "error",
+			Data:       nil,
+		})
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{

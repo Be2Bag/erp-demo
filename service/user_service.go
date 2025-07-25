@@ -350,12 +350,6 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 		return nil, mongo.ErrNoDocuments
 	}
 
-	if req.Password != "" {
-		hashPassword := util.HashPassword(req.Password, s.config.Hash.Salt)
-
-		user.Password = hashPassword
-	}
-
 	if req.EmploymentHistory != nil {
 		var employmentHistory []models.EmploymentHistory
 		for _, eh := range req.EmploymentHistory {
@@ -413,9 +407,6 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 	}
 	if req.IDCard != "" {
 		user.IDCard = req.IDCard
-	}
-	if req.Avatar != "" {
-		user.Avatar = req.Avatar
 	}
 	if req.Phone != "" {
 		user.Phone = req.Phone

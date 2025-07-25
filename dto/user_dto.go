@@ -63,7 +63,6 @@ type RequestGetUserAll struct {
 
 type RequestUpdateUser struct {
 	Email             string              `json:"email"`              // อีเมลของผู้ใช้
-	Password          string              `json:"password"`           // รหัสผ่าน (อาจไม่ต้องการอัปเดต)
 	TitleTH           string              `json:"title_th"`           // คำนำหน้าชื่อ (ภาษาไทย)
 	TitleEN           string              `json:"title_en"`           // คำนำหน้าชื่อ (ภาษาอังกฤษ)
 	FirstNameTH       string              `json:"first_name_th"`      // ชื่อจริงของพนักงาน
@@ -71,7 +70,6 @@ type RequestUpdateUser struct {
 	FirstNameEN       string              `json:"first_name_en"`      // ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
 	LastNameEN        string              `json:"last_name_en"`       // นามสกุลของพนักงาน (ภาษาอังกฤษ)
 	IDCard            string              `json:"id_card"`            // หมายเลขบัตรประชาชน (อาจเข้ารหัสก่อนจัดเก็บ)
-	Avatar            string              `json:"avatar"`             // ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
 	Phone             string              `json:"phone"`              // เบอร์โทรศัพท์ของพนักงาน
 	EmployeeCode      string              `json:"employee_code"`      // รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
 	Gender            string              `json:"gender"`             // เพศของพนักงาน
