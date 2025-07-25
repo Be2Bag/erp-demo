@@ -124,7 +124,7 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 	provincesName := "ไม่พบจังหวัด"
 	districtsName := "ไม่พบอำเภอ"
 	subDistrictsName := "ไม่พบตำบล"
-	positions, errOnGetPositions := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": user.PositionID}, bson.M{"_id": 0, "position_name": 1})
+	positions, errOnGetPositions := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": user.PositionID}, bson.M{"_id": 0, "position_name": 1, "level": 1})
 	if errOnGetPositions != nil {
 		return nil, fmt.Errorf("failed to get position: %w", errOnGetPositions)
 	}
@@ -292,7 +292,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 
 		positionsName := "ไม่พบตำแหน่ง"
 		departmentsName := "ไม่พบแผนก"
-		positions, _ := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": u.PositionID}, bson.M{"_id": 0, "position_name": 1})
+		positions, _ := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": u.PositionID}, bson.M{"_id": 0, "position_name": 1, "level": 1})
 
 		if len(positions) > 0 {
 			positionsName = positions[0].PositionName + " (" + positions[0].Level + ")"
