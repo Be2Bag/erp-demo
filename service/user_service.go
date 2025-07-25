@@ -121,6 +121,9 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 	user := users[0]
 	positionsName := "ไม่พบตำแหน่ง"
 	departmentsName := "ไม่พบแผนก"
+	provincesName := "ไม่พบจังหวัด"
+	districtsName := "ไม่พบอำเภอ"
+	subDistrictsName := "ไม่พบตำบล"
 	positions, errOnGetPositions := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": user.PositionID}, bson.M{"_id": 0, "position_name": 1})
 	if errOnGetPositions != nil {
 		return nil, fmt.Errorf("failed to get position: %w", errOnGetPositions)
@@ -137,6 +140,33 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 	if len(departments) > 0 {
 		departmentsName = departments[0].DepartmentName
 	}
+
+	provinces, errOnGetProvinces := s.dropDownRepo.GetProvinces(ctx, bson.M{"id": user.Address.Province}, bson.M{"_id": 0, "name_th": 1})
+	if errOnGetProvinces != nil {
+		return nil, fmt.Errorf("failed to get province: %w", errOnGetProvinces)
+	}
+	if len(provinces) == 0 {
+		return nil, fmt.Errorf("province not found")
+	}
+	provincesName = provinces[0].NameTH
+
+	districts, errOnGetDistricts := s.dropDownRepo.GetDistricts(ctx, bson.M{"id": user.Address.District}, bson.M{"_id": 0, "name_th": 1})
+	if errOnGetDistricts != nil {
+		return nil, fmt.Errorf("failed to get district: %w", errOnGetDistricts)
+	}
+	if len(districts) == 0 {
+		return nil, fmt.Errorf("district not found")
+	}
+	districtsName = districts[0].NameTH
+
+	subDistricts, errOnGetSubDistricts := s.dropDownRepo.GetSubDistricts(ctx, bson.M{"id": user.Address.Subdistrict}, bson.M{"_id": 0, "name_th": 1})
+	if errOnGetSubDistricts != nil {
+		return nil, fmt.Errorf("failed to get subdistrict: %w", errOnGetSubDistricts)
+	}
+	if len(subDistricts) == 0 {
+		return nil, fmt.Errorf("subdistrict not found")
+	}
+	subDistrictsName = subDistricts[0].NameTH
 
 	var dtoDocuments []dto.Document
 	for _, doc := range user.Documents {
@@ -194,9 +224,9 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 		Address: dto.Address{
 			AddressLine1: user.Address.AddressLine1,
 			AddressLine2: user.Address.AddressLine2,
-			Subdistrict:  user.Address.Subdistrict,
-			District:     user.Address.District,
-			Province:     user.Address.Province,
+			Subdistrict:  subDistrictsName,
+			District:     districtsName,
+			Province:     provincesName,
 			PostalCode:   user.Address.PostalCode,
 			Country:      user.Address.Country,
 		},
