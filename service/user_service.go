@@ -295,7 +295,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 		positions, _ := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": u.PositionID}, bson.M{"_id": 0, "position_name": 1})
 
 		if len(positions) > 0 {
-			positionsName = positions[0].PositionName
+			positionsName = positions[0].PositionName + " (" + positions[0].Level + ")"
 		}
 
 		departments, _ := s.dropDownRepo.GetDepartments(ctx, bson.M{"department_id": u.DepartmentID}, bson.M{"_id": 0, "department_name": 1})
