@@ -130,7 +130,7 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 	}
 
 	if len(positions) > 0 {
-		positionsName = positions[0].PositionName
+		positionsName = positions[0].PositionName + " (" + positions[0].Level + ")"
 	}
 
 	departments, errOnGetDepartments := s.dropDownRepo.GetDepartments(ctx, bson.M{"department_id": user.DepartmentID}, bson.M{"_id": 0, "department_name": 1})
