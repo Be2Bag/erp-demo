@@ -427,8 +427,12 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 	if req.Gender != "" {
 		user.Gender = req.Gender
 	}
-	if !req.BirthDate.IsZero() {
-		user.BirthDate = req.BirthDate
+	if req.BirthDate != "" {
+		parsedDate, err := time.Parse("2006-01-02", req.BirthDate)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date format for birth_date: %w", err)
+		}
+		user.BirthDate = parsedDate
 	}
 	if req.PositionID != "" {
 		user.PositionID = req.PositionID
@@ -436,8 +440,12 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 	if req.DepartmentID != "" {
 		user.DepartmentID = req.DepartmentID
 	}
-	if !req.HireDate.IsZero() {
-		user.HireDate = req.HireDate
+	if req.HireDate != "" {
+		parsedHireDate, err := time.Parse("2006-01-02", req.HireDate)
+		if err != nil {
+			return nil, fmt.Errorf("invalid date format for hire_date: %w", err)
+		}
+		user.HireDate = parsedHireDate
 	}
 	if req.EmploymentType != "" {
 		user.EmploymentType = req.EmploymentType
