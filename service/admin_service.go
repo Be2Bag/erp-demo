@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
@@ -36,11 +36,16 @@ func (s *adminService) UpdateUserStatus(ctx context.Context, req dto.RequestUpda
 		return mongo.ErrNoDocuments
 	}
 
-	if users[0].Status != "pending" {
-		return fmt.Errorf("user status is not pending, current status: %s", users[0].Status)
+	// if users[0].Status != "pending" {
+	// 	return fmt.Errorf("user status is not pending, current status: %s", users[0].Status)
+	// }
+
+	update := bson.M{"$set": bson.M{"status": req.Status, "updated_at": time.Now()}}
+
+	if req.Status == "deleted" {
+		update = bson.M{"$set": bson.M{"status": req.Status, "deleted_at": time.Now()}}
 	}
 
-	update := bson.M{"$set": bson.M{"status": req.Status}}
 	_, errOnUpdateStatus := s.userRepo.UpdateUserByFilter(ctx, filter, update)
 	if errOnUpdateStatus != nil {
 		return errOnUpdateStatus
