@@ -46,11 +46,14 @@ func main() {
 	dropDownRepo := repository.NewDropDownRepository(database)
 	adminRepo := repository.NewAdminRepository(database)
 	upLoadRepo := repository.NewUpLoadRepository(database)
+	kpiRepo := repository.NewKPIRepository(database)
 
 	userSvc := service.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage)
 	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo)
 	adminSvc := service.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	dropDownSvc := service.NewDropDownService(*cfg, dropDownRepo)
+	kpiSvc := service.NewKPIService(*cfg, kpiRepo, userRepo)
+
 	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
 
 	userHdl := handler.NewUserHandler(userSvc, upLoadSvc)
@@ -58,6 +61,7 @@ func main() {
 	adminHdl := handler.NewAdminHandler(adminSvc)
 	dropDownHdl := handler.NewDropDownHandler(dropDownSvc)
 	authHdl := handler.NewAuthHandler(authSvc)
+	kpiHdl := handler.NewKPIHandler(kpiSvc)
 
 	app := fiber.New()
 
@@ -75,6 +79,7 @@ func main() {
 	dropDownHdl.DropDownRoutes(apiGroup)
 	adminHdl.AdminRoutes(apiGroup)
 	upLoadHdl.UpLoadRoutes(apiGroup)
+	kpiHdl.KPIRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{

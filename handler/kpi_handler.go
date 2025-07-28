@@ -1,0 +1,99 @@
+package handler
+
+import (
+	"github.com/Be2Bag/erp-demo/dto"
+	"github.com/Be2Bag/erp-demo/ports"
+	"github.com/gofiber/fiber/v2"
+)
+
+type KPIHandler struct {
+	svc ports.KPIService
+}
+
+func NewKPIHandler(s ports.KPIService) *KPIHandler {
+	return &KPIHandler{svc: s}
+}
+
+func (h *KPIHandler) KPIRoutes(router fiber.Router) {
+	versionOne := router.Group("v1")
+	kpi := versionOne.Group("kpi")
+
+	kpi.Get("/templates", h.GetKPITemplates)
+	kpi.Post("/templates", h.CreateKPITemplate)
+	kpi.Get("/templates/:id", h.GetKPITemplateByID)
+	kpi.Put("/templates/:id", h.UpdateKPITemplate)
+	kpi.Delete("/templates/:id", h.DeleteKPITemplate)
+
+	kpi.Get("/evaluations", h.GetKPIEvaluations)
+	kpi.Post("/evaluations", h.CreateKPIEvaluation)
+
+	kpi.Get("/stats", h.GetKPIStatistics)
+}
+
+// ตัวจัดการสำหรับการจัดการแม่แบบ KPI
+func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
+	// การนำไปใช้สำหรับดึงข้อมูลแม่แบบ KPI
+	return nil
+}
+
+func (h *KPIHandler) CreateKPITemplate(c *fiber.Ctx) error {
+	var template dto.KPITemplateDTO
+	if err := c.BodyParser(&template); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request payload",
+			MessageTH:  "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	if err := h.svc.CreateKPITemplate(c.Context(), template); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to create KPI Template" + err.Error(),
+			MessageTH:  "ไม่สามารถสร้างแม่แบบ KPI ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusCreated,
+		MessageEN:  "KPI Template created successfully",
+		MessageTH:  "สร้างแม่แบบ KPI สำเร็จ",
+		Status:     "success",
+		Data:       nil,
+	})
+}
+
+func (h *KPIHandler) GetKPITemplateByID(c *fiber.Ctx) error {
+	// การนำไปใช้สำหรับดึงข้อมูลแม่แบบ KPI ตามรหัส
+	return nil
+}
+
+func (h *KPIHandler) UpdateKPITemplate(c *fiber.Ctx) error {
+	// การนำไปใช้สำหรับอัปเดตแม่แบบ KPI
+	return nil
+}
+
+func (h *KPIHandler) DeleteKPITemplate(c *fiber.Ctx) error {
+	// การนำไปใช้สำหรับลบแม่แบบ KPI
+	return nil
+}
+
+// ตัวจัดการสำหรับการประเมิน KPI
+func (h *KPIHandler) GetKPIEvaluations(c *fiber.Ctx) error {
+	// การนำไปใช้สำหรับดึงข้อมูลการประเมิน KPI
+	return nil
+}
+
+func (h *KPIHandler) CreateKPIEvaluation(c *fiber.Ctx) error {
+	// การนำไปใช้สำหรับสร้างการประเมิน KPI ใหม่
+	return nil
+}
+
+// ตัวจัดการสำหรับสถิติ KPI
+func (h *KPIHandler) GetKPIStatistics(c *fiber.Ctx) error {
+	// การนำไปใช้สำหรับดึงข้อมูลสถิติ KPI
+	return nil
+}
