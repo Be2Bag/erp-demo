@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -46,7 +47,15 @@ func VerifyJWTToken(tokenStr, secretKey string) (map[string]interface{}, error) 
 }
 
 func SetSessionCookie(c *fiber.Ctx, name, value string, duration time.Duration) {
-	secure := c.Protocol() == "https"
+	domain := ""
+	secure := false
+
+	// ถ้าไม่ใช่ localhost ให้ตั้ง domain และ secure
+	if !strings.Contains(c.Hostname(), "localhost") {
+		domain = ".rkp-media.com"
+		secure = true
+	}
+
 	cookie := &fiber.Cookie{
 		Name:     name,
 		Value:    value,
@@ -54,6 +63,7 @@ func SetSessionCookie(c *fiber.Ctx, name, value string, duration time.Duration) 
 		HTTPOnly: true,
 		Secure:   secure,
 		SameSite: "None",
+		Domain:   domain,
 		Path:     "/",
 	}
 	c.Cookie(cookie)
