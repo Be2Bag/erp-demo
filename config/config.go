@@ -51,6 +51,14 @@ type SupabaseConfig struct {
 	PublicBase string
 }
 
+type CloudflareConfig struct {
+	AccessKey string
+	SecretKey string
+	Bucket    string
+	Region    string
+	Endpoint  string
+}
+
 type Config struct {
 	Mongo      MongoConfig
 	Encryption EncryptionConfig
@@ -59,6 +67,7 @@ type Config struct {
 	JWT        JWTConfig
 	Email      EmailConfig
 	Supabase   SupabaseConfig
+	Cloudflare CloudflareConfig
 }
 
 func LoadConfig() (*Config, error) {
@@ -91,6 +100,11 @@ func LoadConfig() (*Config, error) {
 	cfg.Supabase.Region = os.Getenv("SUPABASE_REGION")
 	cfg.Supabase.Endpoint = os.Getenv("SUPABASE_ENDPOINT")
 	cfg.Supabase.PublicBase = os.Getenv("SUPABASE_PUBLIC_BASE")
+	cfg.Cloudflare.AccessKey = os.Getenv("CLOUDFLARE_ACCESS_KEY")
+	cfg.Cloudflare.SecretKey = os.Getenv("CLOUDFLARE_SECRET_KEY")
+	cfg.Cloudflare.Bucket = os.Getenv("CLOUDFLARE_BUCKET")
+	cfg.Cloudflare.Region = os.Getenv("CLOUDFLARE_REGION")
+	cfg.Cloudflare.Endpoint = os.Getenv("CLOUDFLARE_ENDPOINT")
 
 	if cfg.Mongo.URI == "" && cfg.Mongo.Host == "" {
 		viper.SetConfigName("config")
@@ -127,6 +141,11 @@ func LoadConfig() (*Config, error) {
 		cfg.Supabase.Region = viper.GetString("supabase.region")
 		cfg.Supabase.Endpoint = viper.GetString("supabase.endpoint")
 		cfg.Supabase.PublicBase = viper.GetString("supabase.publicbase")
+		cfg.Cloudflare.AccessKey = viper.GetString("cloudflare.access_key")
+		cfg.Cloudflare.SecretKey = viper.GetString("cloudflare.secret_key")
+		cfg.Cloudflare.Bucket = viper.GetString("cloudflare.bucket")
+		cfg.Cloudflare.Region = viper.GetString("cloudflare.region")
+		cfg.Cloudflare.Endpoint = viper.GetString("cloudflare.endpoint")
 
 	}
 
