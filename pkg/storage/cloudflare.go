@@ -26,11 +26,6 @@ type CloudflareStorage struct {
 // configuration. It verifies the connection by listing available buckets.
 func NewCloudflareStorage(cfg config.CloudflareConfig) (*CloudflareStorage, error) {
 
-	// ตั้งค่า default หาก region ว่าง
-	if cfg.Region == "" {
-		cfg.Region = "auto"
-	}
-
 	awsCfg := &aws.Config{
 		Credentials:      credentials.NewStaticCredentials(cfg.AccessKey, cfg.SecretKey, ""),
 		Endpoint:         aws.String(cfg.Endpoint),
