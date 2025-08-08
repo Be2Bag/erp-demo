@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/Be2Bag/erp-demo/config"
@@ -26,6 +25,7 @@ type CloudflareStorage struct {
 // NewCloudflareStorage creates a new CloudflareStorage using the given
 // configuration. It verifies the connection by listing available buckets.
 func NewCloudflareStorage(cfg config.CloudflareConfig) (*CloudflareStorage, error) {
+
 	// ตั้งค่า default หาก region ว่าง
 	if cfg.Region == "" {
 		cfg.Region = "auto"
@@ -45,11 +45,9 @@ func NewCloudflareStorage(cfg config.CloudflareConfig) (*CloudflareStorage, erro
 
 	client := s3.New(sess)
 
-	// verify ด้วย HeadBucket แทน ListBuckets (R2 มักบล็อก ListBuckets)
-	if _, err := client.HeadBucket(&s3.HeadBucketInput{
-		Bucket: aws.String(cfg.Bucket),
-	}); err != nil {
-		return nil, fmt.Errorf("failed to connect to Cloudflare storage (bucket %s): %w", cfg.Bucket, err)
+	// verify connection
+	if _, err := client.ListBuckets(&s3.ListBucketsInput{}); err != nil {
+		return nil, fmt.Errorf("failed to connect to Cloudflare storage: %w", err)
 	}
 
 	return &CloudflareStorage{
@@ -74,8 +72,7 @@ func (c *CloudflareStorage) UploadFile(folder, filePath string) error {
 		return fmt.Errorf("failed to get file info: %w", err)
 	}
 
-	// ใช้ path.Join เพื่อให้เป็น "/" เสมอ
-	key := path.Join(folder, filepath.Base(filePath))
+	key := filepath.Join(folder, filepath.Base(filePath))
 
 	_, err = c.Client.PutObject(&s3.PutObjectInput{
 		Bucket:        aws.String(c.Bucket),
@@ -119,8 +116,7 @@ func (c *CloudflareStorage) ListFileMetas(prefix string) ([]dto.FileMeta, error)
 
 // DownloadFile retrieves a file from the specified folder and file name.
 func (c *CloudflareStorage) DownloadFile(folder, fileName string) ([]byte, error) {
-	// ใช้ path.Join
-	key := path.Join(folder, fileName)
+	key := filepath.Join(folder, fileName)
 
 	out, err := c.Client.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(c.Bucket),
@@ -141,8 +137,7 @@ func (c *CloudflareStorage) DownloadFile(folder, fileName string) ([]byte, error
 
 // DeleteFile removes the specified file from the bucket.
 func (c *CloudflareStorage) DeleteFile(folder, fileName string) error {
-	// ใช้ path.Join
-	key := path.Join(folder, fileName)
+	key := filepath.Join(folder, fileName)
 
 	_, err := c.Client.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(c.Bucket),
