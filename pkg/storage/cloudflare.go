@@ -53,9 +53,8 @@ func NewCloudflareStorage(cfg config.CloudflareConfig) (*CloudflareStorage, erro
 	}, nil
 }
 
-// UploadFile uploads a file to the specified folder within the bucket. The
-// file name is derived from the provided file path.
-func (c *CloudflareStorage) UploadFile(folder, filePath string) error {
+// UploadFile uploads the local file at filePath to the bucket under the given key (folder/filename).
+func (c *CloudflareStorage) UploadFile(filePath, key string) error {
 	f, err := os.Open(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to open file: %w", err)
@@ -66,8 +65,6 @@ func (c *CloudflareStorage) UploadFile(folder, filePath string) error {
 	if err != nil {
 		return fmt.Errorf("failed to get file info: %w", err)
 	}
-
-	key := filepath.Join(folder, filepath.Base(filePath))
 
 	_, err = c.Client.PutObject(&s3.PutObjectInput{
 		Bucket:        aws.String(c.Bucket),
