@@ -41,6 +41,11 @@ func main() {
 		log.Fatal("supabase storage:", err)
 	}
 
+	cloudflareStorage, err := storage.NewCloudflareStorage(cfg.Cloudflare)
+	if err != nil {
+		log.Fatal("cloudflare storage:", err)
+	}
+
 	userRepo := repository.NewUserRepository(database)
 	authRepo := repository.NewAuthRepository(database)
 	dropDownRepo := repository.NewDropDownRepository(database)
@@ -49,7 +54,7 @@ func main() {
 	kpiRepo := repository.NewKPIRepository(database)
 
 	userSvc := service.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage)
-	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo)
+	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
 	adminSvc := service.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	dropDownSvc := service.NewDropDownService(*cfg, dropDownRepo)
 	kpiSvc := service.NewKPIService(*cfg, kpiRepo, userRepo)

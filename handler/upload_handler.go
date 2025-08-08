@@ -24,6 +24,7 @@ func (h *UpLoadHandler) UpLoadRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	upload := versionOne.Group("upload")
 	upload.Post("/file", h.Upload)
+	upload.Post("/cloudflare/file", h.UploadCloudflare)
 	upload.Post("/download", h.GetDownloadFile)
 	upload.Get("/list/:key", h.GetListFile)
 	upload.Get("/file", h.GetFile)
@@ -263,4 +264,111 @@ func (h *UpLoadHandler) GetDownloadFile(c *fiber.Ctx) error {
 	c.Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s", req.Name))
 	c.Set("Content-Type", "application/octet-stream")
 	return c.Send(fileContent)
+}
+
+// @Summary Upload a file to Cloudflare
+// @Description Upload a file to Cloudflare
+// @Tags Upload
+// @Accept json
+// @Produce json
+// @Param request body dto.RequestUploadFile true "Request to upload file"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/upload/cloudflare [post]
+func (h *UpLoadHandler) UploadCloudflare(c *fiber.Ctx) error {
+
+	// ดึงพารามิเตอร์โฟลเดอร์จาก query เช่น ?folder=avatars
+	folder := c.Query("folder")
+	if folder == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Folder parameter is required",
+			MessageTH:  "ต้องระบุพารามิเตอร์ folder",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	// ตรวจสอบว่า folder อยู่ในรายการที่อนุญาต
+	allowedFolders := map[string]bool{
+		"avatars":    true, //รูปโปรไฟล์
+		"idcards":    true, //หลักฐานสำเนาบัตรประชาชน
+		"graduation": true, //หลักฐานการจบการศึกษา
+		"transcript": true, //หลักฐานการศึกษา
+		"resume":     true, //หลักฐานการสมัครงาน
+		"health":     true, //หลักฐานการตรวจสุขภาพ
+		"military":   true, //หลักฐานการผ่านการเกณฑ์ทหาร
+		"criminal":   true, //หลักฐานการตรวจประวัติอาชญากรรม
+		"other":      true, //โฟลเดอร์อัปโหลดทั่วไป
+	}
+	if !allowedFolders[folder] {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid folder name",
+			MessageTH:  "ชื่อโฟลเดอร์ไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	// Parse the uploaded file
+	fileHeader, err := c.FormFile("file")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Failed to parse uploaded file",
+			MessageTH:  "ไม่สามารถแยกไฟล์ที่อัปโหลดได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	// Save the file temporarily
+	tempFilePath := fmt.Sprintf("./temp/%s", fileHeader.Filename)
+	if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to save uploaded file",
+			MessageTH:  "ไม่สามารถบันทึกไฟล์ที่อัปโหลดได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	defer os.Remove(tempFilePath) // Clean up the temporary file
+
+	ext := filepath.Ext(fileHeader.Filename) // .jpg .png .pdf
+	uuid := uuid.New().String()              // Generate a unique name for the file
+	newName := fmt.Sprintf("%s/%s%s", folder, uuid, ext)
+
+	err = h.svc.UploadFileCloudflare(c.Context(), tempFilePath, newName)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to upload file to storage: " + err.Error(),
+			MessageTH:  "ไม่สามารถอัปโหลดไฟล์ไปยังที่เก็บข้อมูลได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	// url, errOnGetURL := h.svc.GetFileURL(c.Context(), dto.RequestGetFile{
+	// 	Folder: folder,
+	// 	File:   uuid + ext,
+	// })
+	// if errOnGetURL != nil {
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+	// 		StatusCode: fiber.StatusInternalServerError,
+	// 		MessageEN:  "Failed to get file URL: " + errOnGetURL.Error(),
+	// 		MessageTH:  "ไม่สามารถดึง URL ของไฟล์ได้",
+	// 		Status:     "error",
+	// 		Data:       nil,
+	// 	})
+	// }
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "File uploaded successfully",
+		MessageTH:  "ไฟล์อัปโหลดสำเร็จ",
+		Status:     "success",
+		Data:       nil,
+	})
 }

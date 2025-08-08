@@ -12,15 +12,16 @@ import (
 )
 
 type UpLoadService struct {
-	config         config.Config
-	authRepo       ports.AuthRepository
-	upLoadRepo     ports.UpLoadRepository
-	storageService *storage.SupabaseStorage
-	userRepo       ports.UserRepository
+	config                   config.Config
+	authRepo                 ports.AuthRepository
+	upLoadRepo               ports.UpLoadRepository
+	storageService           *storage.SupabaseStorage
+	storageCloudflareService *storage.CloudflareStorage
+	userRepo                 ports.UserRepository
 }
 
-func NewUpLoadService(cfg config.Config, authRepo ports.AuthRepository, upLoadRepo ports.UpLoadRepository, storageService *storage.SupabaseStorage, userRepo ports.UserRepository) ports.UpLoadService {
-	return &UpLoadService{config: cfg, authRepo: authRepo, upLoadRepo: upLoadRepo, storageService: storageService, userRepo: userRepo}
+func NewUpLoadService(cfg config.Config, authRepo ports.AuthRepository, upLoadRepo ports.UpLoadRepository, storageService *storage.SupabaseStorage, userRepo ports.UserRepository, storageCloudflareService *storage.CloudflareStorage) ports.UpLoadService {
+	return &UpLoadService{config: cfg, authRepo: authRepo, upLoadRepo: upLoadRepo, storageService: storageService, userRepo: userRepo, storageCloudflareService: storageCloudflareService}
 }
 
 func (s *UpLoadService) UploadFile(ctx context.Context, filePath, key string) error {
@@ -81,4 +82,13 @@ func (s *UpLoadService) GetDownloadFile(ctx context.Context, req dto.RequestDown
 		return nil, fmt.Errorf("failed to download file: %w", err)
 	}
 	return fileContent, nil
+}
+
+func (s *UpLoadService) UploadFileCloudflare(ctx context.Context, filePath, key string) error {
+
+	err := s.storageCloudflareService.UploadFile(filePath, key)
+	if err != nil {
+		return fmt.Errorf("failed to upload file to storage: %w", err)
+	}
+	return nil
 }
