@@ -92,3 +92,11 @@ func (s *UpLoadService) UploadFileCloudflare(ctx context.Context, filePath, key 
 	}
 	return nil
 }
+
+func (s *UpLoadService) GetFileURLCloudflare(ctx context.Context, req dto.RequestGetFile) (string, error) {
+	url, err := s.storageCloudflareService.GetFileURLByName(req.Folder + "/" + req.File)
+	if err != nil {
+		return "", fmt.Errorf("failed to get file URL: %w", err)
+	}
+	return url, nil
+}

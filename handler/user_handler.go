@@ -550,7 +550,7 @@ func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
 		})
 	}
 
-	url, errOnGetURL := h.upload.GetFileURL(c.Context(), dto.RequestGetFile{
+	url, errOnGetURL := h.upload.GetFileURLCloudflare(c.Context(), dto.RequestGetFile{
 		Folder: req.Type,
 		File:   uuid + ext,
 	})

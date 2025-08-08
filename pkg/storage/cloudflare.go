@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
+	"path" // ใช้กับ key ของ S3/R2
+	"strings"
+	"time"
 
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
@@ -16,10 +18,11 @@ import (
 
 // CloudflareStorage provides methods to interact with Cloudflare R2
 type CloudflareStorage struct {
-	Client   *s3.S3
-	Bucket   string
-	Region   string
-	Endpoint string
+	Client        *s3.S3
+	Bucket        string
+	Region        string
+	Endpoint      string
+	PublicBaseURL string
 }
 
 // NewCloudflareStorage creates a new CloudflareStorage using the given
@@ -46,10 +49,11 @@ func NewCloudflareStorage(cfg config.CloudflareConfig) (*CloudflareStorage, erro
 	}
 
 	return &CloudflareStorage{
-		Client:   client,
-		Bucket:   cfg.Bucket,
-		Region:   cfg.Region,
-		Endpoint: cfg.Endpoint,
+		Client:        client,
+		Bucket:        cfg.Bucket,
+		Region:        cfg.Region,
+		Endpoint:      cfg.Endpoint,
+		PublicBaseURL: cfg.PublicBaseURL, // ตั้งค่าจาก config
 	}, nil
 }
 
@@ -93,9 +97,19 @@ func (c *CloudflareStorage) ListFileMetas(prefix string) ([]dto.FileMeta, error)
 	}
 
 	files := make([]dto.FileMeta, 0, len(result.Contents))
+
+	// ถ้ามี PublicBaseURL ให้ใช้เป็นลิงก์สาธารณะ: {PublicBaseURL}/{bucket}/{key}
+	// ถ้าไม่มี จะ fallback ไปใช้ endpoint เดิม (อาจเปิดไม่ได้ในเบราว์เซอร์ถ้าเป็น private)
+	publicBase := ""
+	if c.PublicBaseURL != "" {
+		publicBase = fmt.Sprintf("%s/%s", strings.TrimRight(c.PublicBaseURL, "/"), c.Bucket)
+	} else {
+		publicBase = fmt.Sprintf("%s/%s", strings.TrimRight(c.Endpoint, "/"), c.Bucket)
+	}
+
 	for _, item := range result.Contents {
 		key := *item.Key
-		url := fmt.Sprintf("%s/%s/%s", c.Endpoint, c.Bucket, key)
+		url := fmt.Sprintf("%s/%s", publicBase, key)
 		files = append(files, dto.FileMeta{
 			Name: key,
 			URL:  url,
@@ -108,7 +122,8 @@ func (c *CloudflareStorage) ListFileMetas(prefix string) ([]dto.FileMeta, error)
 
 // DownloadFile retrieves a file from the specified folder and file name.
 func (c *CloudflareStorage) DownloadFile(folder, fileName string) ([]byte, error) {
-	key := filepath.Join(folder, fileName)
+	// ใช้ path.Join เพื่อให้เป็น "/"
+	key := path.Join(folder, fileName)
 
 	out, err := c.Client.GetObject(&s3.GetObjectInput{
 		Bucket: aws.String(c.Bucket),
@@ -129,7 +144,8 @@ func (c *CloudflareStorage) DownloadFile(folder, fileName string) ([]byte, error
 
 // DeleteFile removes the specified file from the bucket.
 func (c *CloudflareStorage) DeleteFile(folder, fileName string) error {
-	key := filepath.Join(folder, fileName)
+	// ใช้ path.Join เพื่อให้เป็น "/"
+	key := path.Join(folder, fileName)
 
 	_, err := c.Client.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(c.Bucket),
@@ -148,4 +164,35 @@ func (c *CloudflareStorage) DeleteFile(folder, fileName string) error {
 	}
 
 	return nil
+}
+
+func (c *CloudflareStorage) GetFileURLByName(key string) (string, error) {
+	if key == "" {
+		return "", fmt.Errorf("key is required")
+	}
+
+	// Normalize to S3-style key separators
+	cleanKey := strings.ReplaceAll(key, "\\", "/")
+	cleanKey = strings.TrimPrefix(cleanKey, "/")
+
+	var lastErr error
+	for i := 0; i < 3; i++ {
+		_, err := c.Client.HeadObject(&s3.HeadObjectInput{
+			Bucket: aws.String(c.Bucket),
+			Key:    aws.String(cleanKey),
+		})
+		if err == nil {
+			base := ""
+			if c.PublicBaseURL != "" {
+				base = strings.TrimRight(c.PublicBaseURL, "/")
+			} else {
+				base = strings.TrimRight(c.Endpoint, "/")
+			}
+			return fmt.Sprintf("%s/%s", base, cleanKey), nil
+		}
+		lastErr = err
+		time.Sleep(time.Duration(150*(i+1)) * time.Millisecond)
+	}
+
+	return "", fmt.Errorf("file not found: %w", lastErr)
 }

@@ -52,11 +52,12 @@ type SupabaseConfig struct {
 }
 
 type CloudflareConfig struct {
-	AccessKey string
-	SecretKey string
-	Bucket    string
-	Region    string
-	Endpoint  string
+	AccessKey     string
+	SecretKey     string
+	Bucket        string
+	Region        string
+	Endpoint      string
+	PublicBaseURL string
 }
 
 type Config struct {
@@ -105,6 +106,7 @@ func LoadConfig() (*Config, error) {
 	cfg.Cloudflare.Bucket = os.Getenv("CLOUDFLARE_BUCKET")
 	cfg.Cloudflare.Region = os.Getenv("CLOUDFLARE_REGION")
 	cfg.Cloudflare.Endpoint = os.Getenv("CLOUDFLARE_ENDPOINT")
+	cfg.Cloudflare.PublicBaseURL = os.Getenv("CLOUDFLARE_PUBLIC_BASE_URL")
 
 	if cfg.Mongo.URI == "" && cfg.Mongo.Host == "" {
 		viper.SetConfigName("config")
@@ -146,6 +148,7 @@ func LoadConfig() (*Config, error) {
 		cfg.Cloudflare.Bucket = viper.GetString("cloudflare.bucket")
 		cfg.Cloudflare.Region = viper.GetString("cloudflare.region")
 		cfg.Cloudflare.Endpoint = viper.GetString("cloudflare.endpoint")
+		cfg.Cloudflare.PublicBaseURL = viper.GetString("cloudflare.public_base_url")
 
 	}
 

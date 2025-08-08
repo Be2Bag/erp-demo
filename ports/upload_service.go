@@ -13,4 +13,5 @@ type UpLoadService interface {
 	DeleteFileByID(ctx context.Context, req dto.RequestDeleteFile) error
 	GetDownloadFile(ctx context.Context, req dto.RequestDownloadFile) ([]byte, error)
 	UploadFileCloudflare(ctx context.Context, filePath, key string) error
+	GetFileURLCloudflare(ctx context.Context, req dto.RequestGetFile) (string, error)
 }
