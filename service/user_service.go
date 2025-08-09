@@ -512,16 +512,16 @@ func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdate
 
 	if req.Type == "avatars" {
 
-		avatarURL := user.Avatar
-		parts := strings.Split(avatarURL, "/")
-		filename := ""
-		if len(parts) > 0 {
-			filename = parts[len(parts)-1]
-		}
-		errOnDelete := s.storageService.DeleteFile("avatars", filename)
-		if errOnDelete != nil {
-			return nil, fmt.Errorf("failed to delete file: %w", errOnDelete)
-		}
+		// avatarURL := user.Avatar
+		// parts := strings.Split(avatarURL, "/")
+		// filename := ""
+		// if len(parts) > 0 {
+		// 	filename = parts[len(parts)-1]
+		// }
+		// errOnDelete := s.storageService.DeleteFile("avatars", filename)
+		// if errOnDelete != nil {
+		// 	return nil, fmt.Errorf("failed to delete file: %w", errOnDelete)
+		// }
 
 		user.Avatar = req.FileURL
 
