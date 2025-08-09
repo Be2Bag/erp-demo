@@ -457,7 +457,7 @@ func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusBadRequest,
-				MessageEN:  "User not found",
+				MessageEN:  "User not found" + err.Error(),
 				MessageTH:  "ไม่พบผู้ใช้",
 				Status:     "error",
 				Data:       nil,
@@ -466,7 +466,7 @@ func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
 
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to delete user",
+			MessageEN:  "Failed to delete user" + err.Error(),
 			MessageTH:  "ไม่สามารถลบผู้ใช้ได้",
 			Status:     "error",
 			Data:       nil,
@@ -505,7 +505,7 @@ func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Failed to parse uploaded file",
+			MessageEN:  "Failed to parse uploaded file" + err.Error(),
 			MessageTH:  "ไม่สามารถแยกไฟล์ที่อัปโหลดได้",
 			Status:     "error",
 			Data:       nil,
@@ -571,7 +571,7 @@ func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
 	if errOnUpdate != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to update documents",
+			MessageEN:  "Failed to update documents" + errOnUpdate.Error(),
 			MessageTH:  "ไม่สามารถอัปเดตเอกสารได้",
 			Status:     "error",
 			Data:       nil,
