@@ -51,7 +51,7 @@ func (s *UpLoadService) GetFileURL(ctx context.Context, req dto.RequestGetFile) 
 
 func (s *UpLoadService) DeleteFileByID(ctx context.Context, req dto.RequestDeleteFile) error {
 
-	err := s.storageService.DeleteFile(req.Type, req.Name)
+	err := s.storageCloudflareService.DeleteFile(req.Type, req.Name)
 	if err != nil {
 		return fmt.Errorf("failed to delete file: %w", err)
 	}
@@ -77,7 +77,7 @@ func (s *UpLoadService) DeleteFileByID(ctx context.Context, req dto.RequestDelet
 }
 
 func (s *UpLoadService) GetDownloadFile(ctx context.Context, req dto.RequestDownloadFile) ([]byte, error) {
-	fileContent, err := s.storageService.DownloadFile(req.Type, req.Name)
+	fileContent, err := s.storageCloudflareService.DownloadFile(req.Type, req.Name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download file: %w", err)
 	}

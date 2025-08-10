@@ -19,14 +19,15 @@ import (
 )
 
 type userService struct {
-	config         config.Config
-	userRepo       ports.UserRepository
-	dropDownRepo   ports.DropDownRepository
-	storageService *storage.SupabaseStorage
+	config            config.Config
+	userRepo          ports.UserRepository
+	dropDownRepo      ports.DropDownRepository
+	storageService    *storage.SupabaseStorage
+	storageCloudflare *storage.CloudflareStorage
 }
 
-func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository, ss *storage.SupabaseStorage) ports.UserService {
-	return &userService{config: cfg, userRepo: ur, dropDownRepo: dr, storageService: ss}
+func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository, ss *storage.SupabaseStorage, sc *storage.CloudflareStorage) ports.UserService {
+	return &userService{config: cfg, userRepo: ur, dropDownRepo: dr, storageService: ss, storageCloudflare: sc}
 }
 
 func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) error {
@@ -512,16 +513,16 @@ func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdate
 
 	if req.Type == "avatars" {
 
-		// avatarURL := user.Avatar
-		// parts := strings.Split(avatarURL, "/")
-		// filename := ""
-		// if len(parts) > 0 {
-		// 	filename = parts[len(parts)-1]
-		// }
-		// errOnDelete := s.storageService.DeleteFile("avatars", filename)
-		// if errOnDelete != nil {
-		// 	return nil, fmt.Errorf("failed to delete file: %w", errOnDelete)
-		// }
+		avatarURL := user.Avatar
+		parts := strings.Split(avatarURL, "/")
+		filename := ""
+		if len(parts) > 0 {
+			filename = parts[len(parts)-1]
+		}
+		errOnDelete := s.storageCloudflare.DeleteFile(req.Type, filename)
+		if errOnDelete != nil {
+			return nil, fmt.Errorf("failed to delete file: %w", errOnDelete)
+		}
 
 		user.Avatar = req.FileURL
 
@@ -530,6 +531,19 @@ func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdate
 		var documents []models.Document
 		for _, doc := range user.Documents {
 			if doc.Type == req.Type {
+
+				documentsURL := doc.FileURL
+				parts := strings.Split(documentsURL, "/")
+				filename := ""
+				if len(parts) > 0 {
+					filename = parts[len(parts)-1]
+				}
+
+				errOnDelete := s.storageCloudflare.DeleteFile(req.Type, filename)
+				if errOnDelete != nil {
+					return nil, fmt.Errorf("failed to delete file: %w", errOnDelete)
+				}
+
 				doc.Name = req.Name
 				doc.FileURL = req.FileURL
 				doc.UploadedAt = time.Now()

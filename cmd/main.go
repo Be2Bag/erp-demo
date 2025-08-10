@@ -53,7 +53,7 @@ func main() {
 	upLoadRepo := repository.NewUpLoadRepository(database)
 	kpiRepo := repository.NewKPIRepository(database)
 
-	userSvc := service.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage)
+	userSvc := service.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage)
 	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
 	adminSvc := service.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	dropDownSvc := service.NewDropDownService(*cfg, dropDownRepo)
