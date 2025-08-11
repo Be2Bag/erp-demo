@@ -37,6 +37,21 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 	kpi.Get("/stats", h.mdw.AuthCookieMiddleware(), h.GetKPIStatistics)
 }
 
+// @Summary Get KPI Templates
+// @Description Get a list of KPI Templates
+// @Tags KPI
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Page size"
+// @Param search query string false "Search keyword"
+// @Param department query string false "Department"
+// @Param is_active query bool false "Is Active"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseResponse
+// @Failure 401 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/kpi/templates [get]
 func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 	// parse query params
 	page, _ := strconv.Atoi(c.Query("page", "1"))
@@ -51,10 +66,11 @@ func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 	dept := strings.TrimSpace(c.Query("department", ""))
 	var isActivePtr *bool
 	if v := c.Query("is_active", ""); v != "" {
-		if v == "true" || v == "1" {
+		switch v {
+		case "true", "1":
 			t := true
 			isActivePtr = &t
-		} else if v == "false" || v == "0" {
+		case "false", "0":
 			f := false
 			isActivePtr = &f
 		}
