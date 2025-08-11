@@ -840,6 +840,53 @@ paths:
       tags:
       - dropdown
   /v1/kpi/templates:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of KPI Templates
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: limit
+        type: integer
+      - description: Search keyword
+        in: query
+        name: search
+        type: string
+      - description: Department
+        in: query
+        name: department
+        type: string
+      - description: Is Active
+        in: query
+        name: is_active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get KPI Templates
+      tags:
+      - KPI
     post:
       consumes:
       - application/json
