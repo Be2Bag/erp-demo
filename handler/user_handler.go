@@ -281,8 +281,19 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Router /v1/user [get]
 func (h *UserHandler) GetAllUser(c *fiber.Ctx) error {
 
-	cookie := c.Cookies("auth_token")
-	log.Println("Auth Token:", cookie)
+	claimsVal := c.Locals("auth_claims")
+	claims, ok := claimsVal.(*dto.JWTClaims)
+	if !ok || claims == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized: claims not found",
+			MessageTH:  "ไม่ได้รับอนุญาต: ไม่พบ claims",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	log.Printf("GetAllUser requested by UserID=%s Role=%s", claims.UserID, claims.Role)
 
 	var req dto.RequestGetUserAll
 	if err := c.QueryParser(&req); err != nil {

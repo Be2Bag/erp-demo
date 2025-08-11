@@ -5,14 +5,21 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
 
-func GenerateJWTToken(claims map[string]interface{}, secretKey string, expiration time.Duration) (string, error) {
-	tokenClaims := jwt.MapClaims{}
-	for k, v := range claims {
-		tokenClaims[k] = v
+func GenerateJWTToken(claims dto.JWTClaims, secretKey string, expiration time.Duration) (string, error) {
+	tokenClaims := jwt.MapClaims{
+		"UserID":       claims.UserID,
+		"EmployeeCode": claims.EmployeeCode,
+		"Role":         claims.Role,
+		"TitleTH":      claims.TitleTH,
+		"FirstNameTH":  claims.FirstNameTH,
+		"LastNameTH":   claims.LastNameTH,
+		"Avatar":       claims.Avatar,
+		"Status":       claims.Status,
 	}
 	if expiration > 0 {
 		tokenClaims["exp"] = time.Now().Add(expiration).Unix()
@@ -89,4 +96,41 @@ func DeleteCookie(ctx *fiber.Ctx, name string) {
 		SameSite: "None",
 		Domain:   domain,
 	})
+}
+
+// VerifyAndParseJWTClaims returns typed claims.
+func VerifyAndParseJWTClaims(tokenStr, secretKey string) (*dto.JWTClaims, error) {
+	raw, err := VerifyJWTToken(tokenStr, secretKey)
+	if err != nil {
+		return nil, err
+	}
+	c := &dto.JWTClaims{}
+	if v, ok := raw["UserID"].(string); ok {
+		c.UserID = v
+	}
+	if v, ok := raw["EmployeeCode"].(string); ok {
+		c.EmployeeCode = v
+	}
+	if v, ok := raw["Role"].(string); ok {
+		c.Role = v
+	}
+	if v, ok := raw["TitleTH"].(string); ok {
+		c.TitleTH = v
+	}
+	if v, ok := raw["FirstNameTH"].(string); ok {
+		c.FirstNameTH = v
+	}
+	if v, ok := raw["LastNameTH"].(string); ok {
+		c.LastNameTH = v
+	}
+	if v, ok := raw["Avatar"].(string); ok {
+		c.Avatar = v
+	}
+	if v, ok := raw["Status"].(string); ok {
+		c.Status = v
+	}
+	if v, ok := raw["exp"].(float64); ok {
+		c.Exp = int64(v)
+	}
+	return c, nil
 }

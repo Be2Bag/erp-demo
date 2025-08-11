@@ -78,7 +78,7 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	app.Use(middleware.TimeoutMiddleware(30 * time.Second))
+	app.Use(authCookieMiddleware.TimeoutMiddleware(10 * time.Second))
 
 	apiGroup := app.Group("/service/api")
 	userHdl.UserRoutes(apiGroup)

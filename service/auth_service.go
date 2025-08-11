@@ -57,15 +57,15 @@ func (s *authService) Login(ctx context.Context, user dto.RequestLogin) (string,
 		return "", fmt.Errorf("invalid password")
 	}
 
-	claims := map[string]interface{}{
-		"UserID":       userData[0].UserID,
-		"EmployeeCode": userData[0].EmployeeCode,
-		"Role":         userData[0].Role,
-		"TitleTH":      userData[0].TitleTH,
-		"FirstNameTH":  userData[0].FirstNameTH,
-		"LastNameTH":   userData[0].LastNameTH,
-		"Avatar":       userData[0].Avatar,
-		"Status":       userData[0].Status,
+	claims := dto.JWTClaims{
+		UserID:       userData[0].UserID,
+		EmployeeCode: userData[0].EmployeeCode,
+		Role:         userData[0].Role,
+		TitleTH:      userData[0].TitleTH,
+		FirstNameTH:  userData[0].FirstNameTH,
+		LastNameTH:   userData[0].LastNameTH,
+		Avatar:       userData[0].Avatar,
+		Status:       userData[0].Status,
 	}
 
 	token, err := util.GenerateJWTToken(claims, s.config.JWT.SecretKey, 50000*time.Second) // 5 minutes expiration
@@ -98,7 +98,18 @@ func (s *authService) ResetPassword(ctx context.Context, req dto.RequestResetPas
 		return mongo.ErrNoDocuments
 	}
 
-	token, err := util.GenerateJWTToken(map[string]interface{}{"email": req.Email}, s.config.JWT.SecretKey, 15*time.Minute) // 15 minutes expiration
+	claims := dto.JWTClaims{
+		UserID:       userData[0].UserID,
+		EmployeeCode: userData[0].EmployeeCode,
+		Role:         userData[0].Role,
+		TitleTH:      userData[0].TitleTH,
+		FirstNameTH:  userData[0].FirstNameTH,
+		LastNameTH:   userData[0].LastNameTH,
+		Avatar:       userData[0].Avatar,
+		Status:       userData[0].Status,
+	}
+
+	token, err := util.GenerateJWTToken(claims, s.config.JWT.SecretKey, 15*time.Minute) // 15 minutes expiration
 	if err != nil {
 		return fmt.Errorf("failed to generate reset token: %w", err)
 	}
