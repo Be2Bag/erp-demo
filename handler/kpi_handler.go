@@ -1,6 +1,9 @@
 package handler
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
@@ -72,10 +75,41 @@ func (h *KPIHandler) CreateKPITemplate(c *fiber.Ctx) error {
 		})
 	}
 	if err := h.svc.CreateKPITemplate(c.Context(), template, claims); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create KPI Template" + err.Error(),
-			MessageTH:  "ไม่สามารถสร้างแม่แบบ KPI ได้",
+		var (
+			statusCode int
+			messageEN  string
+			messageTH  string
+		)
+
+		switch {
+		case err.Error() == "items must not be empty":
+			statusCode = fiber.StatusBadRequest
+			messageEN = "Failed to create KPI Template: items must not be empty"
+			messageTH = "ไม่สามารถสร้างแม่แบบ KPI ได้: ต้องมีรายการอย่างน้อยหนึ่งรายการ"
+		case err.Error() == "sum of weights must be 100, got "+fmt.Sprint(template.TotalWeight):
+			statusCode = fiber.StatusBadRequest
+			messageEN = "Failed to create KPI Template: sum of weights must be 100, got " + fmt.Sprint(template.TotalWeight)
+			messageTH = "ไม่สามารถสร้างแม่แบบ KPI ได้: ผลรวมของน้ำหนักต้องเท่ากับ 100"
+		case err.Error() == "template with the same name already exists in this department":
+			statusCode = fiber.StatusBadRequest
+			messageEN = "Failed to create KPI Template: template with the same name already exists in this department"
+			messageTH = "ไม่สามารถสร้างแม่แบบ KPI ได้: มีแม่แบบชื่อเดียวกันในแผนกนี้แล้ว"
+		default:
+			if strings.Contains(err.Error(), "items[") && (strings.Contains(err.Error(), "max_score") || strings.Contains(err.Error(), "weight")) {
+				statusCode = fiber.StatusBadRequest
+				messageEN = "Failed to create KPI Template: " + err.Error()
+				messageTH = "ไม่สามารถสร้างแม่แบบ KPI ได้: ข้อมูลรายการไม่ถูกต้อง"
+			} else {
+				statusCode = fiber.StatusInternalServerError
+				messageEN = "Failed to create KPI Template: " + err.Error()
+				messageTH = "ไม่สามารถสร้างแม่แบบ KPI ได้"
+			}
+		}
+
+		return c.Status(statusCode).JSON(dto.BaseResponse{
+			StatusCode: statusCode,
+			MessageEN:  messageEN,
+			MessageTH:  messageTH,
 			Status:     "error",
 			Data:       nil,
 		})
