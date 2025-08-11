@@ -173,7 +173,6 @@ func (h *KPIHandler) CreateKPITemplate(c *fiber.Ctx) error {
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/kpi/templates/{id} [get]
-
 func (h *KPIHandler) GetKPITemplateByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {

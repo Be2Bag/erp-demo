@@ -906,6 +906,38 @@ paths:
       summary: Delete a KPI Template
       tags:
       - KPI
+    get:
+      consumes:
+      - application/json
+      description: Get a KPI Template by ID
+      parameters:
+      - description: KPI Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a KPI Template by ID
+      tags:
+      - KPI
     put:
       consumes:
       - application/json

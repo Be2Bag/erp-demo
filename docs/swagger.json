@@ -584,6 +584,54 @@
             }
         },
         "/v1/kpi/templates/{id}": {
+            "get": {
+                "description": "Get a KPI Template by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KPI"
+                ],
+                "summary": "Get a KPI Template by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "KPI Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update a KPI Template",
                 "consumes": [
