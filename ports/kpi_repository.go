@@ -7,7 +7,7 @@ import (
 )
 
 type KPIRepository interface {
-	GetKPITemplates(ctx context.Context, filter interface{}) ([]interface{}, error)
+	GetKPITemplates(ctx context.Context, filter interface{}, options interface{}) ([]models.KPITemplate, error)
 	CreateKPITemplate(ctx context.Context, template models.KPITemplate) error
 	GetKPITemplateByID(ctx context.Context, id string) (interface{}, error)
 	UpdateKPITemplate(ctx context.Context, id string, updatedTemplate interface{}) error

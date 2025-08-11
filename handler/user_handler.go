@@ -280,16 +280,6 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Router /v1/user [get]
 func (h *UserHandler) GetAllUser(c *fiber.Ctx) error {
 
-	// claims, err := middleware.GetClaims(c)
-	// if err != nil {
-	// 	return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
-	// 		StatusCode: fiber.StatusUnauthorized,
-	// 		MessageEN:  "Unauthorized",
-	// 		MessageTH:  "ไม่ได้รับอนุญาต",
-	// 		Status:     "error",
-	// 	})
-	// }
-
 	var req dto.RequestGetUserAll
 	if err := c.QueryParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
