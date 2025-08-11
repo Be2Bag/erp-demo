@@ -500,6 +500,26 @@ func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
 
 	req.UserID = c.FormValue("user_id")
 	req.Type = c.FormValue("type")
+	allowedTypes := map[string]bool{
+		"avatars":    true,
+		"idcards":    true,
+		"graduation": true,
+		"transcript": true,
+		"resume":     true,
+		"health":     true,
+		"military":   true,
+		"criminal":   true,
+		"other":      true,
+	}
+	if !allowedTypes[req.Type] {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid document type",
+			MessageTH:  "ประเภทเอกสารไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
 
 	fileHeader, err := c.FormFile("file")
 	if err != nil {

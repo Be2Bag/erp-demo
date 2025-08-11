@@ -70,13 +70,23 @@ func SetSessionCookie(c *fiber.Ctx, name, value string, duration time.Duration) 
 }
 
 func DeleteCookie(ctx *fiber.Ctx, name string) {
+	domain := ""
+	secure := false
+
+	// ถ้าไม่ใช่ localhost ให้ตั้ง domain และ secure
+	if !strings.Contains(ctx.Hostname(), "localhost") {
+		domain = ".rkp-media.com"
+		secure = true
+	}
+
 	ctx.Cookie(&fiber.Cookie{
 		Name:     name,
 		Path:     "/",
 		Expires:  time.Now().Add(-time.Hour),
 		MaxAge:   -1,
 		HTTPOnly: true,
-		Secure:   true,
+		Secure:   secure,
 		SameSite: "None",
+		Domain:   domain,
 	})
 }
