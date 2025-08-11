@@ -538,6 +538,65 @@ const docTemplate = `{
             }
         },
         "/v1/kpi/templates": {
+            "get": {
+                "description": "Get all KPI Templates",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KPI"
+                ],
+                "summary": "Get all KPI Templates",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Department",
+                        "name": "department",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Name",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Is Active",
+                        "name": "is_active",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create a new KPI Template",
                 "consumes": [
@@ -564,6 +623,113 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/kpi/templates/{id}": {
+            "put": {
+                "description": "Update a KPI Template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KPI"
+                ],
+                "summary": "Update a KPI Template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "KPI Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "KPI Template Data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.KPITemplateDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a KPI Template",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KPI"
+                ],
+                "summary": "Delete a KPI Template",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "KPI Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
                         }
@@ -1419,14 +1585,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "department": {
-                    "description": "แผนก (เลือกจาก dropdown)",
+                    "description": "แผนก",
                     "type": "string"
                 },
-                "kpis": {
+                "items": {
                     "description": "รายการ KPI",
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/dto.KPITemplateItem"
+                        "$ref": "#/definitions/dto.KPITemplateItemDTO"
                     }
                 },
                 "name": {
@@ -1436,14 +1602,18 @@ const docTemplate = `{
                 "total_weight": {
                     "description": "น้ำหนักรวม (ต้อง = 100)",
                     "type": "integer"
+                },
+                "version": {
+                    "description": "เวอร์ชันของ Template",
+                    "type": "integer"
                 }
             }
         },
-        "dto.KPITemplateItem": {
+        "dto.KPITemplateItemDTO": {
             "type": "object",
             "properties": {
                 "category": {
-                    "description": "หมวดหมู่ (เลือกจาก dropdown)",
+                    "description": "หมวดหมู่",
                     "type": "string"
                 },
                 "description": {

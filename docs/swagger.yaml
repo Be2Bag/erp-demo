@@ -188,12 +188,12 @@ definitions:
   dto.KPITemplateDTO:
     properties:
       department:
-        description: แผนก (เลือกจาก dropdown)
+        description: แผนก
         type: string
-      kpis:
+      items:
         description: รายการ KPI
         items:
-          $ref: '#/definitions/dto.KPITemplateItem'
+          $ref: '#/definitions/dto.KPITemplateItemDTO'
         type: array
       name:
         description: ชื่อ Template
@@ -201,11 +201,14 @@ definitions:
       total_weight:
         description: น้ำหนักรวม (ต้อง = 100)
         type: integer
+      version:
+        description: เวอร์ชันของ Template
+        type: integer
     type: object
-  dto.KPITemplateItem:
+  dto.KPITemplateItemDTO:
     properties:
       category:
-        description: หมวดหมู่ (เลือกจาก dropdown)
+        description: หมวดหมู่
         type: string
       description:
         description: คำอธิบาย
@@ -837,6 +840,45 @@ paths:
       tags:
       - dropdown
   /v1/kpi/templates:
+    get:
+      consumes:
+      - application/json
+      description: Get all KPI Templates
+      parameters:
+      - description: Department
+        in: query
+        name: department
+        type: string
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Is Active
+        in: query
+        name: is_active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all KPI Templates
+      tags:
+      - KPI
     post:
       consumes:
       - application/json
@@ -868,6 +910,77 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Create a new KPI Template
+      tags:
+      - KPI
+  /v1/kpi/templates/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a KPI Template
+      parameters:
+      - description: KPI Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete a KPI Template
+      tags:
+      - KPI
+    put:
+      consumes:
+      - application/json
+      description: Update a KPI Template
+      parameters:
+      - description: KPI Template ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: KPI Template Data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.KPITemplateDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update a KPI Template
       tags:
       - KPI
   /v1/upload/download:

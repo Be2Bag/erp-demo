@@ -6,6 +6,7 @@ import (
 
 	"github.com/Be2Bag/erp-demo/models"
 	"github.com/Be2Bag/erp-demo/ports"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	mongoopt "go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -52,20 +53,47 @@ func (r *kpiRepo) CreateKPITemplate(ctx context.Context, template models.KPITemp
 	return err
 }
 
-// ดึงข้อมูลแม่แบบ KPI ตามรหัส
-func (r *kpiRepo) GetKPITemplateByID(ctx context.Context, id string) (interface{}, error) {
-	// การนำไปใช้สำหรับดึงข้อมูลแม่แบบ KPI ตามรหัส
-	return nil, nil
+// ดึงข้อมูลแม่แบบ KPI ตามรหัส (template_id)
+func (r *kpiRepo) GetKPITemplateByID(ctx context.Context, id string) (*models.KPITemplate, error) {
+	var tpl models.KPITemplate
+	err := r.coll.FindOne(ctx, bson.M{"template_id": id}).Decode(&tpl)
+	if err != nil {
+		return nil, err
+	}
+	return &tpl, nil
 }
 
-// อัปเดตแม่แบบ KPI
-func (r *kpiRepo) UpdateKPITemplate(ctx context.Context, id string, updatedTemplate interface{}) error {
-	// การนำไปใช้สำหรับอัปเดตแม่แบบ KPI
-	return nil
+// อัปเดตแม่แบบ KPI (แทนที่ฟิลด์หลัก + items)
+func (r *kpiRepo) UpdateKPITemplate(ctx context.Context, id string, updated models.KPITemplate) (*models.KPITemplate, error) {
+	update := bson.M{
+		"$set": bson.M{
+			"name":         updated.Name,
+			"department":   updated.Department,
+			"items":        updated.Items,
+			"total_weight": updated.TotalWeight,
+			"version":      updated.Version,
+			"is_active":    updated.IsActive,
+			"updated_at":   updated.UpdatedAt,
+		},
+	}
+	res, err := r.coll.UpdateOne(ctx, bson.M{"template_id": id}, update)
+	if err != nil {
+		return nil, err
+	}
+	if res.MatchedCount == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+	return r.GetKPITemplateByID(ctx, id)
 }
 
 // ลบแม่แบบ KPI
 func (r *kpiRepo) DeleteKPITemplate(ctx context.Context, id string) error {
-	// การนำไปใช้สำหรับลบแม่แบบ KPI
+	res, err := r.coll.DeleteOne(ctx, bson.M{"template_id": id})
+	if err != nil {
+		return err
+	}
+	if res.DeletedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
 	return nil
 }

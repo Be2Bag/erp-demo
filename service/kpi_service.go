@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -26,8 +27,18 @@ func NewKPIService(cfg config.Config, kpiRepo ports.KPIRepository, userRepo port
 }
 
 func (s *kpiService) GetKPITemplates(ctx context.Context, filter interface{}) ([]interface{}, error) {
-	// ฟังก์ชันสำหรับดึงข้อมูล KPI templates
-	return nil, nil
+	if filter == nil {
+		filter = bson.M{}
+	}
+	list, err := s.kpiRepo.GetKPITemplates(ctx, filter, nil)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]interface{}, len(list))
+	for i := range list {
+		out[i] = list[i]
+	}
+	return out, nil
 }
 
 func (s *kpiService) CreateKPITemplate(ctx context.Context, req dto.KPITemplateDTO, claims *dto.JWTClaims) error {
@@ -105,16 +116,88 @@ func (s *kpiService) CreateKPITemplate(ctx context.Context, req dto.KPITemplateD
 }
 
 func (s *kpiService) GetKPITemplateByID(ctx context.Context, id string) (interface{}, error) {
-	// ฟังก์ชันสำหรับดึง KPI template ตาม ID
-	return nil, nil
+	tpl, err := s.kpiRepo.GetKPITemplateByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	return tpl, nil
 }
 
-func (s *kpiService) UpdateKPITemplate(ctx context.Context, id string, updatedTemplate interface{}) error {
-	// ฟังก์ชันสำหรับอัปเดต KPI template
-	return nil
+func (s *kpiService) UpdateKPITemplate(ctx context.Context, id string, updated dto.KPITemplateDTO, claims *dto.JWTClaims) (interface{}, error) {
+	// fetch existing
+	existing, err := s.kpiRepo.GetKPITemplateByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// validate items
+	if len(updated.Items) == 0 {
+		return nil, errors.New("items must not be empty")
+	}
+	sum := 0
+	now := time.Now()
+	items := make([]models.KPITemplateItem, 0, len(updated.Items))
+	for i, it := range updated.Items {
+		if it.MaxScore <= 0 {
+			return nil, fmt.Errorf("items[%d].max_score must be > 0", i)
+		}
+		if it.Weight <= 0 {
+			return nil, fmt.Errorf("items[%d].weight must be > 0", i)
+		}
+		sum += it.Weight
+		items = append(items, models.KPITemplateItem{
+			ItemID:      uuid.NewString(),
+			Name:        it.Name,
+			Description: it.Description,
+			Category:    it.Category,
+			MaxScore:    it.MaxScore,
+			Weight:      it.Weight,
+			CreatedAt:   now,
+			UpdatedAt:   now,
+		})
+	}
+	if sum != 100 {
+		return nil, errors.New("sum of weights must be 100")
+	}
+
+	// duplicate name in same department (exclude self)
+	filter := bson.M{
+		"name":       updated.Name,
+		"department": updated.Department,
+		"template_id": bson.M{
+			"$ne": id,
+		},
+	}
+	opts := options.Find().SetProjection(bson.M{"_id": 1})
+	exist, err := s.kpiRepo.GetKPITemplates(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	if len(exist) > 0 {
+		return nil, errors.New("template with the same name already exists in this department")
+	}
+
+	existing.Name = updated.Name
+	existing.Department = updated.Department
+	existing.Items = items
+	existing.TotalWeight = 100
+	existing.Version = existing.Version + 1
+	existing.UpdatedAt = now
+	// keep IsActive and CreatedBy as-is (optionally could audit claims.UserID)
+
+	updatedTpl, err := s.kpiRepo.UpdateKPITemplate(ctx, id, *existing)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedTpl, nil
 }
 
 func (s *kpiService) DeleteKPITemplate(ctx context.Context, id string) error {
-	// ฟังก์ชันสำหรับลบ KPI template
-	return nil
+	// ensure exists first for clearer error (optional)
+	_, err := s.kpiRepo.GetKPITemplateByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	return s.kpiRepo.DeleteKPITemplate(ctx, id)
 }
