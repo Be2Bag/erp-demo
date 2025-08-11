@@ -36,11 +36,11 @@ func (h *UserHandler) UserRoutes(router fiber.Router) {
 	user := versionOne.Group("user")
 
 	user.Post("/", h.CreateUser)
-	user.Get("/", h.mdw.AuthCookieMiddleware(), h.GetAllUser) // updated to use injected middleware
-	user.Get("/:id", h.GetUserByID)
-	user.Put("/documents", h.UpdateDocuments)
-	user.Put("/:id", h.UpdateUserByID)
-	user.Delete("/:id", h.DeleteUserByID)
+	user.Get("/", h.mdw.AuthCookieMiddleware(), h.GetAllUser)
+	user.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetUserByID)
+	user.Put("/documents", h.mdw.AuthCookieMiddleware(), h.UpdateDocuments)
+	user.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateUserByID)
+	user.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteUserByID)
 
 }
 
@@ -281,19 +281,17 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Router /v1/user [get]
 func (h *UserHandler) GetAllUser(c *fiber.Ctx) error {
 
-	claimsVal := c.Locals("auth_claims")
-	claims, ok := claimsVal.(*dto.JWTClaims)
-	if !ok || claims == nil {
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusUnauthorized,
-			MessageEN:  "Unauthorized: claims not found",
-			MessageTH:  "ไม่ได้รับอนุญาต: ไม่พบ claims",
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
 			Status:     "error",
-			Data:       nil,
 		})
 	}
 
-	log.Printf("GetAllUser requested by UserID=%s Role=%s", claims.UserID, claims.Role)
+	log.Println(claims)
 
 	var req dto.RequestGetUserAll
 	if err := c.QueryParser(&req); err != nil {

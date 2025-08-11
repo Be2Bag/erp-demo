@@ -57,6 +57,14 @@ func (m *Middleware) AuthCookieMiddleware() fiber.Handler {
 	}
 }
 
+func GetClaims(c *fiber.Ctx) (*dto.JWTClaims, error) {
+	claims, ok := c.Locals("auth_claims").(*dto.JWTClaims)
+	if !ok || claims == nil || claims.UserID == "" {
+		return nil, fiber.ErrUnauthorized
+	}
+	return claims, nil
+}
+
 func (m *Middleware) TimeoutMiddleware(d time.Duration) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		ctx, cancel := context.WithTimeout(context.Background(), d)
