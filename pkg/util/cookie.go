@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -98,39 +99,19 @@ func DeleteCookie(ctx *fiber.Ctx, name string) {
 	})
 }
 
-// VerifyAndParseJWTClaims returns typed claims.
 func VerifyAndParseJWTClaims(tokenStr, secretKey string) (*dto.JWTClaims, error) {
 	raw, err := VerifyJWTToken(tokenStr, secretKey)
 	if err != nil {
 		return nil, err
 	}
-	c := &dto.JWTClaims{}
-	if v, ok := raw["UserID"].(string); ok {
-		c.UserID = v
+
+	b, err := json.Marshal(raw)
+	if err != nil {
+		return nil, err
 	}
-	if v, ok := raw["EmployeeCode"].(string); ok {
-		c.EmployeeCode = v
+	var claims dto.JWTClaims
+	if err := json.Unmarshal(b, &claims); err != nil {
+		return nil, err
 	}
-	if v, ok := raw["Role"].(string); ok {
-		c.Role = v
-	}
-	if v, ok := raw["TitleTH"].(string); ok {
-		c.TitleTH = v
-	}
-	if v, ok := raw["FirstNameTH"].(string); ok {
-		c.FirstNameTH = v
-	}
-	if v, ok := raw["LastNameTH"].(string); ok {
-		c.LastNameTH = v
-	}
-	if v, ok := raw["Avatar"].(string); ok {
-		c.Avatar = v
-	}
-	if v, ok := raw["Status"].(string); ok {
-		c.Status = v
-	}
-	if v, ok := raw["exp"].(float64); ok {
-		c.Exp = int64(v)
-	}
-	return c, nil
+	return &claims, nil
 }
