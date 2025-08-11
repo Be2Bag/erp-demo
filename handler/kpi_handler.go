@@ -38,19 +38,6 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 	kpi.Get("/stats", h.mdw.AuthCookieMiddleware(), h.GetKPIStatistics)
 }
 
-// @Summary Get all KPI Templates
-// @Description Get all KPI Templates
-// @Tags KPI
-// @Accept json
-// @Produce json
-// @Param department query string false "Department"
-// @Param name query string false "Name"
-// @Param is_active query boolean false "Is Active"
-// @Success 200 {object} dto.BaseResponse
-// @Failure 400 {object} dto.BaseResponse
-// @Failure 401 {object} dto.BaseResponse
-// @Failure 500 {object} dto.BaseResponse
-// @Router /v1/kpi/templates [get]
 func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 	filter := bson.M{}
 

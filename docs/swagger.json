@@ -532,65 +532,6 @@
             }
         },
         "/v1/kpi/templates": {
-            "get": {
-                "description": "Get all KPI Templates",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "KPI"
-                ],
-                "summary": "Get all KPI Templates",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Department",
-                        "name": "department",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Name",
-                        "name": "name",
-                        "in": "query"
-                    },
-                    {
-                        "type": "boolean",
-                        "description": "Is Active",
-                        "name": "is_active",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "Create a new KPI Template",
                 "consumes": [
