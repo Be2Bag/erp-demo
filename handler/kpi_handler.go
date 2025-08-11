@@ -2,32 +2,34 @@ package handler
 
 import (
 	"github.com/Be2Bag/erp-demo/dto"
+	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
 )
 
 type KPIHandler struct {
 	svc ports.KPIService
+	mdw *middleware.Middleware
 }
 
-func NewKPIHandler(s ports.KPIService) *KPIHandler {
-	return &KPIHandler{svc: s}
+func NewKPIHandler(s ports.KPIService, mdw *middleware.Middleware) *KPIHandler {
+	return &KPIHandler{svc: s, mdw: mdw}
 }
 
 func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	kpi := versionOne.Group("kpi")
 
-	kpi.Get("/templates", h.GetKPITemplates)
-	kpi.Post("/templates", h.CreateKPITemplate)
-	kpi.Get("/templates/:id", h.GetKPITemplateByID)
-	kpi.Put("/templates/:id", h.UpdateKPITemplate)
-	kpi.Delete("/templates/:id", h.DeleteKPITemplate)
+	kpi.Get("/templates", h.mdw.AuthCookieMiddleware(), h.GetKPITemplates)
+	kpi.Post("/templates", h.mdw.AuthCookieMiddleware(), h.CreateKPITemplate)
+	kpi.Get("/templates/:id", h.mdw.AuthCookieMiddleware(), h.GetKPITemplateByID)
+	kpi.Put("/templates/:id", h.mdw.AuthCookieMiddleware(), h.UpdateKPITemplate)
+	kpi.Delete("/templates/:id", h.mdw.AuthCookieMiddleware(), h.DeleteKPITemplate)
 
-	kpi.Get("/evaluations", h.GetKPIEvaluations)
-	kpi.Post("/evaluations", h.CreateKPIEvaluation)
+	kpi.Get("/evaluations", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluations)
+	kpi.Post("/evaluations", h.mdw.AuthCookieMiddleware(), h.CreateKPIEvaluation)
 
-	kpi.Get("/stats", h.GetKPIStatistics)
+	kpi.Get("/stats", h.mdw.AuthCookieMiddleware(), h.GetKPIStatistics)
 }
 
 // ตัวจัดการสำหรับการจัดการแม่แบบ KPI

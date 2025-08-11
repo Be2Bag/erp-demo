@@ -68,7 +68,7 @@ func main() {
 	adminHdl := handler.NewAdminHandler(adminSvc)
 	dropDownHdl := handler.NewDropDownHandler(dropDownSvc)
 	authHdl := handler.NewAuthHandler(authSvc)
-	kpiHdl := handler.NewKPIHandler(kpiSvc)
+	kpiHdl := handler.NewKPIHandler(kpiSvc, authCookieMiddleware)
 
 	app := fiber.New()
 

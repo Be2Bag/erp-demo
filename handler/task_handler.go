@@ -1,31 +1,33 @@
 package handler
 
 import (
+	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
 )
 
 type TaskHandler struct {
 	svc ports.TaskService
+	mdw *middleware.Middleware
 }
 
-func NewTaskHandler(s ports.TaskService) *TaskHandler {
-	return &TaskHandler{svc: s}
+func NewTaskHandler(s ports.TaskService, mdw *middleware.Middleware) *TaskHandler {
+	return &TaskHandler{svc: s, mdw: mdw}
 }
 
 func (h *TaskHandler) TaskRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	tasks := versionOne.Group("tasks")
 
-	tasks.Get("/", h.GetTasks)
-	tasks.Post("/", h.CreateTask)
-	tasks.Get("/:id", h.GetTaskByID)
-	tasks.Put("/:id", h.UpdateTask)
-	tasks.Delete("/:id", h.DeleteTask)
+	tasks.Get("/", h.mdw.AuthCookieMiddleware(), h.GetTasks)
+	tasks.Post("/", h.mdw.AuthCookieMiddleware(), h.CreateTask)
+	tasks.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetTaskByID)
+	tasks.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateTask)
+	tasks.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteTask)
 
-	tasks.Put("/:id/workflow", h.UpdateTaskWorkflow)
+	tasks.Put("/:id/workflow", h.mdw.AuthCookieMiddleware(), h.UpdateTaskWorkflow)
 
-	tasks.Get("/stats", h.GetTaskStatistics)
+	tasks.Get("/stats", h.mdw.AuthCookieMiddleware(), h.GetTaskStatistics)
 }
 
 // ตัวจัดการงาน (Task Management Handlers)
