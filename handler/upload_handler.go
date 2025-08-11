@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/Be2Bag/erp-demo/dto"
+	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -13,21 +14,22 @@ import (
 
 type UpLoadHandler struct {
 	svc ports.UpLoadService
+	mdw *middleware.Middleware
 }
 
-func NewUpLoadHandler(s ports.UpLoadService) *UpLoadHandler {
-	return &UpLoadHandler{svc: s}
+func NewUpLoadHandler(s ports.UpLoadService, mdw *middleware.Middleware) *UpLoadHandler {
+	return &UpLoadHandler{svc: s, mdw: mdw}
 }
 
 func (h *UpLoadHandler) UpLoadRoutes(router fiber.Router) {
 
 	versionOne := router.Group("v1")
 	upload := versionOne.Group("upload")
-	upload.Post("/file", h.Upload)
-	upload.Post("/download", h.GetDownloadFile)
-	upload.Get("/list/:key", h.GetListFile)
-	upload.Get("/file", h.GetFile)
-	upload.Put("/file", h.DeleteFile)
+	upload.Post("/file", h.mdw.AuthCookieMiddleware(), h.Upload)
+	upload.Post("/download", h.mdw.AuthCookieMiddleware(), h.GetDownloadFile)
+	upload.Get("/list/:key", h.mdw.AuthCookieMiddleware(), h.GetListFile)
+	upload.Get("/file", h.mdw.AuthCookieMiddleware(), h.GetFile)
+	upload.Put("/file", h.mdw.AuthCookieMiddleware(), h.DeleteFile)
 }
 
 func (h *UpLoadHandler) Upload(c *fiber.Ctx) error {

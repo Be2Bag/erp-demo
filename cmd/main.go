@@ -64,7 +64,7 @@ func main() {
 	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
 
 	userHdl := handler.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
-	upLoadHdl := handler.NewUpLoadHandler(upLoadSvc)
+	upLoadHdl := handler.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
 	adminHdl := handler.NewAdminHandler(adminSvc)
 	dropDownHdl := handler.NewDropDownHandler(dropDownSvc)
 	authHdl := handler.NewAuthHandler(authSvc)
