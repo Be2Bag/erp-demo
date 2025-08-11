@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/Be2Bag/erp-demo/dto"
+	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
@@ -21,10 +23,11 @@ import (
 type UserHandler struct {
 	svc    ports.UserService
 	upload ports.UpLoadService
+	mdw    *middleware.Middleware // added
 }
 
-func NewUserHandler(s ports.UserService, upload ports.UpLoadService) *UserHandler {
-	return &UserHandler{svc: s, upload: upload}
+func NewUserHandler(s ports.UserService, upload ports.UpLoadService, mdw *middleware.Middleware) *UserHandler {
+	return &UserHandler{svc: s, upload: upload, mdw: mdw}
 }
 
 func (h *UserHandler) UserRoutes(router fiber.Router) {
@@ -33,7 +36,7 @@ func (h *UserHandler) UserRoutes(router fiber.Router) {
 	user := versionOne.Group("user")
 
 	user.Post("/", h.CreateUser)
-	user.Get("/", h.GetAllUser)
+	user.Get("/", h.mdw.AuthCookieMiddleware(), h.GetAllUser) // updated to use injected middleware
 	user.Get("/:id", h.GetUserByID)
 	user.Put("/documents", h.UpdateDocuments)
 	user.Put("/:id", h.UpdateUserByID)
@@ -277,6 +280,9 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Failure 500 {object} dto.BaseError500ResponseSwagger
 // @Router /v1/user [get]
 func (h *UserHandler) GetAllUser(c *fiber.Ctx) error {
+
+	cookie := c.Cookies("auth_token")
+	log.Println("Auth Token:", cookie)
 
 	var req dto.RequestGetUserAll
 	if err := c.QueryParser(&req); err != nil {

@@ -46,6 +46,8 @@ func main() {
 		log.Fatal("cloudflare storage:", err)
 	}
 
+	authCookieMiddleware := middleware.NewMiddleware(cfg.JWT)
+
 	userRepo := repository.NewUserRepository(database)
 	authRepo := repository.NewAuthRepository(database)
 	dropDownRepo := repository.NewDropDownRepository(database)
@@ -61,7 +63,7 @@ func main() {
 
 	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
 
-	userHdl := handler.NewUserHandler(userSvc, upLoadSvc)
+	userHdl := handler.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handler.NewUpLoadHandler(upLoadSvc)
 	adminHdl := handler.NewAdminHandler(adminSvc)
 	dropDownHdl := handler.NewDropDownHandler(dropDownSvc)
