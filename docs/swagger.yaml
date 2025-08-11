@@ -507,40 +507,6 @@ info:
   title: ERP Demo API
   version: "1.0"
 paths:
-  /kpi/v1/templates:
-    post:
-      consumes:
-      - application/json
-      description: Create a new KPI Template
-      parameters:
-      - description: KPI Template
-        in: body
-        name: template
-        required: true
-        schema:
-          $ref: '#/definitions/dto.KPITemplateDTO'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-      summary: Create a new KPI Template
-      tags:
-      - KPI
   /v1/admin/update-status-user:
     put:
       consumes:
@@ -870,6 +836,40 @@ paths:
       summary: Get all sub-districts by district ID
       tags:
       - dropdown
+  /v1/kpi/templates:
+    post:
+      consumes:
+      - application/json
+      description: Create a new KPI Template
+      parameters:
+      - description: KPI Template
+        in: body
+        name: template
+        required: true
+        schema:
+          $ref: '#/definitions/dto.KPITemplateDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new KPI Template
+      tags:
+      - KPI
   /v1/upload/download:
     post:
       consumes:

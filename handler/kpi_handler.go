@@ -48,7 +48,7 @@ func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /kpi/v1/templates [post]
+// @Router /v1/kpi/templates [post]
 func (h *KPIHandler) CreateKPITemplate(c *fiber.Ctx) error {
 
 	claims, err := middleware.GetClaims(c)
