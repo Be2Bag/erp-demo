@@ -38,7 +38,29 @@ func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 	return nil
 }
 
+// @Summary Create a new KPI Template
+// @Description Create a new KPI Template
+// @Tags KPI
+// @Accept json
+// @Produce json
+// @Param template body dto.KPITemplateDTO true "KPI Template"
+// @Success 201 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseResponse
+// @Failure 401 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /kpi/v1/templates [post]
 func (h *KPIHandler) CreateKPITemplate(c *fiber.Ctx) error {
+
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+		})
+	}
+
 	var template dto.KPITemplateDTO
 	if err := c.BodyParser(&template); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
@@ -49,7 +71,7 @@ func (h *KPIHandler) CreateKPITemplate(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	if err := h.svc.CreateKPITemplate(c.Context(), template); err != nil {
+	if err := h.svc.CreateKPITemplate(c.Context(), template, claims); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
 			MessageEN:  "Failed to create KPI Template" + err.Error(),

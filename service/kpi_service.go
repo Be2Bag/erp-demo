@@ -27,19 +27,19 @@ func (s *kpiService) GetKPITemplates(ctx context.Context, filter interface{}) ([
 	return nil, nil
 }
 
-func (s *kpiService) CreateKPITemplate(ctx context.Context, req dto.KPITemplateDTO) error {
+func (s *kpiService) CreateKPITemplate(ctx context.Context, req dto.KPITemplateDTO, claims *dto.JWTClaims) error {
 
 	now := time.Now()
 	uuid := uuid.New().String()
 	var templates []models.KPITemplateList
-	for _, t := range req.Templates {
+	for _, kpi := range req.KPIs {
 		templates = append(templates, models.KPITemplateList{
 			KPIID:       uuid,
-			Name:        t.Name,
-			Description: t.Description,
-			Category:    t.Category,
-			MaxScore:    t.MaxScore,
-			Value:       t.Value,
+			Name:        kpi.Name,
+			Description: kpi.Description,
+			Category:    kpi.Category,
+			MaxScore:    kpi.MaxScore,
+			Value:       kpi.Weight,
 			CreatedAt:   now,
 			UpdatedAt:   now,
 			DeletedAt:   nil,
@@ -47,16 +47,14 @@ func (s *kpiService) CreateKPITemplate(ctx context.Context, req dto.KPITemplateD
 	}
 
 	kpiTemplate := models.KPITemplate{
-		KPIID:       uuid,
-		Name:        req.Name,
-		Department:  req.Department,
-		Templates:   templates,
-		TargetValue: req.TargetValue,
-		IsActive:    req.IsActive,
-		CreatedBy:   "",
-		CreatedAt:   now,
-		UpdatedAt:   now,
-		DeletedAt:   nil,
+		KPIID:      uuid,
+		Name:       req.Name,
+		Department: req.Department,
+		Templates:  templates,
+		CreatedBy:  claims.UserID,
+		CreatedAt:  now,
+		UpdatedAt:  now,
+		DeletedAt:  nil,
 	}
 
 	return s.kpiRepo.CreateKPITemplate(ctx, kpiTemplate)

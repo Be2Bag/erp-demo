@@ -2,16 +2,15 @@ package dto
 
 type KPITemplateDTO struct {
 	Name        string            `json:"name"`         // ชื่อ Template
-	Department  string            `json:"department"`   // แผนก
-	Templates   []KPITemplateList `json:"templates"`    // รายการ KPI
-	TargetValue int               `json:"target_value"` // ค่าเป้าหมายรวม (100%)
-	IsActive    bool              `json:"is_active"`
+	Department  string            `json:"department"`   // แผนก (เลือกจาก dropdown)
+	KPIs        []KPITemplateItem `json:"kpis"`         // รายการ KPI
+	TotalWeight int               `json:"total_weight"` // น้ำหนักรวม (ต้อง = 100)
 }
 
-type KPITemplateList struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Category    string `json:"category"`
-	MaxScore    int    `json:"max_score"` // คะแนนเต็ม
-	Value       int    `json:"value"`     // น้ำหนัก %
+type KPITemplateItem struct {
+	Name        string `json:"name"`        // ชื่อ KPI
+	Category    string `json:"category"`    // หมวดหมู่ (เลือกจาก dropdown)
+	Description string `json:"description"` // คำอธิบาย
+	MaxScore    int    `json:"max_score"`   // คะแนนเต็ม
+	Weight      int    `json:"weight"`      // น้ำหนัก %
 }

@@ -185,6 +185,41 @@ definitions:
         description: รหัสผู้ใช้ที่เกี่ยวข้อง
         type: string
     type: object
+  dto.KPITemplateDTO:
+    properties:
+      department:
+        description: แผนก (เลือกจาก dropdown)
+        type: string
+      kpis:
+        description: รายการ KPI
+        items:
+          $ref: '#/definitions/dto.KPITemplateItem'
+        type: array
+      name:
+        description: ชื่อ Template
+        type: string
+      total_weight:
+        description: น้ำหนักรวม (ต้อง = 100)
+        type: integer
+    type: object
+  dto.KPITemplateItem:
+    properties:
+      category:
+        description: หมวดหมู่ (เลือกจาก dropdown)
+        type: string
+      description:
+        description: คำอธิบาย
+        type: string
+      max_score:
+        description: คะแนนเต็ม
+        type: integer
+      name:
+        description: ชื่อ KPI
+        type: string
+      weight:
+        description: น้ำหนัก %
+        type: integer
+    type: object
   dto.Pagination:
     properties:
       list:
@@ -472,6 +507,40 @@ info:
   title: ERP Demo API
   version: "1.0"
 paths:
+  /kpi/v1/templates:
+    post:
+      consumes:
+      - application/json
+      description: Create a new KPI Template
+      parameters:
+      - description: KPI Template
+        in: body
+        name: template
+        required: true
+        schema:
+          $ref: '#/definitions/dto.KPITemplateDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new KPI Template
+      tags:
+      - KPI
   /v1/admin/update-status-user:
     put:
       consumes:

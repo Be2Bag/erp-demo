@@ -54,12 +54,14 @@ func main() {
 	adminRepo := repository.NewAdminRepository(database)
 	upLoadRepo := repository.NewUpLoadRepository(database)
 	kpiRepo := repository.NewKPIRepository(database)
+	taskRepo := repository.NewTaskRepository(database)
 
 	userSvc := service.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage)
 	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
 	adminSvc := service.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	dropDownSvc := service.NewDropDownService(*cfg, dropDownRepo)
 	kpiSvc := service.NewKPIService(*cfg, kpiRepo, userRepo)
+	taskSvc := service.NewTaskService(*cfg, taskRepo, userRepo)
 
 	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
 
@@ -69,6 +71,7 @@ func main() {
 	dropDownHdl := handler.NewDropDownHandler(dropDownSvc)
 	authHdl := handler.NewAuthHandler(authSvc)
 	kpiHdl := handler.NewKPIHandler(kpiSvc, authCookieMiddleware)
+	taskHdl := handler.NewTaskHandler(taskSvc, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -87,6 +90,7 @@ func main() {
 	adminHdl.AdminRoutes(apiGroup)
 	upLoadHdl.UpLoadRoutes(apiGroup)
 	kpiHdl.KPIRoutes(apiGroup)
+	taskHdl.TaskRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{
