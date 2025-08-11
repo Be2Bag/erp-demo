@@ -2,14 +2,13 @@ package handler
 
 import (
 	"fmt"
-	"strconv"
+	"strconv" // added
 	"strings"
 
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -39,35 +38,59 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 }
 
 func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
-	filter := bson.M{}
-
-	if dept := c.Query("department"); dept != "" {
-		filter["department"] = dept
+	// parse query params
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	limit, _ := strconv.Atoi(c.Query("limit", "10"))
+	if page < 1 {
+		page = 1
 	}
-	if name := c.Query("name"); name != "" {
-		filter["name"] = bson.M{"$regex": name, "$options": "i"}
+	if limit < 1 {
+		limit = 10
 	}
-	if active := c.Query("is_active"); active != "" {
-		v, err := strconv.ParseBool(active)
-		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-				StatusCode: fiber.StatusBadRequest,
-				MessageEN:  "invalid is_active value",
-				MessageTH:  "ค่า is_active ไม่ถูกต้อง",
-				Status:     "error",
-			})
+	search := strings.TrimSpace(c.Query("search", ""))
+	dept := strings.TrimSpace(c.Query("department", ""))
+	var isActivePtr *bool
+	if v := c.Query("is_active", ""); v != "" {
+		if v == "true" || v == "1" {
+			t := true
+			isActivePtr = &t
+		} else if v == "false" || v == "0" {
+			f := false
+			isActivePtr = &f
 		}
-		filter["is_active"] = v
 	}
 
-	result, err := h.svc.GetKPITemplates(c.Context(), filter)
+	q := dto.KPITemplateListQuery{
+		Page:       page,
+		Limit:      limit,
+		Search:     search,
+		Department: dept,
+		IsActive:   isActivePtr,
+	}
+
+	items, total, err := h.svc.ListKPITemplates(c.Context(), q)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to fetch KPI Templates",
+			MessageEN:  "Failed to retrieve KPI Templates",
 			MessageTH:  "ไม่สามารถดึงแม่แบบ KPI ได้",
 			Status:     "error",
 		})
+	}
+
+	totalPages := int64(0)
+	if q.Limit > 0 && total > 0 {
+		totalPages = (total + int64(q.Limit) - 1) / int64(q.Limit)
+	}
+
+	data := fiber.Map{
+		"items": items,
+		"pagination": dto.Pagination{
+			Page:       q.Page,
+			Size:       q.Limit,
+			TotalCount: int(total),
+			TotalPages: int(totalPages),
+		},
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
@@ -75,7 +98,7 @@ func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 		MessageEN:  "KPI Templates retrieved successfully",
 		MessageTH:  "ดึงแม่แบบ KPI สำเร็จ",
 		Status:     "success",
-		Data:       result,
+		Data:       data,
 	})
 }
 

@@ -15,3 +15,12 @@ type KPITemplateItemDTO struct {
 	MaxScore    int    `json:"max_score"`   // คะแนนเต็ม
 	Weight      int    `json:"weight"`      // น้ำหนัก %
 }
+
+// added for list query
+type KPITemplateListQuery struct {
+	Page       int    `json:"page"`
+	Limit      int    `json:"limit"`
+	Search     string `json:"search"`
+	Department string `json:"department"`
+	IsActive   *bool  `json:"is_active"`
+}

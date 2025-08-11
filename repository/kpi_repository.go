@@ -97,3 +97,8 @@ func (r *kpiRepo) DeleteKPITemplate(ctx context.Context, id string) error {
 	}
 	return nil
 }
+
+// added: count documents for pagination
+func (r *kpiRepo) CountKPITemplates(ctx context.Context, filter interface{}) (int64, error) {
+	return r.coll.CountDocuments(ctx, filter)
+}

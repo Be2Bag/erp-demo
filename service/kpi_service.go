@@ -26,21 +26,6 @@ func NewKPIService(cfg config.Config, kpiRepo ports.KPIRepository, userRepo port
 	return &kpiService{config: cfg, kpiRepo: kpiRepo, userRepo: userRepo}
 }
 
-func (s *kpiService) GetKPITemplates(ctx context.Context, filter interface{}) ([]interface{}, error) {
-	if filter == nil {
-		filter = bson.M{}
-	}
-	list, err := s.kpiRepo.GetKPITemplates(ctx, filter, nil)
-	if err != nil {
-		return nil, err
-	}
-	out := make([]interface{}, len(list))
-	for i := range list {
-		out[i] = list[i]
-	}
-	return out, nil
-}
-
 func (s *kpiService) CreateKPITemplate(ctx context.Context, req dto.KPITemplateDTO, claims *dto.JWTClaims) error {
 
 	now := time.Now()
@@ -200,4 +185,43 @@ func (s *kpiService) DeleteKPITemplate(ctx context.Context, id string) error {
 		return err
 	}
 	return s.kpiRepo.DeleteKPITemplate(ctx, id)
+}
+
+// added: list with search + pagination
+func (s *kpiService) ListKPITemplates(ctx context.Context, q dto.KPITemplateListQuery) ([]interface{}, int64, error) {
+	filter := bson.M{}
+	if q.Search != "" {
+		filter["name"] = bson.M{"$regex": q.Search, "$options": "i"}
+	}
+	if q.Department != "" {
+		filter["department"] = q.Department
+	}
+	if q.IsActive != nil {
+		filter["is_active"] = *q.IsActive
+	}
+
+	total, err := s.kpiRepo.CountKPITemplates(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+	if total == 0 {
+		return []interface{}{}, 0, nil
+	}
+
+	skip := int64((q.Page - 1) * q.Limit)
+	limit := int64(q.Limit)
+	opts := options.Find().SetSkip(skip).SetLimit(limit).SetSort(bson.M{"created_at": -1})
+
+	list, err := s.kpiRepo.GetKPITemplates(ctx, filter, opts)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// convert to []interface{} to keep interface signature minimal change
+	out := make([]interface{}, 0, len(list))
+	for i := range list {
+		out = append(out, list[i])
+	}
+
+	return out, total, nil
 }

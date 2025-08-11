@@ -7,9 +7,9 @@ import (
 )
 
 type KPIService interface {
-	GetKPITemplates(ctx context.Context, filter interface{}) ([]interface{}, error)
 	CreateKPITemplate(ctx context.Context, req dto.KPITemplateDTO, claims *dto.JWTClaims) error
 	GetKPITemplateByID(ctx context.Context, id string) (interface{}, error)
 	UpdateKPITemplate(ctx context.Context, id string, updated dto.KPITemplateDTO, claims *dto.JWTClaims) (interface{}, error)
 	DeleteKPITemplate(ctx context.Context, id string) error
+	ListKPITemplates(ctx context.Context, q dto.KPITemplateListQuery) ([]interface{}, int64, error)
 }
