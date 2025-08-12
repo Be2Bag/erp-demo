@@ -593,7 +593,7 @@ definitions:
       version:
         type: integer
     type: object
-host: aapi.rkp-media.com
+host: api.rkp-media.com
 info:
   contact: {}
   description: This is an ERP API demo.

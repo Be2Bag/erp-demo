@@ -3,7 +3,7 @@ package main
 // @title        ERP Demo API
 // @version      1.0
 // @description  This is an ERP API demo.
-// @host         aapi.rkp-media.com
+// @host         api.rkp-media.com
 // @BasePath     /service/api
 
 import (
