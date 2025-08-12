@@ -3,7 +3,7 @@ package main
 // @title        ERP Demo API
 // @version      1.0
 // @description  This is an ERP API demo.
-// @host         api.rkp-media.com
+// @host         aapi.rkp-media.com
 // @BasePath     /service/api
 
 import (
@@ -55,6 +55,7 @@ func main() {
 	upLoadRepo := repositories.NewUpLoadRepository(database)
 	kpiRepo := repositories.NewKPIRepository(database)
 	taskRepo := repositories.NewTaskRepository(database)
+	workFlowRepo := repositories.NewWorkFlowRepository(database)
 
 	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage)
 	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
@@ -63,6 +64,7 @@ func main() {
 	kpiSvc := services.NewKPIService(*cfg, kpiRepo, userRepo)
 	taskSvc := services.NewTaskService(*cfg, taskRepo, userRepo)
 	authSvc := services.NewAuthService(*cfg, authRepo, userRepo)
+	workFlowSvc := services.NewWorkFlowService(*cfg, workFlowRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
@@ -71,6 +73,7 @@ func main() {
 	authHdl := handlers.NewAuthHandler(authSvc)
 	kpiHdl := handlers.NewKPIHandler(kpiSvc, authCookieMiddleware)
 	taskHdl := handlers.NewTaskHandler(taskSvc, authCookieMiddleware)
+	workFlowHdl := handlers.NewWorkFlowHandler(workFlowSvc, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -90,6 +93,7 @@ func main() {
 	upLoadHdl.UpLoadRoutes(apiGroup)
 	kpiHdl.KPIRoutes(apiGroup)
 	taskHdl.TaskRoutes(apiGroup)
+	workFlowHdl.WorkFlowRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{

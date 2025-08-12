@@ -17,6 +17,14 @@ type CreateWorkflowStepDTO struct {
 	Order       int     `json:"order"`                 // ลำดับ (1,2,3,...)
 }
 
+// Partial update payload (use pointer fields)
+type UpdateWorkflowTemplateDTO struct {
+	Name        *string                  `json:"name,omitempty"`
+	Department  *string                  `json:"department,omitempty"`
+	Description *string                  `json:"description,omitempty"`
+	Steps       *[]CreateWorkflowStepDTO `json:"steps,omitempty"`
+}
+
 // ---------- Response DTO ----------
 type WorkflowTemplateDTO struct {
 	TemplateID  string            `json:"template_id"`

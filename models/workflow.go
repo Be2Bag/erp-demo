@@ -8,14 +8,14 @@ import (
 
 const CollectionWorkflowTemplates = "workflow_templates"
 
-type WorkflowTemplate struct {
+type WorkFlowTemplate struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
 	TemplateID  string             `bson:"template_id" json:"template_id"` // UUID
 	Name        string             `bson:"name" json:"name"`
 	Department  string             `bson:"department" json:"department"`
 	Description string             `bson:"description" json:"description"`
 	TotalHours  float64            `bson:"total_hours" json:"total_hours"` // cache ผลรวมชั่วโมง
-	Steps       []WorkflowStep     `bson:"steps" json:"steps"`
+	Steps       []WorkFlowStep     `bson:"steps" json:"steps"`
 	IsActive    bool               `bson:"is_active" json:"is_active"`
 	Version     int                `bson:"version" json:"version"`
 	CreatedBy   string             `bson:"created_by" json:"created_by"`
@@ -23,7 +23,7 @@ type WorkflowTemplate struct {
 	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
 }
 
-type WorkflowStep struct {
+type WorkFlowStep struct {
 	StepID      string    `bson:"step_id" json:"step_id"` // UUID
 	Name        string    `bson:"name" json:"name"`
 	Description string    `bson:"description,omitempty" json:"description,omitempty"`

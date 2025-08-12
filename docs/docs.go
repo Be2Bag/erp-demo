@@ -1382,6 +1382,295 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/workflow/create": {
+            "post": {
+                "description": "Create a new workflow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "Create a new workflow",
+                "parameters": [
+                    {
+                        "description": "Create Workflow Template",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateWorkflowTemplateDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.WorkflowTemplateDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/workflow/list": {
+            "get": {
+                "description": "List all workflows",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "List all workflows",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Department",
+                        "name": "department",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.WorkflowTemplateDTO"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/workflow/{id}": {
+            "get": {
+                "description": "Get a workflow by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "Get a workflow by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workflow ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.WorkflowTemplateDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a workflow",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "Update a workflow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workflow ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Workflow Template",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateWorkflowTemplateDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.WorkflowTemplateDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a workflow",
+                "tags": [
+                    "Workflow"
+                ],
+                "summary": "Delete a workflow",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Workflow ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1566,6 +1855,51 @@ const docTemplate = `{
                 "status_code": {
                     "type": "integer",
                     "example": 200
+                }
+            }
+        },
+        "dto.CreateWorkflowStepDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "คำอธิบาย (ไม่บังคับ)",
+                    "type": "string"
+                },
+                "hours": {
+                    "description": "ชั่วโมง (รองรับทศนิยม)",
+                    "type": "number"
+                },
+                "name": {
+                    "description": "ชื่อขั้นตอน",
+                    "type": "string"
+                },
+                "order": {
+                    "description": "ลำดับ (1,2,3,...)",
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.CreateWorkflowTemplateDTO": {
+            "type": "object",
+            "properties": {
+                "department": {
+                    "description": "แผนก (dropdown)",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "คำอธิบายการใช้งาน",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "ชื่อ Template",
+                    "type": "string"
+                },
+                "steps": {
+                    "description": "ขั้นตอนการทำงาน",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CreateWorkflowStepDTO"
+                    }
                 }
             }
         },
@@ -2082,6 +2416,94 @@ const docTemplate = `{
                     "example": "1d5855c2-7d14-4f8d-8b5d-ef20cb5cb3cf"
                 }
             }
+        },
+        "dto.UpdateWorkflowTemplateDTO": {
+            "type": "object",
+            "properties": {
+                "department": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CreateWorkflowStepDTO"
+                    }
+                }
+            }
+        },
+        "dto.WorkflowStepDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "number"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "step_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.WorkflowTemplateDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "department": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.WorkflowStepDTO"
+                    }
+                },
+                "template_id": {
+                    "type": "string"
+                },
+                "total_hours": {
+                    "description": "ผลรวมชั่วโมงจากทุก step",
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
         }
     }
 }`
@@ -2089,7 +2511,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "api.rkp-media.com",
+	Host:             "aapi.rkp-media.com",
 	BasePath:         "/service/api",
 	Schemes:          []string{},
 	Title:            "ERP Demo API",

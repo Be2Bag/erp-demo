@@ -133,6 +133,38 @@ definitions:
         example: 200
         type: integer
     type: object
+  dto.CreateWorkflowStepDTO:
+    properties:
+      description:
+        description: คำอธิบาย (ไม่บังคับ)
+        type: string
+      hours:
+        description: ชั่วโมง (รองรับทศนิยม)
+        type: number
+      name:
+        description: ชื่อขั้นตอน
+        type: string
+      order:
+        description: ลำดับ (1,2,3,...)
+        type: integer
+    type: object
+  dto.CreateWorkflowTemplateDTO:
+    properties:
+      department:
+        description: แผนก (dropdown)
+        type: string
+      description:
+        description: คำอธิบายการใช้งาน
+        type: string
+      name:
+        description: ชื่อ Template
+        type: string
+      steps:
+        description: ขั้นตอนการทำงาน
+        items:
+          $ref: '#/definitions/dto.CreateWorkflowStepDTO'
+        type: array
+    type: object
   dto.Document:
     properties:
       created_at:
@@ -503,7 +535,65 @@ definitions:
         example: 1d5855c2-7d14-4f8d-8b5d-ef20cb5cb3cf
         type: string
     type: object
-host: api.rkp-media.com
+  dto.UpdateWorkflowTemplateDTO:
+    properties:
+      department:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      steps:
+        items:
+          $ref: '#/definitions/dto.CreateWorkflowStepDTO'
+        type: array
+    type: object
+  dto.WorkflowStepDTO:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      hours:
+        type: number
+      name:
+        type: string
+      order:
+        type: integer
+      step_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  dto.WorkflowTemplateDTO:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      department:
+        type: string
+      description:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      steps:
+        items:
+          $ref: '#/definitions/dto.WorkflowStepDTO'
+        type: array
+      template_id:
+        type: string
+      total_hours:
+        description: ผลรวมชั่วโมงจากทุก step
+        type: number
+      updated_at:
+        type: string
+      version:
+        type: integer
+    type: object
+host: aapi.rkp-media.com
 info:
   contact: {}
   description: This is an ERP API demo.
@@ -1404,4 +1494,183 @@ paths:
       summary: Update user documents
       tags:
       - user
+  /v1/workflow/{id}:
+    delete:
+      description: Delete a workflow
+      parameters:
+      - description: Workflow ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete a workflow
+      tags:
+      - Workflow
+    get:
+      consumes:
+      - application/json
+      description: Get a workflow by ID
+      parameters:
+      - description: Workflow ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.WorkflowTemplateDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a workflow by ID
+      tags:
+      - Workflow
+    put:
+      consumes:
+      - application/json
+      description: Update a workflow
+      parameters:
+      - description: Workflow ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Workflow Template
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateWorkflowTemplateDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.WorkflowTemplateDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update a workflow
+      tags:
+      - Workflow
+  /v1/workflow/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new workflow
+      parameters:
+      - description: Create Workflow Template
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateWorkflowTemplateDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.WorkflowTemplateDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new workflow
+      tags:
+      - Workflow
+  /v1/workflow/list:
+    get:
+      consumes:
+      - application/json
+      description: List all workflows
+      parameters:
+      - description: Search
+        in: query
+        name: search
+        type: string
+      - description: Department
+        in: query
+        name: department
+        type: string
+      - description: Page
+        in: query
+        name: page
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.WorkflowTemplateDTO'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List all workflows
+      tags:
+      - Workflow
 swagger: "2.0"
