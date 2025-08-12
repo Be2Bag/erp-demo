@@ -2,6 +2,8 @@ package models
 
 import "time"
 
+const CollectionPerformanceRecords = "performance_records"
+
 type PerformanceRecord struct {
 	ID          string    `bson:"_id" json:"id"`
 	UserID      string    `bson:"user_id"`      // รหัสพนักงาน

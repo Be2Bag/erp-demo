@@ -2,6 +2,8 @@ package models
 
 import "time"
 
+const CollectionPositions = "positions"
+
 type Position struct {
 	PositionID   string     `bson:"position_id" json:"position_id"`     // รหัสตำแหน่งงาน (ไม่ซ้ำกัน)
 	PositionName string     `bson:"position_name" json:"position_name"` // ชื่อตำแหน่งงาน

@@ -2,6 +2,8 @@ package models
 
 import "time"
 
+const CollectionDepartments = "departments"
+
 type Department struct {
 	DepartmentID   string     `bson:"department_id" json:"department_id"`     // รหัสแผนก (ไม่ซ้ำกัน)
 	DepartmentName string     `bson:"department_name" json:"department_name"` // ชื่อแผนก

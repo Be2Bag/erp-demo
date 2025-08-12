@@ -36,6 +36,10 @@ type User struct {
 	DeletedAt         *time.Time          `bson:"deleted_at" json:"deleted_at"` // วันที่ลบข้อมูล (soft delete)
 }
 
+const (
+	CollectionUsers = "users"
+)
+
 type Address struct {
 	AddressLine1 string `bson:"address_line1" json:"address_line1"`                     // ที่อยู่บรรทัด 1
 	AddressLine2 string `bson:"address_line2,omitempty" json:"address_line2,omitempty"` // ที่อยู่บรรทัด 2

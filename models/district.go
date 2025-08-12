@@ -2,6 +2,8 @@ package models
 
 import "time"
 
+const CollectionDistricts = "districts"
+
 type District struct {
 	ID         string     `json:"id" bson:"id"`                   // ไอดีของอำเภอ
 	NameTH     string     `json:"name_th" bson:"name_th"`         // ชื่ออำเภอภาษาไทย

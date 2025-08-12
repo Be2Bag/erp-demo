@@ -2,6 +2,8 @@ package models
 
 import "time"
 
+const CollectionEmploymentHistories = "employment_histories"
+
 type EmploymentHistory struct {
 	UserID         string     `bson:"user_id" json:"user_id"`                 // รหัสผู้ใช้ที่เกี่ยวข้อง
 	PositionID     string     `bson:"position_id" json:"position_id"`         // ตำแหน่งในช่วงเวลานั้น

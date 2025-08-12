@@ -17,12 +17,12 @@ import (
 
 	"github.com/Be2Bag/erp-demo/config"
 	_ "github.com/Be2Bag/erp-demo/docs"
-	"github.com/Be2Bag/erp-demo/handler"
+	handlers "github.com/Be2Bag/erp-demo/handlers"
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/pkg/db"
 	"github.com/Be2Bag/erp-demo/pkg/storage"
-	"github.com/Be2Bag/erp-demo/repository"
-	"github.com/Be2Bag/erp-demo/service"
+	repositories "github.com/Be2Bag/erp-demo/repositories"
+	services "github.com/Be2Bag/erp-demo/services"
 )
 
 func main() {
@@ -48,30 +48,29 @@ func main() {
 
 	authCookieMiddleware := middleware.NewMiddleware(cfg.JWT)
 
-	userRepo := repository.NewUserRepository(database)
-	authRepo := repository.NewAuthRepository(database)
-	dropDownRepo := repository.NewDropDownRepository(database)
-	adminRepo := repository.NewAdminRepository(database)
-	upLoadRepo := repository.NewUpLoadRepository(database)
-	kpiRepo := repository.NewKPIRepository(database)
-	taskRepo := repository.NewTaskRepository(database)
+	userRepo := repositories.NewUserRepository(database)
+	authRepo := repositories.NewAuthRepository(database)
+	dropDownRepo := repositories.NewDropDownRepository(database)
+	adminRepo := repositories.NewAdminRepository(database)
+	upLoadRepo := repositories.NewUpLoadRepository(database)
+	kpiRepo := repositories.NewKPIRepository(database)
+	taskRepo := repositories.NewTaskRepository(database)
 
-	userSvc := service.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage)
-	upLoadSvc := service.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
-	adminSvc := service.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
-	dropDownSvc := service.NewDropDownService(*cfg, dropDownRepo)
-	kpiSvc := service.NewKPIService(*cfg, kpiRepo, userRepo)
-	taskSvc := service.NewTaskService(*cfg, taskRepo, userRepo)
+	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage)
+	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
+	adminSvc := services.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
+	dropDownSvc := services.NewDropDownService(*cfg, dropDownRepo)
+	kpiSvc := services.NewKPIService(*cfg, kpiRepo, userRepo)
+	taskSvc := services.NewTaskService(*cfg, taskRepo, userRepo)
+	authSvc := services.NewAuthService(*cfg, authRepo, userRepo)
 
-	authSvc := service.NewAuthService(*cfg, authRepo, userRepo)
-
-	userHdl := handler.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
-	upLoadHdl := handler.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
-	adminHdl := handler.NewAdminHandler(adminSvc)
-	dropDownHdl := handler.NewDropDownHandler(dropDownSvc)
-	authHdl := handler.NewAuthHandler(authSvc)
-	kpiHdl := handler.NewKPIHandler(kpiSvc, authCookieMiddleware)
-	taskHdl := handler.NewTaskHandler(taskSvc, authCookieMiddleware)
+	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
+	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
+	adminHdl := handlers.NewAdminHandler(adminSvc)
+	dropDownHdl := handlers.NewDropDownHandler(dropDownSvc)
+	authHdl := handlers.NewAuthHandler(authSvc)
+	kpiHdl := handlers.NewKPIHandler(kpiSvc, authCookieMiddleware)
+	taskHdl := handlers.NewTaskHandler(taskSvc, authCookieMiddleware)
 
 	app := fiber.New()
 

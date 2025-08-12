@@ -2,6 +2,8 @@ package models
 
 import "time"
 
+const CollectionProvinces = "provinces"
+
 type Province struct {
 	ID          string     `json:"id" bson:"id"`                     // รหัสจังหวัด
 	NameTH      string     `json:"name_th" bson:"name_th"`           // ชื่อจังหวัดภาษาไทย

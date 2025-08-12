@@ -2,6 +2,8 @@ package models
 
 import "time"
 
+const CollectionSubDistricts = "sub_districts"
+
 type SubDistrict struct {
 	ID         string     `json:"id" bson:"id"`                   // ไอดีของตำบล
 	ZipCode    string     `json:"zip_code" bson:"zip_code"`       // รหัสไปรษณีย์
