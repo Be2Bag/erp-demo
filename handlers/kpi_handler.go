@@ -25,7 +25,7 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	kpi := versionOne.Group("kpi")
 
-	kpi.Get("/templates", h.mdw.AuthCookieMiddleware(), h.GetKPITemplates)
+	kpi.Get("/templates/list", h.mdw.AuthCookieMiddleware(), h.GetKPITemplates)
 	kpi.Post("/templates", h.mdw.AuthCookieMiddleware(), h.CreateKPITemplate)
 	kpi.Get("/templates/:id", h.mdw.AuthCookieMiddleware(), h.GetKPITemplateByID)
 	kpi.Put("/templates/:id", h.mdw.AuthCookieMiddleware(), h.UpdateKPITemplate)
@@ -51,7 +51,7 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/kpi/templates [get]
+// @Router /v1/kpi/templates/list [get]
 func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 	// parse query params
 	page, _ := strconv.Atoi(c.Query("page", "1"))
