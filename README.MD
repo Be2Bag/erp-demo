@@ -87,3 +87,32 @@
     +--- user_service.go
     \--- workflow_service.go
 ```
+
+## คำอธิบายโครงสร้าง (ภาษาไทย)
+
+- .gitignore: ระบุไฟล์/โฟลเดอร์ที่ไม่ให้ Git ติดตาม
+- README.MD: คำอธิบายโปรเจกต์และวิธีเริ่มต้นใช้งาน
+- app/: ประกอบและบูตแอป เช่น ตั้งค่า Router, Middleware, DI
+  - app.go: สร้างอินสแตนซ์แอปและผูกเส้นทาง
+- cmd/:
+  - main.go: จุดเริ่มรันโปรแกรม (entry point)
+- config/:
+  - config.go: โหลด/จัดการค่าคอนฟิก (เช่น ENV)
+- docs/: เอกสาร API (Swagger/OpenAPI)
+  - docs.go, swagger.json, swagger.yaml: สคีมาและเอกสาร API
+- dto/: โครงสร้างข้อมูลแลกเปลี่ยนระหว่างเลเยอร์ (request/response/payload)
+- handlers/: เลเยอร์ HTTP (Controller) รับคำขอและเรียก Service
+- middleware/: มิดเดิลแวร์ (เช่น Auth, Logging, CORS)
+- models/: โดเมนโมเดลของระบบ (เช่น User, KPI, Workflow)
+- pkg/:
+  - db/mongo.go: เชื่อมต่อ/จัดการฐานข้อมูล MongoDB
+  - storage/: การจัดเก็บไฟล์ภายนอก (Cloudflare, Supabase)
+  - util/: เครื่องมือช่วย (cookie, crypto, idcard, mail)
+- ports/: สัญญา/อินเทอร์เฟซระหว่างเลเยอร์ (Hexagonal/Clean Architecture)
+- repositories/: เข้าถึงข้อมูล (CRUD) ติดต่อฐานข้อมูล/สตอเรจ
+- services/: ธุรกิจลอจิก ประสานงาน repository และกติกาโดเมน
+
+### การไหลของคำขอ (โดยย่อ)
+Client → handlers → services → repositories → pkg/db
+             ↳ middleware (ตรวจสอบ/แทรกกลางคำขอ)
+             ↳ pkg/storage (อัปโหลด/ดึงไฟล์)
