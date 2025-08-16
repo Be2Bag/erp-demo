@@ -19,8 +19,8 @@ func (h *TaskHandler) TaskRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	tasks := versionOne.Group("tasks")
 
-	tasks.Get("/", h.mdw.AuthCookieMiddleware(), h.GetTasks)
-	tasks.Post("/", h.mdw.AuthCookieMiddleware(), h.CreateTask)
+	tasks.Get("/list", h.mdw.AuthCookieMiddleware(), h.GetTasks)
+	tasks.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateTask)
 	tasks.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetTaskByID)
 	tasks.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateTask)
 	tasks.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteTask)

@@ -25,3 +25,15 @@ type ResponseGetSubDistricts struct {
 	SubDistrictName string `json:"sub_district_name"` // ชื่อตำบล
 	ZipCode         string `json:"zip_code"`          // รหัสไปรษณีย์
 }
+
+type ResponseGetSignTypes struct {
+	TypeID string `json:"type_id"` // รหัสประเภทงาน
+	NameTH string `json:"name_th"` // ชื่อประเภทงาน (ภาษาไทย)
+	NameEN string `json:"name_en"` // ชื่อประเภทงาน (ภาษาอังกฤษ)
+}
+
+type ResponseGetCustomerTypes struct {
+	TypeID string `json:"type_id"` // รหัสประเภทลูกค้า (ไม่ซ้ำกัน)
+	NameTH string `json:"name_th"` // ชื่อประเภทลูกค้า (ภาษาไทย)
+	NameEN string `json:"name_en"` // ชื่อประเภทลูกค้า (ภาษาอังกฤษ)
+}

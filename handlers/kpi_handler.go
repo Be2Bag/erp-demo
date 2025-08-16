@@ -25,11 +25,11 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	kpi := versionOne.Group("kpi")
 
-	kpi.Get("/templates/list", h.mdw.AuthCookieMiddleware(), h.GetKPITemplates)
-	kpi.Post("/templates", h.mdw.AuthCookieMiddleware(), h.CreateKPITemplate)
-	kpi.Get("/templates/:id", h.mdw.AuthCookieMiddleware(), h.GetKPITemplateByID)
-	kpi.Put("/templates/:id", h.mdw.AuthCookieMiddleware(), h.UpdateKPITemplate)
-	kpi.Delete("/templates/:id", h.mdw.AuthCookieMiddleware(), h.DeleteKPITemplate)
+	kpi.Get("/list", h.mdw.AuthCookieMiddleware(), h.GetKPITemplateList)
+	kpi.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateKPITemplate)
+	kpi.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetKPITemplateByID)
+	kpi.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateKPITemplate)
+	kpi.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteKPITemplate)
 
 	kpi.Get("/evaluations", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluations)
 	kpi.Post("/evaluations", h.mdw.AuthCookieMiddleware(), h.CreateKPIEvaluation)
@@ -51,29 +51,46 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/kpi/templates/list [get]
-func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
-	// parse query params
-	page, _ := strconv.Atoi(c.Query("page", "1"))
-	limit, _ := strconv.Atoi(c.Query("limit", "10"))
-	if page < 1 {
-		page = 1
+// @Router /v1/kpi/list [get]
+func (h *KPIHandler) GetKPITemplateList(c *fiber.Ctx) error {
+
+	pageStr := c.Query("page", "1")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid page parameter",
+			MessageTH:  "พารามิเตอร์ page ไม่ถูกต้อง",
+			Status:     "error",
+		})
 	}
-	if limit < 1 {
-		limit = 10
+
+	limitStr := c.Query("limit", "10")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid limit parameter",
+			MessageTH:  "พารามิเตอร์ limit ไม่ถูกต้อง",
+			Status:     "error",
+		})
 	}
+	const maxLimit = 100
+	if limit > maxLimit {
+		limit = maxLimit
+	}
+
 	search := strings.TrimSpace(c.Query("search", ""))
 	dept := strings.TrimSpace(c.Query("department", ""))
-	var isActivePtr *bool
-	if v := c.Query("is_active", ""); v != "" {
-		switch v {
-		case "true", "1":
-			t := true
-			isActivePtr = &t
-		case "false", "0":
-			f := false
-			isActivePtr = &f
-		}
+
+	isActivePtr, parseErr := parseOptionalBool(c.Query("is_active", ""))
+	if parseErr != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid is_active parameter",
+			MessageTH:  "พารามิเตอร์ is_active ไม่ถูกต้อง",
+			Status:     "error",
+		})
 	}
 
 	q := dto.KPITemplateListQuery{
@@ -84,29 +101,14 @@ func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 		IsActive:   isActivePtr,
 	}
 
-	items, total, err := h.svc.ListKPITemplates(c.Context(), q)
-	if err != nil {
+	list, errOnGetList := h.svc.ListKPITemplates(c.Context(), q)
+	if errOnGetList != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to retrieve KPI Templates",
+			MessageEN:  "Failed to retrieve KPI Templates" + errOnGetList.Error(),
 			MessageTH:  "ไม่สามารถดึงแม่แบบ KPI ได้",
 			Status:     "error",
 		})
-	}
-
-	totalPages := int64(0)
-	if q.Limit > 0 && total > 0 {
-		totalPages = (total + int64(q.Limit) - 1) / int64(q.Limit)
-	}
-
-	data := fiber.Map{
-		"items": items,
-		"pagination": dto.Pagination{
-			Page:       q.Page,
-			Size:       q.Limit,
-			TotalCount: int(total),
-			TotalPages: int(totalPages),
-		},
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
@@ -114,7 +116,7 @@ func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 		MessageEN:  "KPI Templates retrieved successfully",
 		MessageTH:  "ดึงแม่แบบ KPI สำเร็จ",
 		Status:     "success",
-		Data:       data,
+		Data:       list,
 	})
 }
 
@@ -128,7 +130,7 @@ func (h *KPIHandler) GetKPITemplates(c *fiber.Ctx) error {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/kpi/templates [post]
+// @Router /v1/kpi/create [post]
 func (h *KPIHandler) CreateKPITemplate(c *fiber.Ctx) error {
 
 	claims, err := middleware.GetClaims(c)
@@ -211,7 +213,7 @@ func (h *KPIHandler) CreateKPITemplate(c *fiber.Ctx) error {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/kpi/templates/{id} [get]
+// @Router /v1/kpi/{id} [get]
 func (h *KPIHandler) GetKPITemplateByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -261,7 +263,7 @@ func (h *KPIHandler) GetKPITemplateByID(c *fiber.Ctx) error {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/kpi/templates/{id} [put]
+// @Router /v1/kpi/{id} [put]
 func (h *KPIHandler) UpdateKPITemplate(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
@@ -344,7 +346,7 @@ func (h *KPIHandler) UpdateKPITemplate(c *fiber.Ctx) error {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/kpi/templates/{id} [delete]
+// @Router /v1/kpi/{id} [delete]
 func (h *KPIHandler) DeleteKPITemplate(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if id == "" {
@@ -408,4 +410,17 @@ func (h *KPIHandler) GetKPIStatistics(c *fiber.Ctx) error {
 		MessageTH:  "ยังไม่ถูกพัฒนา",
 		Status:     "error",
 	})
+}
+
+func parseOptionalBool(value string) (*bool, error) {
+	if value == "" {
+		return nil, nil
+	}
+
+	v, err := strconv.ParseBool(value)
+	if err != nil {
+		return nil, err
+	}
+
+	return &v, nil
 }

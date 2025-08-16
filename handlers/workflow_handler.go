@@ -130,32 +130,15 @@ func (h *WorkFlowHandler) ListWorkflows(c *fiber.Ctx) error {
 	limit, _ := strconv.ParseInt(c.Query("limit", "10"), 10, 64)
 	sort := c.Query("sort", "updated_at:desc")
 
-	items, total, err := h.svc.ListWorkflowTemplates(c.Context(), search, dept, page, limit, sort)
-	if err != nil {
+	list, errOnGetWorkFlow := h.svc.ListWorkflowTemplates(c.Context(), search, dept, page, limit, sort)
+	if errOnGetWorkFlow != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  err.Error(),
+			MessageEN:  errOnGetWorkFlow.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลได้",
 			Status:     "error",
 			Data:       nil,
 		})
-	}
-
-	var totalPages int
-	if limit > 0 {
-		totalPages = int((total + limit - 1) / limit)
-	} else {
-		totalPages = 0
-	}
-
-	data := fiber.Map{
-		"items": items,
-		"pagination": dto.Pagination{
-			Page:       int(page),
-			Size:       int(limit),
-			TotalCount: int(total),
-			TotalPages: totalPages,
-		},
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
@@ -163,7 +146,7 @@ func (h *WorkFlowHandler) ListWorkflows(c *fiber.Ctx) error {
 		MessageEN:  "OK",
 		MessageTH:  "สำเร็จ",
 		Status:     "success",
-		Data:       data,
+		Data:       list,
 	})
 }
 

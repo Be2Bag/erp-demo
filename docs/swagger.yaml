@@ -133,6 +133,63 @@ definitions:
         example: 200
         type: integer
     type: object
+  dto.CreateSignJobDTO:
+    properties:
+      address:
+        description: ที่อยู่ติดตั้ง / จัดส่ง
+        type: string
+      contact_person:
+        description: ผู้ติดต่อ
+        type: string
+      content:
+        description: รายละเอียดข้อความบนป้าย
+        type: string
+      customer_name:
+        description: ชื่อลูกค้าหรือบริษัท
+        type: string
+      customer_type_id:
+        description: ID ประเภทลูกค้า (dropdown)
+        type: string
+      design_option:
+        description: ตัวเลือกการออกแบบ ("have_design", "need_design")
+        type: string
+      due_date:
+        description: วันที่ต้องการรับงาน
+        type: string
+      email:
+        description: อีเมล
+        type: string
+      install_option:
+        description: ตัวเลือกการติดตั้ง ("none", "self", "shop")
+        type: string
+      job_name:
+        description: ชื่องาน
+        type: string
+      main_color:
+        description: สีหลัก / โทนสี
+        type: string
+      notes:
+        description: หมายเหตุเพิ่มเติม
+        type: string
+      phone:
+        description: เบอร์โทรศัพท์
+        type: string
+      production_time:
+        description: ระยะเวลาในการผลิต
+        type: string
+      project_name:
+        description: ชื่อโปรเจกต์
+        type: string
+      quantity:
+        description: จำนวนป้าย
+        type: integer
+      sign_type_id:
+        description: ID ประเภทงานป้าย (dropdown)
+        type: string
+      size:
+        description: ขนาดป้าย (กว้างxสูง) หน่วยซม.
+        type: string
+    type: object
   dto.CreateWorkflowStepDTO:
     properties:
       description:
@@ -258,8 +315,7 @@ definitions:
   dto.Pagination:
     properties:
       list:
-        items:
-          $ref: '#/definitions/dto.ResponseGetUserAll'
+        items: {}
         type: array
       page:
         example: 1
@@ -408,6 +464,18 @@ definitions:
     - status
     - user_id
     type: object
+  dto.ResponseGetCustomerTypes:
+    properties:
+      name_en:
+        description: ชื่อประเภทลูกค้า (ภาษาอังกฤษ)
+        type: string
+      name_th:
+        description: ชื่อประเภทลูกค้า (ภาษาไทย)
+        type: string
+      type_id:
+        description: รหัสประเภทลูกค้า (ไม่ซ้ำกัน)
+        type: string
+    type: object
   dto.ResponseGetDepartments:
     properties:
       department_id:
@@ -444,6 +512,18 @@ definitions:
         description: ชื่อจังหวัด
         type: string
     type: object
+  dto.ResponseGetSignTypes:
+    properties:
+      name_en:
+        description: ชื่อประเภทงาน (ภาษาอังกฤษ)
+        type: string
+      name_th:
+        description: ชื่อประเภทงาน (ภาษาไทย)
+        type: string
+      type_id:
+        description: รหัสประเภทงาน
+        type: string
+    type: object
   dto.ResponseGetSubDistricts:
     properties:
       sub_district_id:
@@ -456,83 +536,76 @@ definitions:
         description: รหัสไปรษณีย์
         type: string
     type: object
-  dto.ResponseGetUserAll:
+  dto.SignJobDTO:
     properties:
-      avatar:
-        description: ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
-        example: https://example.com/avatar.jpg
+      address:
+        description: ที่อยู่ติดตั้ง/จัดส่ง
+        type: string
+      contact_person:
+        description: ผู้ติดต่อ
+        type: string
+      content:
+        description: รายละเอียดข้อความ
         type: string
       created_at:
-        description: วันที่สร้างข้อมูลนี้
-        example: "2025-07-11T08:25:08.526Z"
+        description: วันที่สร้าง
         type: string
-      deleted_at:
-        description: วันที่ลบข้อมูล (soft delete)
-        example: "null"
+      created_by:
+        description: ผู้สร้าง
         type: string
-      department:
-        description: รหัสแผนก (FK ไปยัง Departments)
-        example: DEP001
+      customer_name:
+        description: ชื่อลูกค้า/บริษัท
+        type: string
+      customer_type_id:
+        description: ID ประเภทลูกค้า
+        type: string
+      design_option:
+        description: การออกแบบ
+        type: string
+      due_date:
+        description: วันที่ต้องการรับงาน
         type: string
       email:
-        description: อีเมลของผู้ใช้
-        example: จันทรสกุล
+        description: อีเมล
         type: string
-      first_name_en:
-        description: ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
-        example: Kittiya
+      install_option:
+        description: ตัวเลือกการติดตั้ง
         type: string
-      first_name_th:
-        description: ชื่อจริงของพนักงาน
-        example: กิตติยา
+      job_id:
+        description: UUID ของงาน
         type: string
-      kpi_score:
-        description: คะแนน KPI ของพนักงาน
-        example: "85"
+      job_name:
+        description: ชื่องาน
         type: string
-      last_name_en:
-        description: นามสกุลของพนักงาน (ภาษาอังกฤษ)
-        example: Chanthasakul
+      main_color:
+        description: สีหลัก / โทนสี
         type: string
-      last_name_th:
-        description: นามสกุลของพนักงาน
-        example: จันทรสกุล
+      notes:
+        description: หมายเหตุเพิ่มเติม
         type: string
       phone:
-        description: เบอร์โทรศัพท์ของพนักงาน
-        example: 094-222-7788
+        description: เบอร์โทรศัพท์
         type: string
-      position:
-        description: รหัสตำแหน่งงาน (FK ไปยัง Positions)
-        example: POS126
+      production_time:
+        description: ระยะเวลาในการผลิต
+        type: string
+      project_name:
+        description: ชื่อโปรเจกต์
+        type: string
+      quantity:
+        description: จำนวนป้าย
+        type: integer
+      sign_type_id:
+        description: ID ประเภทงานป้าย
+        type: string
+      size:
+        description: ขนาดป้าย
         type: string
       status:
-        description: สถานะของผู้ใช้ (เช่น approved , pending, rejected)
-        example: approved
-        type: string
-      tasks_completed:
-        description: จำนวนงานที่เสร็จสมบูรณ์
-        example: "8"
-        type: string
-      tasks_total:
-        description: จำนวนงานทั้งหมดที่ได้รับมอบหมาย
-        example: "10"
-        type: string
-      title_en:
-        description: คำนำหน้าชื่อ (ภาษาอังกฤษ)
-        example: Miss
-        type: string
-      title_th:
-        description: คำนำหน้าชื่อ (ภาษาไทย)
-        example: นางสาว
+        description: สถานะงาน
         type: string
       updated_at:
-        description: วันที่แก้ไขข้อมูลล่าสุด
-        example: "2025-07-11T08:25:08.526Z"
-        type: string
-      user_id:
-        description: รหัสประจำตัวผู้ใช้ (ไม่ซ้ำกัน)
-        example: 1d5855c2-7d14-4f8d-8b5d-ef20cb5cb3cf
+        description: วันที่แก้ไขล่าสุด
         type: string
     type: object
   dto.UpdateWorkflowTemplateDTO:
@@ -767,6 +840,36 @@ paths:
       summary: Get user sessions
       tags:
       - auth
+  /v1/dropdown/customer-type:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลประเภทลูกค้าทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetCustomerTypes'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all customer types
+      tags:
+      - dropdown
   /v1/dropdown/department:
     get:
       consumes:
@@ -893,6 +996,36 @@ paths:
       summary: Get all provinces
       tags:
       - dropdown
+  /v1/dropdown/sign-type:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลประเภทงานทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetSignTypes'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all sign types
+      tags:
+      - dropdown
   /v1/dropdown/subdistrict/{id}:
     get:
       consumes:
@@ -929,41 +1062,7 @@ paths:
       summary: Get all sub-districts by district ID
       tags:
       - dropdown
-  /v1/kpi/templates:
-    post:
-      consumes:
-      - application/json
-      description: Create a new KPI Template
-      parameters:
-      - description: KPI Template
-        in: body
-        name: template
-        required: true
-        schema:
-          $ref: '#/definitions/dto.KPITemplateDTO'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-      summary: Create a new KPI Template
-      tags:
-      - KPI
-  /v1/kpi/templates/{id}:
+  /v1/kpi/{id}:
     delete:
       consumes:
       - application/json
@@ -1066,7 +1165,41 @@ paths:
       summary: Update a KPI Template
       tags:
       - KPI
-  /v1/kpi/templates/list:
+  /v1/kpi/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new KPI Template
+      parameters:
+      - description: KPI Template
+        in: body
+        name: template
+        required: true
+        schema:
+          $ref: '#/definitions/dto.KPITemplateDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new KPI Template
+      tags:
+      - KPI
+  /v1/kpi/list:
     get:
       consumes:
       - application/json
@@ -1114,6 +1247,159 @@ paths:
       summary: Get KPI Templates
       tags:
       - KPI
+  /v1/sign-job/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Update a sign job by its ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update Sign Job by ID
+      tags:
+      - SignJob
+    get:
+      consumes:
+      - application/json
+      description: Get a sign job by its ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.SignJobDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get Sign Job by ID
+      tags:
+      - SignJob
+    put:
+      consumes:
+      - application/json
+      description: Update a sign job by its ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update Sign Job by ID
+      tags:
+      - SignJob
+  /v1/sign-job/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new sign job
+      parameters:
+      - description: Create Sign Job
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSignJobDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.SignJobDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create Sign Job
+      tags:
+      - SignJob
+  /v1/sign-job/list:
+    get:
+      consumes:
+      - application/json
+      description: List all sign jobs for the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.SignJobDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List Sign Jobs
+      tags:
+      - SignJob
   /v1/upload/download:
     post:
       consumes:

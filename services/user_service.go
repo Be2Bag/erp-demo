@@ -332,12 +332,17 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 
 	totalCount, _ := s.userRepo.CountUsers(ctx, filter)
 
+	list := make([]interface{}, len(dtoUsers))
+	for i, v := range dtoUsers {
+		list[i] = v
+	}
+
 	pagination := dto.Pagination{
 		Page:       req.Page,
 		Size:       len(dtoUsers),
 		TotalCount: int(totalCount),
 		TotalPages: int(math.Ceil(float64(totalCount) / float64(req.Limit))),
-		List:       dtoUsers,
+		List:       list,
 	}
 
 	return pagination, nil

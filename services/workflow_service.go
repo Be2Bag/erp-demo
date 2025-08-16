@@ -81,7 +81,7 @@ func (s *workFlowService) GetWorkflowTemplateByID(ctx context.Context, templateI
 	return &out, nil
 }
 
-func (s *workFlowService) ListWorkflowTemplates(ctx context.Context, search string, department string, page, limit int64, sort string) ([]dto.WorkflowTemplateDTO, int64, error) {
+func (s *workFlowService) ListWorkflowTemplates(ctx context.Context, search string, department string, page, limit int64, sort string) (dto.Pagination, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -122,19 +122,36 @@ func (s *workFlowService) ListWorkflowTemplates(ctx context.Context, search stri
 
 	total, err := s.workFlowRepo.CountWorkFlowTemplates(ctx, filter)
 	if err != nil {
-		return nil, 0, err
+		return dto.Pagination{}, err
 	}
 
 	items, err := s.workFlowRepo.GetWorkFlowTemplates(ctx, filter, findOpts)
 	if err != nil {
-		return nil, 0, err
+		return dto.Pagination{}, err
 	}
 
 	out := make([]dto.WorkflowTemplateDTO, 0, len(items))
 	for i := range items {
 		out = append(out, toTemplateDTO(&items[i]))
 	}
-	return out, total, nil
+
+	// Build pagination response
+	totalPages := 0
+	if limit > 0 {
+		totalPages = int((total + limit - 1) / limit)
+	}
+	p := dto.Pagination{
+		Page:       int(page),
+		Size:       int(limit),
+		TotalCount: int(total),
+		TotalPages: totalPages,
+		List:       make([]interface{}, len(out)),
+	}
+	for i := range out {
+		p.List[i] = out[i]
+	}
+
+	return p, nil
 }
 
 func (s *workFlowService) UpdateWorkflowTemplate(ctx context.Context, templateID string, req dto.UpdateWorkflowTemplateDTO, updatedBy string) (*dto.WorkflowTemplateDTO, error) {

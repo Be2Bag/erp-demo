@@ -143,3 +143,53 @@ func (s *dropDownService) GetSubDistricts(ctx context.Context, districtID string
 
 	return response, nil
 }
+
+func (s *dropDownService) GetSignTypes(ctx context.Context) ([]dto.ResponseGetSignTypes, error) {
+	filter := bson.M{"deleted_at": nil}
+	projection := bson.M{}
+
+	signTypes, errOnGetSignTypes := s.dropDownRepo.GetSignTypes(ctx, filter, projection)
+	if errOnGetSignTypes != nil {
+		return nil, errOnGetSignTypes
+	}
+
+	if len(signTypes) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetSignTypes
+	for _, signType := range signTypes {
+		response = append(response, dto.ResponseGetSignTypes{
+			TypeID: signType.TypeID,
+			NameTH: signType.NameTH,
+			NameEN: signType.NameEN,
+		})
+	}
+
+	return response, nil
+}
+
+func (h *dropDownService) GetCustomerTypes(ctx context.Context) ([]dto.ResponseGetCustomerTypes, error) {
+	filter := bson.M{"deleted_at": nil}
+	projection := bson.M{}
+
+	customerTypes, errOnGetCustomerTypes := h.dropDownRepo.GetCustomerTypes(ctx, filter, projection)
+	if errOnGetCustomerTypes != nil {
+		return nil, errOnGetCustomerTypes
+	}
+
+	if len(customerTypes) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetCustomerTypes
+	for _, customerType := range customerTypes {
+		response = append(response, dto.ResponseGetCustomerTypes{
+			TypeID: customerType.TypeID,
+			NameTH: customerType.NameTH,
+			NameEN: customerType.NameEN,
+		})
+	}
+
+	return response, nil
+}

@@ -187,11 +187,20 @@ func (s *kpiService) DeleteKPITemplate(ctx context.Context, id string) error {
 	return s.kpiRepo.DeleteKPITemplate(ctx, id)
 }
 
-// added: list with search + pagination
-func (s *kpiService) ListKPITemplates(ctx context.Context, q dto.KPITemplateListQuery) ([]interface{}, int64, error) {
+func (s *kpiService) ListKPITemplates(ctx context.Context, q dto.KPITemplateListQuery) (dto.Pagination, error) {
+	if q.Page < 1 {
+		q.Page = 1
+	}
+	if q.Limit <= 0 {
+		q.Limit = 10
+	}
+
 	filter := bson.M{}
 	if q.Search != "" {
-		filter["name"] = bson.M{"$regex": q.Search, "$options": "i"}
+		filter["$or"] = []bson.M{
+			{"name": bson.M{"$regex": q.Search, "$options": "i"}},
+			{"department": bson.M{"$regex": q.Search, "$options": "i"}},
+		}
 	}
 	if q.Department != "" {
 		filter["department"] = q.Department
@@ -200,28 +209,63 @@ func (s *kpiService) ListKPITemplates(ctx context.Context, q dto.KPITemplateList
 		filter["is_active"] = *q.IsActive
 	}
 
-	total, err := s.kpiRepo.CountKPITemplates(ctx, filter)
-	if err != nil {
-		return nil, 0, err
-	}
-	if total == 0 {
-		return []interface{}{}, 0, nil
+	var (
+		total int64 = -1
+		err   error
+	)
+	if q.Page == 1 {
+		total, err = s.kpiRepo.CountKPITemplates(ctx, filter)
+		if err != nil {
+			return dto.Pagination{}, err
+		}
+		if total == 0 {
+			return dto.Pagination{
+				Page:       q.Page,
+				Size:       0,
+				TotalCount: 0,
+				TotalPages: 0,
+				List:       []interface{}{},
+			}, nil
+		}
 	}
 
 	skip := int64((q.Page - 1) * q.Limit)
 	limit := int64(q.Limit)
-	opts := options.Find().SetSkip(skip).SetLimit(limit).SetSort(bson.M{"created_at": -1})
+	opts := options.Find().
+		SetSkip(skip).
+		SetLimit(limit).
+		SetSort(bson.M{"created_at": -1})
 
 	list, err := s.kpiRepo.GetKPITemplates(ctx, filter, opts)
 	if err != nil {
-		return nil, 0, err
+		return dto.Pagination{}, err
 	}
 
-	// convert to []interface{} to keep interface signature minimal change
-	out := make([]interface{}, 0, len(list))
-	for i := range list {
-		out = append(out, list[i])
+	if total < 0 {
+		total, err = s.kpiRepo.CountKPITemplates(ctx, filter)
+		if err != nil {
+			return dto.Pagination{}, err
+		}
 	}
 
-	return out, total, nil
+	// convert to []interface{}
+	result := make([]interface{}, len(list))
+	for i, v := range list {
+		result[i] = v
+	}
+
+	var totalPages int
+	if q.Limit > 0 {
+		totalPages = int((total + int64(q.Limit) - 1) / int64(q.Limit))
+	}
+
+	p := dto.Pagination{
+		Page:       q.Page,
+		Size:       len(result),
+		TotalCount: int(total),
+		TotalPages: totalPages,
+		List:       result,
+	}
+
+	return p, nil
 }

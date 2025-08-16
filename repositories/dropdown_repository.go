@@ -10,20 +10,24 @@ import (
 )
 
 type dropDownRepo struct {
-	departmentsColl  *mongo.Collection
-	positionsColl    *mongo.Collection
-	provincesColl    *mongo.Collection
-	districtsColl    *mongo.Collection
-	subDistrictsColl *mongo.Collection
+	departmentsColl   *mongo.Collection
+	positionsColl     *mongo.Collection
+	provincesColl     *mongo.Collection
+	districtsColl     *mongo.Collection
+	subDistrictsColl  *mongo.Collection
+	signTypesColl     *mongo.Collection
+	customerTypesColl *mongo.Collection
 }
 
 func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
 	return &dropDownRepo{
-		departmentsColl:  db.Collection(models.CollectionDepartments),
-		positionsColl:    db.Collection(models.CollectionPositions),
-		provincesColl:    db.Collection(models.CollectionProvinces),
-		districtsColl:    db.Collection(models.CollectionDistricts),
-		subDistrictsColl: db.Collection(models.CollectionSubDistricts),
+		departmentsColl:   db.Collection(models.CollectionDepartments),
+		positionsColl:     db.Collection(models.CollectionPositions),
+		provincesColl:     db.Collection(models.CollectionProvinces),
+		districtsColl:     db.Collection(models.CollectionDistricts),
+		subDistrictsColl:  db.Collection(models.CollectionSubDistricts),
+		signTypesColl:     db.Collection(models.CollectionSignTypes),
+		customerTypesColl: db.Collection(models.CollectionCustomerTypes),
 	}
 }
 func (r *dropDownRepo) GetPositions(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Position, error) {
@@ -137,4 +141,50 @@ func (r *dropDownRepo) GetSubDistricts(ctx context.Context, filter interface{}, 
 	}
 
 	return subDistricts, nil
+}
+
+func (r *dropDownRepo) GetSignTypes(ctx context.Context, filter interface{}, projection interface{}) ([]*models.SignType, error) {
+	var signTypes []*models.SignType
+	cursor, err := r.signTypesColl.Find(ctx, filter, options.Find().SetProjection(projection))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var signType models.SignType
+		if err := cursor.Decode(&signType); err != nil {
+			return nil, err
+		}
+		signTypes = append(signTypes, &signType)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return signTypes, nil
+}
+
+func (r *dropDownRepo) GetCustomerTypes(ctx context.Context, filter interface{}, projection interface{}) ([]*models.CustomerType, error) {
+	var customerTypes []*models.CustomerType
+	cursor, err := r.customerTypesColl.Find(ctx, filter, options.Find().SetProjection(projection))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var customerType models.CustomerType
+		if err := cursor.Decode(&customerType); err != nil {
+			return nil, err
+		}
+		customerTypes = append(customerTypes, &customerType)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return customerTypes, nil
 }

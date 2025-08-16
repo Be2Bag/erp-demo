@@ -263,6 +263,56 @@
                 }
             }
         },
+        "/v1/dropdown/customer-type": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลประเภทลูกค้าทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dropdown"
+                ],
+                "summary": "Get all customer types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetCustomerTypes"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dropdown/department": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลแผนกทั้งหมด",
@@ -472,6 +522,56 @@
                 }
             }
         },
+        "/v1/dropdown/sign-type": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลประเภทงานทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "dropdown"
+                ],
+                "summary": "Get all sign types",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetSignTypes"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dropdown/subdistrict/{id}": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลตำบลทั้งหมดตามรหัสอำเภอ",
@@ -531,7 +631,7 @@
                 }
             }
         },
-        "/v1/kpi/templates": {
+        "/v1/kpi/create": {
             "post": {
                 "description": "Create a new KPI Template",
                 "consumes": [
@@ -583,7 +683,7 @@
                 }
             }
         },
-        "/v1/kpi/templates/list": {
+        "/v1/kpi/list": {
             "get": {
                 "description": "Get a list of KPI Templates",
                 "consumes": [
@@ -656,7 +756,7 @@
                 }
             }
         },
-        "/v1/kpi/templates/{id}": {
+        "/v1/kpi/{id}": {
             "get": {
                 "description": "Get a KPI Template by ID",
                 "consumes": [
@@ -798,6 +898,251 @@
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/sign-job/create": {
+            "post": {
+                "description": "Create a new sign job",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignJob"
+                ],
+                "summary": "Create Sign Job",
+                "parameters": [
+                    {
+                        "description": "Create Sign Job",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateSignJobDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.SignJobDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/sign-job/list": {
+            "get": {
+                "description": "List all sign jobs for the authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignJob"
+                ],
+                "summary": "List Sign Jobs",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.SignJobDTO"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/sign-job/{id}": {
+            "get": {
+                "description": "Get a sign job by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignJob"
+                ],
+                "summary": "Get Sign Job by ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.SignJobDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a sign job by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignJob"
+                ],
+                "summary": "Update Sign Job by ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Update a sign job by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignJob"
+                ],
+                "summary": "Update Sign Job by ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
                         }
@@ -1854,6 +2199,83 @@
                 }
             }
         },
+        "dto.CreateSignJobDTO": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "ที่อยู่ติดตั้ง / จัดส่ง",
+                    "type": "string"
+                },
+                "contact_person": {
+                    "description": "ผู้ติดต่อ",
+                    "type": "string"
+                },
+                "content": {
+                    "description": "รายละเอียดข้อความบนป้าย",
+                    "type": "string"
+                },
+                "customer_name": {
+                    "description": "ชื่อลูกค้าหรือบริษัท",
+                    "type": "string"
+                },
+                "customer_type_id": {
+                    "description": "ID ประเภทลูกค้า (dropdown)",
+                    "type": "string"
+                },
+                "design_option": {
+                    "description": "ตัวเลือกการออกแบบ (\"have_design\", \"need_design\")",
+                    "type": "string"
+                },
+                "due_date": {
+                    "description": "วันที่ต้องการรับงาน",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "อีเมล",
+                    "type": "string"
+                },
+                "install_option": {
+                    "description": "ตัวเลือกการติดตั้ง (\"none\", \"self\", \"shop\")",
+                    "type": "string"
+                },
+                "job_name": {
+                    "description": "ชื่องาน",
+                    "type": "string"
+                },
+                "main_color": {
+                    "description": "สีหลัก / โทนสี",
+                    "type": "string"
+                },
+                "notes": {
+                    "description": "หมายเหตุเพิ่มเติม",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "เบอร์โทรศัพท์",
+                    "type": "string"
+                },
+                "production_time": {
+                    "description": "ระยะเวลาในการผลิต",
+                    "type": "string"
+                },
+                "project_name": {
+                    "description": "ชื่อโปรเจกต์",
+                    "type": "string"
+                },
+                "quantity": {
+                    "description": "จำนวนป้าย",
+                    "type": "integer"
+                },
+                "sign_type_id": {
+                    "description": "ID ประเภทงานป้าย (dropdown)",
+                    "type": "string"
+                },
+                "size": {
+                    "description": "ขนาดป้าย (กว้างxสูง) หน่วยซม.",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateWorkflowStepDTO": {
             "type": "object",
             "properties": {
@@ -2029,9 +2451,7 @@
             "properties": {
                 "list": {
                     "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.ResponseGetUserAll"
-                    }
+                    "items": {}
                 },
                 "page": {
                     "type": "integer",
@@ -2244,6 +2664,23 @@
                 }
             }
         },
+        "dto.ResponseGetCustomerTypes": {
+            "type": "object",
+            "properties": {
+                "name_en": {
+                    "description": "ชื่อประเภทลูกค้า (ภาษาอังกฤษ)",
+                    "type": "string"
+                },
+                "name_th": {
+                    "description": "ชื่อประเภทลูกค้า (ภาษาไทย)",
+                    "type": "string"
+                },
+                "type_id": {
+                    "description": "รหัสประเภทลูกค้า (ไม่ซ้ำกัน)",
+                    "type": "string"
+                }
+            }
+        },
         "dto.ResponseGetDepartments": {
             "type": "object",
             "properties": {
@@ -2296,6 +2733,23 @@
                 }
             }
         },
+        "dto.ResponseGetSignTypes": {
+            "type": "object",
+            "properties": {
+                "name_en": {
+                    "description": "ชื่อประเภทงาน (ภาษาอังกฤษ)",
+                    "type": "string"
+                },
+                "name_th": {
+                    "description": "ชื่อประเภทงาน (ภาษาไทย)",
+                    "type": "string"
+                },
+                "type_id": {
+                    "description": "รหัสประเภทงาน",
+                    "type": "string"
+                }
+            }
+        },
         "dto.ResponseGetSubDistricts": {
             "type": "object",
             "properties": {
@@ -2313,103 +2767,100 @@
                 }
             }
         },
-        "dto.ResponseGetUserAll": {
+        "dto.SignJobDTO": {
             "type": "object",
             "properties": {
-                "avatar": {
-                    "description": "ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้",
-                    "type": "string",
-                    "example": "https://example.com/avatar.jpg"
+                "address": {
+                    "description": "ที่อยู่ติดตั้ง/จัดส่ง",
+                    "type": "string"
+                },
+                "contact_person": {
+                    "description": "ผู้ติดต่อ",
+                    "type": "string"
+                },
+                "content": {
+                    "description": "รายละเอียดข้อความ",
+                    "type": "string"
                 },
                 "created_at": {
-                    "description": "วันที่สร้างข้อมูลนี้",
-                    "type": "string",
-                    "example": "2025-07-11T08:25:08.526Z"
+                    "description": "วันที่สร้าง",
+                    "type": "string"
                 },
-                "deleted_at": {
-                    "description": "วันที่ลบข้อมูล (soft delete)",
-                    "type": "string",
-                    "example": "null"
+                "created_by": {
+                    "description": "ผู้สร้าง",
+                    "type": "string"
                 },
-                "department": {
-                    "description": "รหัสแผนก (FK ไปยัง Departments)",
-                    "type": "string",
-                    "example": "DEP001"
+                "customer_name": {
+                    "description": "ชื่อลูกค้า/บริษัท",
+                    "type": "string"
+                },
+                "customer_type_id": {
+                    "description": "ID ประเภทลูกค้า",
+                    "type": "string"
+                },
+                "design_option": {
+                    "description": "การออกแบบ",
+                    "type": "string"
+                },
+                "due_date": {
+                    "description": "วันที่ต้องการรับงาน",
+                    "type": "string"
                 },
                 "email": {
-                    "description": "อีเมลของผู้ใช้",
-                    "type": "string",
-                    "example": "จันทรสกุล"
+                    "description": "อีเมล",
+                    "type": "string"
                 },
-                "first_name_en": {
-                    "description": "ชื่อจริงของพนักงาน (ภาษาอังกฤษ)",
-                    "type": "string",
-                    "example": "Kittiya"
+                "install_option": {
+                    "description": "ตัวเลือกการติดตั้ง",
+                    "type": "string"
                 },
-                "first_name_th": {
-                    "description": "ชื่อจริงของพนักงาน",
-                    "type": "string",
-                    "example": "กิตติยา"
+                "job_id": {
+                    "description": "UUID ของงาน",
+                    "type": "string"
                 },
-                "kpi_score": {
-                    "description": "คะแนน KPI ของพนักงาน",
-                    "type": "string",
-                    "example": "85"
+                "job_name": {
+                    "description": "ชื่องาน",
+                    "type": "string"
                 },
-                "last_name_en": {
-                    "description": "นามสกุลของพนักงาน (ภาษาอังกฤษ)",
-                    "type": "string",
-                    "example": "Chanthasakul"
+                "main_color": {
+                    "description": "สีหลัก / โทนสี",
+                    "type": "string"
                 },
-                "last_name_th": {
-                    "description": "นามสกุลของพนักงาน",
-                    "type": "string",
-                    "example": "จันทรสกุล"
+                "notes": {
+                    "description": "หมายเหตุเพิ่มเติม",
+                    "type": "string"
                 },
                 "phone": {
-                    "description": "เบอร์โทรศัพท์ของพนักงาน",
-                    "type": "string",
-                    "example": "094-222-7788"
+                    "description": "เบอร์โทรศัพท์",
+                    "type": "string"
                 },
-                "position": {
-                    "description": "รหัสตำแหน่งงาน (FK ไปยัง Positions)",
-                    "type": "string",
-                    "example": "POS126"
+                "production_time": {
+                    "description": "ระยะเวลาในการผลิต",
+                    "type": "string"
+                },
+                "project_name": {
+                    "description": "ชื่อโปรเจกต์",
+                    "type": "string"
+                },
+                "quantity": {
+                    "description": "จำนวนป้าย",
+                    "type": "integer"
+                },
+                "sign_type_id": {
+                    "description": "ID ประเภทงานป้าย",
+                    "type": "string"
+                },
+                "size": {
+                    "description": "ขนาดป้าย",
+                    "type": "string"
                 },
                 "status": {
-                    "description": "สถานะของผู้ใช้ (เช่น approved , pending, rejected)",
-                    "type": "string",
-                    "example": "approved"
-                },
-                "tasks_completed": {
-                    "description": "จำนวนงานที่เสร็จสมบูรณ์",
-                    "type": "string",
-                    "example": "8"
-                },
-                "tasks_total": {
-                    "description": "จำนวนงานทั้งหมดที่ได้รับมอบหมาย",
-                    "type": "string",
-                    "example": "10"
-                },
-                "title_en": {
-                    "description": "คำนำหน้าชื่อ (ภาษาอังกฤษ)",
-                    "type": "string",
-                    "example": "Miss"
-                },
-                "title_th": {
-                    "description": "คำนำหน้าชื่อ (ภาษาไทย)",
-                    "type": "string",
-                    "example": "นางสาว"
+                    "description": "สถานะงาน",
+                    "type": "string"
                 },
                 "updated_at": {
-                    "description": "วันที่แก้ไขข้อมูลล่าสุด",
-                    "type": "string",
-                    "example": "2025-07-11T08:25:08.526Z"
-                },
-                "user_id": {
-                    "description": "รหัสประจำตัวผู้ใช้ (ไม่ซ้ำกัน)",
-                    "type": "string",
-                    "example": "1d5855c2-7d14-4f8d-8b5d-ef20cb5cb3cf"
+                    "description": "วันที่แก้ไขล่าสุด",
+                    "type": "string"
                 }
             }
         },

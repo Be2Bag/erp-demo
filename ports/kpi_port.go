@@ -12,7 +12,7 @@ type KPIService interface {
 	GetKPITemplateByID(ctx context.Context, id string) (interface{}, error)
 	UpdateKPITemplate(ctx context.Context, id string, updated dto.KPITemplateDTO, claims *dto.JWTClaims) (interface{}, error)
 	DeleteKPITemplate(ctx context.Context, id string) error
-	ListKPITemplates(ctx context.Context, q dto.KPITemplateListQuery) ([]interface{}, int64, error)
+	ListKPITemplates(ctx context.Context, q dto.KPITemplateListQuery) (dto.Pagination, error)
 }
 type KPIRepository interface {
 	GetKPITemplates(ctx context.Context, filter interface{}, options interface{}) ([]models.KPITemplate, error)

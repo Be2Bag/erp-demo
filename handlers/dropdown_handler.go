@@ -21,8 +21,10 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 	dropdown.Get("/position", h.GetPosition)
 	dropdown.Get("/department", h.GetDepartment)
 	dropdown.Get("/province", h.GetProvince)
+	dropdown.Get("/sign-type", h.GetSignType)
 	dropdown.Get("/district/:id", h.GetDistrict)
 	dropdown.Get("/subdistrict/:id", h.GetSubDistrict)
+	dropdown.Get("/customer-type", h.GetCustomerTypes)
 
 }
 
@@ -178,5 +180,65 @@ func (h *DropDownHandler) GetSubDistrict(c *fiber.Ctx) error {
 		MessageTH:  "ดึงตำบลสำเร็จ",
 		Status:     "success",
 		Data:       subDistricts,
+	})
+}
+
+// @Summary Get all sign types
+// @Description ใช้สำหรับดึงข้อมูลประเภทงานทั้งหมด
+// @Tags dropdown
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetSignTypes}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/sign-type [get]
+func (h *DropDownHandler) GetSignType(c *fiber.Ctx) error {
+	signTypes, errOnGetSignTypes := h.svc.GetSignTypes(c.Context())
+	if errOnGetSignTypes != nil {
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  fiber.ErrBadGateway.Message,
+			MessageTH:  "ไม่สามารถดึงประเภทงานได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get sign types successfully",
+		MessageTH:  "ดึงประเภทงานสำเร็จ",
+		Status:     "success",
+		Data:       signTypes,
+	})
+}
+
+// @Summary Get all customer types
+// @Description ใช้สำหรับดึงข้อมูลประเภทลูกค้าทั้งหมด
+// @Tags dropdown
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetCustomerTypes}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/customer-type [get]
+func (h *DropDownHandler) GetCustomerTypes(c *fiber.Ctx) error {
+	customerTypes, errOnGetCustomerTypes := h.svc.GetCustomerTypes(c.Context())
+	if errOnGetCustomerTypes != nil {
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  fiber.ErrBadGateway.Message,
+			MessageTH:  "ไม่สามารถดึงประเภทลูกค้าได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get customer types successfully",
+		MessageTH:  "ดึงประเภทลูกค้าสำเร็จ",
+		Status:     "success",
+		Data:       customerTypes,
 	})
 }

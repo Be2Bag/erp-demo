@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/Be2Bag/erp-demo/models"
 	"github.com/Be2Bag/erp-demo/ports"
@@ -30,18 +31,24 @@ func (r *kpiRepo) GetKPITemplates(ctx context.Context, filter interface{}, optio
 		}
 	}
 
-	cursor, err := r.coll.Find(ctx, filter, findOptions)
+	cctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+
+	cursor, err := r.coll.Find(cctx, filter, findOptions)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(ctx)
+	defer cursor.Close(cctx)
 
-	for cursor.Next(ctx) {
+	for cursor.Next(cctx) {
 		var template models.KPITemplate
 		if err := cursor.Decode(&template); err != nil {
 			return nil, err
 		}
 		templates = append(templates, template)
+	}
+	if err := cursor.Err(); err != nil {
+		return nil, err
 	}
 
 	return templates, nil
