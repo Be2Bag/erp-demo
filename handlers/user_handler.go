@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -16,6 +15,7 @@ import (
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/valyala/fasthttp"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -115,15 +115,15 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 
 	fileHeader, err := c.FormFile("avatar")
 	if err != nil {
-		// ถ้าไม่มีไฟล์แนบมา ให้กำหนด Avatar เป็นค่าว่าง แล้วข้ามการอัปโหลด
-		if err == http.ErrMissingFile {
+		// ไม่มีไฟล์แนบมา → ข้ามอัปโหลด
+		if errors.Is(err, fasthttp.ErrMissingFile) {
 			user.Avatar = ""
 		} else {
-			// กรณี error อื่นๆ เช่น ไฟล์เสียหายหรือ parsing ไม่ได้
+			// error อื่นๆ ที่ควรแจ้งกลับ
 			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusBadRequest,
 				MessageEN:  "Failed to parse uploaded file: " + err.Error(),
-				MessageTH:  "ไม่สามารถแยกไฟล์ที่อัปโหลดได้",
+				MessageTH:  "ไม่สามารถอัปโหลดไฟล์ได้ กรุณาอัปโหลดไฟล์รูปภาพ",
 				Status:     "error",
 				Data:       nil,
 			})
