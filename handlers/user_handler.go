@@ -156,7 +156,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		uuid := uuid.New().String()
 		newName := fmt.Sprintf("%s/%s%s", "avatars", uuid, ext)
 
-		errOnUpload := h.upload.UploadFile(c.Context(), tempFilePath, newName)
+		errOnUpload := h.upload.UploadFileCloudflare(c.Context(), tempFilePath, newName)
 		if errOnUpload != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusInternalServerError,
