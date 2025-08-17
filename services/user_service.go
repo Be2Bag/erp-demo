@@ -567,6 +567,10 @@ func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdate
 		user.UpdatedAt = time.Now()
 	}
 
+	if user.Status == "rejected" {
+		user.Status = "pending"
+	}
+
 	updatedUser, errOnUpdate := s.userRepo.UpdateUserByID(ctx, req.UserID, user)
 	if errOnUpdate != nil {
 		return nil, fmt.Errorf("failed to update user documents: %w", errOnUpdate)
