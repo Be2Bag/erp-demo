@@ -34,8 +34,8 @@ func (h *UserHandler) UserRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	user := versionOne.Group("user")
 
-	user.Post("/", h.CreateUser)
-	user.Get("/", h.mdw.AuthCookieMiddleware(), h.GetAllUser)
+	user.Post("/create", h.CreateUser)
+	user.Get("/list", h.mdw.AuthCookieMiddleware(), h.GetAllUser)
 	user.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetUserByID)
 	user.Put("/documents", h.mdw.AuthCookieMiddleware(), h.UpdateDocuments)
 	user.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateUserByID)
