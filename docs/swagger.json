@@ -1058,6 +1058,15 @@
                     "SignJob"
                 ],
                 "summary": "Get Sign Job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sign Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1109,6 +1118,15 @@
                     "SignJob"
                 ],
                 "summary": "Update Sign Job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sign Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1148,6 +1166,15 @@
                     "SignJob"
                 ],
                 "summary": "Update Sign Job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sign Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

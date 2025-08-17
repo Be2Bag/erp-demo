@@ -1064,6 +1064,15 @@ const docTemplate = `{
                     "SignJob"
                 ],
                 "summary": "Get Sign Job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sign Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1115,6 +1124,15 @@ const docTemplate = `{
                     "SignJob"
                 ],
                 "summary": "Update Sign Job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sign Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1154,6 +1172,15 @@ const docTemplate = `{
                     "SignJob"
                 ],
                 "summary": "Update Sign Job by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sign Job ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

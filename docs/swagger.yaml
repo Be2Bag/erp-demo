@@ -1284,6 +1284,12 @@ paths:
       consumes:
       - application/json
       description: Update a sign job by its ID
+      parameters:
+      - description: Sign Job ID
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1310,6 +1316,12 @@ paths:
       consumes:
       - application/json
       description: Get a sign job by its ID
+      parameters:
+      - description: Sign Job ID
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1341,6 +1353,12 @@ paths:
       consumes:
       - application/json
       description: Update a sign job by its ID
+      parameters:
+      - description: Sign Job ID
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:

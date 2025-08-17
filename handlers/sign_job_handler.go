@@ -112,8 +112,8 @@ func (h *SignJobHandler) ListSignJobs(c *fiber.Ctx) error {
 		})
 	}
 
-	page, _ := strconv.Atoi(c.Query("page", "1"))
-	size, _ := strconv.Atoi(c.Query("size", "20"))
+	page, _ := strconv.Atoi(c.Query("page", ""))
+	size, _ := strconv.Atoi(c.Query("size", ""))
 	search := c.Query("search", "")
 
 	if size > 100 {
@@ -147,6 +147,7 @@ func (h *SignJobHandler) ListSignJobs(c *fiber.Ctx) error {
 // @Tags SignJob
 // @Accept json
 // @Produce json
+// @Param id path string true "Sign Job ID"
 // @Success 200 {object} dto.BaseResponse{data=dto.SignJobDTO}
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 404 {object} dto.BaseResponse
@@ -197,6 +198,7 @@ func (h *SignJobHandler) GetSignJobByID(c *fiber.Ctx) error {
 // @Tags SignJob
 // @Accept json
 // @Produce json
+// @Param id path string true "Sign Job ID"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 404 {object} dto.BaseResponse
@@ -257,6 +259,7 @@ func (h *SignJobHandler) UpdateSignJobByID(c *fiber.Ctx) error {
 // @Tags SignJob
 // @Accept json
 // @Produce json
+// @Param id path string true "Sign Job ID"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 404 {object} dto.BaseResponse

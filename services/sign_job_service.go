@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/Be2Bag/erp-demo/config"
@@ -80,6 +79,13 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 }
 
 func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims, page, size int, search string) (dto.Pagination, error) {
+	if size <= 0 {
+		size = 10
+	}
+	if page <= 0 {
+		page = 1
+	}
+
 	items, total, err := s.signJobRepo.ListSignJobs(ctx, page, size, search)
 	if err != nil {
 		return dto.Pagination{}, err
@@ -124,11 +130,11 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 		})
 	}
 
-	if size <= 0 {
-		size = 10
+	totalPages := 0
+	if size > 0 && total > 0 {
+		totalPages = int((total + int64(size) - 1) / int64(size))
 	}
-	totalPages := (int(total) + size - 1) / size
-	log.Println("Total Pages:", size)
+
 	return dto.Pagination{
 		Page:       page,
 		Size:       size,
@@ -139,7 +145,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 }
 
 func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) (*dto.SignJobDTO, error) {
-	m, err := s.signJobRepo.GetSignJobByJobID(ctx, jobID, claims.UserID)
+	m, err := s.signJobRepo.GetSignJobByJobID(ctx, jobID)
 	if err != nil {
 		return nil, err
 	}
@@ -227,7 +233,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		Status:    status,
 		UpdatedAt: now,
 	}
-	updated, err := s.signJobRepo.UpdateSignJobByJobID(ctx, jobID, claims.UserID, model)
+	updated, err := s.signJobRepo.UpdateSignJobByJobID(ctx, jobID, model)
 	if err != nil {
 		return err
 	}
@@ -238,7 +244,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 }
 
 func (s *signJobService) DeleteSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) error {
-	err := s.signJobRepo.DeleteSignJobByJobID(ctx, jobID, claims.UserID)
+	err := s.signJobRepo.DeleteSignJobByJobID(ctx, jobID)
 	if err == mongo.ErrNoDocuments {
 		return nil
 	}

@@ -10,9 +10,9 @@ import (
 type SignJobRepository interface {
 	CreateSignJob(ctx context.Context, signJob models.SignJob) error
 	ListSignJobs(ctx context.Context, page, size int, search string) ([]models.SignJob, int64, error)
-	GetSignJobByJobID(ctx context.Context, jobID string, createdBy string) (*models.SignJob, error)
-	UpdateSignJobByJobID(ctx context.Context, jobID string, createdBy string, update models.SignJob) (*models.SignJob, error)
-	DeleteSignJobByJobID(ctx context.Context, jobID string, createdBy string) error
+	GetSignJobByJobID(ctx context.Context, jobID string) (*models.SignJob, error)
+	UpdateSignJobByJobID(ctx context.Context, jobID string, update models.SignJob) (*models.SignJob, error)
+	DeleteSignJobByJobID(ctx context.Context, jobID string) error
 }
 
 type SignJobService interface {

@@ -67,8 +67,8 @@ func (r *signJobRepo) ListSignJobs(ctx context.Context, page, size int, search s
 	return results, total, nil
 }
 
-func (r *signJobRepo) GetSignJobByJobID(ctx context.Context, jobID string, createdBy string) (*models.SignJob, error) {
-	filter := bson.M{"job_id": jobID, "created_by": createdBy}
+func (r *signJobRepo) GetSignJobByJobID(ctx context.Context, jobID string) (*models.SignJob, error) {
+	filter := bson.M{"job_id": jobID}
 	var m models.SignJob
 	if err := r.coll.FindOne(ctx, filter).Decode(&m); err != nil {
 		if err == mongo.ErrNoDocuments {
@@ -79,8 +79,8 @@ func (r *signJobRepo) GetSignJobByJobID(ctx context.Context, jobID string, creat
 	return &m, nil
 }
 
-func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, createdBy string, update models.SignJob) (*models.SignJob, error) {
-	filter := bson.M{"job_id": jobID, "created_by": createdBy}
+func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, update models.SignJob) (*models.SignJob, error) {
+	filter := bson.M{"job_id": jobID}
 	set := bson.M{
 		"company_name":     update.CompanyName,
 		"contact_person":   update.ContactPerson,
@@ -119,8 +119,8 @@ func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, cr
 	return &updated, nil
 }
 
-func (r *signJobRepo) DeleteSignJobByJobID(ctx context.Context, jobID string, createdBy string) error {
-	filter := bson.M{"job_id": jobID, "created_by": createdBy}
+func (r *signJobRepo) DeleteSignJobByJobID(ctx context.Context, jobID string) error {
+	filter := bson.M{"job_id": jobID}
 	res, err := r.coll.DeleteOne(ctx, filter)
 	if err != nil {
 		return err
