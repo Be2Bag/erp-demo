@@ -9,35 +9,47 @@ import (
 const CollectionSignJobs = "sign_jobs"
 
 type SignJob struct {
-	ID    primitive.ObjectID `bson:"_id " json:"_id"`      // ObjectId ใน MongoDB
-	JobID string             `bson:"job_id" json:"job_id"` // UUID ของงาน (ใช้ค้นหาแบบ unique)
+	// ---------- Keys ----------
+	ID    primitive.ObjectID `bson:"_id" json:"_id"`       // ObjectId
+	JobID string             `bson:"job_id" json:"job_id"` // UUID/รหัสงาน (unique)
 
-	ProjectName string `bson:"project_name" json:"project_name"` // ชื่อโปรเจกต์
-	JobName     string `bson:"job_name" json:"job_name"`         // ชื่องาน
+	// ---------- Customer ----------
+	CompanyName    string `bson:"company_name" json:"company_name"`         // ชื่อบริษัท
+	ContactPerson  string `bson:"contact_person" json:"contact_person"`     // ชื่อผู้ติดต่อ
+	Phone          string `bson:"phone" json:"phone"`                       // เบอร์โทร
+	Email          string `bson:"email" json:"email"`                       // อีเมล
+	CustomerTypeID string `bson:"customer_type_id" json:"customer_type_id"` // ประเภทลูกค้า
+	Address        string `bson:"address" json:"address"`                   // ที่อยู่ติดตั้ง / จัดส่ง
 
-	CustomerName  string `bson:"customer_name" json:"customer_name"`     // ชื่อบริษัทหรือลูกค้า
-	ContactPerson string `bson:"contact_person " json:"contact_person "` // ชื่อผู้ติดต่อ
-	Phone         string `bson:"phone " json:"phone "`                   // เบอร์โทรศัพท์ผู้ติดต่อ
-	Email         string `bson:"email " json:"email "`                   // อีเมลผู้ติดต่อ
+	// ---------- Sign detail ----------
+	ProjectName string  `bson:"project_name" json:"project_name"` // ชื่อโปรเจกต์
+	JobName     string  `bson:"job_name" json:"job_name"`         // ชื่องาน
+	SignTypeID  string  `bson:"sign_type_id" json:"sign_type_id"` // ประเภทป้าย
+	Width       float64 `bson:"width" json:"width"`               // ซม.
+	Height      float64 `bson:"height" json:"height"`             // ซม.
+	Quantity    int     `bson:"quantity" json:"quantity"`         // จำนวน
+	PriceTHB    int64   `bson:"price_thb" json:"price_thb"`       // ราคาเป็นสตางค์หรือบาททั้งจำนวน เลือกแนวทางเดียวให้คงที่
+	Content     string  `bson:"content" json:"content"`           // รายละเอียด
+	MainColor   string  `bson:"main_color" json:"main_color"`     // สีหลัก
 
-	CustomerTypeID string `bson:"customer_type_id " json:"customer_type_id "` // ID ประเภทลูกค้า (dropdown อ้างอิง master data)
-	Address        string `bson:"address " json:"address "`                   // ที่อยู่ติดตั้งหรือจัดส่ง
+	// ---------- Payment ----------
+	PaymentMethod string `bson:"payment_method" json:"payment_method"` // deposit|cash|transfer|credit
 
-	SignTypeID string `bson:"sign_type_id " json:"sign_type_id "` // ID ประเภทงานป้าย (dropdown)
-	Size       string `bson:"size " json:"size "`                 // ขนาดป้าย (กว้างxสูง) หน่วยซม.
-	Quantity   int    `bson:"quantity " json:"quantity "`         // จำนวนป้าย
-	Content    string `bson:"content " json:"content "`           // รายละเอียดข้อความหรือเนื้อหาบนป้าย
-	MainColor  string `bson:"main_color " json:"main_color "`     // สีหลัก / โทนสี
+	// ---------- Production / Timeline ----------
+	ProductionTime string    `bson:"production_time" json:"production_time"` // เช่น "5 วัน"
+	DueDate        time.Time `bson:"due_date" json:"due_date"`               // ใช้ pointer หากอาจว่าง
 
-	DesignOption   string    `bson:"design_option " json:"design_option "`     // ตัวเลือกการออกแบบ ("have_design" = มีแบบแล้ว, "need_design" = ให้ช่วยออกแบบ)
-	ProductionTime string    `bson:"production_time " json:"production_time "` // ระยะเวลาในการผลิต
-	DueDate        time.Time `bson:"due_date" json:"due_date"`                 // วันที่ต้องการรับงาน (ISO-8601 หรือ string)
-	InstallOption  string    `bson:"install_option " json:"install_option "`   // ตัวเลือกการติดตั้ง ("none", "self", "shop")
+	// ---------- Design / Install ----------
+	DesignOption  string `bson:"design_option" json:"design_option"`   // have_design|need_design
+	InstallOption string `bson:"install_option" json:"install_option"` // none|self|shop
 
-	Notes string `bson:"notes " json:"notes "` // หมายเหตุเพิ่มเติม
+	// ---------- Notes ----------
+	Notes string `bson:"notes" json:"notes"` // หมายเหตุ
 
-	Status    string    `bson:"status" json:"status"`         // สถานะงาน ("draft", "active", "cancelled")
-	CreatedBy string    `bson:"created_by" json:"created_by"` // UUID ผู้สร้าง
-	CreatedAt time.Time `bson:"created_at" json:"created_at"` // วันที่สร้าง
-	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"` // วันที่แก้ไขล่าสุด
+	// ---------- Meta ----------
+	Status    string     `bson:"status" json:"status"`         // อยู่ในขั้นตอนไหนแล้ว
+	CreatedBy string     `bson:"created_by" json:"created_by"` // ใครสร้างงานนี้
+	CreatedAt time.Time  `bson:"created_at" json:"created_at"`
+	UpdatedAt time.Time  `bson:"updated_at" json:"updated_at"`
+	DeletedAt *time.Time `bson:"deleted_at " json:"deleted_at "` // สำหรับ soft delete
 }

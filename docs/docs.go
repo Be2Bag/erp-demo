@@ -1274,78 +1274,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/user": {
-            "get": {
-                "description": "ใช้สำหรับดึงรายการผู้ใช้งานแบบแบ่งหน้า",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "summary": "Get all users",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Search first_name_th last_name_th first_name_en last_name_en",
-                        "name": "search",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Filter by user status (e.g., pending, approved, rejected)",
-                        "name": "status",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Items per page",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Field to sort by",
-                        "name": "sortBy",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort order (asc|desc)",
-                        "name": "sortOrder",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseSuccessPaginationResponseSwagger"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseError400ResponseSwagger"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseError500ResponseSwagger"
-                        }
-                    }
-                }
-            },
+        "/v1/user/create": {
             "post": {
                 "description": "ใช้สำหรับสร้างผู้ใช้ใหม่ โดยจะไม่สามารถสร้างผู้ใช้ที่มีบัตรประชาชนซ้ำได้",
                 "consumes": [
@@ -1596,6 +1525,79 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError400ResponseSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseError500ResponseSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/user/list": {
+            "get": {
+                "description": "ใช้สำหรับดึงรายการผู้ใช้งานแบบแบ่งหน้า",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Get all users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Search first_name_th last_name_th first_name_en last_name_en",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by user status (e.g., pending, approved, rejected)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to sort by",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc|desc)",
+                        "name": "sortOrder",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseSuccessPaginationResponseSwagger"
                         }
                     },
                     "400": {
@@ -2232,73 +2234,93 @@ const docTemplate = `{
                     "description": "ที่อยู่ติดตั้ง / จัดส่ง",
                     "type": "string"
                 },
+                "company_name": {
+                    "description": "---------- ลูกค้า ----------",
+                    "type": "string"
+                },
                 "contact_person": {
-                    "description": "ผู้ติดต่อ",
+                    "description": "ชื่อผู้ติดต่อ",
                     "type": "string"
                 },
                 "content": {
-                    "description": "รายละเอียดข้อความบนป้าย",
+                    "description": "รายละเอียด / ข้อความบนป้าย",
                     "type": "string"
                 },
-                "customer_name": {
-                    "description": "ชื่อลูกค้าหรือบริษัท",
+                "created_by": {
+                    "description": "ผู้สร้าง (อาจให้ระบบตั้ง)",
                     "type": "string"
                 },
                 "customer_type_id": {
-                    "description": "ID ประเภทลูกค้า (dropdown)",
+                    "description": "รหัสประเภทลูกค้า",
                     "type": "string"
                 },
                 "design_option": {
-                    "description": "ตัวเลือกการออกแบบ (\"have_design\", \"need_design\")",
+                    "description": "---------- งานออกแบบ / การติดตั้ง ----------",
                     "type": "string"
                 },
                 "due_date": {
-                    "description": "วันที่ต้องการรับงาน",
+                    "description": "กำหนดส่ง (อาจว่าง)",
                     "type": "string"
                 },
                 "email": {
                     "description": "อีเมล",
                     "type": "string"
                 },
+                "height": {
+                    "description": "ความสูง (ซม.)",
+                    "type": "number"
+                },
                 "install_option": {
-                    "description": "ตัวเลือกการติดตั้ง (\"none\", \"self\", \"shop\")",
+                    "description": "ตัวเลือกติดตั้ง: none|self|shop",
                     "type": "string"
                 },
                 "job_name": {
-                    "description": "ชื่องาน",
+                    "description": "ชื่องาน (จำเป็น)",
                     "type": "string"
                 },
                 "main_color": {
-                    "description": "สีหลัก / โทนสี",
+                    "description": "สีหลัก",
                     "type": "string"
                 },
                 "notes": {
-                    "description": "หมายเหตุเพิ่มเติม",
+                    "description": "---------- หมายเหตุ ----------",
+                    "type": "string"
+                },
+                "payment_method": {
+                    "description": "---------- การชำระเงิน ----------",
                     "type": "string"
                 },
                 "phone": {
-                    "description": "เบอร์โทรศัพท์",
+                    "description": "เบอร์โทร",
                     "type": "string"
                 },
+                "price_thb": {
+                    "description": "ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)",
+                    "type": "integer"
+                },
                 "production_time": {
-                    "description": "ระยะเวลาในการผลิต",
+                    "description": "---------- การผลิต / ไทม์ไลน์ ----------",
                     "type": "string"
                 },
                 "project_name": {
-                    "description": "ชื่อโปรเจกต์",
+                    "description": "---------- รายละเอียดงานป้าย ----------",
                     "type": "string"
                 },
                 "quantity": {
-                    "description": "จำนวนป้าย",
+                    "description": "จำนวน",
                     "type": "integer"
                 },
                 "sign_type_id": {
-                    "description": "ID ประเภทงานป้าย (dropdown)",
+                    "description": "รหัสประเภทป้าย",
                     "type": "string"
                 },
-                "size": {
-                    "description": "ขนาดป้าย (กว้างxสูง) หน่วยซม.",
+                "status": {
+                    "description": "---------- เมต้า ----------",
                     "type": "string"
+                },
+                "width": {
+                    "description": "ความกว้าง (ซม.)",
+                    "type": "number"
                 }
             }
         },
@@ -2796,52 +2818,64 @@ const docTemplate = `{
         "dto.SignJobDTO": {
             "type": "object",
             "properties": {
+                "_id": {
+                    "description": "---------- คีย์ ----------",
+                    "type": "string"
+                },
                 "address": {
-                    "description": "ที่อยู่ติดตั้ง/จัดส่ง",
+                    "description": "ที่อยู่ติดตั้ง / จัดส่ง",
+                    "type": "string"
+                },
+                "company_name": {
+                    "description": "---------- ลูกค้า ----------",
                     "type": "string"
                 },
                 "contact_person": {
-                    "description": "ผู้ติดต่อ",
+                    "description": "ชื่อผู้ติดต่อ",
                     "type": "string"
                 },
                 "content": {
-                    "description": "รายละเอียดข้อความ",
+                    "description": "รายละเอียด / ข้อความบนป้าย",
                     "type": "string"
                 },
                 "created_at": {
-                    "description": "วันที่สร้าง",
+                    "description": "เวลาสร้าง",
                     "type": "string"
                 },
                 "created_by": {
                     "description": "ผู้สร้าง",
                     "type": "string"
                 },
-                "customer_name": {
-                    "description": "ชื่อลูกค้า/บริษัท",
+                "customer_type_id": {
+                    "description": "รหัสประเภทลูกค้า",
                     "type": "string"
                 },
-                "customer_type_id": {
-                    "description": "ID ประเภทลูกค้า",
+                "deleted_at": {
+                    "description": "เวลาเมื่อถูกลบ (soft delete)",
                     "type": "string"
                 },
                 "design_option": {
-                    "description": "การออกแบบ",
+                    "description": "---------- งานออกแบบ / การติดตั้ง ----------",
                     "type": "string"
                 },
                 "due_date": {
-                    "description": "วันที่ต้องการรับงาน",
+                    "description": "กำหนดส่ง",
                     "type": "string"
                 },
                 "email": {
                     "description": "อีเมล",
                     "type": "string"
                 },
+                "height": {
+                    "description": "ความสูง (ซม.)",
+                    "type": "number"
+                },
                 "install_option": {
-                    "description": "ตัวเลือกการติดตั้ง",
+                    "description": "ตัวเลือกติดตั้ง",
                     "type": "string"
                 },
                 "job_id": {
-                    "description": "UUID ของงาน",
+                    "description": "รหัสงาน (UUID / Unique)",
                     "type": "string"
                 },
                 "job_name": {
@@ -2849,44 +2883,52 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "main_color": {
-                    "description": "สีหลัก / โทนสี",
+                    "description": "สีหลัก",
                     "type": "string"
                 },
                 "notes": {
-                    "description": "หมายเหตุเพิ่มเติม",
+                    "description": "---------- หมายเหตุ ----------",
+                    "type": "string"
+                },
+                "payment_method": {
+                    "description": "---------- การชำระเงิน ----------",
                     "type": "string"
                 },
                 "phone": {
-                    "description": "เบอร์โทรศัพท์",
+                    "description": "เบอร์โทร",
                     "type": "string"
                 },
+                "price_thb": {
+                    "description": "ราคา",
+                    "type": "integer"
+                },
                 "production_time": {
-                    "description": "ระยะเวลาในการผลิต",
+                    "description": "---------- การผลิต / ไทม์ไลน์ ----------",
                     "type": "string"
                 },
                 "project_name": {
-                    "description": "ชื่อโปรเจกต์",
+                    "description": "---------- รายละเอียดงานป้าย ----------",
                     "type": "string"
                 },
                 "quantity": {
-                    "description": "จำนวนป้าย",
+                    "description": "จำนวน",
                     "type": "integer"
                 },
                 "sign_type_id": {
-                    "description": "ID ประเภทงานป้าย",
-                    "type": "string"
-                },
-                "size": {
-                    "description": "ขนาดป้าย",
+                    "description": "รหัสประเภทป้าย",
                     "type": "string"
                 },
                 "status": {
-                    "description": "สถานะงาน",
+                    "description": "---------- เมต้า ----------",
                     "type": "string"
                 },
                 "updated_at": {
-                    "description": "วันที่แก้ไขล่าสุด",
+                    "description": "เวลาอัปเดตล่าสุด",
                     "type": "string"
+                },
+                "width": {
+                    "description": "ความกว้าง (ซม.)",
+                    "type": "number"
                 }
             }
         },

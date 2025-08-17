@@ -3,61 +3,90 @@ package dto
 import "time"
 
 // ---------- Request DTO ----------
-type CreateSignJobDTO struct {
-	ProjectName   string `json:"project_name"`             // ชื่อโปรเจกต์
-	JobName       string `json:"job_name"`                 // ชื่องาน
-	CustomerName  string `json:"customer_name"`            // ชื่อลูกค้าหรือบริษัท
-	ContactPerson string `json:"contact_person,omitempty"` // ผู้ติดต่อ
-	Phone         string `json:"phone,omitempty"`          // เบอร์โทรศัพท์
-	Email         string `json:"email,omitempty"`          // อีเมล
+type CreateSignJobDTO struct { // DTO สำหรับสร้างงานป้ายใหม่
+	// ---------- ลูกค้า ----------
+	CompanyName    string `json:"company_name"`     // ชื่อบริษัท (จำเป็น)
+	ContactPerson  string `json:"contact_person"`   // ชื่อผู้ติดต่อ
+	Phone          string `json:"phone"`            // เบอร์โทร
+	Email          string `json:"email"`            // อีเมล
+	CustomerTypeID string `json:"customer_type_id"` // รหัสประเภทลูกค้า
+	Address        string `json:"address"`          // ที่อยู่ติดตั้ง / จัดส่ง
 
-	CustomerTypeID string `json:"customer_type_id,omitempty"` // ID ประเภทลูกค้า (dropdown)
-	Address        string `json:"address,omitempty"`          // ที่อยู่ติดตั้ง / จัดส่ง
+	// ---------- รายละเอียดงานป้าย ----------
+	ProjectName string  `json:"project_name"` // ชื่อโปรเจกต์ (จำเป็น)
+	JobName     string  `json:"job_name"`     // ชื่องาน (จำเป็น)
+	SignTypeID  string  `json:"sign_type_id"` // รหัสประเภทป้าย
+	Width       float64 `json:"width"`        // ความกว้าง (ซม.)
+	Height      float64 `json:"height"`       // ความสูง (ซม.)
+	Quantity    int     `json:"quantity"`     // จำนวน
+	PriceTHB    int64   `json:"price_thb"`    // ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)
+	Content     string  `json:"content"`      // รายละเอียด / ข้อความบนป้าย
+	MainColor   string  `json:"main_color"`   // สีหลัก
 
-	SignTypeID string `json:"sign_type_id,omitempty"` // ID ประเภทงานป้าย (dropdown)
-	Size       string `json:"size,omitempty"`         // ขนาดป้าย (กว้างxสูง) หน่วยซม.
-	Quantity   int    `json:"quantity,omitempty"`     // จำนวนป้าย
-	Content    string `json:"content,omitempty"`      // รายละเอียดข้อความบนป้าย
-	MainColor  string `json:"main_color,omitempty"`   // สีหลัก / โทนสี
+	// ---------- การชำระเงิน ----------
+	PaymentMethod string `json:"payment_method"` // วิธีชำระเงิน: deposit|cash|transfer|credit
 
-	DesignOption   string `json:"design_option,omitempty"`   // ตัวเลือกการออกแบบ ("have_design", "need_design")
-	ProductionTime string `json:"production_time,omitempty"` // ระยะเวลาในการผลิต
-	DueDate        string `json:"due_date,omitempty"`        // วันที่ต้องการรับงาน
-	InstallOption  string `json:"install_option,omitempty"`  // ตัวเลือกการติดตั้ง ("none", "self", "shop")
+	// ---------- การผลิต / ไทม์ไลน์ ----------
+	ProductionTime string `json:"production_time"` // ระยะเวลาผลิต เช่น "5 วัน"
+	DueDate        string `json:"due_date"`        // กำหนดส่ง (อาจว่าง)
 
-	Notes string `json:"notes,omitempty"` // หมายเหตุเพิ่มเติม
+	// ---------- งานออกแบบ / การติดตั้ง ----------
+	DesignOption  string `json:"design_option"`  // ตัวเลือกออกแบบ: have_design|need_design
+	InstallOption string `json:"install_option"` // ตัวเลือกติดตั้ง: none|self|shop
+
+	// ---------- หมายเหตุ ----------
+	Notes string `json:"notes"` // หมายเหตุเพิ่มเติม
+
+	// ---------- เมต้า ----------
+	Status    string `json:"status"`     // สถานะงาน (อาจให้ระบบตั้ง)
+	CreatedBy string `json:"created_by"` // ผู้สร้าง (อาจให้ระบบตั้ง)
 }
 
-type UpdateSignJobDTO = CreateSignJobDTO
+type UpdateSignJobDTO = CreateSignJobDTO // DTO สำหรับอัปเดตงานป้าย (โครงสร้างเหมือนสร้าง)
 
 // ---------- Response DTO ----------
-type SignJobDTO struct {
-	JobID         string `json:"job_id"`                   // UUID ของงาน
-	ProjectName   string `json:"project_name"`             // ชื่อโปรเจกต์
-	JobName       string `json:"job_name"`                 // ชื่องาน
-	CustomerName  string `json:"customer_name"`            // ชื่อลูกค้า/บริษัท
-	ContactPerson string `json:"contact_person,omitempty"` // ผู้ติดต่อ
-	Phone         string `json:"phone,omitempty"`          // เบอร์โทรศัพท์
-	Email         string `json:"email,omitempty"`          // อีเมล
+type SignJobDTO struct { // DTO สำหรับส่งกลับให้ฝั่งไคลเอนต์
+	// ---------- คีย์ ----------
+	ID    string `json:"_id"`    // MongoDB ObjectID (string)
+	JobID string `json:"job_id"` // รหัสงาน (UUID / Unique)
 
-	CustomerTypeID string `json:"customer_type_id,omitempty"` // ID ประเภทลูกค้า
-	Address        string `json:"address,omitempty"`          // ที่อยู่ติดตั้ง/จัดส่ง
+	// ---------- ลูกค้า ----------
+	CompanyName    string `json:"company_name"`     // ชื่อบริษัท
+	ContactPerson  string `json:"contact_person"`   // ชื่อผู้ติดต่อ
+	Phone          string `json:"phone"`            // เบอร์โทร
+	Email          string `json:"email"`            // อีเมล
+	CustomerTypeID string `json:"customer_type_id"` // รหัสประเภทลูกค้า
+	Address        string `json:"address"`          // ที่อยู่ติดตั้ง / จัดส่ง
 
-	SignTypeID string `json:"sign_type_id,omitempty"` // ID ประเภทงานป้าย
-	Size       string `json:"size,omitempty"`         // ขนาดป้าย
-	Quantity   int    `json:"quantity,omitempty"`     // จำนวนป้าย
-	Content    string `json:"content,omitempty"`      // รายละเอียดข้อความ
-	MainColor  string `json:"main_color,omitempty"`   // สีหลัก / โทนสี
+	// ---------- รายละเอียดงานป้าย ----------
+	ProjectName string  `json:"project_name"` // ชื่อโปรเจกต์
+	JobName     string  `json:"job_name"`     // ชื่องาน
+	SignTypeID  string  `json:"sign_type_id"` // รหัสประเภทป้าย
+	Width       float64 `json:"width"`        // ความกว้าง (ซม.)
+	Height      float64 `json:"height"`       // ความสูง (ซม.)
+	Quantity    int     `json:"quantity"`     // จำนวน
+	PriceTHB    int64   `json:"price_thb"`    // ราคา
+	Content     string  `json:"content"`      // รายละเอียด / ข้อความบนป้าย
+	MainColor   string  `json:"main_color"`   // สีหลัก
 
-	DesignOption   string    `json:"design_option,omitempty"`   // การออกแบบ
-	ProductionTime string    `json:"production_time,omitempty"` // ระยะเวลาในการผลิต
-	DueDate        time.Time `json:"due_date,omitempty"`        // วันที่ต้องการรับงาน
-	InstallOption  string    `json:"install_option,omitempty"`  // ตัวเลือกการติดตั้ง
+	// ---------- การชำระเงิน ----------
+	PaymentMethod string `json:"payment_method"` // วิธีชำระเงิน
 
-	Notes string `json:"notes,omitempty"` // หมายเหตุเพิ่มเติม
+	// ---------- การผลิต / ไทม์ไลน์ ----------
+	ProductionTime string     `json:"production_time"` // ระยะเวลาผลิต
+	DueDate        *time.Time `json:"due_date"`        // กำหนดส่ง
 
-	Status    string    `json:"status"`     // สถานะงาน
-	CreatedBy string    `json:"created_by"` // ผู้สร้าง
-	CreatedAt time.Time `json:"created_at"` // วันที่สร้าง
-	UpdatedAt time.Time `json:"updated_at"` // วันที่แก้ไขล่าสุด
+	// ---------- งานออกแบบ / การติดตั้ง ----------
+	DesignOption  string `json:"design_option"`  // ตัวเลือกออกแบบ
+	InstallOption string `json:"install_option"` // ตัวเลือกติดตั้ง
+
+	// ---------- หมายเหตุ ----------
+	Notes string `json:"notes"` // หมายเหตุ
+
+	// ---------- เมต้า ----------
+	Status    string     `json:"status"`     // สถานะงาน
+	CreatedBy string     `json:"created_by"` // ผู้สร้าง
+	CreatedAt time.Time  `json:"created_at"` // เวลาสร้าง
+	UpdatedAt time.Time  `json:"updated_at"` // เวลาอัปเดตล่าสุด
+	DeletedAt *time.Time `json:"deleted_at"` // เวลาเมื่อถูกลบ (soft delete)
 }

@@ -79,7 +79,7 @@ func (h *UserHandler) UserRoutes(router fiber.Router) {
 // @Success 201 {object} dto.BaseSuccess201ResponseSwagger
 // @Failure 400 {object} dto.BaseError400ResponseSwagger
 // @Failure 500 {object} dto.BaseError500ResponseSwagger
-// @Router /v1/user [post]
+// @Router /v1/user/create [post]
 func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	var user dto.RequestCreateUser
 	if _, err := c.MultipartForm(); err != nil {
@@ -277,7 +277,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 // @Success 200 {object} dto.BaseSuccessPaginationResponseSwagger
 // @Failure 400 {object} dto.BaseError400ResponseSwagger
 // @Failure 500 {object} dto.BaseError500ResponseSwagger
-// @Router /v1/user [get]
+// @Router /v1/user/list [get]
 func (h *UserHandler) GetAllUser(c *fiber.Ctx) error {
 
 	var req dto.RequestGetUserAll

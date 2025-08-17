@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/Be2Bag/erp-demo/config"
@@ -9,6 +10,7 @@ import (
 	"github.com/Be2Bag/erp-demo/models"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -22,98 +24,118 @@ func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository) p
 }
 
 func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSignJobDTO, claims *dto.JWTClaims) error {
-
-	var dueDate time.Time
+	now := time.Now()
+	var due time.Time
 	if signJob.DueDate != "" {
 		parsedDate, err := time.Parse("2006-01-02", signJob.DueDate)
 		if err != nil {
 			return err
 		}
-		dueDate = parsedDate
+		due = parsedDate
 	}
 
-	now := time.Now()
+	status := signJob.Status
+	if status == "" {
+		status = "แผนกออกแบบกราฟิก"
+	}
+
 	model := models.SignJob{
+		ID:             primitive.NewObjectID(),
 		JobID:          uuid.NewString(),
-		ProjectName:    signJob.ProjectName,
-		JobName:        signJob.JobName,
-		CustomerName:   signJob.CustomerName,
+		CompanyName:    signJob.CompanyName,
 		ContactPerson:  signJob.ContactPerson,
 		Phone:          signJob.Phone,
 		Email:          signJob.Email,
 		CustomerTypeID: signJob.CustomerTypeID,
 		Address:        signJob.Address,
-		SignTypeID:     signJob.SignTypeID,
-		Size:           signJob.Size,
-		Quantity:       signJob.Quantity,
-		Content:        signJob.Content,
-		MainColor:      signJob.MainColor,
-		DesignOption:   signJob.DesignOption,
+
+		ProjectName: signJob.ProjectName,
+		JobName:     signJob.JobName,
+		SignTypeID:  signJob.SignTypeID,
+		Width:       signJob.Width,
+		Height:      signJob.Height,
+		Quantity:    signJob.Quantity,
+		PriceTHB:    signJob.PriceTHB,
+		Content:     signJob.Content,
+		MainColor:   signJob.MainColor,
+
+		PaymentMethod:  signJob.PaymentMethod,
 		ProductionTime: signJob.ProductionTime,
-		DueDate:        dueDate,
-		InstallOption:  signJob.InstallOption,
-		Notes:          signJob.Notes,
-		Status:         "draft",
-		CreatedBy:      claims.UserID,
-		CreatedAt:      now,
-		UpdatedAt:      now,
+		DueDate:        due,
+
+		DesignOption:  signJob.DesignOption,
+		InstallOption: signJob.InstallOption,
+		Notes:         signJob.Notes,
+
+		Status:    status,
+		CreatedBy: claims.UserID,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	if err := s.signJobRepo.CreateSignJob(ctx, model); err != nil {
 		return err
 	}
-
 	return nil
 }
 
 func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims, page, size int, search string) (dto.Pagination, error) {
-	items, total, err := s.signJobRepo.ListSignJobs(ctx, claims.UserID, page, size, search)
+	items, total, err := s.signJobRepo.ListSignJobs(ctx, page, size, search)
 	if err != nil {
 		return dto.Pagination{}, err
 	}
 
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
+		var duePtr *time.Time
+		if !m.DueDate.IsZero() {
+			d := m.DueDate
+			duePtr = &d
+		}
 		list = append(list, dto.SignJobDTO{
+			ID:             m.ID.Hex(),
 			JobID:          m.JobID,
-			ProjectName:    m.ProjectName,
-			JobName:        m.JobName,
-			CustomerName:   m.CustomerName,
+			CompanyName:    m.CompanyName,
 			ContactPerson:  m.ContactPerson,
 			Phone:          m.Phone,
 			Email:          m.Email,
 			CustomerTypeID: m.CustomerTypeID,
 			Address:        m.Address,
+			ProjectName:    m.ProjectName,
+			JobName:        m.JobName,
 			SignTypeID:     m.SignTypeID,
-			Size:           m.Size,
+			Width:          m.Width,
+			Height:         m.Height,
 			Quantity:       m.Quantity,
+			PriceTHB:       m.PriceTHB,
 			Content:        m.Content,
 			MainColor:      m.MainColor,
-			DesignOption:   m.DesignOption,
+			PaymentMethod:  m.PaymentMethod,
 			ProductionTime: m.ProductionTime,
-			DueDate:        m.DueDate,
+			DueDate:        duePtr,
+			DesignOption:   m.DesignOption,
 			InstallOption:  m.InstallOption,
 			Notes:          m.Notes,
 			Status:         m.Status,
 			CreatedBy:      m.CreatedBy,
 			CreatedAt:      m.CreatedAt,
 			UpdatedAt:      m.UpdatedAt,
+			DeletedAt:      m.DeletedAt,
 		})
 	}
 
 	if size <= 0 {
-		size = 20
+		size = 10
 	}
 	totalPages := (int(total) + size - 1) / size
-
-	p := dto.Pagination{
+	log.Println("Total Pages:", size)
+	return dto.Pagination{
 		Page:       page,
 		Size:       size,
 		TotalCount: int(total),
 		TotalPages: totalPages,
 		List:       list,
-	}
-	return p, nil
+	}, nil
 }
 
 func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) (*dto.SignJobDTO, error) {
@@ -124,67 +146,86 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 	if m == nil {
 		return nil, nil
 	}
-	dto := &dto.SignJobDTO{
+	var duePtr *time.Time
+	if !m.DueDate.IsZero() {
+		d := m.DueDate
+		duePtr = &d
+	}
+	dtoObj := &dto.SignJobDTO{
+		ID:             m.ID.Hex(),
 		JobID:          m.JobID,
-		ProjectName:    m.ProjectName,
-		JobName:        m.JobName,
-		CustomerName:   m.CustomerName,
+		CompanyName:    m.CompanyName,
 		ContactPerson:  m.ContactPerson,
 		Phone:          m.Phone,
 		Email:          m.Email,
 		CustomerTypeID: m.CustomerTypeID,
 		Address:        m.Address,
+		ProjectName:    m.ProjectName,
+		JobName:        m.JobName,
 		SignTypeID:     m.SignTypeID,
-		Size:           m.Size,
+		Width:          m.Width,
+		Height:         m.Height,
 		Quantity:       m.Quantity,
+		PriceTHB:       m.PriceTHB,
 		Content:        m.Content,
 		MainColor:      m.MainColor,
-		DesignOption:   m.DesignOption,
+		PaymentMethod:  m.PaymentMethod,
 		ProductionTime: m.ProductionTime,
-		DueDate:        m.DueDate,
+		DueDate:        duePtr,
+		DesignOption:   m.DesignOption,
 		InstallOption:  m.InstallOption,
 		Notes:          m.Notes,
 		Status:         m.Status,
 		CreatedBy:      m.CreatedBy,
 		CreatedAt:      m.CreatedAt,
 		UpdatedAt:      m.UpdatedAt,
+		DeletedAt:      m.DeletedAt,
 	}
-	return dto, nil
+	return dtoObj, nil
 }
 
 func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string, update dto.UpdateSignJobDTO, claims *dto.JWTClaims) error {
-
-	var dueDate time.Time
+	var due time.Time
 	if update.DueDate != "" {
 		parsedDate, err := time.Parse("2006-01-02", update.DueDate)
 		if err != nil {
 			return err
 		}
-		dueDate = parsedDate
+		due = parsedDate
 	}
-
+	status := update.Status
+	if status == "" {
+		status = "แผนกออกแบบกราฟิก"
+	}
 	now := time.Now()
 	model := models.SignJob{
-		ProjectName:    update.ProjectName,
-		JobName:        update.JobName,
-		CustomerName:   update.CustomerName,
+		CompanyName:    update.CompanyName,
 		ContactPerson:  update.ContactPerson,
 		Phone:          update.Phone,
 		Email:          update.Email,
 		CustomerTypeID: update.CustomerTypeID,
 		Address:        update.Address,
-		SignTypeID:     update.SignTypeID,
-		Size:           update.Size,
-		Quantity:       update.Quantity,
-		Content:        update.Content,
-		MainColor:      update.MainColor,
-		DesignOption:   update.DesignOption,
+
+		ProjectName: update.ProjectName,
+		JobName:     update.JobName,
+		SignTypeID:  update.SignTypeID,
+		Width:       update.Width,
+		Height:      update.Height,
+		Quantity:    update.Quantity,
+		PriceTHB:    update.PriceTHB,
+		Content:     update.Content,
+		MainColor:   update.MainColor,
+
+		PaymentMethod:  update.PaymentMethod,
 		ProductionTime: update.ProductionTime,
-		DueDate:        dueDate,
-		InstallOption:  update.InstallOption,
-		Notes:          update.Notes,
-		Status:         "draft",
-		UpdatedAt:      now,
+		DueDate:        due,
+
+		DesignOption:  update.DesignOption,
+		InstallOption: update.InstallOption,
+		Notes:         update.Notes,
+
+		Status:    status,
+		UpdatedAt: now,
 	}
 	updated, err := s.signJobRepo.UpdateSignJobByJobID(ctx, jobID, claims.UserID, model)
 	if err != nil {

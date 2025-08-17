@@ -23,13 +23,13 @@ func (r *signJobRepo) CreateSignJob(ctx context.Context, signJob models.SignJob)
 	return err
 }
 
-func (r *signJobRepo) ListSignJobs(ctx context.Context, createdBy string, page, size int, search string) ([]models.SignJob, int64, error) {
-	filter := bson.M{"created_by": createdBy}
+func (r *signJobRepo) ListSignJobs(ctx context.Context, page, size int, search string) ([]models.SignJob, int64, error) {
+	filter := bson.M{}
 	if search != "" {
 		filter["$or"] = []bson.M{
 			{"project_name": bson.M{"$regex": search, "$options": "i"}},
 			{"job_name": bson.M{"$regex": search, "$options": "i"}},
-			{"customer_name": bson.M{"$regex": search, "$options": "i"}},
+			{"company_name": bson.M{"$regex": search, "$options": "i"}},
 			{"contact_person": bson.M{"$regex": search, "$options": "i"}},
 		}
 	}
@@ -82,26 +82,31 @@ func (r *signJobRepo) GetSignJobByJobID(ctx context.Context, jobID string, creat
 func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, createdBy string, update models.SignJob) (*models.SignJob, error) {
 	filter := bson.M{"job_id": jobID, "created_by": createdBy}
 	set := bson.M{
-		"project_name":     update.ProjectName,
-		"job_name":         update.JobName,
-		"customer_name":    update.CustomerName,
+		"company_name":     update.CompanyName,
 		"contact_person":   update.ContactPerson,
 		"phone":            update.Phone,
 		"email":            update.Email,
 		"customer_type_id": update.CustomerTypeID,
 		"address":          update.Address,
+		"project_name":     update.ProjectName,
+		"job_name":         update.JobName,
 		"sign_type_id":     update.SignTypeID,
-		"size":             update.Size,
+		"width":            update.Width,
+		"height":           update.Height,
 		"quantity":         update.Quantity,
+		"price_thb":        update.PriceTHB,
 		"content":          update.Content,
 		"main_color":       update.MainColor,
-		"design_option":    update.DesignOption,
+		"payment_method":   update.PaymentMethod,
 		"production_time":  update.ProductionTime,
-		"due_date":         update.DueDate,
+		"design_option":    update.DesignOption,
 		"install_option":   update.InstallOption,
 		"notes":            update.Notes,
 		"status":           update.Status,
 		"updated_at":       update.UpdatedAt,
+	}
+	if !update.DueDate.IsZero() {
+		set["due_date"] = update.DueDate
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var updated models.SignJob
