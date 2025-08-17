@@ -471,6 +471,10 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 	}
 	user.UpdatedAt = time.Now()
 
+	if user.Status == "rejected" {
+		user.Status = "pending"
+	}
+
 	updateUser, errOnUpdateUserByID := s.userRepo.UpdateUserByID(ctx, id, user)
 	if errOnUpdateUserByID != nil {
 		if errOnUpdateUserByID == mongo.ErrNoDocuments {
