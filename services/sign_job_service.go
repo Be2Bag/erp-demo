@@ -66,8 +66,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 	return nil
 }
 
-func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims) (dto.Pagination, error) {
-	items, err := s.signJobRepo.ListSignJobs(ctx, claims.UserID)
+func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims, page, size int, search string) (dto.Pagination, error) {
+	items, total, err := s.signJobRepo.ListSignJobs(ctx, claims.UserID, page, size, search)
 	if err != nil {
 		return dto.Pagination{}, err
 	}
@@ -101,11 +101,16 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 		})
 	}
 
+	if size <= 0 {
+		size = 20
+	}
+	totalPages := (int(total) + size - 1) / size
+
 	p := dto.Pagination{
-		Page:       1,
-		Size:       len(list),
-		TotalCount: len(list),
-		TotalPages: 1,
+		Page:       page,
+		Size:       size,
+		TotalCount: int(total),
+		TotalPages: totalPages,
 		List:       list,
 	}
 	return p, nil

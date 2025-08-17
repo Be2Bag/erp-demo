@@ -23,18 +23,48 @@ func (r *signJobRepo) CreateSignJob(ctx context.Context, signJob models.SignJob)
 	return err
 }
 
-func (r *signJobRepo) ListSignJobs(ctx context.Context, createdBy string) ([]models.SignJob, error) {
+func (r *signJobRepo) ListSignJobs(ctx context.Context, createdBy string, page, size int, search string) ([]models.SignJob, int64, error) {
 	filter := bson.M{"created_by": createdBy}
-	cur, err := r.coll.Find(ctx, filter, options.Find().SetSort(bson.M{"created_at": -1}))
+	if search != "" {
+		filter["$or"] = []bson.M{
+			{"project_name": bson.M{"$regex": search, "$options": "i"}},
+			{"job_name": bson.M{"$regex": search, "$options": "i"}},
+			{"customer_name": bson.M{"$regex": search, "$options": "i"}},
+			{"contact_person": bson.M{"$regex": search, "$options": "i"}},
+		}
+	}
+
+	if page < 1 {
+		page = 1
+	}
+	if size <= 0 {
+		size = 20
+	}
+	skip := int64((page - 1) * size)
+	limit := int64(size)
+
+	findOpts := options.Find().
+		SetSort(bson.M{"created_at": -1}).
+		SetSkip(skip).
+		SetLimit(limit)
+
+	cur, err := r.coll.Find(ctx, filter, findOpts)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer cur.Close(ctx)
+
 	var results []models.SignJob
 	if err := cur.All(ctx, &results); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
-	return results, nil
+
+	total, err := r.coll.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return results, total, nil
 }
 
 func (r *signJobRepo) GetSignJobByJobID(ctx context.Context, jobID string, createdBy string) (*models.SignJob, error) {

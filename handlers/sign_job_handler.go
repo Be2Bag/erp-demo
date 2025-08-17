@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/middleware"
@@ -88,11 +89,14 @@ func (h *SignJobHandler) CreateSignJob(c *fiber.Ctx) error {
 }
 
 // @Summary List Sign Jobs
-// @Description List all sign jobs for the authenticated user
+// @Description List sign jobs (search & pagination)
 // @Tags SignJob
 // @Accept json
 // @Produce json
-// @Success 200 {object} dto.BaseResponse{data=[]dto.SignJobDTO}
+// @Param page query int false "Page number (default 1)"
+// @Param size query int false "Page size (default 20)"
+// @Param search query string false "Search text"
+// @Success 200 {object} dto.BaseResponse{data=dto.Pagination}
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/sign-job/list [get]
@@ -107,7 +111,19 @@ func (h *SignJobHandler) ListSignJobs(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	list, err := h.svc.ListSignJobs(c.Context(), claims)
+
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	size, _ := strconv.Atoi(c.Query("size", "20"))
+	search := c.Query("search", "")
+
+	if size > 100 {
+		size = 100
+	}
+	if page < 1 {
+		page = 1
+	}
+
+	list, err := h.svc.ListSignJobs(c.Context(), claims, page, size, search)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

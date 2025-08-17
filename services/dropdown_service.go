@@ -19,9 +19,9 @@ func NewDropDownService(cfg config.Config, dropDownRepo ports.DropDownRepository
 	return &dropDownService{config: cfg, dropDownRepo: dropDownRepo}
 }
 
-func (s *dropDownService) GetPositions(ctx context.Context) ([]dto.ResponseGetPositions, error) {
+func (s *dropDownService) GetPositions(ctx context.Context, departmentID string) ([]dto.ResponseGetPositions, error) {
 
-	filter := bson.M{"deleted_at": nil}
+	filter := bson.M{"deleted_at": nil, "department_id": departmentID}
 	projection := bson.M{}
 
 	positions, errOnGetPositions := s.dropDownRepo.GetPositions(ctx, filter, projection)

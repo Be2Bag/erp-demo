@@ -18,10 +18,11 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 
 	versionOne := router.Group("v1")
 	dropdown := versionOne.Group("dropdown")
-	dropdown.Get("/position", h.GetPosition)
+
 	dropdown.Get("/department", h.GetDepartment)
 	dropdown.Get("/province", h.GetProvince)
 	dropdown.Get("/sign-type", h.GetSignType)
+	dropdown.Get("/position/:id", h.GetPosition)
 	dropdown.Get("/district/:id", h.GetDistrict)
 	dropdown.Get("/subdistrict/:id", h.GetSubDistrict)
 	dropdown.Get("/customer-type", h.GetCustomerTypes)
@@ -31,15 +32,15 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 // @Summary Get all positions
 // @Description ใช้สำหรับดึงข้อมูลตำแหน่งงานทั้งหมด
 // @Tags dropdown
-// @Accept json
-// @Produce json
+// @Param id path string true "Department ID"
 // @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetPositions}
 // @Failure 502 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/dropdown/position [get]
+// @Router /v1/dropdown/position/{id} [get]
 func (h *DropDownHandler) GetPosition(c *fiber.Ctx) error {
+	department_ID := c.Params("id")
 
-	positions, errOnGetPositions := h.svc.GetPositions(c.Context())
+	positions, errOnGetPositions := h.svc.GetPositions(c.Context(), department_ID)
 	if errOnGetPositions != nil {
 		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
 			StatusCode: fiber.ErrBadGateway.Code,

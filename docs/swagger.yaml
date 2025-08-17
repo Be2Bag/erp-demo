@@ -936,13 +936,15 @@ paths:
       summary: Get all districts by province ID
       tags:
       - dropdown
-  /v1/dropdown/position:
+  /v1/dropdown/position/{id}:
     get:
-      consumes:
-      - application/json
       description: ใช้สำหรับดึงข้อมูลตำแหน่งงานทั้งหมด
-      produces:
-      - application/json
+      parameters:
+      - description: Department ID
+        in: path
+        name: id
+        required: true
+        type: string
       responses:
         "200":
           description: OK
@@ -1374,7 +1376,20 @@ paths:
     get:
       consumes:
       - application/json
-      description: List all sign jobs for the authenticated user
+      description: List sign jobs (search & pagination)
+      parameters:
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Page size (default 20)
+        in: query
+        name: size
+        type: integer
+      - description: Search text
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
@@ -1385,9 +1400,7 @@ paths:
             - $ref: '#/definitions/dto.BaseResponse'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/dto.SignJobDTO'
-                  type: array
+                  $ref: '#/definitions/dto.Pagination'
               type: object
         "401":
           description: Unauthorized

@@ -428,19 +428,22 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dropdown/position": {
+        "/v1/dropdown/position/{id}": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลตำแหน่งงานทั้งหมด",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "dropdown"
                 ],
                 "summary": "Get all positions",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -983,7 +986,7 @@ const docTemplate = `{
         },
         "/v1/sign-job/list": {
             "get": {
-                "description": "List all sign jobs for the authenticated user",
+                "description": "List sign jobs (search \u0026 pagination)",
                 "consumes": [
                     "application/json"
                 ],
@@ -994,6 +997,26 @@ const docTemplate = `{
                     "SignJob"
                 ],
                 "summary": "List Sign Jobs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number (default 1)",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size (default 20)",
+                        "name": "size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search text",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1006,10 +1029,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/dto.SignJobDTO"
-                                            }
+                                            "$ref": "#/definitions/dto.Pagination"
                                         }
                                     }
                                 }
