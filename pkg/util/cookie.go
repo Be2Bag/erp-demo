@@ -13,14 +13,14 @@ import (
 
 func GenerateJWTToken(claims dto.JWTClaims, secretKey string, expiration time.Duration) (string, error) {
 	tokenClaims := jwt.MapClaims{
-		"UserID":       claims.UserID,
-		"EmployeeCode": claims.EmployeeCode,
-		"Role":         claims.Role,
-		"TitleTH":      claims.TitleTH,
-		"FirstNameTH":  claims.FirstNameTH,
-		"LastNameTH":   claims.LastNameTH,
-		"Avatar":       claims.Avatar,
-		"Status":       claims.Status,
+		"user_id":       claims.UserID,
+		"employee_code": claims.EmployeeCode,
+		"role":          claims.Role,
+		"title_th":      claims.TitleTH,
+		"first_name_th": claims.FirstNameTH,
+		"last_name_th":  claims.LastNameTH,
+		"avatar":        claims.Avatar,
+		"status":        claims.Status,
 	}
 	if expiration > 0 {
 		tokenClaims["exp"] = time.Now().Add(expiration).Unix()
