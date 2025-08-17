@@ -167,7 +167,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 			})
 		}
 
-		url, errOnGetURL := h.upload.GetFileURL(c.Context(), dto.RequestGetFile{
+		url, errOnGetURL := h.upload.GetFileURLCloudflare(c.Context(), dto.RequestGetFile{
 			Folder: "avatars",
 			File:   uuid + ext,
 		})
