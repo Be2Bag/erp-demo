@@ -1006,14 +1006,32 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "Page size (default 20)",
-                        "name": "size",
+                        "description": "Page limit (default 10)",
+                        "name": "limit",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Search text",
+                        "description": "ค้นหาด้วย ชื่อโปรเจกต์, ชื่องาน,ชื่อบริษัท,ชื่อผู้ติดต่อ ",
                         "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เรียงตาม created_at updated_at due_date job_name project_name company_name status price_thb quantity",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))",
+                        "name": "sort_order",
                         "in": "query"
                     }
                 ],
@@ -1131,6 +1149,15 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Update Sign Job",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateSignJobDTO"
+                        }
                     }
                 ],
                 "responses": {
@@ -2845,10 +2872,6 @@ const docTemplate = `{
         "dto.SignJobDTO": {
             "type": "object",
             "properties": {
-                "_id": {
-                    "description": "---------- คีย์ ----------",
-                    "type": "string"
-                },
                 "address": {
                     "description": "ที่อยู่ติดตั้ง / จัดส่ง",
                     "type": "string"
@@ -2902,7 +2925,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "job_id": {
-                    "description": "รหัสงาน (UUID / Unique)",
+                    "description": "---------- คีย์ ----------",
                     "type": "string"
                 },
                 "job_name": {
@@ -2951,6 +2974,99 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "description": "เวลาอัปเดตล่าสุด",
+                    "type": "string"
+                },
+                "width": {
+                    "description": "ความกว้าง (ซม.)",
+                    "type": "number"
+                }
+            }
+        },
+        "dto.UpdateSignJobDTO": {
+            "type": "object",
+            "properties": {
+                "address": {
+                    "description": "ที่อยู่ติดตั้ง / จัดส่ง",
+                    "type": "string"
+                },
+                "company_name": {
+                    "description": "---------- ลูกค้า ----------",
+                    "type": "string"
+                },
+                "contact_person": {
+                    "description": "ชื่อผู้ติดต่อ",
+                    "type": "string"
+                },
+                "content": {
+                    "description": "รายละเอียด / ข้อความบนป้าย",
+                    "type": "string"
+                },
+                "customer_type_id": {
+                    "description": "รหัสประเภทลูกค้า",
+                    "type": "string"
+                },
+                "design_option": {
+                    "description": "---------- งานออกแบบ / การติดตั้ง ----------",
+                    "type": "string"
+                },
+                "due_date": {
+                    "description": "กำหนดส่ง (อาจว่าง)",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "อีเมล",
+                    "type": "string"
+                },
+                "height": {
+                    "description": "ความสูง (ซม.)",
+                    "type": "number"
+                },
+                "install_option": {
+                    "description": "ตัวเลือกติดตั้ง: none|self|shop",
+                    "type": "string"
+                },
+                "job_name": {
+                    "description": "ชื่องาน (จำเป็น)",
+                    "type": "string"
+                },
+                "main_color": {
+                    "description": "สีหลัก",
+                    "type": "string"
+                },
+                "notes": {
+                    "description": "---------- หมายเหตุ ----------",
+                    "type": "string"
+                },
+                "payment_method": {
+                    "description": "---------- การชำระเงิน ----------",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "เบอร์โทร",
+                    "type": "string"
+                },
+                "price_thb": {
+                    "description": "ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)",
+                    "type": "integer"
+                },
+                "production_time": {
+                    "description": "---------- การผลิต / ไทม์ไลน์ ----------",
+                    "type": "string"
+                },
+                "project_name": {
+                    "description": "---------- รายละเอียดงานป้าย ----------",
+                    "type": "string"
+                },
+                "quantity": {
+                    "description": "จำนวน",
+                    "type": "integer"
+                },
+                "sign_type_id": {
+                    "description": "รหัสประเภทป้าย",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "---------- เมต้า ----------",
                     "type": "string"
                 },
                 "width": {

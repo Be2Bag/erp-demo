@@ -2,6 +2,9 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/Be2Bag/erp-demo/config"
@@ -9,6 +12,7 @@ import (
 	"github.com/Be2Bag/erp-demo/models"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -35,7 +39,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 
 	status := signJob.Status
 	if status == "" {
-		status = "แผนกออกแบบกราฟิก"
+		status = "DPT001"
 	}
 
 	model := models.SignJob{
@@ -78,28 +82,95 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 	return nil
 }
 
-func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims, page, size int, search string) (dto.Pagination, error) {
-	if size <= 0 {
-		size = 10
-	}
-	if page <= 0 {
-		page = 1
+func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, status string, sortBy string, sortOrder string) (dto.Pagination, error) {
+	skip := int64((page - 1) * size)
+	limit := int64(size)
+
+	filter := bson.M{
+		"deleted_at": nil,
 	}
 
-	items, total, err := s.signJobRepo.ListSignJobs(ctx, page, size, search)
+	status = strings.TrimSpace(status)
+	if status != "" {
+		filter["status"] = status
+	}
+
+	search = strings.TrimSpace(search)
+	if search != "" {
+		safe := regexp.QuoteMeta(search)
+		re := primitive.Regex{Pattern: safe, Options: "i"}
+		filter["$or"] = []bson.M{
+			{"project_name": re},
+			{"job_name": re},
+			{"company_name": re},
+			{"contact_person": re},
+		}
+	}
+
+	projection := bson.M{
+		"job_id":           1,
+		"company_name":     1,
+		"contact_person":   1,
+		"phone":            1,
+		"email":            1,
+		"customer_type_id": 1,
+		"address":          1,
+		"project_name":     1,
+		"job_name":         1,
+		"sign_type_id":     1,
+		"width":            1,
+		"height":           1,
+		"quantity":         1,
+		"price_thb":        1,
+		"content":          1,
+		"main_color":       1,
+		"payment_method":   1,
+		"production_time":  1,
+		"due_date":         1,
+		"design_option":    1,
+		"install_option":   1,
+		"notes":            1,
+		"status":           1,
+		"created_by":       1,
+		"created_at":       1,
+		"updated_at":       1,
+		"deleted_at":       1,
+	}
+
+	// sort
+	allowedSortFields := map[string]string{
+		"created_at":   "created_at",
+		"updated_at":   "updated_at",
+		"due_date":     "due_date",
+		"job_name":     "job_name",
+		"project_name": "project_name",
+		"company_name": "company_name",
+		"status":       "status",
+		"price_thb":    "price_thb",
+		"quantity":     "quantity",
+	}
+	field, ok := allowedSortFields[sortBy]
+	if !ok || field == "" {
+		field = "created_at"
+	}
+	order := int32(-1)
+	if strings.EqualFold(sortOrder, "asc") {
+		order = 1
+	}
+
+	sort := bson.D{
+		{Key: field, Value: order},
+		{Key: "_id", Value: -1},
+	}
+
+	items, total, err := s.signJobRepo.GetListSignJobsByFilter(ctx, filter, projection, sort, skip, limit)
 	if err != nil {
-		return dto.Pagination{}, err
+		return dto.Pagination{}, fmt.Errorf("list sign jobs: %w", err)
 	}
 
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
-		var duePtr *time.Time
-		if !m.DueDate.IsZero() {
-			d := m.DueDate
-			duePtr = &d
-		}
 		list = append(list, dto.SignJobDTO{
-			ID:             m.ID.Hex(),
 			JobID:          m.JobID,
 			CompanyName:    m.CompanyName,
 			ContactPerson:  m.ContactPerson,
@@ -118,7 +189,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 			MainColor:      m.MainColor,
 			PaymentMethod:  m.PaymentMethod,
 			ProductionTime: m.ProductionTime,
-			DueDate:        duePtr,
+			DueDate:        m.DueDate,
 			DesignOption:   m.DesignOption,
 			InstallOption:  m.InstallOption,
 			Notes:          m.Notes,
@@ -131,7 +202,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 	}
 
 	totalPages := 0
-	if size > 0 && total > 0 {
+	if total > 0 && size > 0 {
 		totalPages = int((total + int64(size) - 1) / int64(size))
 	}
 
@@ -145,20 +216,20 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 }
 
 func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) (*dto.SignJobDTO, error) {
-	m, err := s.signJobRepo.GetSignJobByJobID(ctx, jobID)
+
+	filter := bson.M{"job_id": jobID}
+	projection := bson.M{}
+
+	m, err := s.signJobRepo.GetOneSignJobByFilter(ctx, filter, projection)
 	if err != nil {
 		return nil, err
 	}
 	if m == nil {
 		return nil, nil
 	}
-	var duePtr *time.Time
-	if !m.DueDate.IsZero() {
-		d := m.DueDate
-		duePtr = &d
-	}
+
 	dtoObj := &dto.SignJobDTO{
-		ID:             m.ID.Hex(),
+		// ---------- ลูกค้า ----------
 		JobID:          m.JobID,
 		CompanyName:    m.CompanyName,
 		ContactPerson:  m.ContactPerson,
@@ -166,74 +237,125 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 		Email:          m.Email,
 		CustomerTypeID: m.CustomerTypeID,
 		Address:        m.Address,
-		ProjectName:    m.ProjectName,
-		JobName:        m.JobName,
-		SignTypeID:     m.SignTypeID,
-		Width:          m.Width,
-		Height:         m.Height,
-		Quantity:       m.Quantity,
-		PriceTHB:       m.PriceTHB,
-		Content:        m.Content,
-		MainColor:      m.MainColor,
-		PaymentMethod:  m.PaymentMethod,
+		// ---------- รายละเอียดงานป้าย ----------
+		ProjectName: m.ProjectName,
+		JobName:     m.JobName,
+		SignTypeID:  m.SignTypeID,
+		Width:       m.Width,
+		Height:      m.Height,
+		Quantity:    m.Quantity,
+		PriceTHB:    m.PriceTHB,
+		Content:     m.Content,
+		MainColor:   m.MainColor,
+		// ---------- การชำระเงิน ----------
+		PaymentMethod: m.PaymentMethod,
+		// ---------- การผลิต / ไทม์ไลน์ ----------
 		ProductionTime: m.ProductionTime,
-		DueDate:        duePtr,
-		DesignOption:   m.DesignOption,
-		InstallOption:  m.InstallOption,
-		Notes:          m.Notes,
-		Status:         m.Status,
-		CreatedBy:      m.CreatedBy,
-		CreatedAt:      m.CreatedAt,
-		UpdatedAt:      m.UpdatedAt,
-		DeletedAt:      m.DeletedAt,
+		DueDate:        m.DueDate,
+		// ---------- งานออกแบบ / การติดตั้ง ----------
+		DesignOption:  m.DesignOption,
+		InstallOption: m.InstallOption,
+		// ---------- หมายเหตุ ----------
+		Notes: m.Notes,
+		// ---------- เมต้า ----------
+		Status:    m.Status,
+		CreatedBy: m.CreatedBy,
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
+		DeletedAt: m.DeletedAt,
 	}
 	return dtoObj, nil
 }
 
 func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string, update dto.UpdateSignJobDTO, claims *dto.JWTClaims) error {
-	var due time.Time
+	// ดึงข้อมูลเดิม
+	filter := bson.M{"job_id": jobID, "deleted_at": nil}
+	existing, err := s.signJobRepo.GetOneSignJobByFilter(ctx, filter, bson.M{})
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return mongo.ErrNoDocuments
+	}
+
+	if update.CompanyName != "" {
+		existing.CompanyName = update.CompanyName
+	}
+	if update.ContactPerson != "" {
+		existing.ContactPerson = update.ContactPerson
+	}
+	if update.Phone != "" {
+		existing.Phone = update.Phone
+	}
+	if update.Email != "" {
+		existing.Email = update.Email
+	}
+	if update.CustomerTypeID != "" {
+		existing.CustomerTypeID = update.CustomerTypeID
+	}
+	if update.Address != "" {
+		existing.Address = update.Address
+	}
+
+	if update.ProjectName != "" {
+		existing.ProjectName = update.ProjectName
+	}
+	if update.JobName != "" {
+		existing.JobName = update.JobName
+	}
+	if update.SignTypeID != "" {
+		existing.SignTypeID = update.SignTypeID
+	}
+	if update.Width > 0 {
+		existing.Width = update.Width
+	}
+	if update.Height > 0 {
+		existing.Height = update.Height
+	}
+	if update.Quantity > 0 {
+		existing.Quantity = update.Quantity
+	}
+	if update.PriceTHB > 0 {
+		existing.PriceTHB = update.PriceTHB
+	}
+	if update.Content != "" {
+		existing.Content = update.Content
+	}
+	if update.MainColor != "" {
+		existing.MainColor = update.MainColor
+	}
+
+	if update.PaymentMethod != "" {
+		existing.PaymentMethod = update.PaymentMethod
+	}
+	if update.ProductionTime != "" {
+		existing.ProductionTime = update.ProductionTime
+	}
 	if update.DueDate != "" {
 		parsedDate, err := time.Parse("2006-01-02", update.DueDate)
 		if err != nil {
 			return err
 		}
-		due = parsedDate
+		existing.DueDate = parsedDate
 	}
-	status := update.Status
-	if status == "" {
-		status = "แผนกออกแบบกราฟิก"
+
+	if update.DesignOption != "" {
+		existing.DesignOption = update.DesignOption
 	}
-	now := time.Now()
-	model := models.SignJob{
-		CompanyName:    update.CompanyName,
-		ContactPerson:  update.ContactPerson,
-		Phone:          update.Phone,
-		Email:          update.Email,
-		CustomerTypeID: update.CustomerTypeID,
-		Address:        update.Address,
-
-		ProjectName: update.ProjectName,
-		JobName:     update.JobName,
-		SignTypeID:  update.SignTypeID,
-		Width:       update.Width,
-		Height:      update.Height,
-		Quantity:    update.Quantity,
-		PriceTHB:    update.PriceTHB,
-		Content:     update.Content,
-		MainColor:   update.MainColor,
-
-		PaymentMethod:  update.PaymentMethod,
-		ProductionTime: update.ProductionTime,
-		DueDate:        due,
-
-		DesignOption:  update.DesignOption,
-		InstallOption: update.InstallOption,
-		Notes:         update.Notes,
-
-		Status:    status,
-		UpdatedAt: now,
+	if update.InstallOption != "" {
+		existing.InstallOption = update.InstallOption
 	}
-	updated, err := s.signJobRepo.UpdateSignJobByJobID(ctx, jobID, model)
+	if update.Notes != "" {
+		existing.Notes = update.Notes
+	}
+
+	if existing.Status != "" {
+		existing.Status = update.Status
+	}
+
+	existing.UpdatedAt = time.Now()
+
+	updated, err := s.signJobRepo.UpdateSignJobByJobID(ctx, jobID, *existing)
 	if err != nil {
 		return err
 	}
@@ -244,7 +366,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 }
 
 func (s *signJobService) DeleteSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) error {
-	err := s.signJobRepo.DeleteSignJobByJobID(ctx, jobID)
+	err := s.signJobRepo.SoftDeleteSignJobByJobID(ctx, jobID)
 	if err == mongo.ErrNoDocuments {
 		return nil
 	}

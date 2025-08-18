@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"strconv"
 
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/middleware"
@@ -72,8 +71,8 @@ func (h *SignJobHandler) CreateSignJob(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create sign job",
-			MessageTH:  "สร้างงานเซ็นชื่อไม่สำเร็จ",
+			MessageEN:  "Failed to create sign job" + err.Error(),
+			MessageTH:  "สร้างงานไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -94,13 +93,17 @@ func (h *SignJobHandler) CreateSignJob(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param page query int false "Page number (default 1)"
-// @Param size query int false "Page size (default 20)"
-// @Param search query string false "Search text"
+// @Param limit query int false "Page limit (default 10)"
+// @Param search query string false "ค้นหาด้วย ชื่อโปรเจกต์, ชื่องาน,ชื่อบริษัท,ชื่อผู้ติดต่อ "
+// @Param status query string false "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี"
+// @Param sort_by query string false "เรียงตาม created_at updated_at due_date job_name project_name company_name status price_thb quantity"
+// @Param sort_order query string false "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))"
 // @Success 200 {object} dto.BaseResponse{data=dto.Pagination}
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/sign-job/list [get]
 func (h *SignJobHandler) ListSignJobs(c *fiber.Ctx) error {
+
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
@@ -112,22 +115,29 @@ func (h *SignJobHandler) ListSignJobs(c *fiber.Ctx) error {
 		})
 	}
 
-	page, _ := strconv.Atoi(c.Query("page", ""))
-	size, _ := strconv.Atoi(c.Query("size", ""))
-	search := c.Query("search", "")
-
-	if size > 100 {
-		size = 100
+	var req dto.RequestListSignJobs
+	if err := c.QueryParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid query parameters",
+			MessageTH:  "พารามิเตอร์ไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
 	}
-	if page < 1 {
-		page = 1
+
+	if req.Limit > 100 || req.Limit <= 0 {
+		req.Limit = 10
+	}
+	if req.Page < 1 {
+		req.Page = 1
 	}
 
-	list, err := h.svc.ListSignJobs(c.Context(), claims, page, size, search)
+	list, err := h.svc.ListSignJobs(c.Context(), claims, req.Page, req.Limit, req.Search, req.Status, req.SortBy, req.SortOrder)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list sign jobs",
+			MessageEN:  "Failed to list sign jobs" + err.Error(),
 			MessageTH:  "ไม่สามารถดึงรายการงานได้",
 			Status:     "error",
 			Data:       nil,
@@ -199,6 +209,7 @@ func (h *SignJobHandler) GetSignJobByID(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "Sign Job ID"
+// @Param body body dto.UpdateSignJobDTO true "Update Sign Job"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 404 {object} dto.BaseResponse

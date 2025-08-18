@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/Be2Bag/erp-demo/models"
 	"github.com/Be2Bag/erp-demo/ports"
@@ -21,62 +23,6 @@ func NewSignJobRepository(db *mongo.Database) ports.SignJobRepository {
 func (r *signJobRepo) CreateSignJob(ctx context.Context, signJob models.SignJob) error {
 	_, err := r.coll.InsertOne(ctx, signJob)
 	return err
-}
-
-func (r *signJobRepo) ListSignJobs(ctx context.Context, page, size int, search string) ([]models.SignJob, int64, error) {
-	filter := bson.M{}
-	if search != "" {
-		filter["$or"] = []bson.M{
-			{"project_name": bson.M{"$regex": search, "$options": "i"}},
-			{"job_name": bson.M{"$regex": search, "$options": "i"}},
-			{"company_name": bson.M{"$regex": search, "$options": "i"}},
-			{"contact_person": bson.M{"$regex": search, "$options": "i"}},
-		}
-	}
-
-	if page < 1 {
-		page = 1
-	}
-	if size <= 0 {
-		size = 20
-	}
-	skip := int64((page - 1) * size)
-	limit := int64(size)
-
-	findOpts := options.Find().
-		SetSort(bson.M{"created_at": -1}).
-		SetSkip(skip).
-		SetLimit(limit)
-
-	cur, err := r.coll.Find(ctx, filter, findOpts)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer cur.Close(ctx)
-
-	var results []models.SignJob
-	if err := cur.All(ctx, &results); err != nil {
-		return nil, 0, err
-	}
-
-	total, err := r.coll.CountDocuments(ctx, filter)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return results, total, nil
-}
-
-func (r *signJobRepo) GetSignJobByJobID(ctx context.Context, jobID string) (*models.SignJob, error) {
-	filter := bson.M{"job_id": jobID}
-	var m models.SignJob
-	if err := r.coll.FindOne(ctx, filter).Decode(&m); err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &m, nil
 }
 
 func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, update models.SignJob) (*models.SignJob, error) {
@@ -119,14 +65,92 @@ func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, up
 	return &updated, nil
 }
 
-func (r *signJobRepo) DeleteSignJobByJobID(ctx context.Context, jobID string) error {
-	filter := bson.M{"job_id": jobID}
-	res, err := r.coll.DeleteOne(ctx, filter)
+func (r *signJobRepo) SoftDeleteSignJobByJobID(ctx context.Context, jobID string) error {
+	filter := bson.M{"job_id": jobID, "is_deleted": bson.M{"$ne": true}}
+	update := bson.M{
+		"$set": bson.M{
+			"is_deleted": true,
+			"deleted_at": time.Now(),
+		},
+	}
+	res, err := r.coll.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}
-	if res.DeletedCount == 0 {
+	if res.MatchedCount == 0 {
 		return mongo.ErrNoDocuments
 	}
 	return nil
+}
+
+func (r *signJobRepo) GetAllSignJobByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.SignJob, error) {
+	opts := options.Find()
+	if projection != nil {
+		opts.SetProjection(projection)
+	}
+	cursor, err := r.coll.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var signJobs []*models.SignJob
+	for cursor.Next(ctx) {
+		var signJob models.SignJob
+		if err := cursor.Decode(&signJob); err != nil {
+			return nil, err
+		}
+		signJobs = append(signJobs, &signJob)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return signJobs, nil
+}
+
+func (r *signJobRepo) GetOneSignJobByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.SignJob, error) {
+	opts := options.FindOne()
+	if projection != nil {
+		opts.SetProjection(projection)
+	}
+	var signJob models.SignJob
+	if err := r.coll.FindOne(ctx, filter, opts).Decode(&signJob); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &signJob, nil
+}
+
+func (r *signJobRepo) GetListSignJobsByFilter(ctx context.Context, filter interface{}, projection interface{}, sort bson.D, skip, limit int64) ([]models.SignJob, int64, error) {
+
+	findOpts := options.Find().
+		SetSort(sort).
+		SetSkip(skip).
+		SetLimit(limit)
+
+	if projection != nil {
+		findOpts.SetProjection(projection)
+	}
+
+	cur, err := r.coll.Find(ctx, filter, findOpts)
+	if err != nil {
+		return nil, 0, fmt.Errorf("find: %w", err)
+	}
+	defer cur.Close(ctx)
+
+	var results []models.SignJob
+	if err := cur.All(ctx, &results); err != nil {
+		return nil, 0, fmt.Errorf("decode: %w", err)
+	}
+
+	total, err := r.coll.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, fmt.Errorf("count: %w", err)
+	}
+
+	return results, total, nil
 }
