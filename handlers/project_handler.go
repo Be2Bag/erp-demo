@@ -272,7 +272,7 @@ func (h *ProjectHandler) UpdateProject(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "Project ID"
-// @Success 204 {object} dto.BaseResponse
+// @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
@@ -310,8 +310,8 @@ func (h *ProjectHandler) DeleteProject(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusNoContent).JSON(dto.BaseResponse{
-		StatusCode: fiber.StatusNoContent,
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
 		MessageEN:  "Project deleted successfully",
 		MessageTH:  "ลบโปรเจกต์เรียบร้อยแล้ว",
 		Status:     "success",

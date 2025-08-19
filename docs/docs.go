@@ -1330,8 +1330,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content",
+                    "200": {
+                        "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
                         }
@@ -3666,9 +3666,6 @@ const docTemplate = `{
                         "$ref": "#/definitions/dto.WorkflowStepDTO"
                     }
                 },
-                "template_id": {
-                    "type": "string"
-                },
                 "total_hours": {
                     "description": "ผลรวมชั่วโมงจากทุก step",
                     "type": "number"
@@ -3678,6 +3675,9 @@ const docTemplate = `{
                 },
                 "version": {
                     "type": "integer"
+                },
+                "workflow_id": {
+                    "type": "string"
                 }
             }
         }

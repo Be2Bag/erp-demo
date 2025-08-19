@@ -808,8 +808,6 @@ definitions:
         items:
           $ref: '#/definitions/dto.WorkflowStepDTO'
         type: array
-      template_id:
-        type: string
       total_hours:
         description: ผลรวมชั่วโมงจากทุก step
         type: number
@@ -817,6 +815,8 @@ definitions:
         type: string
       version:
         type: integer
+      workflow_id:
+        type: string
     type: object
 host: api.rkp-media.com
 info:
@@ -1481,8 +1481,8 @@ paths:
       produces:
       - application/json
       responses:
-        "204":
-          description: No Content
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/dto.BaseResponse'
         "400":
