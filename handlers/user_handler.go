@@ -45,7 +45,7 @@ func (h *UserHandler) UserRoutes(router fiber.Router) {
 
 // @Summary Create a new user
 // @Description ใช้สำหรับสร้างผู้ใช้ใหม่ โดยจะไม่สามารถสร้างผู้ใช้ที่มีบัตรประชาชนซ้ำได้
-// @Tags user
+// @Tags User
 // @Accept multipart/form-data
 // @Produce json
 // @Param email formData string true "อีเมล"
@@ -265,7 +265,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 
 // @Summary Get all users
 // @Description ใช้สำหรับดึงรายการผู้ใช้งานแบบแบ่งหน้า
-// @Tags user
+// @Tags User
 // @Accept json
 // @Produce json
 // @Param search query string false "Search first_name_th last_name_th first_name_en last_name_en"
@@ -326,7 +326,7 @@ func (h *UserHandler) GetAllUser(c *fiber.Ctx) error {
 
 // @Summary Get user by ID
 // @Description ใช้สำหรับดึงข้อมูลผู้ใช้ตาม ID
-// @Tags user
+// @Tags User
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
@@ -379,7 +379,7 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 
 // @Summary Update user by ID
 // @Description ใช้สำหรับอัปเดตข้อมูลผู้ใช้ตาม ID
-// @Tags user
+// @Tags User
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
@@ -433,7 +433,7 @@ func (h *UserHandler) UpdateUserByID(c *fiber.Ctx) error {
 
 // @Summary Delete user by ID
 // @Description ใช้สำหรับลบผู้ใช้ตาม ID
-// @Tags user
+// @Tags User
 // @Accept json
 // @Produce json
 // @Param id path string true "User ID"
@@ -486,7 +486,7 @@ func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
 
 // @Summary Update user documents
 // @Description ใช้สำหรับอัปเดตเอกสารของผู้ใช้
-// @Tags user
+// @Tags User
 // @Accept multipart/form-data
 // @Produce json
 // @Param user_id formData string true "User ID"

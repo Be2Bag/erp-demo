@@ -17,6 +17,8 @@ type dropDownRepo struct {
 	subDistrictsColl  *mongo.Collection
 	signTypesColl     *mongo.Collection
 	customerTypesColl *mongo.Collection
+	signJobsColl      *mongo.Collection
+	projectsColl      *mongo.Collection
 }
 
 func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
@@ -28,6 +30,8 @@ func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
 		subDistrictsColl:  db.Collection(models.CollectionSubDistricts),
 		signTypesColl:     db.Collection(models.CollectionSignTypes),
 		customerTypesColl: db.Collection(models.CollectionCustomerTypes),
+		signJobsColl:      db.Collection(models.CollectionSignJobs),
+		projectsColl:      db.Collection(models.CollectionSProject),
 	}
 }
 func (r *dropDownRepo) GetPositions(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Position, error) {
@@ -187,4 +191,51 @@ func (r *dropDownRepo) GetCustomerTypes(ctx context.Context, filter interface{},
 	}
 
 	return customerTypes, nil
+}
+
+func (r *dropDownRepo) GetSignJobsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.SignJob, error) {
+	var signJobs []*models.SignJob
+	cursor, err := r.signJobsColl.Find(ctx, filter, options.Find().SetProjection(projection))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var signJob models.SignJob
+		if err := cursor.Decode(&signJob); err != nil {
+			return nil, err
+		}
+		signJobs = append(signJobs, &signJob)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return signJobs, nil
+}
+
+func (r *dropDownRepo) GetProjectsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Project, error) {
+	var projects []*models.Project
+
+	cursor, err := r.projectsColl.Find(ctx, filter, options.Find().SetProjection(projection))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var project models.Project
+		if err := cursor.Decode(&project); err != nil {
+			return nil, err
+		}
+		projects = append(projects, &project)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return projects, nil
 }

@@ -13,6 +13,7 @@ type CreateSignJobDTO struct { // DTO สำหรับสร้างงาน
 	Address        string `json:"address"`          // ที่อยู่ติดตั้ง / จัดส่ง
 
 	// ---------- รายละเอียดงานป้าย ----------
+	ProjectID   string  `json:"project_id"`
 	ProjectName string  `json:"project_name"` // ชื่อโปรเจกต์ (จำเป็น)
 	JobName     string  `json:"job_name"`     // ชื่องาน (จำเป็น)
 	SignTypeID  string  `json:"sign_type_id"` // รหัสประเภทป้าย
@@ -52,6 +53,7 @@ type UpdateSignJobDTO = struct { // DTO สำหรับสร้างงา�
 	Address        string `json:"address"`          // ที่อยู่ติดตั้ง / จัดส่ง
 
 	// ---------- รายละเอียดงานป้าย ----------
+	ProjectID   string  `json:"project_id"`
 	ProjectName string  `json:"project_name"` // ชื่อโปรเจกต์ (จำเป็น)
 	JobName     string  `json:"job_name"`     // ชื่องาน (จำเป็น)
 	SignTypeID  string  `json:"sign_type_id"` // รหัสประเภทป้าย
@@ -103,6 +105,7 @@ type SignJobDTO struct { // DTO สำหรับส่งกลับให้
 	Address        string `json:"address"`          // ที่อยู่ติดตั้ง / จัดส่ง
 
 	// ---------- รายละเอียดงานป้าย ----------
+	ProjectID   string  `json:"project_id"`
 	ProjectName string  `json:"project_name"` // ชื่อโปรเจกต์
 	JobName     string  `json:"job_name"`     // ชื่องาน
 	SignTypeID  string  `json:"sign_type_id"` // รหัสประเภทป้าย

@@ -47,6 +47,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 		CustomerTypeID: signJob.CustomerTypeID,
 		Address:        signJob.Address,
 
+		ProjectID:   signJob.ProjectID,
 		ProjectName: signJob.ProjectName,
 		JobName:     signJob.JobName,
 		SignTypeID:  signJob.SignTypeID,
@@ -110,6 +111,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 		"email":            1,
 		"customer_type_id": 1,
 		"address":          1,
+		"project_id":       1,
 		"project_name":     1,
 		"job_name":         1,
 		"sign_type_id":     1,
@@ -173,6 +175,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 			Email:          m.Email,
 			CustomerTypeID: m.CustomerTypeID,
 			Address:        m.Address,
+			ProjectID:      m.ProjectID,
 			ProjectName:    m.ProjectName,
 			JobName:        m.JobName,
 			SignTypeID:     m.SignTypeID,
@@ -233,6 +236,7 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 		CustomerTypeID: m.CustomerTypeID,
 		Address:        m.Address,
 		// ---------- รายละเอียดงานป้าย ----------
+		ProjectID:   m.ProjectID,
 		ProjectName: m.ProjectName,
 		JobName:     m.JobName,
 		SignTypeID:  m.SignTypeID,
@@ -292,6 +296,9 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		existing.Address = update.Address
 	}
 
+	if update.ProjectID != "" {
+		existing.ProjectID = update.ProjectID
+	}
 	if update.ProjectName != "" {
 		existing.ProjectName = update.ProjectName
 	}

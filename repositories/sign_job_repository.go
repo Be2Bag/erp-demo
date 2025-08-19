@@ -66,21 +66,8 @@ func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, up
 }
 
 func (r *signJobRepo) SoftDeleteSignJobByJobID(ctx context.Context, jobID string) error {
-	filter := bson.M{"job_id": jobID, "is_deleted": bson.M{"$ne": true}}
-	update := bson.M{
-		"$set": bson.M{
-			"is_deleted": true,
-			"deleted_at": time.Now(),
-		},
-	}
-	res, err := r.coll.UpdateOne(ctx, filter, update)
-	if err != nil {
-		return err
-	}
-	if res.MatchedCount == 0 {
-		return mongo.ErrNoDocuments
-	}
-	return nil
+	_, err := r.coll.UpdateOne(ctx, bson.M{"job_id": jobID}, bson.M{"$set": bson.M{"deleted_at": time.Now()}})
+	return err
 }
 
 func (r *signJobRepo) GetAllSignJobByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.SignJob, error) {

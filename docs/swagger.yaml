@@ -133,6 +133,11 @@ definitions:
         example: 200
         type: integer
     type: object
+  dto.CreateProjectDTO:
+    properties:
+      project_name:
+        type: string
+    type: object
   dto.CreateSignJobDTO:
     properties:
       address:
@@ -186,8 +191,11 @@ definitions:
       production_time:
         description: '---------- การผลิต / ไทม์ไลน์ ----------'
         type: string
-      project_name:
+      project_id:
         description: '---------- รายละเอียดงานป้าย ----------'
+        type: string
+      project_name:
+        description: ชื่อโปรเจกต์ (จำเป็น)
         type: string
       quantity:
         description: จำนวน
@@ -338,6 +346,25 @@ definitions:
       total_pages:
         example: 10
         type: integer
+    type: object
+  dto.ProjectDTO:
+    properties:
+      created_at:
+        description: เวลาสร้าง
+        type: string
+      created_by:
+        description: ผู้สร้าง
+        type: string
+      deleted_at:
+        description: เวลาเมื่อถูกลบ (soft delete)
+        type: string
+      project_id:
+        type: string
+      project_name:
+        type: string
+      updated_at:
+        description: เวลาอัปเดตล่าสุด
+        type: string
     type: object
   dto.RequestConfirmResetPassword:
     properties:
@@ -512,6 +539,15 @@ definitions:
         description: ชื่อตำแหน่งงาน
         type: string
     type: object
+  dto.ResponseGetProjects:
+    properties:
+      project_id:
+        description: รหัสโครงการ (ไม่ซ้ำกัน)
+        type: string
+      project_name:
+        description: ชื่อโครงการ
+        type: string
+    type: object
   dto.ResponseGetProvinces:
     properties:
       province_id:
@@ -519,6 +555,21 @@ definitions:
         type: string
       province_name:
         description: ชื่อจังหวัด
+        type: string
+    type: object
+  dto.ResponseGetSignList:
+    properties:
+      content:
+        description: รายละเอียด
+        type: string
+      job_id:
+        description: รหัสงาน
+        type: string
+      job_name:
+        description: ชื่องาน
+        type: string
+      project_name:
+        description: ชื่อโปรเจกต์
         type: string
     type: object
   dto.ResponseGetSignTypes:
@@ -610,8 +661,11 @@ definitions:
       production_time:
         description: '---------- การผลิต / ไทม์ไลน์ ----------'
         type: string
-      project_name:
+      project_id:
         description: '---------- รายละเอียดงานป้าย ----------'
+        type: string
+      project_name:
+        description: ชื่อโปรเจกต์
         type: string
       quantity:
         description: จำนวน
@@ -628,6 +682,11 @@ definitions:
       width:
         description: ความกว้าง (ซม.)
         type: number
+    type: object
+  dto.UpdateProjectDTO:
+    properties:
+      project_name:
+        type: string
     type: object
   dto.UpdateSignJobDTO:
     properties:
@@ -682,8 +741,11 @@ definitions:
       production_time:
         description: '---------- การผลิต / ไทม์ไลน์ ----------'
         type: string
-      project_name:
+      project_id:
         description: '---------- รายละเอียดงานป้าย ----------'
+        type: string
+      project_name:
+        description: ชื่อโปรเจกต์ (จำเป็น)
         type: string
       quantity:
         description: จำนวน
@@ -827,7 +889,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Confirm reset password
       tags:
-      - auth
+      - Auth
   /v1/auth/login:
     post:
       consumes:
@@ -857,7 +919,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: User login
       tags:
-      - auth
+      - Auth
   /v1/auth/logout:
     post:
       consumes:
@@ -876,7 +938,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: User logout
       tags:
-      - auth
+      - Auth
   /v1/auth/reset:
     post:
       consumes:
@@ -906,7 +968,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Reset user password
       tags:
-      - auth
+      - Auth
   /v1/auth/sessions:
     get:
       consumes:
@@ -929,7 +991,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Get user sessions
       tags:
-      - auth
+      - Auth
   /v1/dropdown/customer-type:
     get:
       consumes:
@@ -959,7 +1021,7 @@ paths:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Get all customer types
       tags:
-      - dropdown
+      - Dropdown
   /v1/dropdown/department:
     get:
       consumes:
@@ -989,7 +1051,7 @@ paths:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Get all departments
       tags:
-      - dropdown
+      - Dropdown
   /v1/dropdown/district/{id}:
     get:
       consumes:
@@ -1025,7 +1087,7 @@ paths:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Get all districts by province ID
       tags:
-      - dropdown
+      - Dropdown
   /v1/dropdown/position/{id}:
     get:
       description: ใช้สำหรับดึงข้อมูลตำแหน่งงานทั้งหมด
@@ -1057,7 +1119,37 @@ paths:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Get all positions
       tags:
-      - dropdown
+      - Dropdown
+  /v1/dropdown/project:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลโครงการทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetProjects'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all projects
+      tags:
+      - Dropdown
   /v1/dropdown/province:
     get:
       consumes:
@@ -1087,7 +1179,43 @@ paths:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Get all provinces
       tags:
-      - dropdown
+      - Dropdown
+  /v1/dropdown/sign-job-list/{id}:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลใบงานทั้งหมด
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetSignList'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all sign jobs
+      tags:
+      - Dropdown
   /v1/dropdown/sign-type:
     get:
       consumes:
@@ -1117,7 +1245,7 @@ paths:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Get all sign types
       tags:
-      - dropdown
+      - Dropdown
   /v1/dropdown/subdistrict/{id}:
     get:
       consumes:
@@ -1153,7 +1281,7 @@ paths:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Get all sub-districts by district ID
       tags:
-      - dropdown
+      - Dropdown
   /v1/kpi/{id}:
     delete:
       consumes:
@@ -1339,6 +1467,211 @@ paths:
       summary: Get KPI Templates
       tags:
       - KPI
+  /v1/project/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a project by ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete a project by ID
+      tags:
+      - Projects
+    get:
+      consumes:
+      - application/json
+      description: Get a project by ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ProjectDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a project by ID
+      tags:
+      - Projects
+    put:
+      consumes:
+      - application/json
+      description: Update a project by ID
+      parameters:
+      - description: Project ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Project data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateProjectDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ProjectDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update a project by ID
+      tags:
+      - Projects
+  /v1/project/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new project
+      parameters:
+      - description: Project data
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateProjectDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ProjectDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new project
+      tags:
+      - Projects
+  /v1/project/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of projects
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc/desc)
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.Pagination'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a list of projects
+      tags:
+      - Projects
   /v1/sign-job/{id}:
     delete:
       consumes:
@@ -1629,7 +1962,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Delete user by ID
       tags:
-      - user
+      - User
     get:
       consumes:
       - application/json
@@ -1657,7 +1990,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Get user by ID
       tags:
-      - user
+      - User
     put:
       consumes:
       - application/json
@@ -1691,7 +2024,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Update user by ID
       tags:
-      - user
+      - User
   /v1/user/create:
     post:
       consumes:
@@ -1832,7 +2165,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Create a new user
       tags:
-      - user
+      - User
   /v1/user/documents:
     put:
       consumes:
@@ -1874,7 +2207,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Update user documents
       tags:
-      - user
+      - User
   /v1/user/list:
     get:
       consumes:
@@ -1922,7 +2255,7 @@ paths:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Get all users
       tags:
-      - user
+      - User
   /v1/workflow/{id}:
     delete:
       description: Delete a workflow

@@ -57,6 +57,7 @@ func main() {
 	taskRepo := repositories.NewTaskRepository(database)
 	workFlowRepo := repositories.NewWorkFlowRepository(database)
 	signJobRepo := repositories.NewSignJobRepository(database)
+	projectRepo := repositories.NewProjectRepository(database)
 
 	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage)
 	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
@@ -67,6 +68,7 @@ func main() {
 	authSvc := services.NewAuthService(*cfg, authRepo, userRepo)
 	workFlowSvc := services.NewWorkFlowService(*cfg, workFlowRepo)
 	signJobSvc := services.NewSignJobService(*cfg, signJobRepo)
+	projectSvc := services.NewProjectService(*cfg, projectRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
@@ -77,6 +79,7 @@ func main() {
 	taskHdl := handlers.NewTaskHandler(taskSvc, authCookieMiddleware)
 	workFlowHdl := handlers.NewWorkFlowHandler(workFlowSvc, authCookieMiddleware)
 	signJobHdl := handlers.NewSignJobHandler(signJobSvc, authCookieMiddleware)
+	projectHdl := handlers.NewProjectHandler(projectSvc, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -98,6 +101,7 @@ func main() {
 	taskHdl.TaskRoutes(apiGroup)
 	workFlowHdl.WorkFlowRoutes(apiGroup)
 	signJobHdl.SignJobRoutes(apiGroup)
+	projectHdl.ProjectRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{

@@ -71,7 +71,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Confirm reset password",
                 "parameters": [
@@ -123,7 +123,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "User login",
                 "parameters": [
@@ -169,7 +169,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "User logout",
                 "responses": {
@@ -198,7 +198,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Reset user password",
                 "parameters": [
@@ -244,7 +244,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "auth"
+                    "Auth"
                 ],
                 "summary": "Get user sessions",
                 "responses": {
@@ -279,7 +279,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dropdown"
+                    "Dropdown"
                 ],
                 "summary": "Get all customer types",
                 "responses": {
@@ -329,7 +329,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dropdown"
+                    "Dropdown"
                 ],
                 "summary": "Get all departments",
                 "responses": {
@@ -379,7 +379,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dropdown"
+                    "Dropdown"
                 ],
                 "summary": "Get all districts by province ID",
                 "parameters": [
@@ -432,7 +432,7 @@ const docTemplate = `{
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลตำแหน่งงานทั้งหมด",
                 "tags": [
-                    "dropdown"
+                    "Dropdown"
                 ],
                 "summary": "Get all positions",
                 "parameters": [
@@ -481,6 +481,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/dropdown/project": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลโครงการทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dropdown"
+                ],
+                "summary": "Get all projects",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetProjects"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dropdown/province": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลจังหวัดทั้งหมด",
@@ -491,7 +541,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dropdown"
+                    "Dropdown"
                 ],
                 "summary": "Get all provinces",
                 "responses": {
@@ -531,6 +581,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/dropdown/sign-job-list/{id}": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลใบงานทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dropdown"
+                ],
+                "summary": "Get all sign jobs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetSignList"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dropdown/sign-type": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลประเภทงานทั้งหมด",
@@ -541,7 +650,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dropdown"
+                    "Dropdown"
                 ],
                 "summary": "Get all sign types",
                 "responses": {
@@ -591,7 +700,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "dropdown"
+                    "Dropdown"
                 ],
                 "summary": "Get all sub-districts by district ID",
                 "parameters": [
@@ -895,6 +1004,334 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/project/create": {
+            "post": {
+                "description": "Create a new project",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Create a new project",
+                "parameters": [
+                    {
+                        "description": "Project data",
+                        "name": "project",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateProjectDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ProjectDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/project/list": {
+            "get": {
+                "description": "Get a list of projects",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Get a list of projects",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by field",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc/desc)",
+                        "name": "sort_order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.Pagination"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/project/{id}": {
+            "get": {
+                "description": "Get a project by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Get a project by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ProjectDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a project by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Update a project by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Project data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateProjectDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ProjectDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a project by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Projects"
+                ],
+                "summary": "Delete a project by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Project ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
                         }
@@ -1338,7 +1775,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "User"
                 ],
                 "summary": "Create a new user",
                 "parameters": [
@@ -1548,7 +1985,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "User"
                 ],
                 "summary": "Update user documents",
                 "parameters": [
@@ -1606,7 +2043,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "User"
                 ],
                 "summary": "Get all users",
                 "parameters": [
@@ -1679,7 +2116,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "User"
                 ],
                 "summary": "Get user by ID",
                 "parameters": [
@@ -1721,7 +2158,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "User"
                 ],
                 "summary": "Update user by ID",
                 "parameters": [
@@ -1772,7 +2209,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "user"
+                    "User"
                 ],
                 "summary": "Delete user by ID",
                 "parameters": [
@@ -2281,6 +2718,14 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateProjectDTO": {
+            "type": "object",
+            "properties": {
+                "project_name": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateSignJobDTO": {
             "type": "object",
             "properties": {
@@ -2352,8 +2797,12 @@ const docTemplate = `{
                     "description": "---------- การผลิต / ไทม์ไลน์ ----------",
                     "type": "string"
                 },
-                "project_name": {
+                "project_id": {
                     "description": "---------- รายละเอียดงานป้าย ----------",
+                    "type": "string"
+                },
+                "project_name": {
+                    "description": "ชื่อโปรเจกต์ (จำเป็น)",
                     "type": "string"
                 },
                 "quantity": {
@@ -2562,6 +3011,33 @@ const docTemplate = `{
                 "total_pages": {
                     "type": "integer",
                     "example": 10
+                }
+            }
+        },
+        "dto.ProjectDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "เวลาสร้าง",
+                    "type": "string"
+                },
+                "created_by": {
+                    "description": "ผู้สร้าง",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "เวลาเมื่อถูกลบ (soft delete)",
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "project_name": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "เวลาอัปเดตล่าสุด",
+                    "type": "string"
                 }
             }
         },
@@ -2814,6 +3290,19 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ResponseGetProjects": {
+            "type": "object",
+            "properties": {
+                "project_id": {
+                    "description": "รหัสโครงการ (ไม่ซ้ำกัน)",
+                    "type": "string"
+                },
+                "project_name": {
+                    "description": "ชื่อโครงการ",
+                    "type": "string"
+                }
+            }
+        },
         "dto.ResponseGetProvinces": {
             "type": "object",
             "properties": {
@@ -2823,6 +3312,27 @@ const docTemplate = `{
                 },
                 "province_name": {
                     "description": "ชื่อจังหวัด",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ResponseGetSignList": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "รายละเอียด",
+                    "type": "string"
+                },
+                "job_id": {
+                    "description": "รหัสงาน",
+                    "type": "string"
+                },
+                "job_name": {
+                    "description": "ชื่องาน",
+                    "type": "string"
+                },
+                "project_name": {
+                    "description": "ชื่อโปรเจกต์",
                     "type": "string"
                 }
             }
@@ -2948,8 +3458,12 @@ const docTemplate = `{
                     "description": "---------- การผลิต / ไทม์ไลน์ ----------",
                     "type": "string"
                 },
-                "project_name": {
+                "project_id": {
                     "description": "---------- รายละเอียดงานป้าย ----------",
+                    "type": "string"
+                },
+                "project_name": {
+                    "description": "ชื่อโปรเจกต์",
                     "type": "string"
                 },
                 "quantity": {
@@ -2971,6 +3485,14 @@ const docTemplate = `{
                 "width": {
                     "description": "ความกว้าง (ซม.)",
                     "type": "number"
+                }
+            }
+        },
+        "dto.UpdateProjectDTO": {
+            "type": "object",
+            "properties": {
+                "project_name": {
+                    "type": "string"
                 }
             }
         },
@@ -3045,8 +3567,12 @@ const docTemplate = `{
                     "description": "---------- การผลิต / ไทม์ไลน์ ----------",
                     "type": "string"
                 },
-                "project_name": {
+                "project_id": {
                     "description": "---------- รายละเอียดงานป้าย ----------",
+                    "type": "string"
+                },
+                "project_name": {
+                    "description": "ชื่อโปรเจกต์ (จำเป็น)",
                     "type": "string"
                 },
                 "quantity": {

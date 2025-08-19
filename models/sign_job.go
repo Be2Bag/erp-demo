@@ -22,6 +22,7 @@ type SignJob struct {
 	Address        string `bson:"address" json:"address"`                   // ที่อยู่ติดตั้ง / จัดส่ง
 
 	// ---------- Sign detail ----------
+	ProjectID   string  `bson:"project_id" json:"project_id"`
 	ProjectName string  `bson:"project_name" json:"project_name"` // ชื่อโปรเจกต์
 	JobName     string  `bson:"job_name" json:"job_name"`         // ชื่องาน
 	SignTypeID  string  `bson:"sign_type_id" json:"sign_type_id"` // ประเภทป้าย

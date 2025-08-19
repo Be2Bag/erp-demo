@@ -37,3 +37,15 @@ type ResponseGetCustomerTypes struct {
 	NameTH string `json:"name_th"` // ชื่อประเภทลูกค้า (ภาษาไทย)
 	NameEN string `json:"name_en"` // ชื่อประเภทลูกค้า (ภาษาอังกฤษ)
 }
+
+type ResponseGetSignList struct {
+	JobID       string `json:"job_id"`       // รหัสงาน
+	ProjectName string `json:"project_name"` // ชื่อโปรเจกต์
+	JobName     string `json:"job_name"`     // ชื่องาน
+	Content     string `json:"content"`      // รายละเอียด
+}
+
+type ResponseGetProjects struct {
+	ProjectID   string `json:"project_id"`   // รหัสโครงการ (ไม่ซ้ำกัน)
+	ProjectName string `json:"project_name"` // ชื่อโครงการ
+}

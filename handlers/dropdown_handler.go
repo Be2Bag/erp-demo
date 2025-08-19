@@ -20,6 +20,8 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 	dropdown := versionOne.Group("dropdown")
 
 	dropdown.Get("/department", h.GetDepartment)
+	dropdown.Get("/project", h.GetProject)
+	dropdown.Get("/sign-job-list/:id", h.GetSignJobList)
 	dropdown.Get("/province", h.GetProvince)
 	dropdown.Get("/sign-type", h.GetSignType)
 	dropdown.Get("/position/:id", h.GetPosition)
@@ -31,7 +33,7 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 
 // @Summary Get all positions
 // @Description ใช้สำหรับดึงข้อมูลตำแหน่งงานทั้งหมด
-// @Tags dropdown
+// @Tags Dropdown
 // @Param id path string true "Department ID"
 // @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetPositions}
 // @Failure 502 {object} dto.BaseResponse
@@ -62,7 +64,7 @@ func (h *DropDownHandler) GetPosition(c *fiber.Ctx) error {
 
 // @Summary Get all departments
 // @Description ใช้สำหรับดึงข้อมูลแผนกทั้งหมด
-// @Tags dropdown
+// @Tags Dropdown
 // @Accept json
 // @Produce json
 // @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetDepartments}
@@ -92,7 +94,7 @@ func (h *DropDownHandler) GetDepartment(c *fiber.Ctx) error {
 
 // @Summary Get all provinces
 // @Description ใช้สำหรับดึงข้อมูลจังหวัดทั้งหมด
-// @Tags dropdown
+// @Tags Dropdown
 // @Accept json
 // @Produce json
 // @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetProvinces}
@@ -122,7 +124,7 @@ func (h *DropDownHandler) GetProvince(c *fiber.Ctx) error {
 
 // @Summary Get all districts by province ID
 // @Description ใช้สำหรับดึงข้อมูลอำเภอทั้งหมดตามรหัสจังหวัด
-// @Tags dropdown
+// @Tags Dropdown
 // @Accept json
 // @Produce json
 // @Param id path string true "Province ID"
@@ -154,7 +156,7 @@ func (h *DropDownHandler) GetDistrict(c *fiber.Ctx) error {
 
 // @Summary Get all sub-districts by district ID
 // @Description ใช้สำหรับดึงข้อมูลตำบลทั้งหมดตามรหัสอำเภอ
-// @Tags dropdown
+// @Tags Dropdown
 // @Accept json
 // @Produce json
 // @Param id path string true "District ID"
@@ -186,7 +188,7 @@ func (h *DropDownHandler) GetSubDistrict(c *fiber.Ctx) error {
 
 // @Summary Get all sign types
 // @Description ใช้สำหรับดึงข้อมูลประเภทงานทั้งหมด
-// @Tags dropdown
+// @Tags Dropdown
 // @Accept json
 // @Produce json
 // @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetSignTypes}
@@ -216,7 +218,7 @@ func (h *DropDownHandler) GetSignType(c *fiber.Ctx) error {
 
 // @Summary Get all customer types
 // @Description ใช้สำหรับดึงข้อมูลประเภทลูกค้าทั้งหมด
-// @Tags dropdown
+// @Tags Dropdown
 // @Accept json
 // @Produce json
 // @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetCustomerTypes}
@@ -241,5 +243,68 @@ func (h *DropDownHandler) GetCustomerTypes(c *fiber.Ctx) error {
 		MessageTH:  "ดึงประเภทลูกค้าสำเร็จ",
 		Status:     "success",
 		Data:       customerTypes,
+	})
+}
+
+// @Summary Get all sign jobs
+// @Description ใช้สำหรับดึงข้อมูลใบงานทั้งหมด
+// @Tags Dropdown
+// @Accept json
+// @Produce json
+// @Param id path string true "Project ID"
+// @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetSignList}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/sign-job-list/{id} [get]
+func (h *DropDownHandler) GetSignJobList(c *fiber.Ctx) error {
+
+	projectID := c.Params("id")
+	signJobs, errOnGetSignJobs := h.svc.GetSignJobList(c.Context(), projectID)
+	if errOnGetSignJobs != nil {
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  fiber.ErrBadGateway.Message,
+			MessageTH:  "ไม่สามารถดึงใบงานได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get sign jobs successfully",
+		MessageTH:  "ดึงใบงานสำเร็จ",
+		Status:     "success",
+		Data:       signJobs,
+	})
+}
+
+// @Summary Get all projects
+// @Description ใช้สำหรับดึงข้อมูลโครงการทั้งหมด
+// @Tags Dropdown
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetProjects}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/project [get]
+func (h *DropDownHandler) GetProject(c *fiber.Ctx) error {
+	projects, errOnGetProjects := h.svc.GetProjectList(c.Context())
+	if errOnGetProjects != nil {
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  fiber.ErrBadGateway.Message,
+			MessageTH:  "ไม่สามารถดึงข้อมูลโครงการได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get projects successfully",
+		MessageTH:  "ดึงข้อมูลโครงการสำเร็จ",
+		Status:     "success",
+		Data:       projects,
 	})
 }

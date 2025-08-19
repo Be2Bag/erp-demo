@@ -33,7 +33,7 @@ func (h *AuthHandler) AuthRoutes(router fiber.Router) {
 
 // @Summary User login
 // @Description ใช้สำหรับเข้าสู่ระบบผู้ใช้
-// @Tags auth
+// @Tags Auth
 // @Accept json
 // @Produce json
 // @Param auth body dto.RequestLogin true "User login payload"
@@ -99,7 +99,7 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 // @Summary Get user sessions
 // @Description ใช้สำหรับดึงข้อมูลคุกกี้ auth token ของผู้ใช้
-// @Tags auth
+// @Tags Auth
 // @Accept json
 // @Produce json
 // @Success 200 {object} dto.BaseResponse
@@ -151,7 +151,7 @@ func (h *AuthHandler) GetSessions(c *fiber.Ctx) error {
 
 // @Summary User logout
 // @Description ใช้สำหรับออกจากระบบผู้ใช้
-// @Tags auth
+// @Tags Auth
 // @Accept json
 // @Produce json
 // @Success 200 {object} dto.BaseResponse
@@ -183,7 +183,7 @@ func (h *AuthHandler) Logout(c *fiber.Ctx) error {
 
 // @Summary Reset user password
 // @Description ใช้สำหรับรีเซ็ตรหัสผ่านของผู้ใช้
-// @Tags auth
+// @Tags Auth
 // @Accept json
 // @Produce json
 // @Param reset body dto.RequestResetPassword true "Reset password payload"
@@ -236,7 +236,7 @@ func (h *AuthHandler) ResetPassword(c *fiber.Ctx) error {
 
 // @Summary Confirm reset password
 // @Description ใช้สำหรับยืนยันการรีเซ็ตรหัสผ่านของผู้ใช้ token จะหมดอายุภายใน 15 นาที
-// @Tags auth
+// @Tags Auth
 // @Accept json
 // @Produce json
 // @Param confirm body dto.RequestConfirmResetPassword true "Confirm reset password payload"

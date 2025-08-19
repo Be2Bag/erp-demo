@@ -193,3 +193,53 @@ func (h *dropDownService) GetCustomerTypes(ctx context.Context) ([]dto.ResponseG
 
 	return response, nil
 }
+
+func (s *dropDownService) GetSignJobList(ctx context.Context, projectID string) ([]dto.ResponseGetSignList, error) {
+	filter := bson.M{"project_id": projectID, "deleted_at": nil}
+	projection := bson.M{}
+
+	signJobs, errOnGetSignJobs := s.dropDownRepo.GetSignJobsList(ctx, filter, projection)
+	if errOnGetSignJobs != nil {
+		return nil, errOnGetSignJobs
+	}
+
+	if len(signJobs) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetSignList
+	for _, signJob := range signJobs {
+		response = append(response, dto.ResponseGetSignList{
+			JobID:       signJob.JobID,
+			ProjectName: signJob.ProjectName,
+			JobName:     signJob.JobName,
+			Content:     signJob.Content,
+		})
+	}
+
+	return response, nil
+}
+
+func (s *dropDownService) GetProjectList(ctx context.Context) ([]dto.ResponseGetProjects, error) {
+	filter := bson.M{"deleted_at": nil}
+	projection := bson.M{}
+
+	projects, errOnGetProjects := s.dropDownRepo.GetProjectsList(ctx, filter, projection)
+	if errOnGetProjects != nil {
+		return nil, errOnGetProjects
+	}
+
+	if len(projects) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetProjects
+	for _, project := range projects {
+		response = append(response, dto.ResponseGetProjects{
+			ProjectID:   project.ProjectID,
+			ProjectName: project.ProjectName,
+		})
+	}
+
+	return response, nil
+}
