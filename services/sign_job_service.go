@@ -37,11 +37,6 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 		due = parsedDate
 	}
 
-	status := signJob.Status
-	if status == "" {
-		status = "DPT001"
-	}
-
 	model := models.SignJob{
 		ID:             primitive.NewObjectID(),
 		JobID:          uuid.NewString(),
@@ -70,7 +65,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 		InstallOption: signJob.InstallOption,
 		Notes:         signJob.Notes,
 
-		Status:    status,
+		Status:    "DPT001",
 		CreatedBy: claims.UserID,
 		CreatedAt: now,
 		UpdatedAt: now,

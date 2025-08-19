@@ -2300,10 +2300,6 @@ const docTemplate = `{
                     "description": "รายละเอียด / ข้อความบนป้าย",
                     "type": "string"
                 },
-                "created_by": {
-                    "description": "ผู้สร้าง (อาจให้ระบบตั้ง)",
-                    "type": "string"
-                },
                 "customer_type_id": {
                     "description": "รหัสประเภทลูกค้า",
                     "type": "string"
@@ -2366,10 +2362,6 @@ const docTemplate = `{
                 },
                 "sign_type_id": {
                     "description": "รหัสประเภทป้าย",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "---------- เมต้า ----------",
                     "type": "string"
                 },
                 "width": {

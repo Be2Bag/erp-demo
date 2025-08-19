@@ -38,8 +38,8 @@ type CreateSignJobDTO struct { // DTO สำหรับสร้างงาน
 	Notes string `json:"notes"` // หมายเหตุเพิ่มเติม
 
 	// ---------- เมต้า ----------
-	Status    string `json:"status"`     // สถานะงาน (อาจให้ระบบตั้ง)
-	CreatedBy string `json:"created_by"` // ผู้สร้าง (อาจให้ระบบตั้ง)
+	// Status    string `json:"status"`     // สถานะงาน (อาจให้ระบบตั้ง)
+	// CreatedBy string `json:"created_by"` // ผู้สร้าง (อาจให้ระบบตั้ง)
 }
 
 type UpdateSignJobDTO = struct { // DTO สำหรับสร้างงานป้ายใหม่
