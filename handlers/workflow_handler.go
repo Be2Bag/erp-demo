@@ -19,9 +19,9 @@ func NewWorkFlowHandler(s ports.WorkFlowService, mdw *middleware.Middleware) *Wo
 func (h *WorkFlowHandler) WorkFlowRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	workFlow := versionOne.Group("workflow")
-	workFlow.Get("/list", h.ListWorkflows)
+	workFlow.Get("/list", h.mdw.AuthCookieMiddleware(), h.ListWorkflows)
 	workFlow.Post("/create", h.mdw.AuthCookieMiddleware(), h.createWorkflow)
-	workFlow.Get("/:id", h.GetWorkflowByID)
+	workFlow.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetWorkflowByID)
 	workFlow.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateWorkflow)
 	workFlow.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteWorkflow)
 }
