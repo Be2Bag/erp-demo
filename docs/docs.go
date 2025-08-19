@@ -1121,19 +1121,19 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "Search term",
+                        "description": "ค้นหา project_name ",
                         "name": "search",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Sort by field",
+                        "description": "เรียงตาม created_at updated_at project_name",
                         "name": "sort_by",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Sort order (asc/desc)",
+                        "description": "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))",
                         "name": "sort_order",
                         "in": "query"
                     }

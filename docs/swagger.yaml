@@ -1633,15 +1633,15 @@ paths:
         in: query
         name: limit
         type: integer
-      - description: Search term
+      - description: 'ค้นหา project_name '
         in: query
         name: search
         type: string
-      - description: Sort by field
+      - description: เรียงตาม created_at updated_at project_name
         in: query
         name: sort_by
         type: string
-      - description: Sort order (asc/desc)
+      - description: เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))
         in: query
         name: sort_order
         type: string

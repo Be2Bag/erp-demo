@@ -89,9 +89,9 @@ func (h *ProjectHandler) CreateProject(c *fiber.Ctx) error {
 // @Produce json
 // @Param page query int false "Page number"
 // @Param limit query int false "Page size"
-// @Param search query string false "Search term"
-// @Param sort_by query string false "Sort by field"
-// @Param sort_order query string false "Sort order (asc/desc)"
+// @Param search query string false "ค้นหา project_name "
+// @Param sort_by query string false "เรียงตาม created_at updated_at project_name"
+// @Param sort_order query string false "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))"
 // @Success 200 {object} dto.BaseResponse{data=dto.Pagination}
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
