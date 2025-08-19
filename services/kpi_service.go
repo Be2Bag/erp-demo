@@ -81,7 +81,7 @@ func (s *kpiService) CreateKPITemplate(ctx context.Context, req dto.KPITemplateD
 
 	tplID := uuid.NewString()
 	doc := models.KPITemplate{
-		TemplateID:  tplID,
+		KPIID:       tplID,
 		Name:        req.Name,
 		Department:  req.Department,
 		TotalWeight: 100, // เก็บค่าคงที่ 100 ชัดเจน

@@ -2,9 +2,13 @@ package services
 
 import (
 	"context"
+	"time"
 
 	"github.com/Be2Bag/erp-demo/config"
+	"github.com/Be2Bag/erp-demo/dto"
+	"github.com/Be2Bag/erp-demo/models"
 	"github.com/Be2Bag/erp-demo/ports"
+	"github.com/google/uuid"
 )
 
 type taskService struct {
@@ -22,8 +26,62 @@ func (s *taskService) GetTasks(ctx context.Context, filter interface{}) ([]inter
 	return nil, nil
 }
 
-func (s *taskService) CreateTask(ctx context.Context, task interface{}) error {
-	// Implementation for creating a new task
+func (s *taskService) CreateTask(ctx context.Context, createTask dto.CreateTaskRequest, claims *dto.JWTClaims) error {
+	now := time.Now()
+	var start time.Time
+	var end time.Time
+
+	if createTask.StartDate != "" {
+		parsedDate, err := time.Parse("2006-01-02", createTask.StartDate)
+		if err != nil {
+			return err
+		}
+		start = parsedDate
+	}
+
+	if createTask.EndDate != "" {
+		parsedDate, err := time.Parse("2006-01-02", createTask.EndDate)
+		if err != nil {
+			return err
+		}
+		end = parsedDate
+	}
+
+	model := models.Tasks{
+		TaskID:      uuid.New().String(),
+		ProjectID:   createTask.ProjectID,
+		ProjectName: createTask.ProjectName,
+		JobName:     createTask.JobName,
+		Description: createTask.Description,
+
+		Department: createTask.Department,
+		Assignee:   createTask.Assignee,
+		Importance: createTask.Importance,
+		StartDate:  start,
+		EndDate:    end,
+		KPIID:      createTask.KPIID,
+		WorkFlowID: createTask.WorkflowID,
+
+		// AppliedWorkflow: TaskAppliedWorkflow{
+		// 	WorkFlowID:   createTask.WorkflowID,
+		// 	WorkFlowName: createTask.WorkflowName,
+		// 	Department:   createTask.Department,
+		// 	Description:  createTask.Description,
+		// 	TotalHours:   createTask.TotalHours,
+		// 	Steps:       createTask.Steps,
+		// 	Version:     1,
+		// },
+
+		Status:    "todo",
+		CreatedBy: claims.UserID,
+		CreatedAt: now,
+		UpdatedAt: now,
+		DeletedAt: nil,
+	}
+
+	if err := s.taskRepo.CreateTask(ctx, model); err != nil {
+		return err
+	}
 	return nil
 }
 

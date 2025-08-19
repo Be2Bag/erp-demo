@@ -2830,13 +2830,13 @@ const docTemplate = `{
                     "description": "ชั่วโมง (รองรับทศนิยม)",
                     "type": "number"
                 },
-                "name": {
-                    "description": "ชื่อขั้นตอน",
-                    "type": "string"
-                },
                 "order": {
                     "description": "ลำดับ (1,2,3,...)",
                     "type": "integer"
+                },
+                "step_name": {
+                    "description": "ชื่อ Template",
+                    "type": "string"
                 }
             }
         },
@@ -2851,16 +2851,16 @@ const docTemplate = `{
                     "description": "คำอธิบายการใช้งาน",
                     "type": "string"
                 },
-                "name": {
-                    "description": "ชื่อ Template",
-                    "type": "string"
-                },
                 "steps": {
                     "description": "ขั้นตอนการทำงาน",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dto.CreateWorkflowStepDTO"
                     }
+                },
+                "workflow_name": {
+                    "description": "ชื่อ Template",
+                    "type": "string"
                 }
             }
         },
@@ -3602,14 +3602,15 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "steps": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dto.CreateWorkflowStepDTO"
                     }
+                },
+                "workflow_name": {
+                    "description": "ชื่อ Template",
+                    "type": "string"
                 }
             }
         },
@@ -3625,13 +3626,13 @@ const docTemplate = `{
                 "hours": {
                     "type": "number"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "order": {
                     "type": "integer"
                 },
                 "step_id": {
+                    "type": "string"
+                },
+                "step_name": {
                     "type": "string"
                 },
                 "updated_at": {
@@ -3657,9 +3658,6 @@ const docTemplate = `{
                 "is_active": {
                     "type": "boolean"
                 },
-                "name": {
-                    "type": "string"
-                },
                 "steps": {
                     "type": "array",
                     "items": {
@@ -3677,6 +3675,10 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "workflow_id": {
+                    "type": "string"
+                },
+                "workflow_name": {
+                    "description": "ชื่อ Template",
                     "type": "string"
                 }
             }

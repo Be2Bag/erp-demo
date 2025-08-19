@@ -3,6 +3,8 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -12,24 +14,25 @@ import (
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
-	mongoopt "go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type workFlowService struct {
+type workflowService struct {
 	config       config.Config
-	workFlowRepo ports.WorkFlowRepository
+	workflowRepo ports.WorkFlowRepository
 }
 
-func NewWorkFlowService(cfg config.Config, workFlowRepo ports.WorkFlowRepository) ports.WorkFlowService {
-	return &workFlowService{config: cfg, workFlowRepo: workFlowRepo}
+func NewWorkflowService(cfg config.Config, workflowRepo ports.WorkFlowRepository) ports.WorkFlowService {
+	return &workflowService{config: cfg, workflowRepo: workflowRepo}
 }
 
-func (s *workFlowService) CreateWorkflowTemplate(ctx context.Context, req dto.CreateWorkflowTemplateDTO, createdBy string) (*dto.WorkflowTemplateDTO, error) {
-	if strings.TrimSpace(req.Name) == "" {
-		return nil, errors.New("name is required")
+func (s *workflowService) CreateWorkflowTemplate(ctx context.Context, req dto.CreateWorkflowTemplateDTO, claims *dto.JWTClaims) error {
+	if strings.TrimSpace(req.WorkFlowName) == "" {
+		return errors.New("workflow_name is required")
 	}
 	if len(req.Steps) == 0 {
-		return nil, errors.New("steps are required")
+		return errors.New("steps are required")
 	}
 
 	now := time.Now().UTC()
@@ -37,11 +40,11 @@ func (s *workFlowService) CreateWorkflowTemplate(ctx context.Context, req dto.Cr
 	var total float64
 	for _, st := range req.Steps {
 		if st.Hours < 0 {
-			return nil, errors.New("step hours must be >= 0")
+			return errors.New("step hours must be >= 0")
 		}
 		steps = append(steps, models.WorkFlowStep{
 			StepID:      uuid.NewString(),
-			Name:        st.Name,
+			StepName:    st.StepName,
 			Description: st.Description,
 			Hours:       st.Hours,
 			Order:       st.Order,
@@ -52,172 +55,51 @@ func (s *workFlowService) CreateWorkflowTemplate(ctx context.Context, req dto.Cr
 	}
 
 	tmpl := models.WorkFlowTemplate{
-		TemplateID:  uuid.NewString(),
-		Name:        req.Name,
-		Department:  req.Department,
-		Description: req.Description,
-		TotalHours:  total,
-		Steps:       steps,
-		IsActive:    true,
-		Version:     1,
-		CreatedBy:   createdBy,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		WorkFlowID:   uuid.NewString(),
+		WorkFlowName: req.WorkFlowName,
+		Department:   req.Department,
+		Description:  req.Description,
+		TotalHours:   total,
+		Steps:        steps,
+		IsActive:     true,
+		Version:      1,
+		CreatedBy:    claims.UserID,
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	}
 
-	if err := s.workFlowRepo.CreateWorkFlowTemplate(ctx, &tmpl); err != nil {
-		return nil, err
+	if err := s.workflowRepo.CreateWorkFlowTemplate(ctx, &tmpl); err != nil {
+		return err
 	}
-	out := toTemplateDTO(&tmpl)
-	return &out, nil
+
+	return nil
 }
 
-func (s *workFlowService) GetWorkflowTemplateByID(ctx context.Context, templateID string) (*dto.WorkflowTemplateDTO, error) {
-	tmpl, err := s.workFlowRepo.GetWorkFlowTemplateByTemplateID(ctx, templateID)
+func (s *workflowService) GetWorkflowTemplateByID(ctx context.Context, workflowID string) (*dto.WorkflowTemplateDTO, error) {
+
+	if strings.TrimSpace(workflowID) == "" {
+		return nil, errors.New("workflowID is required")
+	}
+
+	filter := bson.M{
+		"workflow_id": workflowID,
+		"deleted_at":  nil,
+	}
+	var projection bson.M // ใช้ nil ก็ได้ ถ้าไม่ต้องการเลือก field
+
+	m, err := s.workflowRepo.GetOneWorkFlowTemplateByFilter(ctx, filter, projection)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get workflow template by id: %w", err)
 	}
-	out := toTemplateDTO(tmpl)
-	return &out, nil
-}
-
-func (s *workFlowService) ListWorkflowTemplates(ctx context.Context, search string, department string, page, limit int64, sort string) (dto.Pagination, error) {
-	if page < 1 {
-		page = 1
-	}
-	if limit <= 0 {
-		limit = 10
+	if m == nil {
+		return nil, nil
 	}
 
-	filter := bson.M{}
-	if strings.TrimSpace(search) != "" {
-		reg := bson.M{"$regex": search, "$options": "i"}
-		filter["$or"] = []bson.M{
-			{"name": reg},
-			{"department": reg},
-			{"description": reg},
-		}
-	}
-	if strings.TrimSpace(department) != "" {
-		filter["department"] = department
-	}
-
-	findOpts := mongoopt.Find()
-	findOpts.SetLimit(limit)
-	findOpts.SetSkip((page - 1) * limit)
-
-	// sort format: "field:asc|desc", default updated_at desc
-	sortField := "updated_at"
-	sortDir := -1
-	if strings.TrimSpace(sort) != "" {
-		parts := strings.Split(sort, ":")
-		if len(parts) >= 1 && parts[0] != "" {
-			sortField = parts[0]
-		}
-		if len(parts) == 2 && strings.EqualFold(parts[1], "asc") {
-			sortDir = 1
-		}
-	}
-	findOpts.SetSort(bson.D{{Key: sortField, Value: sortDir}})
-
-	total, err := s.workFlowRepo.CountWorkFlowTemplates(ctx, filter)
-	if err != nil {
-		return dto.Pagination{}, err
-	}
-
-	items, err := s.workFlowRepo.GetWorkFlowTemplates(ctx, filter, findOpts)
-	if err != nil {
-		return dto.Pagination{}, err
-	}
-
-	out := make([]dto.WorkflowTemplateDTO, 0, len(items))
-	for i := range items {
-		out = append(out, toTemplateDTO(&items[i]))
-	}
-
-	// Build pagination response
-	totalPages := 0
-	if limit > 0 {
-		totalPages = int((total + limit - 1) / limit)
-	}
-	p := dto.Pagination{
-		Page:       int(page),
-		Size:       int(limit),
-		TotalCount: int(total),
-		TotalPages: totalPages,
-		List:       make([]interface{}, len(out)),
-	}
-	for i := range out {
-		p.List[i] = out[i]
-	}
-
-	return p, nil
-}
-
-func (s *workFlowService) UpdateWorkflowTemplate(ctx context.Context, templateID string, req dto.UpdateWorkflowTemplateDTO, updatedBy string) (*dto.WorkflowTemplateDTO, error) {
-	set := bson.M{}
-	now := time.Now().UTC()
-	if req.Name != nil {
-		if strings.TrimSpace(*req.Name) == "" {
-			return nil, errors.New("name cannot be empty")
-		}
-		set["name"] = *req.Name
-	}
-	if req.Department != nil {
-		set["department"] = *req.Department
-	}
-	if req.Description != nil {
-		set["description"] = *req.Description
-	}
-	if req.Steps != nil {
-		steps := make([]models.WorkFlowStep, 0, len(*req.Steps))
-		var total float64
-		for _, st := range *req.Steps {
-			if st.Hours < 0 {
-				return nil, errors.New("step hours must be >= 0")
-			}
-			steps = append(steps, models.WorkFlowStep{
-				StepID:      uuid.NewString(),
-				Name:        st.Name,
-				Description: st.Description,
-				Hours:       st.Hours,
-				Order:       st.Order,
-				CreatedAt:   now,
-				UpdatedAt:   now,
-			})
-			total += st.Hours
-		}
-		set["steps"] = steps
-		set["total_hours"] = total
-	}
-	set["updated_at"] = now
-
-	updateDoc := bson.M{
-		"$set": set,
-		"$inc": bson.M{"version": 1},
-	}
-
-	if err := s.workFlowRepo.UpdateWorkFlowTemplateByTemplateID(ctx, templateID, updateDoc); err != nil {
-		return nil, err
-	}
-	updated, err := s.workFlowRepo.GetWorkFlowTemplateByTemplateID(ctx, templateID)
-	if err != nil {
-		return nil, err
-	}
-	out := toTemplateDTO(updated)
-	return &out, nil
-}
-
-func (s *workFlowService) DeleteWorkflowTemplate(ctx context.Context, templateID string) error {
-	return s.workFlowRepo.DeleteWorkFlowTemplateByTemplateID(ctx, templateID)
-}
-
-func toTemplateDTO(m *models.WorkFlowTemplate) dto.WorkflowTemplateDTO {
-	steps := make([]dto.WorkflowStepDTO, 0, len(m.Steps))
+	stepsDTO := make([]dto.WorkflowStepDTO, 0, len(m.Steps))
 	for _, st := range m.Steps {
-		steps = append(steps, dto.WorkflowStepDTO{
+		stepsDTO = append(stepsDTO, dto.WorkflowStepDTO{
 			StepID:      st.StepID,
-			Name:        st.Name,
+			StepName:    st.StepName,
 			Description: st.Description,
 			Hours:       st.Hours,
 			Order:       st.Order,
@@ -225,17 +107,175 @@ func toTemplateDTO(m *models.WorkFlowTemplate) dto.WorkflowTemplateDTO {
 			UpdatedAt:   st.UpdatedAt,
 		})
 	}
-	return dto.WorkflowTemplateDTO{
-		TemplateID:  m.TemplateID,
-		Name:        m.Name,
-		Department:  m.Department,
-		Description: m.Description,
-		TotalHours:  m.TotalHours,
-		Steps:       steps,
-		IsActive:    m.IsActive,
-		Version:     m.Version,
-		CreatedBy:   m.CreatedBy,
-		CreatedAt:   m.CreatedAt,
-		UpdatedAt:   m.UpdatedAt,
+
+	dtoObj := &dto.WorkflowTemplateDTO{
+		WorkFlowID:   m.WorkFlowID,
+		WorkFlowName: m.WorkFlowName,
+		Department:   m.Department,
+		Description:  m.Description,
+		TotalHours:   m.TotalHours,
+		Steps:        stepsDTO,
+		IsActive:     m.IsActive,
+		Version:      m.Version,
+		CreatedBy:    m.CreatedBy,
+		CreatedAt:    m.CreatedAt,
+		UpdatedAt:    m.UpdatedAt,
 	}
+
+	return dtoObj, nil
+}
+
+func (s *workflowService) ListWorkflowTemplates(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error) {
+	skip := int64((page - 1) * size)
+	limit := int64(size)
+
+	filter := bson.M{
+		"deleted_at": nil,
+	}
+
+	department = strings.TrimSpace(department)
+	if department != "" {
+		filter["department"] = department
+	}
+
+	search = strings.TrimSpace(search)
+	if search != "" {
+		safe := regexp.QuoteMeta(search)
+		re := primitive.Regex{Pattern: safe, Options: "i"}
+		filter["$or"] = []bson.M{
+			{"workflow_name": re},
+		}
+	}
+
+	projection := bson.M{}
+
+	allowedSortFields := map[string]string{
+		"created_at":    "created_at",
+		"updated_at":    "updated_at",
+		"workflow_name": "workflow_name",
+	}
+	field, ok := allowedSortFields[sortBy]
+	if !ok || field == "" {
+		field = "created_at"
+	}
+	order := int32(-1)
+	if strings.EqualFold(sortOrder, "asc") {
+		order = 1
+	}
+
+	sort := bson.D{
+		{Key: field, Value: order},
+		{Key: "_id", Value: -1},
+	}
+
+	items, total, err := s.workflowRepo.GetListWorkFlowTemplatesByFilter(ctx, filter, projection, sort, skip, limit)
+	if err != nil {
+		return dto.Pagination{}, fmt.Errorf("list sign jobs: %w", err)
+	}
+
+	list := make([]interface{}, 0, len(items))
+	for _, m := range items {
+		stepsDTO := make([]dto.WorkflowStepDTO, 0, len(m.Steps))
+		for _, st := range m.Steps {
+			stepsDTO = append(stepsDTO, dto.WorkflowStepDTO{
+				StepID:      st.StepID,
+				StepName:    st.StepName,
+				Description: st.Description,
+				Hours:       st.Hours,
+				Order:       st.Order,
+				CreatedAt:   st.CreatedAt,
+				UpdatedAt:   st.UpdatedAt,
+			})
+		}
+
+		list = append(list, dto.WorkflowTemplateDTO{
+			WorkFlowID:   m.WorkFlowID,
+			WorkFlowName: m.WorkFlowName,
+			Department:   m.Department,
+			Description:  m.Description,
+			TotalHours:   m.TotalHours,
+			Steps:        stepsDTO,
+			IsActive:     m.IsActive,
+			Version:      m.Version,
+			CreatedBy:    m.CreatedBy,
+			CreatedAt:    m.CreatedAt,
+			UpdatedAt:    m.UpdatedAt,
+		})
+	}
+
+	totalPages := 0
+	if total > 0 && size > 0 {
+		totalPages = int((total + int64(size) - 1) / int64(size))
+	}
+
+	return dto.Pagination{
+		Page:       page,
+		Size:       size,
+		TotalCount: int(total),
+		TotalPages: totalPages,
+		List:       list,
+	}, nil
+}
+
+func (s *workflowService) UpdateWorkflowTemplate(ctx context.Context, workflowID string, req dto.UpdateWorkflowTemplateDTO, updatedBy string) error {
+
+	filter := bson.M{"workflow_id": workflowID, "deleted_at": nil}
+	existing, err := s.workflowRepo.GetOneWorkFlowTemplateByFilter(ctx, filter, bson.M{})
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return mongo.ErrNoDocuments
+	}
+
+	if req.WorkFlowName != "" {
+		existing.WorkFlowName = req.WorkFlowName
+	}
+	if req.Department != "" {
+		existing.Department = req.Department
+	}
+	if req.Description != "" {
+		existing.Description = req.Description
+	}
+	if req.Steps != nil {
+		nowSteps := time.Now()
+		var total float64
+		newSteps := make([]models.WorkFlowStep, 0, len(*req.Steps))
+		for _, st := range *req.Steps {
+			if st.Hours < 0 {
+				return errors.New("step hours must be >= 0")
+			}
+			newSteps = append(newSteps, models.WorkFlowStep{
+				StepID:      uuid.NewString(),
+				StepName:    st.StepName,
+				Description: st.Description,
+				Hours:       st.Hours,
+				Order:       st.Order,
+				CreatedAt:   nowSteps,
+				UpdatedAt:   nowSteps,
+			})
+			total += st.Hours
+		}
+		existing.Steps = newSteps
+		existing.TotalHours = total
+	}
+
+	existing.UpdatedAt = time.Now()
+
+	updated, err := s.workflowRepo.UpdateWorkFlowTemplateByID(ctx, workflowID, *existing)
+	if err != nil {
+		return err
+	}
+	if updated == nil {
+		return mongo.ErrNoDocuments
+	}
+	return nil
+}
+
+func (s *workflowService) DeleteWorkflowTemplate(ctx context.Context, workflowID string) error {
+	err := s.workflowRepo.SoftDeleteWorkFlowTemplateByID(ctx, workflowID)
+	if err == mongo.ErrNoDocuments {
+		return nil
+	}
+	return err
 }

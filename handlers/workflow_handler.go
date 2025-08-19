@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
@@ -60,11 +58,11 @@ func (h *WorkFlowHandler) createWorkflow(c *fiber.Ctx) error {
 		})
 	}
 
-	out, err := h.svc.CreateWorkflowTemplate(c.Context(), req, claims.UserID)
-	if err != nil {
+	errOnCreate := h.svc.CreateWorkflowTemplate(c.Context(), req, claims)
+	if errOnCreate != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  err.Error(),
+			MessageEN:  errOnCreate.Error(),
 			MessageTH:  "ไม่สามารถสร้าง Workflow ได้",
 			Status:     "error",
 			Data:       nil,
@@ -75,7 +73,7 @@ func (h *WorkFlowHandler) createWorkflow(c *fiber.Ctx) error {
 		MessageEN:  "Workflow created successfully",
 		MessageTH:  "สร้าง Workflow สำเร็จ",
 		Status:     "success",
-		Data:       out,
+		Data:       nil,
 	})
 }
 
@@ -124,13 +122,37 @@ func (h *WorkFlowHandler) GetWorkflowByID(c *fiber.Ctx) error {
 // @Failure 401 {object} dto.BaseResponse
 // @Router /v1/workflow/list [get]
 func (h *WorkFlowHandler) ListWorkflows(c *fiber.Ctx) error {
-	search := c.Query("search")
-	dept := c.Query("department")
-	page, _ := strconv.ParseInt(c.Query("page", "1"), 10, 64)
-	limit, _ := strconv.ParseInt(c.Query("limit", "10"), 10, 64)
-	sort := c.Query("sort", "updated_at:desc")
 
-	list, errOnGetWorkFlow := h.svc.ListWorkflowTemplates(c.Context(), search, dept, page, limit, sort)
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	var req dto.RequestListWorkflow
+	if err := c.QueryParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid query parameters",
+			MessageTH:  "พารามิเตอร์ไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	if req.Limit > 100 || req.Limit <= 0 {
+		req.Limit = 10
+	}
+	if req.Page < 1 {
+		req.Page = 1
+	}
+
+	list, errOnGetWorkFlow := h.svc.ListWorkflowTemplates(c.Context(), claims, req.Page, req.Limit, req.Search, req.Department, req.SortBy, req.SortOrder)
 	if errOnGetWorkFlow != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
@@ -182,11 +204,11 @@ func (h *WorkFlowHandler) UpdateWorkflow(c *fiber.Ctx) error {
 			Status:     "error",
 		})
 	}
-	out, err := h.svc.UpdateWorkflowTemplate(c.Context(), id, req, claims.UserID)
-	if err != nil {
+	errOnUpdate := h.svc.UpdateWorkflowTemplate(c.Context(), id, req, claims.UserID)
+	if errOnUpdate != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  err.Error(),
+			MessageEN:  errOnUpdate.Error(),
 			MessageTH:  "ไม่สามารถอัปเดต Workflow ได้",
 			Status:     "error",
 			Data:       nil,
@@ -197,7 +219,7 @@ func (h *WorkFlowHandler) UpdateWorkflow(c *fiber.Ctx) error {
 		MessageEN:  "Workflow updated successfully",
 		MessageTH:  "อัปเดต Workflow สำเร็จ",
 		Status:     "success",
-		Data:       out,
+		Data:       nil,
 	})
 }
 

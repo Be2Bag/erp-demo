@@ -4,14 +4,14 @@ import "time"
 
 // ---------- Request DTO ----------
 type CreateWorkflowTemplateDTO struct {
-	Name        string                  `json:"name"`        // ชื่อ Template
-	Department  string                  `json:"department"`  // แผนก (dropdown)
-	Description string                  `json:"description"` // คำอธิบายการใช้งาน
-	Steps       []CreateWorkflowStepDTO `json:"steps"`       // ขั้นตอนการทำงาน
+	WorkFlowName string                  `json:"workflow_name"` // ชื่อ Template
+	Department   string                  `json:"department"`    // แผนก (dropdown)
+	Description  string                  `json:"description"`   // คำอธิบายการใช้งาน
+	Steps        []CreateWorkflowStepDTO `json:"steps"`         // ขั้นตอนการทำงาน
 }
 
 type CreateWorkflowStepDTO struct {
-	Name        string  `json:"name"`                  // ชื่อขั้นตอน
+	StepName    string  `json:"step_name"`             // ชื่อ Template
 	Description string  `json:"description,omitempty"` // คำอธิบาย (ไม่บังคับ)
 	Hours       float64 `json:"hours"`                 // ชั่วโมง (รองรับทศนิยม)
 	Order       int     `json:"order"`                 // ลำดับ (1,2,3,...)
@@ -19,30 +19,39 @@ type CreateWorkflowStepDTO struct {
 
 // Partial update payload (use pointer fields)
 type UpdateWorkflowTemplateDTO struct {
-	Name        *string                  `json:"name,omitempty"`
-	Department  *string                  `json:"department,omitempty"`
-	Description *string                  `json:"description,omitempty"`
-	Steps       *[]CreateWorkflowStepDTO `json:"steps,omitempty"`
+	WorkFlowName string                   `json:"workflow_name"` // ชื่อ Template
+	Department   string                   `json:"department,omitempty"`
+	Description  string                   `json:"description,omitempty"`
+	Steps        *[]CreateWorkflowStepDTO `json:"steps,omitempty"`
+}
+
+type RequestListWorkflow struct {
+	Page       int    `query:"page"`       // หมายเลขหน้าที่ต้องการดึงข้อมูล
+	Limit      int    `query:"limit"`      // จำนวนรายการต่อหน้า
+	Search     string `query:"search"`     // คำค้นหาสำหรับกรองข้อมูล
+	Department string `query:"department"` // แผนก
+	SortBy     string `query:"sort_by"`    // คอลัมน์ที่ต้องการเรียงลำดับ
+	SortOrder  string `query:"sort_order"` // ทิศทางการเรียงลำดับ (asc หรือ desc)
 }
 
 // ---------- Response DTO ----------
 type WorkflowTemplateDTO struct {
-	TemplateID  string            `json:"template_id"`
-	Name        string            `json:"name"`
-	Department  string            `json:"department"`
-	Description string            `json:"description"`
-	TotalHours  float64           `json:"total_hours"` // ผลรวมชั่วโมงจากทุก step
-	Steps       []WorkflowStepDTO `json:"steps"`
-	IsActive    bool              `json:"is_active"`
-	Version     int               `json:"version"`
-	CreatedBy   string            `json:"created_by"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	WorkFlowID   string            `json:"workflow_id"`
+	WorkFlowName string            `json:"workflow_name"` // ชื่อ Template
+	Department   string            `json:"department"`
+	Description  string            `json:"description"`
+	TotalHours   float64           `json:"total_hours"` // ผลรวมชั่วโมงจากทุก step
+	Steps        []WorkflowStepDTO `json:"steps"`
+	IsActive     bool              `json:"is_active"`
+	Version      int               `json:"version"`
+	CreatedBy    string            `json:"created_by"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 type WorkflowStepDTO struct {
 	StepID      string    `json:"step_id"`
-	Name        string    `json:"name"`
+	StepName    string    `json:"step_name"`
 	Description string    `json:"description,omitempty"`
 	Hours       float64   `json:"hours"`
 	Order       int       `json:"order"`

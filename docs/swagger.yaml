@@ -215,12 +215,12 @@ definitions:
       hours:
         description: ชั่วโมง (รองรับทศนิยม)
         type: number
-      name:
-        description: ชื่อขั้นตอน
-        type: string
       order:
         description: ลำดับ (1,2,3,...)
         type: integer
+      step_name:
+        description: ชื่อ Template
+        type: string
     type: object
   dto.CreateWorkflowTemplateDTO:
     properties:
@@ -230,14 +230,14 @@ definitions:
       description:
         description: คำอธิบายการใช้งาน
         type: string
-      name:
-        description: ชื่อ Template
-        type: string
       steps:
         description: ขั้นตอนการทำงาน
         items:
           $ref: '#/definitions/dto.CreateWorkflowStepDTO'
         type: array
+      workflow_name:
+        description: ชื่อ Template
+        type: string
     type: object
   dto.Document:
     properties:
@@ -766,12 +766,13 @@ definitions:
         type: string
       description:
         type: string
-      name:
-        type: string
       steps:
         items:
           $ref: '#/definitions/dto.CreateWorkflowStepDTO'
         type: array
+      workflow_name:
+        description: ชื่อ Template
+        type: string
     type: object
   dto.WorkflowStepDTO:
     properties:
@@ -781,11 +782,11 @@ definitions:
         type: string
       hours:
         type: number
-      name:
-        type: string
       order:
         type: integer
       step_id:
+        type: string
+      step_name:
         type: string
       updated_at:
         type: string
@@ -802,8 +803,6 @@ definitions:
         type: string
       is_active:
         type: boolean
-      name:
-        type: string
       steps:
         items:
           $ref: '#/definitions/dto.WorkflowStepDTO'
@@ -816,6 +815,9 @@ definitions:
       version:
         type: integer
       workflow_id:
+        type: string
+      workflow_name:
+        description: ชื่อ Template
         type: string
     type: object
 host: api.rkp-media.com

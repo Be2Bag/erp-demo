@@ -10,7 +10,7 @@ const CollectionKPITemplates = "kpi_templates"
 
 type KPITemplate struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"_id"`
-	TemplateID  string             `bson:"template_id" json:"template_id"`
+	KPIID       string             `bson:"kpi_id" json:"kpi_id"`
 	Name        string             `bson:"name" json:"name"`
 	Department  string             `bson:"department" json:"department"`
 	TotalWeight int                `bson:"total_weight" json:"total_weight"`

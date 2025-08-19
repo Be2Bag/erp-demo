@@ -215,7 +215,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 
 func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) (*dto.SignJobDTO, error) {
 
-	filter := bson.M{"job_id": jobID}
+	filter := bson.M{"job_id": jobID, "deleted_at": nil}
 	projection := bson.M{}
 
 	m, err := s.signJobRepo.GetOneSignJobByFilter(ctx, filter, projection)
