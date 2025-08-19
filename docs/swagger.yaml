@@ -2396,22 +2396,31 @@ paths:
       - application/json
       description: List all workflows
       parameters:
-      - description: Search
-        in: query
-        name: search
-        type: string
-      - description: Department
-        in: query
-        name: department
-        type: string
-      - description: Page
+      - description: Page number (default 1)
         in: query
         name: page
         type: integer
-      - description: Limit
+      - description: Page limit (default 10)
         in: query
         name: limit
         type: integer
+      - description: ค้นหาด้วย workflow_name
+        in: query
+        name: search
+        type: string
+      - description: 'Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003:
+          แผนกติดตั้ง, DPT004: แผนกบัญชี'
+        in: query
+        name: department
+        type: string
+      - description: 'เรียงตาม created_at updated_at workflow_name (ค่าเริ่มต้น: created_at)'
+        in: query
+        name: sort_by
+        type: string
+      - description: เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))
+        in: query
+        name: sort_order
+        type: string
       produces:
       - application/json
       responses:

@@ -113,10 +113,12 @@ func (h *WorkFlowHandler) GetWorkflowByID(c *fiber.Ctx) error {
 // @Tags Workflow
 // @Accept json
 // @Produce json
-// @Param search query string false "Search"
-// @Param department query string false "Department"
-// @Param page query int false "Page"
-// @Param limit query int false "Limit"
+// @Param page query int false "Page number (default 1)"
+// @Param limit query int false "Page limit (default 10)"
+// @Param search query string false "ค้นหาด้วย workflow_name"
+// @Param department query string false "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี"
+// @Param sort_by query string false "เรียงตาม created_at updated_at workflow_name (ค่าเริ่มต้น: created_at)"
+// @Param sort_order query string false "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))"
 // @Success 200 {object} dto.BaseResponse{data=[]dto.WorkflowTemplateDTO}
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
