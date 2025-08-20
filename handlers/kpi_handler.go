@@ -1,8 +1,7 @@
 package handlers
 
 import (
-	"fmt"
-	"strconv" // added
+	"fmt" // added
 	"strings"
 
 	"github.com/Be2Bag/erp-demo/dto"
@@ -42,11 +41,12 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 // @Tags KPI
 // @Accept json
 // @Produce json
-// @Param page query int false "Page number"
-// @Param limit query int false "Page size"
-// @Param search query string false "Search keyword"
-// @Param department query string false "Department"
-// @Param is_active query bool false "Is Active"
+// @Param page query int false "Page number (default 1)"
+// @Param limit query int false "Page limit (default 10)"
+// @Param search query string false "ค้นหาด้วย workflow_name"
+// @Param department query string false "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี"
+// @Param sort_by query string false "เรียงตาม created_at updated_at workflow_name (ค่าเริ่มต้น: created_at)"
+// @Param sort_order query string false "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
@@ -54,54 +54,36 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 // @Router /v1/kpi/list [get]
 func (h *KPIHandler) GetKPITemplateList(c *fiber.Ctx) error {
 
-	pageStr := c.Query("page", "1")
-	page, err := strconv.Atoi(pageStr)
-	if err != nil || page < 1 {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Invalid page parameter",
-			MessageTH:  "พารามิเตอร์ page ไม่ถูกต้อง",
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
 			Status:     "error",
+			Data:       nil,
 		})
 	}
 
-	limitStr := c.Query("limit", "10")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit < 1 {
+	var req dto.KPITemplateListQuery
+	if err := c.QueryParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Invalid limit parameter",
-			MessageTH:  "พารามิเตอร์ limit ไม่ถูกต้อง",
+			MessageEN:  "Invalid query parameters",
+			MessageTH:  "พารามิเตอร์ไม่ถูกต้อง",
 			Status:     "error",
-		})
-	}
-	const maxLimit = 100
-	if limit > maxLimit {
-		limit = maxLimit
-	}
-
-	search := strings.TrimSpace(c.Query("search", ""))
-	dept := strings.TrimSpace(c.Query("department", ""))
-
-	isActivePtr, parseErr := parseOptionalBool(c.Query("is_active", ""))
-	if parseErr != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Invalid is_active parameter",
-			MessageTH:  "พารามิเตอร์ is_active ไม่ถูกต้อง",
-			Status:     "error",
+			Data:       nil,
 		})
 	}
 
-	q := dto.KPITemplateListQuery{
-		Page:       page,
-		Limit:      limit,
-		Search:     search,
-		Department: dept,
-		IsActive:   isActivePtr,
+	if req.Limit > 100 || req.Limit <= 0 {
+		req.Limit = 10
+	}
+	if req.Page < 1 {
+		req.Page = 1
 	}
 
-	list, errOnGetList := h.svc.ListKPITemplates(c.Context(), q)
+	list, errOnGetList := h.svc.ListKPITemplates(c.Context(), claims, req.Page, req.Limit, req.Search, req.Department, req.SortBy, req.SortOrder)
 	if errOnGetList != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
@@ -125,7 +107,7 @@ func (h *KPIHandler) GetKPITemplateList(c *fiber.Ctx) error {
 // @Tags KPI
 // @Accept json
 // @Produce json
-// @Param template body dto.KPITemplateDTO true "KPI Template"
+// @Param template body dto.CreateKPITemplateDTO true "KPI Template"
 // @Success 201 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
@@ -143,7 +125,7 @@ func (h *KPIHandler) CreateKPITemplate(c *fiber.Ctx) error {
 		})
 	}
 
-	var template dto.KPITemplateDTO
+	var template dto.CreateKPITemplateDTO
 	if err := c.BodyParser(&template); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
@@ -242,6 +224,15 @@ func (h *KPIHandler) GetKPITemplateByID(c *fiber.Ctx) error {
 			Status:     "error",
 		})
 	}
+	if tpl == nil {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "KPI Template not found",
+			MessageTH:  "ไม่พบแม่แบบ KPI",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
@@ -258,7 +249,7 @@ func (h *KPIHandler) GetKPITemplateByID(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "KPI Template ID"
-// @Param body body dto.KPITemplateDTO true "KPI Template Data"
+// @Param body body dto.UpdateKPITemplateDTO true "KPI Template Data"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
@@ -284,7 +275,7 @@ func (h *KPIHandler) UpdateKPITemplate(c *fiber.Ctx) error {
 		})
 	}
 
-	var body dto.KPITemplateDTO
+	var body dto.UpdateKPITemplateDTO
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
@@ -294,26 +285,26 @@ func (h *KPIHandler) UpdateKPITemplate(c *fiber.Ctx) error {
 		})
 	}
 
-	tpl, err := h.svc.UpdateKPITemplate(c.Context(), id, body, claims)
-	if err != nil {
+	errOnUpdate := h.svc.UpdateKPITemplate(c.Context(), id, body, claims)
+	if errOnUpdate != nil {
 		status := fiber.StatusInternalServerError
-		msgEN := "Failed to update KPI Template: " + err.Error()
+		msgEN := "Failed to update KPI Template: " + errOnUpdate.Error()
 		msgTH := "ไม่สามารถอัปเดตแม่แบบ KPI ได้"
 
 		switch {
-		case err == mongo.ErrNoDocuments:
+		case errOnUpdate == mongo.ErrNoDocuments:
 			status = fiber.StatusNotFound
 			msgEN = "KPI Template not found"
 			msgTH = "ไม่พบแม่แบบ KPI"
-		case err.Error() == "items must not be empty":
+		case errOnUpdate.Error() == "items must not be empty":
 			status = fiber.StatusBadRequest
 			msgEN = "Failed to update KPI Template: items must not be empty"
 			msgTH = "ไม่สามารถอัปเดตแม่แบบ KPI ได้: ต้องมีรายการอย่างน้อยหนึ่งรายการ"
-		case err.Error() == "sum of weights must be 100":
+		case errOnUpdate.Error() == "sum of weights must be 100":
 			status = fiber.StatusBadRequest
 			msgEN = "Failed to update KPI Template: sum of weights must be 100"
 			msgTH = "ไม่สามารถอัปเดตแม่แบบ KPI ได้: ผลรวมน้ำหนักต้องเท่ากับ 100"
-		case err.Error() == "template with the same name already exists in this department":
+		case errOnUpdate.Error() == "template with the same name already exists in this department":
 			status = fiber.StatusBadRequest
 			msgEN = "Failed to update KPI Template: duplicate name in department"
 			msgTH = "ไม่สามารถอัปเดตแม่แบบ KPI ได้: มีชื่อซ้ำในแผนก"
@@ -332,7 +323,7 @@ func (h *KPIHandler) UpdateKPITemplate(c *fiber.Ctx) error {
 		MessageEN:  "KPI Template updated successfully",
 		MessageTH:  "อัปเดตแม่แบบ KPI สำเร็จ",
 		Status:     "success",
-		Data:       tpl,
+		Data:       nil,
 	})
 }
 
@@ -410,17 +401,4 @@ func (h *KPIHandler) GetKPIStatistics(c *fiber.Ctx) error {
 		MessageTH:  "ยังไม่ถูกพัฒนา",
 		Status:     "error",
 	})
-}
-
-func parseOptionalBool(value string) (*bool, error) {
-	if value == "" {
-		return nil, nil
-	}
-
-	v, err := strconv.ParseBool(value)
-	if err != nil {
-		return nil, err
-	}
-
-	return &v, nil
 }

@@ -133,6 +133,40 @@ definitions:
         example: 200
         type: integer
     type: object
+  dto.CreateKPITemplateDTO:
+    properties:
+      department:
+        description: แผนก
+        type: string
+      items:
+        description: รายการ KPI
+        items:
+          $ref: '#/definitions/dto.CreateKPITemplateItemDTO'
+        type: array
+      kpi_name:
+        type: string
+      total_weight:
+        description: น้ำหนักรวม (ต้อง = 100)
+        type: integer
+    type: object
+  dto.CreateKPITemplateItemDTO:
+    properties:
+      category:
+        description: หมวดหมู่
+        type: string
+      description:
+        description: คำอธิบาย
+        type: string
+      max_score:
+        description: คะแนนเต็ม
+        type: integer
+      name:
+        description: ชื่อ KPI
+        type: string
+      weight:
+        description: น้ำหนัก %
+        type: integer
+    type: object
   dto.CreateProjectDTO:
     properties:
       project_name:
@@ -290,44 +324,6 @@ definitions:
       user_id:
         description: รหัสผู้ใช้ที่เกี่ยวข้อง
         type: string
-    type: object
-  dto.KPITemplateDTO:
-    properties:
-      department:
-        description: แผนก
-        type: string
-      items:
-        description: รายการ KPI
-        items:
-          $ref: '#/definitions/dto.KPITemplateItemDTO'
-        type: array
-      name:
-        description: ชื่อ Template
-        type: string
-      total_weight:
-        description: น้ำหนักรวม (ต้อง = 100)
-        type: integer
-      version:
-        description: เวอร์ชันของ Template
-        type: integer
-    type: object
-  dto.KPITemplateItemDTO:
-    properties:
-      category:
-        description: หมวดหมู่
-        type: string
-      description:
-        description: คำอธิบาย
-        type: string
-      max_score:
-        description: คะแนนเต็ม
-        type: integer
-      name:
-        description: ชื่อ KPI
-        type: string
-      weight:
-        description: น้ำหนัก %
-        type: integer
     type: object
   dto.Pagination:
     properties:
@@ -682,6 +678,22 @@ definitions:
       width:
         description: ความกว้าง (ซม.)
         type: number
+    type: object
+  dto.UpdateKPITemplateDTO:
+    properties:
+      department:
+        description: แผนก
+        type: string
+      items:
+        description: รายการ KPI
+        items:
+          $ref: '#/definitions/dto.CreateKPITemplateItemDTO'
+        type: array
+      kpi_name:
+        type: string
+      total_weight:
+        description: น้ำหนักรวม (ต้อง = 100)
+        type: integer
     type: object
   dto.UpdateProjectDTO:
     properties:
@@ -1364,7 +1376,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.KPITemplateDTO'
+          $ref: '#/definitions/dto.UpdateKPITemplateDTO'
       produces:
       - application/json
       responses:
@@ -1398,7 +1410,7 @@ paths:
         name: template
         required: true
         schema:
-          $ref: '#/definitions/dto.KPITemplateDTO'
+          $ref: '#/definitions/dto.CreateKPITemplateDTO'
       produces:
       - application/json
       responses:
@@ -1427,26 +1439,31 @@ paths:
       - application/json
       description: Get a list of KPI Templates
       parameters:
-      - description: Page number
+      - description: Page number (default 1)
         in: query
         name: page
         type: integer
-      - description: Page size
+      - description: Page limit (default 10)
         in: query
         name: limit
         type: integer
-      - description: Search keyword
+      - description: ค้นหาด้วย workflow_name
         in: query
         name: search
         type: string
-      - description: Department
+      - description: 'Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003:
+          แผนกติดตั้ง, DPT004: แผนกบัญชี'
         in: query
         name: department
         type: string
-      - description: Is Active
+      - description: 'เรียงตาม created_at updated_at workflow_name (ค่าเริ่มต้น: created_at)'
         in: query
-        name: is_active
-        type: boolean
+        name: sort_by
+        type: string
+      - description: เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))
+        in: query
+        name: sort_order
+        type: string
       produces:
       - application/json
       responses:

@@ -769,7 +769,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.KPITemplateDTO"
+                            "$ref": "#/definitions/dto.CreateKPITemplateDTO"
                         }
                     }
                 ],
@@ -817,32 +817,38 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "integer",
-                        "description": "Page number",
+                        "description": "Page number (default 1)",
                         "name": "page",
                         "in": "query"
                     },
                     {
                         "type": "integer",
-                        "description": "Page size",
+                        "description": "Page limit (default 10)",
                         "name": "limit",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Search keyword",
+                        "description": "ค้นหาด้วย workflow_name",
                         "name": "search",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "description": "Department",
+                        "description": "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี",
                         "name": "department",
                         "in": "query"
                     },
                     {
-                        "type": "boolean",
-                        "description": "Is Active",
-                        "name": "is_active",
+                        "type": "string",
+                        "description": "เรียงตาม created_at updated_at workflow_name (ค่าเริ่มต้น: created_at)",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))",
+                        "name": "sort_order",
                         "in": "query"
                     }
                 ],
@@ -949,7 +955,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.KPITemplateDTO"
+                            "$ref": "#/definitions/dto.UpdateKPITemplateDTO"
                         }
                     }
                 ],
@@ -2730,6 +2736,54 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateKPITemplateDTO": {
+            "type": "object",
+            "properties": {
+                "department": {
+                    "description": "แผนก",
+                    "type": "string"
+                },
+                "items": {
+                    "description": "รายการ KPI",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CreateKPITemplateItemDTO"
+                    }
+                },
+                "kpi_name": {
+                    "type": "string"
+                },
+                "total_weight": {
+                    "description": "น้ำหนักรวม (ต้อง = 100)",
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.CreateKPITemplateItemDTO": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "description": "หมวดหมู่",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "คำอธิบาย",
+                    "type": "string"
+                },
+                "max_score": {
+                    "description": "คะแนนเต็ม",
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "ชื่อ KPI",
+                    "type": "string"
+                },
+                "weight": {
+                    "description": "น้ำหนัก %",
+                    "type": "integer"
+                }
+            }
+        },
         "dto.CreateProjectDTO": {
             "type": "object",
             "properties": {
@@ -2945,59 +2999,6 @@ const docTemplate = `{
                 "user_id": {
                     "description": "รหัสผู้ใช้ที่เกี่ยวข้อง",
                     "type": "string"
-                }
-            }
-        },
-        "dto.KPITemplateDTO": {
-            "type": "object",
-            "properties": {
-                "department": {
-                    "description": "แผนก",
-                    "type": "string"
-                },
-                "items": {
-                    "description": "รายการ KPI",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.KPITemplateItemDTO"
-                    }
-                },
-                "name": {
-                    "description": "ชื่อ Template",
-                    "type": "string"
-                },
-                "total_weight": {
-                    "description": "น้ำหนักรวม (ต้อง = 100)",
-                    "type": "integer"
-                },
-                "version": {
-                    "description": "เวอร์ชันของ Template",
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.KPITemplateItemDTO": {
-            "type": "object",
-            "properties": {
-                "category": {
-                    "description": "หมวดหมู่",
-                    "type": "string"
-                },
-                "description": {
-                    "description": "คำอธิบาย",
-                    "type": "string"
-                },
-                "max_score": {
-                    "description": "คะแนนเต็ม",
-                    "type": "integer"
-                },
-                "name": {
-                    "description": "ชื่อ KPI",
-                    "type": "string"
-                },
-                "weight": {
-                    "description": "น้ำหนัก %",
-                    "type": "integer"
                 }
             }
         },
@@ -3497,6 +3498,29 @@ const docTemplate = `{
                 "width": {
                     "description": "ความกว้าง (ซม.)",
                     "type": "number"
+                }
+            }
+        },
+        "dto.UpdateKPITemplateDTO": {
+            "type": "object",
+            "properties": {
+                "department": {
+                    "description": "แผนก",
+                    "type": "string"
+                },
+                "items": {
+                    "description": "รายการ KPI",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CreateKPITemplateItemDTO"
+                    }
+                },
+                "kpi_name": {
+                    "type": "string"
+                },
+                "total_weight": {
+                    "description": "น้ำหนักรวม (ต้อง = 100)",
+                    "type": "integer"
                 }
             }
         },

@@ -99,6 +99,16 @@ func (h *WorkFlowHandler) GetWorkflowByID(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
+
+	if out == nil {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "Workflow not found",
+			MessageTH:  "ไม่พบ Workflow",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "OK",
