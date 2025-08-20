@@ -361,6 +361,298 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/department/create": {
+            "post": {
+                "description": "Create a new department",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Departments"
+                ],
+                "summary": "Create a new department",
+                "parameters": [
+                    {
+                        "description": "Department data",
+                        "name": "department",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateDepartmentDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/department/list": {
+            "get": {
+                "description": "Get a list of departments",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Departments"
+                ],
+                "summary": "Get a list of departments",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ค้นหา department_name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เรียงตาม created_at updated_at department_name",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))",
+                        "name": "sort_order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.Pagination"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/department/{id}": {
+            "get": {
+                "description": "Get a department by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Departments"
+                ],
+                "summary": "Get a department by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.DepartmentDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing department",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Departments"
+                ],
+                "summary": "Update an existing department",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Department data",
+                        "name": "department",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateDepartmentDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a department",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Departments"
+                ],
+                "summary": "Delete a department",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dropdown/customer-type": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลประเภทลูกค้าทั้งหมด",
@@ -3066,6 +3358,19 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateDepartmentDTO": {
+            "type": "object",
+            "properties": {
+                "department_name": {
+                    "description": "ชื่อแผนก",
+                    "type": "string"
+                },
+                "manager_id": {
+                    "description": "รหัสผู้จัดการแผนก (FK ไปยัง User)",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateKPITemplateDTO": {
             "type": "object",
             "properties": {
@@ -3303,6 +3608,31 @@ const docTemplate = `{
                 },
                 "workflow_name": {
                     "description": "ชื่อ Template",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.DepartmentDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "วันที่สร้าง",
+                    "type": "string"
+                },
+                "department_id": {
+                    "description": "รหัสแผนก",
+                    "type": "string"
+                },
+                "department_name": {
+                    "description": "ชื่อแผนก",
+                    "type": "string"
+                },
+                "manager_id": {
+                    "description": "รหัสผู้จัดการแผนก (FK ไปยัง User)",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "วันที่อัปเดต",
                     "type": "string"
                 }
             }
@@ -3973,6 +4303,19 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "step_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateDepartmentDTO": {
+            "type": "object",
+            "properties": {
+                "department_name": {
+                    "description": "ชื่อแผนก",
+                    "type": "string"
+                },
+                "manager_id": {
+                    "description": "รหัสผู้จัดการแผนก (FK ไปยัง User)",
                     "type": "string"
                 }
             }

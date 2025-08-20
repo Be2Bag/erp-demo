@@ -133,6 +133,15 @@ definitions:
         example: 200
         type: integer
     type: object
+  dto.CreateDepartmentDTO:
+    properties:
+      department_name:
+        description: ชื่อแผนก
+        type: string
+      manager_id:
+        description: รหัสผู้จัดการแผนก (FK ไปยัง User)
+        type: string
+    type: object
   dto.CreateKPITemplateDTO:
     properties:
       department:
@@ -302,6 +311,24 @@ definitions:
         type: array
       workflow_name:
         description: ชื่อ Template
+        type: string
+    type: object
+  dto.DepartmentDTO:
+    properties:
+      created_at:
+        description: วันที่สร้าง
+        type: string
+      department_id:
+        description: รหัสแผนก
+        type: string
+      department_name:
+        description: ชื่อแผนก
+        type: string
+      manager_id:
+        description: รหัสผู้จัดการแผนก (FK ไปยัง User)
+        type: string
+      updated_at:
+        description: วันที่อัปเดต
         type: string
     type: object
   dto.Document:
@@ -779,6 +806,15 @@ definitions:
       step_name:
         type: string
     type: object
+  dto.UpdateDepartmentDTO:
+    properties:
+      department_name:
+        description: ชื่อแผนก
+        type: string
+      manager_id:
+        description: รหัสผู้จัดการแผนก (FK ไปยัง User)
+        type: string
+    type: object
   dto.UpdateKPITemplateDTO:
     properties:
       department:
@@ -1221,6 +1257,193 @@ paths:
       summary: Get user sessions
       tags:
       - Auth
+  /v1/department/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a department
+      parameters:
+      - description: Department ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete a department
+      tags:
+      - Departments
+    get:
+      consumes:
+      - application/json
+      description: Get a department by ID
+      parameters:
+      - description: Department ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.DepartmentDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a department by ID
+      tags:
+      - Departments
+    put:
+      consumes:
+      - application/json
+      description: Update an existing department
+      parameters:
+      - description: Department ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Department data
+        in: body
+        name: department
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateDepartmentDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update an existing department
+      tags:
+      - Departments
+  /v1/department/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new department
+      parameters:
+      - description: Department data
+        in: body
+        name: department
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateDepartmentDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new department
+      tags:
+      - Departments
+  /v1/department/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of departments
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: limit
+        type: integer
+      - description: ค้นหา department_name
+        in: query
+        name: search
+        type: string
+      - description: เรียงตาม created_at updated_at department_name
+        in: query
+        name: sort_by
+        type: string
+      - description: เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.Pagination'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a list of departments
+      tags:
+      - Departments
   /v1/dropdown/customer-type:
     get:
       consumes:
