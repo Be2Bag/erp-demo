@@ -72,7 +72,7 @@ func main() {
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
-	adminHdl := handlers.NewAdminHandler(adminSvc)
+	adminHdl := handlers.NewAdminHandler(adminSvc, authCookieMiddleware)
 	dropDownHdl := handlers.NewDropDownHandler(dropDownSvc)
 	authHdl := handlers.NewAuthHandler(authSvc)
 	kpiHdl := handlers.NewKPIHandler(kpiSvc, authCookieMiddleware)

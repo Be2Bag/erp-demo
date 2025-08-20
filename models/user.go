@@ -34,6 +34,7 @@ type User struct {
 	CreatedAt         time.Time           `bson:"created_at" json:"created_at"` // วันที่สร้างข้อมูลนี้
 	UpdatedAt         time.Time           `bson:"updated_at" json:"updated_at"` // วันที่แก้ไขข้อมูลล่าสุด
 	DeletedAt         *time.Time          `bson:"deleted_at" json:"deleted_at"` // วันที่ลบข้อมูล (soft delete)
+	Note              *string             `bson:"note" json:"note"`
 }
 
 const (

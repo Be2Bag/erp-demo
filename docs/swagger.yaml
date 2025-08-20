@@ -519,6 +519,43 @@ definitions:
         description: คำนำหน้าชื่อ (ภาษาไทย)
         type: string
     type: object
+  dto.RequestUpdateUserPosition:
+    properties:
+      department_id:
+        example: 50f7a957-8c2c-4a76-88ed-7c247471f28f
+        type: string
+      note:
+        example: ทดสอบปรับตำแหน่ง
+        type: string
+      position_id:
+        example: 50f7a957-8c2c-4a76-88ed-7c247471f28f
+        type: string
+      user_id:
+        example: 50f7a957-8c2c-4a76-88ed-7c247471f28f
+        type: string
+    required:
+    - department_id
+    - position_id
+    - user_id
+    type: object
+  dto.RequestUpdateUserRole:
+    properties:
+      note:
+        example: ทดสอบปรับบทบาท
+        type: string
+      role:
+        enum:
+        - admin
+        - user
+        example: admin
+        type: string
+      user_id:
+        example: 50f7a957-8c2c-4a76-88ed-7c247471f28f
+        type: string
+    required:
+    - role
+    - user_id
+    type: object
   dto.RequestUpdateUserStatus:
     properties:
       status:
@@ -526,7 +563,6 @@ definitions:
         - pending
         - approved
         - rejected
-        - cancelled
         example: approved
         type: string
       user_id:
@@ -958,6 +994,66 @@ info:
   title: ERP Demo API
   version: "1.0"
 paths:
+  /v1/admin/update-position-user:
+    put:
+      consumes:
+      - application/json
+      description: สำหรับจัดการอัปเดตตำแหน่งผู้ใช้
+      parameters:
+      - description: Request Update User Position
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestUpdateUserPosition'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update User Position
+      tags:
+      - Admin
+  /v1/admin/update-role-user:
+    put:
+      consumes:
+      - application/json
+      description: สำหรับจัดการอัปเดตบทบาทผู้ใช้
+      parameters:
+      - description: Request Update User Role
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestUpdateUserRole'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update User Role
+      tags:
+      - Admin
   /v1/admin/update-status-user:
     put:
       consumes:

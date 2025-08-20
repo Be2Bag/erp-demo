@@ -9,6 +9,98 @@
     "host": "api.rkp-media.com",
     "basePath": "/service/api",
     "paths": {
+        "/v1/admin/update-position-user": {
+            "put": {
+                "description": "สำหรับจัดการอัปเดตตำแหน่งผู้ใช้",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update User Position",
+                "parameters": [
+                    {
+                        "description": "Request Update User Position",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestUpdateUserPosition"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/admin/update-role-user": {
+            "put": {
+                "description": "สำหรับจัดการอัปเดตบทบาทผู้ใช้",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Admin"
+                ],
+                "summary": "Update User Role",
+                "parameters": [
+                    {
+                        "description": "Request Update User Role",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestUpdateUserRole"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/admin/update-status-user": {
             "put": {
                 "description": "สำหรับจัดการอนุมัติผู้ใช้ pending approved rejected",
@@ -3517,6 +3609,57 @@
                 }
             }
         },
+        "dto.RequestUpdateUserPosition": {
+            "type": "object",
+            "required": [
+                "department_id",
+                "position_id",
+                "user_id"
+            ],
+            "properties": {
+                "department_id": {
+                    "type": "string",
+                    "example": "50f7a957-8c2c-4a76-88ed-7c247471f28f"
+                },
+                "note": {
+                    "type": "string",
+                    "example": "ทดสอบปรับตำแหน่ง"
+                },
+                "position_id": {
+                    "type": "string",
+                    "example": "50f7a957-8c2c-4a76-88ed-7c247471f28f"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "50f7a957-8c2c-4a76-88ed-7c247471f28f"
+                }
+            }
+        },
+        "dto.RequestUpdateUserRole": {
+            "type": "object",
+            "required": [
+                "role",
+                "user_id"
+            ],
+            "properties": {
+                "note": {
+                    "type": "string",
+                    "example": "ทดสอบปรับบทบาท"
+                },
+                "role": {
+                    "type": "string",
+                    "enum": [
+                        "admin",
+                        "user"
+                    ],
+                    "example": "admin"
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "50f7a957-8c2c-4a76-88ed-7c247471f28f"
+                }
+            }
+        },
         "dto.RequestUpdateUserStatus": {
             "type": "object",
             "required": [
@@ -3529,8 +3672,7 @@
                     "enum": [
                         "pending",
                         "approved",
-                        "rejected",
-                        "cancelled"
+                        "rejected"
                     ],
                     "example": "approved"
                 },

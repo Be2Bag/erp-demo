@@ -53,3 +53,51 @@ func (s *adminService) UpdateUserStatus(ctx context.Context, req dto.RequestUpda
 
 	return nil
 }
+
+func (s *adminService) UpdateUserRole(ctx context.Context, req dto.RequestUpdateUserRole) error {
+
+	filter := bson.M{"user_id": req.UserID, "deleted_at": nil}
+	projection := bson.M{}
+
+	users, errOnGetUser := s.userRepo.GetUserByFilter(ctx, filter, projection)
+	if errOnGetUser != nil {
+		return errOnGetUser
+	}
+
+	if len(users) == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	update := bson.M{"$set": bson.M{"role": req.Role, "note": req.Note, "updated_at": time.Now()}}
+
+	_, errOnUpdateRole := s.userRepo.UpdateUserByFilter(ctx, filter, update)
+	if errOnUpdateRole != nil {
+		return errOnUpdateRole
+	}
+
+	return nil
+}
+
+func (s *adminService) UpdateUserPosition(ctx context.Context, req dto.RequestUpdateUserPosition) error {
+
+	filter := bson.M{"user_id": req.UserID, "deleted_at": nil}
+	projection := bson.M{}
+
+	users, errOnGetUser := s.userRepo.GetUserByFilter(ctx, filter, projection)
+	if errOnGetUser != nil {
+		return errOnGetUser
+	}
+
+	if len(users) == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	update := bson.M{"$set": bson.M{"department_id": req.DepartmentID, "position_id": req.PositionID, "note": req.Note, "updated_at": time.Now()}}
+
+	_, errOnUpdatePosition := s.userRepo.UpdateUserByFilter(ctx, filter, update)
+	if errOnUpdatePosition != nil {
+		return errOnUpdatePosition
+	}
+
+	return nil
+}
