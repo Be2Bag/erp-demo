@@ -3,7 +3,7 @@ package main
 // @title        ERP Demo API
 // @version      1.0
 // @description  This is an ERP API demo.
-// @host         api.rkp-media.com
+// @host        api.rkp-media.com
 // @BasePath     /service/api
 
 import (
@@ -64,7 +64,7 @@ func main() {
 	adminSvc := services.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	dropDownSvc := services.NewDropDownService(*cfg, dropDownRepo)
 	kpiSvc := services.NewKPIService(*cfg, kpiRepo, userRepo)
-	taskSvc := services.NewTaskService(*cfg, taskRepo, userRepo)
+	taskSvc := services.NewTaskService(*cfg, taskRepo, userRepo, workFlowRepo)
 	authSvc := services.NewAuthService(*cfg, authRepo, userRepo)
 	workFlowSvc := services.NewWorkflowService(*cfg, workFlowRepo)
 	signJobSvc := services.NewSignJobService(*cfg, signJobRepo)

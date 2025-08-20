@@ -10,6 +10,7 @@ type Tasks struct {
 	TaskID      string `bson:"task_id" json:"task_id"`           // รหัสงาน (UUID/unique)
 	ProjectID   string `bson:"project_id" json:"project_id"`     // รหัสโปรเจกต์
 	ProjectName string `bson:"project_name" json:"project_name"` // ชื่อโปรเจกต์
+	JobID       string `bson:"job_id" json:"job_id"`             // รหัสงาน
 	JobName     string `bson:"job_name" json:"job_name"`         // ชื่องาน
 	Description string `bson:"description" json:"description"`   // รายละเอียดงาน
 

@@ -35,7 +35,7 @@ func (s *workflowService) CreateWorkflowTemplate(ctx context.Context, req dto.Cr
 		return errors.New("steps are required")
 	}
 
-	now := time.Now().UTC()
+	now := time.Now()
 	steps := make([]models.WorkFlowStep, 0, len(req.Steps))
 	var total float64
 	for _, st := range req.Steps {

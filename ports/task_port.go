@@ -9,10 +9,10 @@ import (
 )
 
 type TaskService interface {
-	GetTasks(ctx context.Context, filter interface{}) ([]interface{}, error)
+	GetListTasks(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error)
 	CreateTask(ctx context.Context, createTask dto.CreateTaskRequest, claims *dto.JWTClaims) error
-	GetTaskByID(ctx context.Context, id string) (interface{}, error)
-	UpdateTask(ctx context.Context, id string, updatedTask interface{}) error
+	GetTaskByID(ctx context.Context, taskID string) (*dto.TaskDTO, error)
+	UpdateTask(ctx context.Context, taskID string, req dto.UpdateTaskRequest, updatedBy string) error
 	DeleteTask(ctx context.Context, id string) error
 	UpdateTaskWorkflow(ctx context.Context, id string, workflowStep interface{}) error
 	GetTaskStatistics(ctx context.Context, filter interface{}) (map[string]interface{}, error)

@@ -241,6 +241,37 @@ definitions:
         description: ความกว้าง (ซม.)
         type: number
     type: object
+  dto.CreateTaskRequest:
+    properties:
+      assignee:
+        type: string
+      department:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      extra_steps:
+        items:
+          $ref: '#/definitions/dto.ExtraStepRequest'
+        type: array
+      importance:
+        type: string
+      job_id:
+        type: string
+      job_name:
+        type: string
+      kpi_id:
+        type: string
+      project_id:
+        type: string
+      project_name:
+        type: string
+      start_date:
+        type: string
+      workflow_id:
+        type: string
+    type: object
   dto.CreateWorkflowStepDTO:
     properties:
       description:
@@ -323,6 +354,15 @@ definitions:
         type: string
       user_id:
         description: รหัสผู้ใช้ที่เกี่ยวข้อง
+        type: string
+    type: object
+  dto.ExtraStepRequest:
+    properties:
+      description:
+        type: string
+      hours:
+        type: number
+      step_name:
         type: string
     type: object
   dto.Pagination:
@@ -679,6 +719,30 @@ definitions:
         description: ความกว้าง (ซม.)
         type: number
     type: object
+  dto.TaskStepPatch:
+    properties:
+      completed_at:
+        type: string
+      description:
+        type: string
+      hours:
+        type: number
+      notes:
+        type: string
+      order:
+        type: integer
+      started_at:
+        description: หรือใช้สตริง ISO8601 ก็ได้
+        type: string
+      status:
+        description: todo|in_progress|blocked|done
+        type: string
+      step_id:
+        description: target
+        type: string
+      step_name:
+        type: string
+    type: object
   dto.UpdateKPITemplateDTO:
     properties:
       department:
@@ -771,6 +835,61 @@ definitions:
       width:
         description: ความกว้าง (ซม.)
         type: number
+    type: object
+  dto.UpdateTaskRequest:
+    properties:
+      assignee:
+        type: string
+      delete_step_ids:
+        description: 3) ลบสเต็ปตาม id
+        items:
+          type: string
+        type: array
+      department:
+        type: string
+      description:
+        type: string
+      end_date:
+        description: '"YYYY-MM-DD"'
+        type: string
+      importance:
+        description: low|medium|high
+        type: string
+      job_id:
+        type: string
+      job_name:
+        type: string
+      kpi_id:
+        type: string
+      new_steps:
+        description: |-
+          การจัดการ Steps
+          1) เพิ่มสเต็ปใหม่ (append ต่อท้าย หรือถ้าจะ replace ทั้งชุดให้ดู ReplaceSteps)
+        items:
+          $ref: '#/definitions/dto.ExtraStepRequest'
+        type: array
+      project_id:
+        description: ฟิลด์ระดับงาน (อัปเดตเฉพาะที่ส่งมา)
+        type: string
+      project_name:
+        type: string
+      replace_steps:
+        description: 4) รีเพลสทั้งชุด (ถ้า true จะทับ steps เดิมด้วย NewSteps)
+        type: boolean
+      start_date:
+        description: '"YYYY-MM-DD"'
+        type: string
+      status:
+        description: todo|in_progress|blocked|done
+        type: string
+      step_patches:
+        description: 2) แก้ไขสเต็ปเดิมเป็นรายตัว (ระบุ step_id)
+        items:
+          $ref: '#/definitions/dto.TaskStepPatch'
+        type: array
+      workflow_id:
+        description: ถ้าเปลี่ยน workflow ควรรีเพลส steps
+        type: string
     type: object
   dto.UpdateWorkflowTemplateDTO:
     properties:
@@ -1893,6 +2012,165 @@ paths:
       summary: List Sign Jobs
       tags:
       - SignJob
+  /v1/tasks/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a task by ID
+      tags:
+      - Tasks
+    put:
+      consumes:
+      - application/json
+      description: Update a task
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Task Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update a task
+      tags:
+      - Tasks
+  /v1/tasks/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new task
+      parameters:
+      - description: Create Task Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new task
+      tags:
+      - Tasks
+  /v1/tasks/list:
+    get:
+      consumes:
+      - application/json
+      description: Get list of tasks with pagination and filtering
+      parameters:
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Page limit (default 10)
+        in: query
+        name: limit
+        type: integer
+      - description: ค้นหาด้วย project_name หรือ job_name
+        in: query
+        name: search
+        type: string
+      - description: 'Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003:
+          แผนกติดตั้ง, DPT004: แผนกบัญชี'
+        in: query
+        name: department
+        type: string
+      - description: 'เรียงตาม created_at updated_at project_name job_name  (ค่าเริ่มต้น:
+          created_at)'
+        in: query
+        name: sort_by
+        type: string
+      - description: เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get list of tasks
+      tags:
+      - Tasks
   /v1/upload/download:
     post:
       consumes:

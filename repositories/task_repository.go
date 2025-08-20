@@ -28,19 +28,21 @@ func (r *taskRepo) CreateTask(ctx context.Context, task models.Tasks) error {
 func (r *taskRepo) UpdateTaskByID(ctx context.Context, taskID string, update models.Tasks) (*models.Tasks, error) {
 	filter := bson.M{"task_id": taskID}
 	set := bson.M{
-		"project_id":   update.ProjectID,
-		"project_name": update.ProjectName,
-		"job_name":     update.JobName,
-		"description":  update.Description,
-		"department":   update.Department,
-		"assignee":     update.Assignee,
-		"importance":   update.Importance,
-		"start_date":   update.StartDate,
-		"end_date":     update.EndDate,
-		"kpi_id":       update.KPIID,
-		"workflow_id":  update.WorkFlowID,
-		"status":       update.Status,
-		"updated_at":   time.Now(),
+		"project_id":       update.ProjectID,
+		"project_name":     update.ProjectName,
+		"job_id":           update.JobID,
+		"job_name":         update.JobName,
+		"description":      update.Description,
+		"department":       update.Department,
+		"assignee":         update.Assignee,
+		"importance":       update.Importance,
+		"start_date":       update.StartDate,
+		"end_date":         update.EndDate,
+		"kpi_id":           update.KPIID,
+		"workflow_id":      update.WorkFlowID,
+		"applied_workflow": update.AppliedWorkflow,
+		"status":           update.Status,
+		"updated_at":       time.Now(),
 	}
 
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
