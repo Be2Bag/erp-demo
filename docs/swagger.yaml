@@ -176,6 +176,18 @@ definitions:
         description: น้ำหนัก %
         type: integer
     type: object
+  dto.CreatePositionDTO:
+    properties:
+      department_id:
+        description: รหัสแผนก (FK ไปยัง Department)
+        type: string
+      level:
+        description: ระดับของตำแหน่งงาน
+        type: string
+      position_name:
+        description: ชื่อตำแหน่งงาน
+        type: string
+    type: object
   dto.CreateProjectDTO:
     properties:
       project_name:
@@ -409,6 +421,27 @@ definitions:
       total_pages:
         example: 10
         type: integer
+    type: object
+  dto.PositionDTO:
+    properties:
+      created_at:
+        description: วันที่สร้าง
+        type: string
+      department_id:
+        description: รหัสแผนก (FK ไปยัง Department)
+        type: string
+      level:
+        description: ระดับของตำแหน่งงาน
+        type: string
+      position_id:
+        description: รหัสตำแหน่งงาน (ไม่ซ้ำกัน)
+        type: string
+      position_name:
+        description: ชื่อตำแหน่งงาน
+        type: string
+      updated_at:
+        description: วันที่อัปเดต
+        type: string
     type: object
   dto.ProjectDTO:
     properties:
@@ -830,6 +863,18 @@ definitions:
       total_weight:
         description: น้ำหนักรวม (ต้อง = 100)
         type: integer
+    type: object
+  dto.UpdatePositionDTO:
+    properties:
+      department_id:
+        description: รหัสแผนก (FK ไปยัง Department)
+        type: string
+      level:
+        description: ระดับของตำแหน่งงาน
+        type: string
+      position_name:
+        description: ชื่อตำแหน่งงาน
+        type: string
     type: object
   dto.UpdateProjectDTO:
     properties:
@@ -1924,6 +1969,194 @@ paths:
       summary: Get KPI Templates
       tags:
       - KPI
+  /v1/position/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a position by ID
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete a position by ID
+      tags:
+      - Positions
+    get:
+      consumes:
+      - application/json
+      description: Get a position by ID
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.PositionDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a position by ID
+      tags:
+      - Positions
+    put:
+      consumes:
+      - application/json
+      description: Update an existing position
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Position data
+        in: body
+        name: position
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePositionDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update an existing position
+      tags:
+      - Positions
+  /v1/position/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new position
+      parameters:
+      - description: Position data
+        in: body
+        name: position
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePositionDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new position
+      tags:
+      - Positions
+  /v1/position/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of positions
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: limit
+        type: integer
+      - description: ค้นหา position_name
+        in: query
+        name: search
+        type: string
+      - description: เรียงตาม created_at updated_at department_name position_name
+          level
+        in: query
+        name: sort_by
+        type: string
+      - description: เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.Pagination'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a list of positions
+      tags:
+      - Positions
   /v1/project/{id}:
     delete:
       consumes:

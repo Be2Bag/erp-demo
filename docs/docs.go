@@ -1419,6 +1419,298 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/position/create": {
+            "post": {
+                "description": "Create a new position",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Positions"
+                ],
+                "summary": "Create a new position",
+                "parameters": [
+                    {
+                        "description": "Position data",
+                        "name": "position",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePositionDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/position/list": {
+            "get": {
+                "description": "Get a list of positions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Positions"
+                ],
+                "summary": "Get a list of positions",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page size",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ค้นหา position_name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เรียงตาม created_at updated_at department_name position_name level",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))",
+                        "name": "sort_order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.Pagination"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/position/{id}": {
+            "get": {
+                "description": "Get a position by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Positions"
+                ],
+                "summary": "Get a position by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Position ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.PositionDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing position",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Positions"
+                ],
+                "summary": "Update an existing position",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Position ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Position data",
+                        "name": "position",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePositionDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a position by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Positions"
+                ],
+                "summary": "Delete a position by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Position ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/project/create": {
             "post": {
                 "description": "Create a new project",
@@ -3419,6 +3711,23 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreatePositionDTO": {
+            "type": "object",
+            "properties": {
+                "department_id": {
+                    "description": "รหัสแผนก (FK ไปยัง Department)",
+                    "type": "string"
+                },
+                "level": {
+                    "description": "ระดับของตำแหน่งงาน",
+                    "type": "string"
+                },
+                "position_name": {
+                    "description": "ชื่อตำแหน่งงาน",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateProjectDTO": {
             "type": "object",
             "properties": {
@@ -3745,6 +4054,35 @@ const docTemplate = `{
                 "total_pages": {
                     "type": "integer",
                     "example": 10
+                }
+            }
+        },
+        "dto.PositionDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "วันที่สร้าง",
+                    "type": "string"
+                },
+                "department_id": {
+                    "description": "รหัสแผนก (FK ไปยัง Department)",
+                    "type": "string"
+                },
+                "level": {
+                    "description": "ระดับของตำแหน่งงาน",
+                    "type": "string"
+                },
+                "position_id": {
+                    "description": "รหัสตำแหน่งงาน (ไม่ซ้ำกัน)",
+                    "type": "string"
+                },
+                "position_name": {
+                    "description": "ชื่อตำแหน่งงาน",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "วันที่อัปเดต",
+                    "type": "string"
                 }
             }
         },
@@ -4340,6 +4678,23 @@ const docTemplate = `{
                 "total_weight": {
                     "description": "น้ำหนักรวม (ต้อง = 100)",
                     "type": "integer"
+                }
+            }
+        },
+        "dto.UpdatePositionDTO": {
+            "type": "object",
+            "properties": {
+                "department_id": {
+                    "description": "รหัสแผนก (FK ไปยัง Department)",
+                    "type": "string"
+                },
+                "level": {
+                    "description": "ระดับของตำแหน่งงาน",
+                    "type": "string"
+                },
+                "position_name": {
+                    "description": "ชื่อตำแหน่งงาน",
+                    "type": "string"
                 }
             }
         },

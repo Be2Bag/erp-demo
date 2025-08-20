@@ -75,6 +75,7 @@ func (r *departmentRepo) UpdateDepartmentByID(ctx context.Context, departmentID 
 	filter := bson.M{"department_id": departmentID}
 	set := bson.M{
 		"department_name": update.DepartmentName,
+		"manager_id":      update.ManagerID,
 		"updated_at":      update.UpdatedAt,
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
