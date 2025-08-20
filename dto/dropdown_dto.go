@@ -49,3 +49,11 @@ type ResponseGetProjects struct {
 	ProjectID   string `json:"project_id"`   // รหัสโครงการ (ไม่ซ้ำกัน)
 	ProjectName string `json:"project_name"` // ชื่อโครงการ
 }
+
+type ResponseGetUsers struct {
+	UserID      string `json:"user_id"`       // รหัสผู้ใช้ (ไม่ซ้ำกัน)
+	TitleTH     string `json:"title_th"`      // คำนำหน้าชื่อ (ภาษาไทย)
+	FirstNameTH string `json:"first_name_th"` // ชื่อจริง (ภาษาไทย)
+	LastNameTH  string `json:"last_name_th"`  // นามสกุล (ภาษาไทย)
+	FullNameTH  string `json:"full_name_th"`  // ชื่อเต็ม (ภาษาไทย)
+}

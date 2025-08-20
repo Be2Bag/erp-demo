@@ -21,9 +21,10 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 
 	dropdown.Get("/department", h.GetDepartment)
 	dropdown.Get("/project", h.GetProject)
-	dropdown.Get("/sign-job-list/:id", h.GetSignJobList)
+	dropdown.Get("/user", h.GetUser)
 	dropdown.Get("/province", h.GetProvince)
 	dropdown.Get("/sign-type", h.GetSignType)
+	dropdown.Get("/sign-job-list/:id", h.GetSignJobList)
 	dropdown.Get("/position/:id", h.GetPosition)
 	dropdown.Get("/district/:id", h.GetDistrict)
 	dropdown.Get("/subdistrict/:id", h.GetSubDistrict)
@@ -306,5 +307,35 @@ func (h *DropDownHandler) GetProject(c *fiber.Ctx) error {
 		MessageTH:  "ดึงข้อมูลโครงการสำเร็จ",
 		Status:     "success",
 		Data:       projects,
+	})
+}
+
+// @Summary Get all users
+// @Description ใช้สำหรับดึงข้อมูลผู้ใช้ทั้งหมด
+// @Tags Dropdown
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetUsers}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/user [get]
+func (h *DropDownHandler) GetUser(c *fiber.Ctx) error {
+	users, errOnGetUsers := h.svc.GetUserList(c.Context())
+	if errOnGetUsers != nil {
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  fiber.ErrBadGateway.Message,
+			MessageTH:  "ไม่สามารถดึงข้อมูลผู้ใช้ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get users successfully",
+		MessageTH:  "ดึงข้อมูลผู้ใช้สำเร็จ",
+		Status:     "success",
+		Data:       users,
 	})
 }

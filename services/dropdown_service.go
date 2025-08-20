@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
@@ -238,6 +239,39 @@ func (s *dropDownService) GetProjectList(ctx context.Context) ([]dto.ResponseGet
 		response = append(response, dto.ResponseGetProjects{
 			ProjectID:   project.ProjectID,
 			ProjectName: project.ProjectName,
+		})
+	}
+
+	return response, nil
+}
+
+func (s *dropDownService) GetUserList(ctx context.Context) ([]dto.ResponseGetUsers, error) {
+	filter := bson.M{"deleted_at": nil}
+	projection := bson.M{
+		"user_id":       1,
+		"title_th":      1,
+		"first_name_th": 1,
+		"last_name_th":  1,
+		"full_name_th":  1,
+	}
+
+	users, errOnGetUsers := s.dropDownRepo.GetUsersList(ctx, filter, projection)
+	if errOnGetUsers != nil {
+		return nil, errOnGetUsers
+	}
+
+	if len(users) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetUsers
+	for _, user := range users {
+		response = append(response, dto.ResponseGetUsers{
+			UserID:      user.UserID,
+			TitleTH:     user.TitleTH,
+			FirstNameTH: user.FirstNameTH,
+			LastNameTH:  user.LastNameTH,
+			FullNameTH:  fmt.Sprintf("%s %s %s", user.TitleTH, user.FirstNameTH, user.LastNameTH),
 		})
 	}
 

@@ -19,6 +19,7 @@ type dropDownRepo struct {
 	customerTypesColl *mongo.Collection
 	signJobsColl      *mongo.Collection
 	projectsColl      *mongo.Collection
+	usersColl         *mongo.Collection
 }
 
 func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
@@ -32,6 +33,7 @@ func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
 		customerTypesColl: db.Collection(models.CollectionCustomerTypes),
 		signJobsColl:      db.Collection(models.CollectionSignJobs),
 		projectsColl:      db.Collection(models.CollectionSProject),
+		usersColl:         db.Collection(models.CollectionUsers),
 	}
 }
 func (r *dropDownRepo) GetPositions(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Position, error) {
@@ -238,4 +240,28 @@ func (r *dropDownRepo) GetProjectsList(ctx context.Context, filter interface{}, 
 	}
 
 	return projects, nil
+}
+
+func (r *dropDownRepo) GetUsersList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.User, error) {
+	var users []*models.User
+
+	cursor, err := r.usersColl.Find(ctx, filter, options.Find().SetProjection(projection))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var user models.User
+		if err := cursor.Decode(&user); err != nil {
+			return nil, err
+		}
+		users = append(users, &user)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }

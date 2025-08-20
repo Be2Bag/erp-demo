@@ -1133,6 +1133,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/dropdown/user": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลผู้ใช้ทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dropdown"
+                ],
+                "summary": "Get all users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetUsers"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/kpi/create": {
             "post": {
                 "description": "Create a new KPI Template",
@@ -4495,6 +4545,31 @@ const docTemplate = `{
                 },
                 "zip_code": {
                     "description": "รหัสไปรษณีย์",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ResponseGetUsers": {
+            "type": "object",
+            "properties": {
+                "first_name_th": {
+                    "description": "ชื่อจริง (ภาษาไทย)",
+                    "type": "string"
+                },
+                "full_name_th": {
+                    "description": "ชื่อเต็ม (ภาษาไทย)",
+                    "type": "string"
+                },
+                "last_name_th": {
+                    "description": "นามสกุล (ภาษาไทย)",
+                    "type": "string"
+                },
+                "title_th": {
+                    "description": "คำนำหน้าชื่อ (ภาษาไทย)",
+                    "type": "string"
+                },
+                "user_id": {
+                    "description": "รหัสผู้ใช้ (ไม่ซ้ำกัน)",
                     "type": "string"
                 }
             }

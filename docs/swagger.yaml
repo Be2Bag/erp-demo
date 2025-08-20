@@ -728,6 +728,24 @@ definitions:
         description: รหัสไปรษณีย์
         type: string
     type: object
+  dto.ResponseGetUsers:
+    properties:
+      first_name_th:
+        description: ชื่อจริง (ภาษาไทย)
+        type: string
+      full_name_th:
+        description: ชื่อเต็ม (ภาษาไทย)
+        type: string
+      last_name_th:
+        description: นามสกุล (ภาษาไทย)
+        type: string
+      title_th:
+        description: คำนำหน้าชื่อ (ภาษาไทย)
+        type: string
+      user_id:
+        description: รหัสผู้ใช้ (ไม่ซ้ำกัน)
+        type: string
+    type: object
   dto.SignJobDTO:
     properties:
       address:
@@ -1777,6 +1795,36 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Get all sub-districts by district ID
+      tags:
+      - Dropdown
+  /v1/dropdown/user:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลผู้ใช้ทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetUsers'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all users
       tags:
       - Dropdown
   /v1/kpi/{id}:

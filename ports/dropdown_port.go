@@ -17,6 +17,7 @@ type DropDownService interface {
 	GetCustomerTypes(ctx context.Context) ([]dto.ResponseGetCustomerTypes, error)
 	GetSignJobList(ctx context.Context, projectID string) ([]dto.ResponseGetSignList, error)
 	GetProjectList(ctx context.Context) ([]dto.ResponseGetProjects, error)
+	GetUserList(ctx context.Context) ([]dto.ResponseGetUsers, error)
 }
 
 type DropDownRepository interface {
@@ -29,4 +30,5 @@ type DropDownRepository interface {
 	GetCustomerTypes(ctx context.Context, filter interface{}, projection interface{}) ([]*models.CustomerType, error)
 	GetSignJobsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.SignJob, error)
 	GetProjectsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Project, error)
+	GetUsersList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.User, error)
 }
