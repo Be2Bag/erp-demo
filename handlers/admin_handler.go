@@ -25,7 +25,6 @@ func (h *AdminHandler) AdminRoutes(router fiber.Router) {
 	admin := versionOne.Group("admin")
 
 	admin.Put("/update-status-user", h.mdw.AuthCookieMiddleware(), h.UpdateStatusUser)
-	admin.Put("/update-role-user", h.mdw.AuthCookieMiddleware(), h.UpdateRoleUser)
 	admin.Put("/update-position-user", h.mdw.AuthCookieMiddleware(), h.UpdatePositionUser)
 
 }
@@ -109,80 +108,6 @@ func (h *AdminHandler) UpdateStatusUser(c *fiber.Ctx) error {
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "User status updated successfully",
 		MessageTH:  "อัปเดตสถานะผู้ใช้สำเร็จ",
-		Status:     "success",
-		Data:       nil,
-	})
-}
-
-// @Summary Update User Role
-// @Description สำหรับจัดการอัปเดตบทบาทผู้ใช้
-// @Tags Admin
-// @Accept json
-// @Produce json
-// @Param request body dto.RequestUpdateUserRole true "Request Update User Role"
-// @Success 200 {object} dto.BaseResponse
-// @Failure 400 {object} dto.BaseResponse
-// @Failure 500 {object} dto.BaseResponse
-// @Router /v1/admin/update-role-user [put]
-func (h *AdminHandler) UpdateRoleUser(c *fiber.Ctx) error {
-
-	claims, err := middleware.GetClaims(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusUnauthorized,
-			MessageEN:  "Unauthorized",
-			MessageTH:  "ไม่ได้รับอนุญาต",
-			Status:     "error",
-			Data:       nil,
-		})
-	}
-	if claims.Role != "admin" {
-		return c.Status(fiber.StatusForbidden).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusForbidden,
-			MessageEN:  "Forbidden",
-			MessageTH:  "ห้ามเข้าถึง",
-			Status:     "error",
-			Data:       nil,
-		})
-	}
-
-	var req dto.RequestUpdateUserRole
-	if err := c.BodyParser(&req); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Invalid request body",
-			MessageTH:  "ข้อมูลคำขอไม่ถูกต้อง",
-			Status:     "error",
-			Data:       nil,
-		})
-	}
-
-	errOnUpdate := h.svc.UpdateUserRole(c.Context(), req)
-	if errOnUpdate != nil {
-
-		if errOnUpdate == mongo.ErrNoDocuments {
-			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
-				StatusCode: fiber.StatusNotFound,
-				MessageEN:  "User not found",
-				MessageTH:  "ไม่พบผู้ใช้",
-				Status:     "error",
-				Data:       nil,
-			})
-		}
-
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to update user role",
-			MessageTH:  "ไม่สามารถอัปเดตบทบาทผู้ใช้ได้",
-			Status:     "error",
-			Data:       nil,
-		})
-	}
-
-	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
-		StatusCode: fiber.StatusOK,
-		MessageEN:  "User role updated successfully",
-		MessageTH:  "อัปเดตบทบาทผู้ใช้สำเร็จ",
 		Status:     "success",
 		Data:       nil,
 	})

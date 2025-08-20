@@ -267,11 +267,8 @@ func (s *dropDownService) GetUserList(ctx context.Context) ([]dto.ResponseGetUse
 	var response []dto.ResponseGetUsers
 	for _, user := range users {
 		response = append(response, dto.ResponseGetUsers{
-			UserID:      user.UserID,
-			TitleTH:     user.TitleTH,
-			FirstNameTH: user.FirstNameTH,
-			LastNameTH:  user.LastNameTH,
-			FullNameTH:  fmt.Sprintf("%s %s %s", user.TitleTH, user.FirstNameTH, user.LastNameTH),
+			UserID:     user.UserID,
+			FullNameTH: fmt.Sprintf("%s %s %s", user.TitleTH, user.FirstNameTH, user.LastNameTH),
 		})
 	}
 

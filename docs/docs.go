@@ -61,52 +61,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/admin/update-role-user": {
-            "put": {
-                "description": "สำหรับจัดการอัปเดตบทบาทผู้ใช้",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Admin"
-                ],
-                "summary": "Update User Role",
-                "parameters": [
-                    {
-                        "description": "Request Update User Role",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.RequestUpdateUserRole"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/v1/admin/update-status-user": {
             "put": {
                 "description": "สำหรับจัดการอนุมัติผู้ใช้ pending approved rejected",
@@ -4344,6 +4298,7 @@ const docTemplate = `{
             "required": [
                 "department_id",
                 "position_id",
+                "role",
                 "user_id"
             ],
             "properties": {
@@ -4358,23 +4313,6 @@ const docTemplate = `{
                 "position_id": {
                     "type": "string",
                     "example": "50f7a957-8c2c-4a76-88ed-7c247471f28f"
-                },
-                "user_id": {
-                    "type": "string",
-                    "example": "50f7a957-8c2c-4a76-88ed-7c247471f28f"
-                }
-            }
-        },
-        "dto.RequestUpdateUserRole": {
-            "type": "object",
-            "required": [
-                "role",
-                "user_id"
-            ],
-            "properties": {
-                "note": {
-                    "type": "string",
-                    "example": "ทดสอบปรับบทบาท"
                 },
                 "role": {
                     "type": "string",
@@ -4552,20 +4490,8 @@ const docTemplate = `{
         "dto.ResponseGetUsers": {
             "type": "object",
             "properties": {
-                "first_name_th": {
-                    "description": "ชื่อจริง (ภาษาไทย)",
-                    "type": "string"
-                },
                 "full_name_th": {
                     "description": "ชื่อเต็ม (ภาษาไทย)",
-                    "type": "string"
-                },
-                "last_name_th": {
-                    "description": "นามสกุล (ภาษาไทย)",
-                    "type": "string"
-                },
-                "title_th": {
-                    "description": "คำนำหน้าชื่อ (ภาษาไทย)",
                     "type": "string"
                 },
                 "user_id": {

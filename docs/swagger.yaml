@@ -590,19 +590,6 @@ definitions:
       position_id:
         example: 50f7a957-8c2c-4a76-88ed-7c247471f28f
         type: string
-      user_id:
-        example: 50f7a957-8c2c-4a76-88ed-7c247471f28f
-        type: string
-    required:
-    - department_id
-    - position_id
-    - user_id
-    type: object
-  dto.RequestUpdateUserRole:
-    properties:
-      note:
-        example: ทดสอบปรับบทบาท
-        type: string
       role:
         enum:
         - admin
@@ -613,6 +600,8 @@ definitions:
         example: 50f7a957-8c2c-4a76-88ed-7c247471f28f
         type: string
     required:
+    - department_id
+    - position_id
     - role
     - user_id
     type: object
@@ -730,17 +719,8 @@ definitions:
     type: object
   dto.ResponseGetUsers:
     properties:
-      first_name_th:
-        description: ชื่อจริง (ภาษาไทย)
-        type: string
       full_name_th:
         description: ชื่อเต็ม (ภาษาไทย)
-        type: string
-      last_name_th:
-        description: นามสกุล (ภาษาไทย)
-        type: string
-      title_th:
-        description: คำนำหน้าชื่อ (ภาษาไทย)
         type: string
       user_id:
         description: รหัสผู้ใช้ (ไม่ซ้ำกัน)
@@ -1121,36 +1101,6 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Update User Position
-      tags:
-      - Admin
-  /v1/admin/update-role-user:
-    put:
-      consumes:
-      - application/json
-      description: สำหรับจัดการอัปเดตบทบาทผู้ใช้
-      parameters:
-      - description: Request Update User Role
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.RequestUpdateUserRole'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-      summary: Update User Role
       tags:
       - Admin
   /v1/admin/update-status-user:
