@@ -153,6 +153,7 @@ type ResponseGetUserAll struct {
 	TasksTotal     string     `json:"tasks_total" example:"10"`                               // จำนวนงานทั้งหมดที่ได้รับมอบหมาย
 	TasksCompleted string     `json:"tasks_completed" example:"8"`                            // จำนวนงานที่เสร็จสมบูรณ์
 	Department     string     `json:"department" example:"DEP001"`                            // รหัสแผนก (FK ไปยัง Departments)
+	Role           string     `json:"role" example:"admin"`                                   // บทบาทหรือสิทธิ์ของผู้ใช้ในระบบ (เช่น admin, user)
 	CreatedAt      time.Time  `json:"created_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่สร้างข้อมูลนี้
 	UpdatedAt      time.Time  `json:"updated_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่แก้ไขข้อมูลล่าสุด
 	DeletedAt      *time.Time `json:"deleted_at" example:"null"`                              // วันที่ลบข้อมูล (soft delete)

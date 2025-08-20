@@ -323,6 +323,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 			Phone:          u.Phone,
 			Position:       positionsName,
 			Department:     departmentsName,
+			Role:           u.Role,
 			Status:         u.Status,
 			KPIScore:       "100%",
 			TasksCompleted: "0",
