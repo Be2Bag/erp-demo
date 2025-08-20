@@ -3074,6 +3074,10 @@ paths:
         in: query
         name: status
         type: string
+      - description: Filter by user role (e.g., admin, user)
+        in: query
+        name: role
+        type: string
       - description: Page number
         in: query
         name: page
