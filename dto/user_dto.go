@@ -57,6 +57,7 @@ type RequestGetUserAll struct {
 	Limit     int    `query:"limit"`      // จำนวนรายการต่อหน้า
 	Search    string `query:"search"`     // คำค้นหาสำหรับกรองข้อมูล
 	Status    string `query:"status"`     // สถานะของผู้ใช้ (เช่น pending, approved, rejected, cancelled)
+	Role      string `query:"role"`       // บทบาทของผู้ใช้ (เช่น admin, user)
 	SortBy    string `query:"sort_by"`    // คอลัมน์ที่ต้องการเรียงลำดับ
 	SortOrder string `query:"sort_order"` // ทิศทางการเรียงลำดับ (asc หรือ desc)
 }

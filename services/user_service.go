@@ -258,6 +258,10 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 		filter["status"] = req.Status
 	}
 
+	if req.Role != "" {
+		filter["role"] = req.Role
+	}
+
 	if req.Search != "" {
 
 		filter["$or"] = []bson.M{
