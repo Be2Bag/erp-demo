@@ -95,7 +95,7 @@ func (s *positionService) GetPositionList(ctx context.Context, claims *dto.JWTCl
 
 	department = strings.TrimSpace(department)
 	if department != "" {
-		filter["department"] = department
+		filter["department_id"] = department
 	}
 
 	search = strings.TrimSpace(search)
