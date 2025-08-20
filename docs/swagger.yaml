@@ -2121,6 +2121,11 @@ paths:
         in: query
         name: search
         type: string
+      - description: 'Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003:
+          แผนกติดตั้ง, DPT004: แผนกบัญชี'
+        in: query
+        name: department
+        type: string
       - description: เรียงตาม created_at updated_at department_name position_name
           level
         in: query

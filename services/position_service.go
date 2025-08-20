@@ -85,12 +85,17 @@ func (s *positionService) GetPositionByID(ctx context.Context, positionID string
 	return dtoObj, nil
 }
 
-func (s *positionService) GetPositionList(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string) (dto.Pagination, error) {
+func (s *positionService) GetPositionList(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
 	filter := bson.M{
 		"deleted_at": nil,
+	}
+
+	department = strings.TrimSpace(department)
+	if department != "" {
+		filter["department"] = department
 	}
 
 	search = strings.TrimSpace(search)

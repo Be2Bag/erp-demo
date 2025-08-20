@@ -1505,6 +1505,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี",
+                        "name": "department",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "เรียงตาม created_at updated_at department_name position_name level",
                         "name": "sort_by",
                         "in": "query"

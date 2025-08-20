@@ -256,6 +256,7 @@ func (h *PositionHandler) GetPositionByID(c *fiber.Ctx) error {
 // @Param page query int false "Page number"
 // @Param limit query int false "Page size"
 // @Param search query string false "ค้นหา position_name"
+// @Param department query string false "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี"
 // @Param sort_by query string false "เรียงตาม created_at updated_at department_name position_name level"
 // @Param sort_order query string false "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))"
 // @Success 200 {object} dto.BaseResponse{data=dto.Pagination}
@@ -293,7 +294,7 @@ func (h *PositionHandler) GetPositionList(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	positions, err := h.svc.GetPositionList(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder)
+	positions, err := h.svc.GetPositionList(c.Context(), claims, req.Page, req.Limit, req.Search, req.Department, req.SortBy, req.SortOrder)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

@@ -15,11 +15,12 @@ type UpdatePositionDTO struct {
 }
 
 type RequestListPosition struct {
-	Page      int    `query:"page"`       // หมายเลขหน้าที่ต้องการดึงข้อมูล
-	Limit     int    `query:"limit"`      // จำนวนรายการต่อหน้า
-	Search    string `query:"search"`     // คำค้นหาสำหรับกรองข้อมูล
-	SortBy    string `query:"sort_by"`    // คอลัมน์ที่ต้องการเรียงลำดับ
-	SortOrder string `query:"sort_order"` // ทิศทางการเรียงลำดับ (asc หรือ desc)
+	Page       int    `query:"page"`       // หมายเลขหน้าที่ต้องการดึงข้อมูล
+	Limit      int    `query:"limit"`      // จำนวนรายการต่อหน้า
+	Search     string `query:"search"`     // คำค้นหาสำหรับกรองข้อมูล
+	Department string `query:"department"` // แผนก
+	SortBy     string `query:"sort_by"`    // คอลัมน์ที่ต้องการเรียงลำดับ
+	SortOrder  string `query:"sort_order"` // ทิศทางการเรียงลำดับ (asc หรือ desc)
 }
 
 // ---------- Response DTO ----------

@@ -13,7 +13,7 @@ type PositionService interface {
 	UpdatePosition(ctx context.Context, positionID string, updatePosition dto.UpdatePositionDTO, claims *dto.JWTClaims) error
 	DeletePositionByID(ctx context.Context, positionID string, claims *dto.JWTClaims) error
 	GetPositionByID(ctx context.Context, positionID string, claims *dto.JWTClaims) (*dto.PositionDTO, error)
-	GetPositionList(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string) (dto.Pagination, error)
+	GetPositionList(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error)
 }
 type PositionRepository interface {
 	CreatePosition(ctx context.Context, position models.Position) error
