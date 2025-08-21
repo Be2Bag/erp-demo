@@ -20,10 +20,11 @@ import (
 type departmentService struct {
 	config         config.Config
 	departmentRepo ports.DepartmentRepository
+	userRepo       ports.UserRepository
 }
 
-func NewDepartmentService(cfg config.Config, departmentRepo ports.DepartmentRepository) ports.DepartmentService {
-	return &departmentService{config: cfg, departmentRepo: departmentRepo}
+func NewDepartmentService(cfg config.Config, departmentRepo ports.DepartmentRepository, userRepo ports.UserRepository) ports.DepartmentService {
+	return &departmentService{config: cfg, departmentRepo: departmentRepo, userRepo: userRepo}
 }
 
 func (s *departmentService) CreateDepartment(ctx context.Context, createDepartment dto.CreateDepartmentDTO, claims *dto.JWTClaims) error {
@@ -128,10 +129,24 @@ func (s *departmentService) GetDepartmentList(ctx context.Context, claims *dto.J
 
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
+
+		managerName := "ไม่มีชื่อผู้จัดการแผนก"
+
+		if m.ManagerID != "" {
+			manager, err := s.userRepo.GetUserByFilter(ctx, bson.M{"user_id": m.ManagerID}, bson.M{"title_th": 1, "first_name_th": 1, "last_name_th": 1})
+			if err != nil {
+				return dto.Pagination{}, fmt.Errorf("get manager: %w", err)
+			}
+			if manager != nil {
+				managerName = fmt.Sprintf("%s %s %s", manager[0].TitleTH, manager[0].FirstNameTH, manager[0].LastNameTH)
+			}
+		}
+
 		list = append(list, dto.DepartmentDTO{
 			DepartmentID:   m.DepartmentID,
 			DepartmentName: m.DepartmentName,
 			ManagerID:      m.ManagerID,
+			ManagerName:    managerName,
 			CreatedAt:      m.CreatedAt,
 			UpdatedAt:      m.UpdatedAt,
 		})

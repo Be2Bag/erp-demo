@@ -71,7 +71,7 @@ func main() {
 	workFlowSvc := services.NewWorkflowService(*cfg, workFlowRepo)
 	signJobSvc := services.NewSignJobService(*cfg, signJobRepo)
 	projectSvc := services.NewProjectService(*cfg, projectRepo)
-	departmentSvc := services.NewDepartmentService(*cfg, departmentRepo)
+	departmentSvc := services.NewDepartmentService(*cfg, departmentRepo, userRepo)
 	positionSvc := services.NewPositionService(*cfg, positionRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)

@@ -4067,6 +4067,10 @@ const docTemplate = `{
                     "description": "รหัสผู้จัดการแผนก (FK ไปยัง User)",
                     "type": "string"
                 },
+                "manager_name": {
+                    "description": "ชื่อผู้จัดการแผนก",
+                    "type": "string"
+                },
                 "updated_at": {
                     "description": "วันที่อัปเดต",
                     "type": "string"
