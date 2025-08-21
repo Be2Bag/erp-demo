@@ -10,6 +10,7 @@ type CreateDepartmentDTO struct {
 type UpdateDepartmentDTO struct {
 	DepartmentName string `json:"department_name"` // ชื่อแผนก
 	ManagerID      string `json:"manager_id"`      // รหัสผู้จัดการแผนก (FK ไปยัง User)
+	Note           string `json:"note"`
 }
 
 type RequestListDepartment struct {

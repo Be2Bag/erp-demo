@@ -44,14 +44,34 @@ func (s *departmentService) CreateDepartment(ctx context.Context, createDepartme
 }
 
 func (s *departmentService) UpdateDepartment(ctx context.Context, departmentID string, updateDepartment dto.UpdateDepartmentDTO, claims *dto.JWTClaims) error {
+
 	now := time.Now()
 
-	update := models.Department{
-		DepartmentName: updateDepartment.DepartmentName,
-		UpdatedAt:      now,
+	filter := bson.M{"department_id": departmentID, "deleted_at": nil}
+	existing, err := s.departmentRepo.GetOneDepartmentByFilter(ctx, filter, bson.M{})
+	if err != nil {
+		return err
 	}
 
-	if _, err := s.departmentRepo.UpdateDepartmentByID(ctx, departmentID, update); err != nil {
+	if existing == nil {
+		return mongo.ErrNoDocuments
+	}
+
+	if updateDepartment.DepartmentName != "" {
+		existing.DepartmentName = updateDepartment.DepartmentName
+	}
+
+	if updateDepartment.ManagerID != "" {
+		existing.ManagerID = updateDepartment.ManagerID
+	}
+
+	if updateDepartment.Note != "" {
+		existing.Note = &updateDepartment.Note
+	}
+
+	existing.UpdatedAt = now
+
+	if _, err := s.departmentRepo.UpdateDepartmentByID(ctx, departmentID, *existing); err != nil {
 		return err
 	}
 	return nil

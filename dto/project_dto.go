@@ -9,6 +9,7 @@ type CreateProjectDTO struct {
 
 type UpdateProjectDTO = struct {
 	ProjectName string `json:"project_name"`
+	Note        string `json:"note"`
 }
 
 type RequestListProject struct {

@@ -47,13 +47,34 @@ func (s *positionService) CreatePosition(ctx context.Context, createPosition dto
 func (s *positionService) UpdatePosition(ctx context.Context, positionID string, updatePosition dto.UpdatePositionDTO, claims *dto.JWTClaims) error {
 	now := time.Now()
 
-	update := models.Position{
-		PositionName: updatePosition.PositionName,
-		Level:        updatePosition.Level,
-		UpdatedAt:    now,
+	filter := bson.M{"position_id": positionID, "deleted_at": nil}
+	existing, err := s.positionRepo.GetOnePositionByFilter(ctx, filter, bson.M{})
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return mongo.ErrNoDocuments
 	}
 
-	if _, err := s.positionRepo.UpdatePositionByID(ctx, positionID, update); err != nil {
+	if updatePosition.DepartmentID != "" {
+		existing.DepartmentID = updatePosition.DepartmentID
+	}
+
+	if updatePosition.PositionName != "" {
+		existing.PositionName = updatePosition.PositionName
+	}
+
+	if updatePosition.Level != "" {
+		existing.Level = updatePosition.Level
+	}
+
+	if updatePosition.Note != "" {
+		existing.Note = &updatePosition.Note
+	}
+
+	existing.UpdatedAt = now
+
+	if _, err := s.positionRepo.UpdatePositionByID(ctx, positionID, *existing); err != nil {
 		return err
 	}
 	return nil

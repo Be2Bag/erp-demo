@@ -75,6 +75,7 @@ func (r *projectRepo) UpdateProjectByID(ctx context.Context, projectID string, u
 	filter := bson.M{"project_id": projectID}
 	set := bson.M{
 		"project_name": update.ProjectName,
+		"note":         update.Note,
 		"updated_at":   update.UpdatedAt,
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)

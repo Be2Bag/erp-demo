@@ -77,6 +77,7 @@ func (r *positionRepo) UpdatePositionByID(ctx context.Context, positionID string
 		"position_name": update.PositionName,
 		"level":         update.Level,
 		"department_id": update.DepartmentID,
+		"note":          update.Note,
 		"updated_at":    update.UpdatedAt,
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)

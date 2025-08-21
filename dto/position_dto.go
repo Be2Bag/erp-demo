@@ -12,6 +12,7 @@ type UpdatePositionDTO struct {
 	DepartmentID string `json:"department_id"` // รหัสแผนก (FK ไปยัง Department)
 	PositionName string `json:"position_name"` // ชื่อตำแหน่งงาน
 	Level        string `json:"level"`         // ระดับของตำแหน่งงาน
+	Note         string `json:"note"`
 }
 
 type RequestListPosition struct {

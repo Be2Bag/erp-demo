@@ -161,6 +161,10 @@ func (s *projectService) UpdateProjectByID(ctx context.Context, projectID string
 		existing.ProjectName = update.ProjectName
 	}
 
+	if update.Note != "" {
+		existing.Note = &update.Note
+	}
+
 	existing.UpdatedAt = time.Now()
 
 	updated, err := s.projectRepo.UpdateProjectByID(ctx, projectID, *existing)

@@ -4783,6 +4783,9 @@ const docTemplate = `{
                 "manager_id": {
                     "description": "รหัสผู้จัดการแผนก (FK ไปยัง User)",
                     "type": "string"
+                },
+                "note": {
+                    "type": "string"
                 }
             }
         },
@@ -4820,6 +4823,9 @@ const docTemplate = `{
                     "description": "ระดับของตำแหน่งงาน",
                     "type": "string"
                 },
+                "note": {
+                    "type": "string"
+                },
                 "position_name": {
                     "description": "ชื่อตำแหน่งงาน",
                     "type": "string"
@@ -4829,6 +4835,9 @@ const docTemplate = `{
         "dto.UpdateProjectDTO": {
             "type": "object",
             "properties": {
+                "note": {
+                    "type": "string"
+                },
                 "project_name": {
                     "type": "string"
                 }
