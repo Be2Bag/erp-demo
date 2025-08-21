@@ -13,7 +13,7 @@ type TaskService interface {
 	CreateTask(ctx context.Context, createTask dto.CreateTaskRequest, claims *dto.JWTClaims) error
 	GetTaskByID(ctx context.Context, taskID string) (*dto.TaskDTO, error)
 	UpdateTask(ctx context.Context, taskID string, req dto.UpdateTaskRequest, updatedBy string) error
-	DeleteTask(ctx context.Context, id string) error
+	DeleteTask(ctx context.Context, taskID string, claims *dto.JWTClaims) error
 	UpdateTaskWorkflow(ctx context.Context, id string, workflowStep interface{}) error
 	GetTaskStatistics(ctx context.Context, filter interface{}) (map[string]interface{}, error)
 }

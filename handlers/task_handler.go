@@ -263,9 +263,45 @@ func (h *TaskHandler) UpdateTask(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary Delete a task
+// @Description Delete a task by ID
+// @Tags Tasks
+// @Accept json
+// @Param id path string true "Task ID"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseResponse
+// @Failure 404 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/tasks/{id} [delete]
 func (h *TaskHandler) DeleteTask(c *fiber.Ctx) error {
-	// ฟังก์ชันสำหรับลบงาน
-	return nil
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	id := c.Params("id")
+	err = h.svc.DeleteTask(c.Context(), id, claims)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to delete",
+			MessageTH:  "ลบไม่สำเร็จ",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	return c.JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Deleted",
+		MessageTH:  "ลบแล้ว",
+		Status:     "success",
+		Data:       nil,
+	})
 }
 
 // ตัวจัดการเวิร์กโฟลว์ (Workflow Management Handler)

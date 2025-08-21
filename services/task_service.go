@@ -11,6 +11,7 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/models"
+	"github.com/Be2Bag/erp-demo/pkg/helpers"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -360,27 +361,15 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 		}
 	}
 
-	// helper: parse YYYY-MM-DD ในโซนเวลา Asia/Bangkok แล้วแปลงเป็น UTC
-	parseDate := func(s string) (time.Time, error) {
-		if strings.TrimSpace(s) == "" {
-			return time.Time{}, nil
-		}
-		t, err := time.Parse("2006-01-02", s)
-		if err != nil {
-			return time.Time{}, err
-		}
-		return t, nil
-	}
-
 	if v := req.StartDate; v != nil {
-		t, err := parseDate(*v) // แปลง start_date
+		t, err := helpers.DateToISO(*v) // แปลง start_date
 		if err != nil {
 			return fmt.Errorf("invalid start_date: %w", err) // แจ้ง error รูปแบบไม่ถูกต้อง
 		}
 		existing.StartDate = t
 	}
 	if v := req.EndDate; v != nil {
-		t, err := parseDate(*v) // แปลง end_date
+		t, err := helpers.DateToISO(*v) // แปลง end_date
 		if err != nil {
 			return fmt.Errorf("invalid end_date: %w", err)
 		}
@@ -475,9 +464,9 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 				WorkFlowName: strings.TrimSpace(wf.WorkFlowName),
 				Department:   strings.TrimSpace(wf.Department),
 				Description:  strings.TrimSpace(wf.Description),
-				TotalHours:   total,                 // ชั่วโมงรวมใหม่
-				Steps:        steps,                 // steps snapshot ใหม่
-				Version:      maxInt(1, wf.Version), // ถ้ามีเวอร์ชันใน template ใช้ค่านั้น
+				TotalHours:   total,                         // ชั่วโมงรวมใหม่
+				Steps:        steps,                         // steps snapshot ใหม่
+				Version:      helpers.MaxInt(1, wf.Version), // ถ้ามีเวอร์ชันใน template ใช้ค่านั้น
 			}
 		}
 	}
@@ -544,7 +533,7 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 				}
 				if p.Status != nil {
 					newStatus := strings.ToLower(strings.TrimSpace(*p.Status)) // normalize สถานะ
-					if !inSet(newStatus, "todo", "in_progress", "blocked", "done") {
+					if !helpers.InSet(newStatus, "todo", "in_progress", "blocked", "done") {
 						return fmt.Errorf("step_patches[%d].status invalid (todo|in_progress|blocked|done)", j)
 					}
 					// ถ้าเปลี่ยนเป็น in_progress แต่ยังไม่มี started_at และ caller ไม่ได้ส่ง started_at มา → เซ็ตเดี๋ยวนี้
@@ -623,7 +612,7 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 	}
 
 	// --- 5) สรุป task.status จากสถานะของ steps ทั้งหมด ---
-	existing.Status = deriveTaskStatusFromSteps(existing.AppliedWorkflow.Steps) // all done → done, มี in_progress → in_progress, มี blocked → blocked, ไม่งั้น → todo
+	existing.Status = helpers.DeriveTaskStatusFromSteps(existing.AppliedWorkflow.Steps) // all done → done, มี in_progress → in_progress, มี blocked → blocked, ไม่งั้น → todo
 
 	// --- 6) อัปเดตเวลาแก้งาน ---
 	existing.UpdatedAt = now
@@ -639,12 +628,15 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 	return nil
 }
 
-func (s *taskService) DeleteTask(ctx context.Context, id string) error {
-	// Implementation for deleting a task
-	return nil
+func (s *taskService) DeleteTask(ctx context.Context, taskID string, claims *dto.JWTClaims) error {
+	err := s.taskRepo.SoftDeleteTaskByJobID(ctx, taskID)
+	if err == mongo.ErrNoDocuments {
+		return nil
+	}
+	return err
 }
 
-func (s *taskService) UpdateTaskWorkflow(ctx context.Context, id string, workflowStep interface{}) error {
+func (s *taskService) UpdateTaskWorkflow(ctx context.Context, taskID string, workflowStep interface{}) error {
 	// Implementation for updating task workflow
 	return nil
 }
@@ -652,51 +644,4 @@ func (s *taskService) UpdateTaskWorkflow(ctx context.Context, id string, workflo
 func (s *taskService) GetTaskStatistics(ctx context.Context, filter interface{}) (map[string]interface{}, error) {
 	// Implementation for fetching task statistics
 	return nil, nil
-}
-
-func inSet(v string, set ...string) bool { // เช็คว่า v อยู่ในชุดค่าหรือไม่
-	for _, s := range set {
-		if v == s {
-			return true
-		}
-	}
-	return false
-}
-func maxInt(a, b int) int { // คืนค่าสูงสุดระหว่าง a, b
-	if a > b {
-		return a
-	}
-	return b
-}
-func deriveTaskStatusFromSteps(steps []models.TaskWorkflowStep) string { // สรุปสถานะงานจากสถานะสเต็ป
-	if len(steps) == 0 {
-		return "todo"
-	}
-	allDone := true
-	anyInProg := false
-	anyBlocked := false
-	for _, st := range steps {
-		switch st.Status {
-		case "done":
-			// ถ้าเป็น done ทั้งหมดจะยังเป็นจริง
-		default:
-			allDone = false // เจอสถานะอื่น → ไม่ใช่ done ทั้งหมด
-		}
-		if st.Status == "in_progress" {
-			anyInProg = true
-		}
-		if st.Status == "blocked" {
-			anyBlocked = true
-		}
-	}
-	switch {
-	case allDone:
-		return "done"
-	case anyInProg:
-		return "in_progress"
-	case anyBlocked:
-		return "blocked"
-	default:
-		return "todo"
-	}
 }
