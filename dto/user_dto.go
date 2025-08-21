@@ -148,12 +148,14 @@ type ResponseGetUserAll struct {
 	Avatar         string     `json:"avatar" example:"https://example.com/avatar.jpg"`        // ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
 	Email          string     `json:"email" example:"จันทรสกุล"`                              // อีเมลของผู้ใช้
 	Phone          string     `json:"phone" example:"094-222-7788"`                           // เบอร์โทรศัพท์ของพนักงาน
-	Position       string     `json:"position" example:"POS126"`                              // รหัสตำแหน่งงาน (FK ไปยัง Positions)
+	PositionID     string     `json:"position_id" example:" "`                                // รหัสตำแหน่งงาน (FK ไปยัง Positions)
+	PositionName   string     `json:"position_name" example:"POS126"`                         // รหัสตำแหน่งงาน (FK ไปยัง Positions)
 	Status         string     `json:"status" example:"approved"`                              // สถานะของผู้ใช้ (เช่น approved , pending, rejected)
 	KPIScore       string     `json:"kpi_score" example:"85"`                                 // คะแนน KPI ของพนักงาน
 	TasksTotal     string     `json:"tasks_total" example:"10"`                               // จำนวนงานทั้งหมดที่ได้รับมอบหมาย
 	TasksCompleted string     `json:"tasks_completed" example:"8"`                            // จำนวนงานที่เสร็จสมบูรณ์
-	Department     string     `json:"department" example:"DEP001"`                            // รหัสแผนก (FK ไปยัง Departments)
+	DepartmentID   string     `json:"department_id"  example:" "`                             // รหัสแผนก (FK ไปยัง Departments)
+	DepartmentName string     `json:"department_name" example:"DEP001"`                       // รหัสแผนก (FK ไปยัง Departments)
 	Role           string     `json:"role" example:"admin"`                                   // บทบาทหรือสิทธิ์ของผู้ใช้ในระบบ (เช่น admin, user)
 	CreatedAt      time.Time  `json:"created_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่สร้างข้อมูลนี้
 	UpdatedAt      time.Time  `json:"updated_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่แก้ไขข้อมูลล่าสุด
