@@ -18,12 +18,13 @@ import (
 )
 
 type signJobService struct {
-	config      config.Config
-	signJobRepo ports.SignJobRepository
+	config       config.Config
+	signJobRepo  ports.SignJobRepository
+	dropDownRepo ports.DropDownRepository
 }
 
-func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository) ports.SignJobService {
-	return &signJobService{config: cfg, signJobRepo: signJobRepo}
+func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository, dropDownRepo ports.DropDownRepository) ports.SignJobService {
+	return &signJobService{config: cfg, signJobRepo: signJobRepo, dropDownRepo: dropDownRepo}
 }
 
 func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSignJobDTO, claims *dto.JWTClaims) error {
@@ -167,6 +168,20 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
+
+		SignTypeName := ""
+		filter := bson.M{"type_id": m.SignTypeID, "deleted_at": nil}
+		projection := bson.M{}
+
+		signTypes, errOnGetSignTypes := s.dropDownRepo.GetSignTypes(ctx, filter, projection)
+		if errOnGetSignTypes != nil {
+			return dto.Pagination{}, errOnGetSignTypes
+		}
+
+		if signTypes != nil && len(signTypes) > 0 {
+			SignTypeName = signTypes[0].NameTH
+		}
+
 		list = append(list, dto.SignJobDTO{
 			JobID:          m.JobID,
 			CompanyName:    m.CompanyName,
@@ -178,6 +193,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 			ProjectID:      m.ProjectID,
 			ProjectName:    m.ProjectName,
 			JobName:        m.JobName,
+			SignTypeName:   SignTypeName,
 			SignTypeID:     m.SignTypeID,
 			Width:          m.Width,
 			Height:         m.Height,
@@ -226,6 +242,19 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 		return nil, nil
 	}
 
+	SignTypeName := ""
+	filterSignType := bson.M{"type_id": m.SignTypeID, "deleted_at": nil}
+	projectionSignType := bson.M{}
+
+	signTypes, errOnGetSignTypes := s.dropDownRepo.GetSignTypes(ctx, filterSignType, projectionSignType)
+	if errOnGetSignTypes != nil {
+		return nil, errOnGetSignTypes
+	}
+
+	if signTypes != nil && len(signTypes) > 0 {
+		SignTypeName = signTypes[0].NameTH
+	}
+
 	dtoObj := &dto.SignJobDTO{
 		// ---------- ลูกค้า ----------
 		JobID:          m.JobID,
@@ -236,16 +265,17 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 		CustomerTypeID: m.CustomerTypeID,
 		Address:        m.Address,
 		// ---------- รายละเอียดงานป้าย ----------
-		ProjectID:   m.ProjectID,
-		ProjectName: m.ProjectName,
-		JobName:     m.JobName,
-		SignTypeID:  m.SignTypeID,
-		Width:       m.Width,
-		Height:      m.Height,
-		Quantity:    m.Quantity,
-		PriceTHB:    m.PriceTHB,
-		Content:     m.Content,
-		MainColor:   m.MainColor,
+		ProjectID:    m.ProjectID,
+		ProjectName:  m.ProjectName,
+		JobName:      m.JobName,
+		SignTypeName: SignTypeName,
+		SignTypeID:   m.SignTypeID,
+		Width:        m.Width,
+		Height:       m.Height,
+		Quantity:     m.Quantity,
+		PriceTHB:     m.PriceTHB,
+		Content:      m.Content,
+		MainColor:    m.MainColor,
 		// ---------- การชำระเงิน ----------
 		PaymentMethod: m.PaymentMethod,
 		// ---------- การผลิต / ไทม์ไลน์ ----------

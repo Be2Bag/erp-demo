@@ -4724,6 +4724,10 @@ const docTemplate = `{
                     "description": "รหัสประเภทป้าย",
                     "type": "string"
                 },
+                "sign_type_name": {
+                    "description": "ชื่อประเภทป้าย",
+                    "type": "string"
+                },
                 "status": {
                     "description": "---------- เมต้า ----------",
                     "type": "string"

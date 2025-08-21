@@ -13,11 +13,15 @@ import (
 )
 
 type taskRepo struct {
-	coll *mongo.Collection
+	coll              *mongo.Collection
+	collUserTaskStats *mongo.Collection
 }
 
 func NewTaskRepository(db *mongo.Database) ports.TaskRepository {
-	return &taskRepo{coll: db.Collection(models.CollectionTasks)}
+	return &taskRepo{
+		coll:              db.Collection(models.CollectionTasks),
+		collUserTaskStats: db.Collection(models.CollectionUserTaskStats),
+	}
 }
 
 func (r *taskRepo) CreateTask(ctx context.Context, task models.Tasks) error {
@@ -209,6 +213,35 @@ func (r *taskRepo) UpdateTaskStatus(ctx context.Context, taskID, status string, 
 	filter := bson.M{"task_id": taskID, "deleted_at": nil}
 	update := bson.M{"$set": bson.M{"status": status, "updated_at": now}}
 	res, err := r.coll.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	if res.MatchedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
+	return nil
+}
+
+func (r *taskRepo) GetOneUserTaskStatsByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.UserTaskStats, error) {
+	opts := options.FindOne()
+	if projection != nil {
+		opts.SetProjection(projection)
+	}
+	var stats models.UserTaskStats
+	if err := r.coll.FindOne(ctx, filter, opts).Decode(&stats); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &stats, nil
+}
+
+func (r *taskRepo) UpsertUserTaskStats(ctx context.Context, stats *models.UserTaskStats) error {
+	filter := bson.M{"user_id": stats.UserID}
+	update := bson.M{"$set": stats}
+	opts := options.Update().SetUpsert(true)
+	res, err := r.collUserTaskStats.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return err
 	}

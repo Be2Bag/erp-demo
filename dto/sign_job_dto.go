@@ -105,16 +105,17 @@ type SignJobDTO struct { // DTO สำหรับส่งกลับให้
 	Address        string `json:"address"`          // ที่อยู่ติดตั้ง / จัดส่ง
 
 	// ---------- รายละเอียดงานป้าย ----------
-	ProjectID   string  `json:"project_id"`
-	ProjectName string  `json:"project_name"` // ชื่อโปรเจกต์
-	JobName     string  `json:"job_name"`     // ชื่องาน
-	SignTypeID  string  `json:"sign_type_id"` // รหัสประเภทป้าย
-	Width       float64 `json:"width"`        // ความกว้าง (ซม.)
-	Height      float64 `json:"height"`       // ความสูง (ซม.)
-	Quantity    int     `json:"quantity"`     // จำนวน
-	PriceTHB    int64   `json:"price_thb"`    // ราคา
-	Content     string  `json:"content"`      // รายละเอียด / ข้อความบนป้าย
-	MainColor   string  `json:"main_color"`   // สีหลัก
+	ProjectID    string  `json:"project_id"`
+	ProjectName  string  `json:"project_name"`   // ชื่อโปรเจกต์
+	JobName      string  `json:"job_name"`       // ชื่องาน
+	SignTypeName string  `json:"sign_type_name"` // ชื่อประเภทป้าย
+	SignTypeID   string  `json:"sign_type_id"`   // รหัสประเภทป้าย
+	Width        float64 `json:"width"`          // ความกว้าง (ซม.)
+	Height       float64 `json:"height"`         // ความสูง (ซม.)
+	Quantity     int     `json:"quantity"`       // จำนวน
+	PriceTHB     int64   `json:"price_thb"`      // ราคา
+	Content      string  `json:"content"`        // รายละเอียด / ข้อความบนป้าย
+	MainColor    string  `json:"main_color"`     // สีหลัก
 
 	// ---------- การชำระเงิน ----------
 	PaymentMethod string `json:"payment_method"` // วิธีชำระเงิน

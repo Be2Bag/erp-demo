@@ -248,6 +248,52 @@ func (s *taskService) CreateTask(ctx context.Context, createTask dto.CreateTaskR
 	if err := s.taskRepo.CreateTask(ctx, model); err != nil {
 		return err
 	}
+
+	// <============================ UpsertUserTaskStats ============================>
+
+	filterUserTaskStats := bson.M{"user_id": createTask.Assignee} // ถ้าใช้ period ให้ใส่เพิ่ม: filter["period"] = models.StatsPeriodAll
+	projectionUserTaskStats := bson.M{}
+
+	existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx, filterUserTaskStats, projectionUserTaskStats)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err // error จริง
+	}
+
+	totals := models.UserTaskTotals{}
+	if existingStats == nil {
+		// ยังไม่มีเอกสาร → เริ่มนับใหม่
+		totals = models.UserTaskTotals{
+			Assigned:   1,
+			Open:       1, // งานที่เพิ่งสร้างสถานะ "todo" ถือว่า open
+			InProgress: 0,
+			Completed:  0,
+			Skipped:    0,
+		}
+	} else {
+		// มีเอกสารอยู่แล้ว → บวกเพิ่ม
+		totals = existingStats.Totals
+		totals.Assigned++
+		totals.Open++
+	}
+
+	// เตรียม doc สำหรับ upsert
+	statsDoc := &models.UserTaskStats{
+		UserID:       createTask.Assignee,
+		DepartmentID: createTask.Department,
+		Totals:       totals,
+		KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
+		UpdatedAt:    now,
+	}
+	if existingStats == nil {
+		statsDoc.CreatedAt = now
+	} else {
+		statsDoc.CreatedAt = existingStats.CreatedAt
+	}
+
+	if err := s.taskRepo.UpsertUserTaskStats(ctx, statsDoc); err != nil {
+		return err
+	}
+
 	return nil
 }
 

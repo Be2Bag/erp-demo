@@ -29,4 +29,7 @@ type TaskRepository interface {
 	GetAllStepSteps(ctx context.Context, taskID string) ([]models.TaskWorkflowStep, error)
 	UpdateOneStepFields(ctx context.Context, taskID, stepID string, status *string, notes *string, now time.Time) error
 	UpdateTaskStatus(ctx context.Context, taskID, status string, now time.Time) error
+
+	GetOneUserTaskStatsByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.UserTaskStats, error)
+	UpsertUserTaskStats(ctx context.Context, stats *models.UserTaskStats) error
 }
