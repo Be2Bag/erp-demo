@@ -2,16 +2,18 @@ package handlers
 
 import (
 	"github.com/Be2Bag/erp-demo/dto"
+	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
 )
 
 type DropDownHandler struct {
 	svc ports.DropDownService
+	mdw *middleware.Middleware
 }
 
-func NewDropDownHandler(s ports.DropDownService) *DropDownHandler {
-	return &DropDownHandler{svc: s}
+func NewDropDownHandler(s ports.DropDownService, m *middleware.Middleware) *DropDownHandler {
+	return &DropDownHandler{svc: s, mdw: m}
 }
 
 func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
@@ -20,11 +22,11 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 	dropdown := versionOne.Group("dropdown")
 
 	dropdown.Get("/department", h.GetDepartment)
-	dropdown.Get("/project", h.GetProject)
-	dropdown.Get("/user", h.GetUser)
+	dropdown.Get("/project", h.mdw.AuthCookieMiddleware(), h.GetProject)
+	dropdown.Get("/user", h.mdw.AuthCookieMiddleware(), h.GetUser)
 	dropdown.Get("/province", h.GetProvince)
 	dropdown.Get("/sign-type", h.GetSignType)
-	dropdown.Get("/sign-job-list/:id", h.GetSignJobList)
+	dropdown.Get("/sign-job-list/:id", h.mdw.AuthCookieMiddleware(), h.GetSignJobList)
 	dropdown.Get("/position/:id", h.GetPosition)
 	dropdown.Get("/district/:id", h.GetDistrict)
 	dropdown.Get("/subdistrict/:id", h.GetSubDistrict)
