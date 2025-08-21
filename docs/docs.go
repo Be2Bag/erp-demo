@@ -2648,6 +2648,72 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/tasks/{task_id}/steps/{step_id}": {
+            "put": {
+                "description": "Update step status by task ID and step ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Update step status",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task ID",
+                        "name": "task_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Step Status Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateStepStatusNoteRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/upload/download": {
             "post": {
                 "description": "Download a file",
@@ -4691,7 +4757,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "description": "todo|in_progress|blocked|done",
+                    "description": "todo|in_progress|skip|done",
                     "type": "string"
                 },
                 "step_id": {
@@ -4861,6 +4927,19 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateStepStatusNoteRequest": {
+            "type": "object",
+            "properties": {
+                "notes": {
+                    "description": "optional",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "todo|in_progress|skip|done (optional)",
+                    "type": "string"
+                }
+            }
+        },
         "dto.UpdateTaskRequest": {
             "type": "object",
             "properties": {
@@ -4920,7 +4999,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "description": "todo|in_progress|blocked|done",
+                    "description": "todo|in_progress|skip|done",
                     "type": "string"
                 },
                 "step_patches": {

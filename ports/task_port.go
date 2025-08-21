@@ -2,6 +2,7 @@ package ports
 
 import (
 	"context"
+	"time"
 
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/models"
@@ -14,8 +15,7 @@ type TaskService interface {
 	GetTaskByID(ctx context.Context, taskID string) (*dto.TaskDTO, error)
 	UpdateTask(ctx context.Context, taskID string, req dto.UpdateTaskRequest, updatedBy string) error
 	DeleteTask(ctx context.Context, taskID string, claims *dto.JWTClaims) error
-	UpdateTaskWorkflow(ctx context.Context, id string, workflowStep interface{}) error
-	GetTaskStatistics(ctx context.Context, filter interface{}) (map[string]interface{}, error)
+	UpdateStepStatus(ctx context.Context, taskID, stepID string, req dto.UpdateStepStatusNoteRequest, claims *dto.JWTClaims) error
 }
 
 type TaskRepository interface {
@@ -25,4 +25,8 @@ type TaskRepository interface {
 	GetAllTaskByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Tasks, error)
 	GetOneTasksByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.Tasks, error)
 	GetListTasksByFilter(ctx context.Context, filter interface{}, projection interface{}, sort bson.D, skip, limit int64) ([]models.Tasks, int64, error)
+	//<------------------------------------------------------------------------------->
+	GetAllStepSteps(ctx context.Context, taskID string) ([]models.TaskWorkflowStep, error)
+	UpdateOneStepFields(ctx context.Context, taskID, stepID string, status *string, notes *string, now time.Time) error
+	UpdateTaskStatus(ctx context.Context, taskID, status string, now time.Time) error
 }

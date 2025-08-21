@@ -829,7 +829,7 @@ definitions:
         description: หรือใช้สตริง ISO8601 ก็ได้
         type: string
       status:
-        description: todo|in_progress|blocked|done
+        description: todo|in_progress|skip|done
         type: string
       step_id:
         description: target
@@ -951,6 +951,15 @@ definitions:
         description: ความกว้าง (ซม.)
         type: number
     type: object
+  dto.UpdateStepStatusNoteRequest:
+    properties:
+      notes:
+        description: optional
+        type: string
+      status:
+        description: todo|in_progress|skip|done (optional)
+        type: string
+    type: object
   dto.UpdateTaskRequest:
     properties:
       assignee:
@@ -995,7 +1004,7 @@ definitions:
         description: '"YYYY-MM-DD"'
         type: string
       status:
-        description: todo|in_progress|blocked|done
+        description: todo|in_progress|skip|done
         type: string
       step_patches:
         description: 2) แก้ไขสเต็ปเดิมเป็นรายตัว (ระบุ step_id)
@@ -2666,6 +2675,50 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Update a task
+      tags:
+      - Tasks
+  /v1/tasks/{task_id}/steps/{step_id}:
+    put:
+      consumes:
+      - application/json
+      description: Update step status by task ID and step ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: task_id
+        required: true
+        type: string
+      - description: Step ID
+        in: path
+        name: step_id
+        required: true
+        type: string
+      - description: Update Step Status Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateStepStatusNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update step status
       tags:
       - Tasks
   /v1/tasks/create:

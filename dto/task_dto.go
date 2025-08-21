@@ -41,7 +41,7 @@ type UpdateTaskRequest struct {
 	KPIID       *string `json:"kpi_id,omitempty"`
 	WorkflowID  *string `json:"workflow_id,omitempty"` // ถ้าเปลี่ยน workflow ควรรีเพลส steps
 
-	Status *string `json:"status,omitempty"` // todo|in_progress|blocked|done
+	Status *string `json:"status,omitempty"` // todo|in_progress|skip|done
 
 	// การจัดการ Steps
 	// 1) เพิ่มสเต็ปใหม่ (append ต่อท้าย หรือถ้าจะ replace ทั้งชุดให้ดู ReplaceSteps)
@@ -63,10 +63,16 @@ type TaskStepPatch struct {
 	Description *string    `json:"description,omitempty"`
 	Hours       *float64   `json:"hours,omitempty"`
 	Order       *int       `json:"order,omitempty"`
-	Status      *string    `json:"status,omitempty"` // todo|in_progress|blocked|done
+	Status      *string    `json:"status,omitempty"` // todo|in_progress|skip|done
 	Notes       *string    `json:"notes,omitempty"`
 	StartedAt   *time.Time `json:"started_at,omitempty"` // หรือใช้สตริง ISO8601 ก็ได้
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
+}
+
+// อัปเดตสเต็ปเดียว
+type UpdateStepStatusNoteRequest struct {
+	Status *string `json:"status,omitempty"` // todo|in_progress|skip|done (optional)
+	Notes  *string `json:"notes,omitempty"`  // optional
 }
 
 // ===== Response =====
@@ -113,7 +119,7 @@ type TaskWorkflowStep struct {
 	Description string     `json:"description,omitempty"`  // รายละเอียด (ไม่บังคับ)
 	Hours       float64    `json:"hours"`                  // ชั่วโมงที่ใช้ (รองรับทศนิยม เช่น 0.5)
 	Order       int        `json:"order"`                  // ลำดับขั้นตอน (1..N)
-	Status      string     `json:"status"`                 // สถานะ (todo|in_progress|blocked|done)
+	Status      string     `json:"status"`                 // สถานะ (todo|in_progress|skip|done)
 	StartedAt   *time.Time `json:"started_at,omitempty"`   // เวลาที่เริ่ม (optional)
 	CompletedAt *time.Time `json:"completed_at,omitempty"` // เวลาที่เสร็จ (optional)
 	Notes       string     `json:"notes,omitempty"`        // บันทึก/หมายเหตุ

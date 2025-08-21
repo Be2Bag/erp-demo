@@ -21,34 +21,32 @@ func MaxInt(a, b int) int { // คืนค่าสูงสุดระหว�
 	}
 	return b
 }
-func DeriveTaskStatusFromSteps(steps []models.TaskWorkflowStep) string { // สรุปสถานะงานจากสถานะสเต็ป
+func DeriveTaskStatusFromSteps(steps []models.TaskWorkflowStep) string {
 	if len(steps) == 0 {
 		return "todo"
 	}
+
 	allDone := true
 	anyInProg := false
-	anyBlocked := false
+
 	for _, st := range steps {
 		switch st.Status {
-		case "done":
-			// ถ้าเป็น done ทั้งหมดจะยังเป็นจริง
+		case "done", "skip":
+			// ถือว่า step เสร็จแล้ว
 		default:
-			allDone = false // เจอสถานะอื่น → ไม่ใช่ done ทั้งหมด
+			allDone = false
 		}
+
 		if st.Status == "in_progress" {
 			anyInProg = true
 		}
-		if st.Status == "blocked" {
-			anyBlocked = true
-		}
 	}
+
 	switch {
 	case allDone:
 		return "done"
 	case anyInProg:
 		return "in_progress"
-	case anyBlocked:
-		return "blocked"
 	default:
 		return "todo"
 	}

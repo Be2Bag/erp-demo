@@ -49,7 +49,7 @@ type TaskWorkflowStep struct {
 	Description string     `bson:"description,omitempty" json:"description,omitempty"`   // รายละเอียด (ไม่บังคับ)
 	Hours       float64    `bson:"hours" json:"hours"`                                   // ชั่วโมงที่ใช้ (รองรับทศนิยม เช่น 0.5)
 	Order       int        `bson:"order" json:"order"`                                   // ลำดับขั้นตอน (1..N)
-	Status      string     `bson:"status" json:"status"`                                 // สถานะ (todo|in_progress|blocked|done)
+	Status      string     `bson:"status" json:"status"`                                 // สถานะ (todo|in_progress|skip|done)
 	StartedAt   *time.Time `bson:"started_at,omitempty" json:"started_at,omitempty"`     // เวลาที่เริ่ม (optional)
 	CompletedAt *time.Time `bson:"completed_at,omitempty" json:"completed_at,omitempty"` // เวลาที่เสร็จ (optional)
 	Notes       string     `bson:"notes,omitempty" json:"notes,omitempty"`               // บันทึก/หมายเหตุ

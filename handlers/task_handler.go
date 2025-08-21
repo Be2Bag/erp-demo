@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"errors"
+	"strings"
+
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
@@ -26,10 +29,8 @@ func (h *TaskHandler) TaskRoutes(router fiber.Router) {
 	tasks.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetTaskByID)
 	tasks.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateTask)
 	tasks.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteTask)
+	tasks.Put("/:task_id/steps/:step_id", h.mdw.AuthCookieMiddleware(), h.UpdateStepStatusNote)
 
-	tasks.Put("/:id/workflow", h.mdw.AuthCookieMiddleware(), h.UpdateTaskWorkflow)
-
-	tasks.Get("/stats", h.mdw.AuthCookieMiddleware(), h.GetTaskStatistics)
 }
 
 // @Summary Get list of tasks
@@ -304,14 +305,76 @@ func (h *TaskHandler) DeleteTask(c *fiber.Ctx) error {
 	})
 }
 
-// ตัวจัดการเวิร์กโฟลว์ (Workflow Management Handler)
-func (h *TaskHandler) UpdateTaskWorkflow(c *fiber.Ctx) error {
-	// ฟังก์ชันสำหรับอัปเดตเวิร์กโฟลว์ของงาน
-	return nil
-}
+// @Summary Update step status
+// @Description Update step status by task ID and step ID
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param task_id path string true "Task ID"
+// @Param step_id path string true "Step ID"
+// @Param request body dto.UpdateStepStatusNoteRequest true "Update Step Status Request"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseResponse
+// @Failure 404 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/tasks/{task_id}/steps/{step_id} [put]
+// handlers/task.go
+func (h *TaskHandler) UpdateStepStatusNote(c *fiber.Ctx) error {
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+		})
+	}
 
-// ตัวจัดการสถิติงาน (Task Statistics Handler)
-func (h *TaskHandler) GetTaskStatistics(c *fiber.Ctx) error {
-	// ฟังก์ชันสำหรับดึงข้อมูลสถิติงาน
-	return nil
+	taskID := c.Params("task_id")
+	stepID := c.Params("step_id")
+
+	var req dto.UpdateStepStatusNoteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request payload",
+			MessageTH:  "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+			Status:     "error",
+		})
+	}
+	// ป้องกันส่งค่าว่างทั้งคู่
+	if req.Status == nil && (req.Notes == nil || strings.TrimSpace(*req.Notes) == "") {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Nothing to update",
+			MessageTH:  "ไม่มีข้อมูลสำหรับอัปเดต",
+			Status:     "error",
+		})
+	}
+
+	errOnUpdate := h.svc.UpdateStepStatus(c.Context(), taskID, stepID, req, claims)
+	if errOnUpdate != nil {
+		if errors.Is(errOnUpdate, mongo.ErrNoDocuments) {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "Task or step not found",
+				MessageTH:  "ไม่พบนงานหรือขั้นตอน",
+				Status:     "error",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to update step: " + errOnUpdate.Error(),
+			MessageTH:  "อัปเดตขั้นตอนไม่สำเร็จ",
+			Status:     "error",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Step updated",
+		MessageTH:  "อัปเดตสำเร็จ",
+		Status:     "success",
+		Data:       nil, // คืนข้อมูลที่อัปเดตแล้ว (ดู struct ด้านล่าง)
+	})
 }

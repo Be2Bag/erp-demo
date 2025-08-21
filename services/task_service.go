@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"sort"
 	"strings"
@@ -612,7 +613,7 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 	}
 
 	// --- 5) สรุป task.status จากสถานะของ steps ทั้งหมด ---
-	existing.Status = helpers.DeriveTaskStatusFromSteps(existing.AppliedWorkflow.Steps) // all done → done, มี in_progress → in_progress, มี blocked → blocked, ไม่งั้น → todo
+	existing.Status = helpers.DeriveTaskStatusFromSteps(existing.AppliedWorkflow.Steps) // all done → done, มี in_progress → in_progress, มี ไม่งั้น → todo
 
 	// --- 6) อัปเดตเวลาแก้งาน ---
 	existing.UpdatedAt = now
@@ -636,12 +637,63 @@ func (s *taskService) DeleteTask(ctx context.Context, taskID string, claims *dto
 	return err
 }
 
-func (s *taskService) UpdateTaskWorkflow(ctx context.Context, taskID string, workflowStep interface{}) error {
-	// Implementation for updating task workflow
-	return nil
-}
+func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID string, req dto.UpdateStepStatusNoteRequest, claims *dto.JWTClaims) error {
 
-func (s *taskService) GetTaskStatistics(ctx context.Context, filter interface{}) (map[string]interface{}, error) {
-	// Implementation for fetching task statistics
-	return nil, nil
+	now := time.Now().UTC()
+
+	var normalized *string
+	if req.Status != nil {
+		v := strings.ToLower(strings.TrimSpace(*req.Status))
+		switch v {
+		case "todo", "in_progress", "skip", "done":
+			normalized = &v
+		default:
+			return fmt.Errorf("invalid status: %s (allow: todo|in_progress|skip|done)", v)
+		}
+	}
+
+	// อัปเดตฟิลด์ในสเต็ป (status และ/หรือ notes)
+	if err := s.taskRepo.UpdateOneStepFields(ctx, taskID, stepID, normalized, req.Notes, now); err != nil {
+		return err
+	}
+
+	// โหลด steps ทั้งหมด เพื่อสรุปสถานะงาน + คืน step ที่อัปเดตแล้ว
+	steps, err := s.taskRepo.GetAllStepSteps(ctx, taskID) // เปลี่ยนชื่อฟังก์ชันให้ตรงความจริง
+	if err != nil {
+		return err
+	}
+	if len(steps) == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	// หา step ที่เพิ่งแก้
+	var updatedStep *models.TaskWorkflowStep
+	for i := range steps {
+		if steps[i].StepID == stepID {
+			updatedStep = &steps[i]
+			break
+		}
+	}
+	if updatedStep == nil {
+		return mongo.ErrNoDocuments
+	}
+
+	// สรุปสถานะงานจาก steps (skip = ปิดสเต็ปเหมือน done)
+	newTaskStatus := helpers.DeriveTaskStatusFromSteps(steps)
+
+	if err := s.taskRepo.UpdateTaskStatus(ctx, taskID, newTaskStatus, now); err != nil {
+		return err
+	}
+
+	// เผื่ออยากคำนวณ “สเต็ปถัดไปที่ยังเปิดอยู่ (todo)” เพื่อ UI เด้งไป
+	var next *models.TaskWorkflowStep
+	for i := range steps {
+		if steps[i].Status == "todo" {
+			next = &steps[i]
+			break
+		}
+	}
+
+	log.Println("Next step:", next)
+	return nil
 }
