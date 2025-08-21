@@ -24,10 +24,11 @@ type userService struct {
 	dropDownRepo      ports.DropDownRepository
 	storageService    *storage.SupabaseStorage
 	storageCloudflare *storage.CloudflareStorage
+	taskRepo          ports.TaskRepository
 }
 
-func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository, ss *storage.SupabaseStorage, sc *storage.CloudflareStorage) ports.UserService {
-	return &userService{config: cfg, userRepo: ur, dropDownRepo: dr, storageService: ss, storageCloudflare: sc}
+func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository, ss *storage.SupabaseStorage, sc *storage.CloudflareStorage, tr ports.TaskRepository) ports.UserService {
+	return &userService{config: cfg, userRepo: ur, dropDownRepo: dr, storageService: ss, storageCloudflare: sc, taskRepo: tr}
 }
 
 func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) error {
@@ -302,16 +303,29 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 
 		positionsName := "ไม่พบตำแหน่ง"
 		departmentsName := "ไม่พบแผนก"
-		positions, _ := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": u.PositionID}, bson.M{"_id": 0, "position_name": 1, "level": 1})
+		tasksCompleted := "0"
+		tasksTotal := "0"
+
+		positions, _ := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": u.PositionID, "deleted_at": nil}, bson.M{"_id": 0, "position_name": 1, "level": 1})
 
 		if len(positions) > 0 {
 			positionsName = positions[0].PositionName + " (" + positions[0].Level + ")"
 		}
 
-		departments, _ := s.dropDownRepo.GetDepartments(ctx, bson.M{"department_id": u.DepartmentID}, bson.M{"_id": 0, "department_name": 1})
+		departments, _ := s.dropDownRepo.GetDepartments(ctx, bson.M{"department_id": u.DepartmentID, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1})
 
 		if len(departments) > 0 {
 			departmentsName = departments[0].DepartmentName
+		}
+
+		filterUserTaskStats := bson.M{"user_id": u.UserID, "deleted_at": nil}
+		projectionUserTaskStats := bson.M{}
+
+		existingStats, _ := s.taskRepo.GetOneUserTaskStatsByFilter(ctx, filterUserTaskStats, projectionUserTaskStats)
+
+		if existingStats != nil {
+			tasksCompleted = fmt.Sprintf("%d", existingStats.Totals.Completed)
+			tasksTotal = fmt.Sprintf("%d", existingStats.Totals.Open)
 		}
 
 		dtoUsers = append(dtoUsers, &dto.ResponseGetUserAll{
@@ -332,8 +346,8 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 			Role:           u.Role,
 			Status:         u.Status,
 			KPIScore:       "100%",
-			TasksCompleted: "0",
-			TasksTotal:     "0",
+			TasksCompleted: tasksCompleted,
+			TasksTotal:     tasksTotal,
 			CreatedAt:      u.CreatedAt,
 			UpdatedAt:      u.UpdatedAt,
 			DeletedAt:      u.DeletedAt,

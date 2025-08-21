@@ -178,7 +178,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 			return dto.Pagination{}, errOnGetSignTypes
 		}
 
-		if signTypes != nil && len(signTypes) > 0 {
+		if signTypes != nil {
 			SignTypeName = signTypes[0].NameTH
 		}
 
@@ -251,7 +251,7 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 		return nil, errOnGetSignTypes
 	}
 
-	if signTypes != nil && len(signTypes) > 0 {
+	if signTypes != nil {
 		SignTypeName = signTypes[0].NameTH
 	}
 

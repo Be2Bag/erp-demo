@@ -61,7 +61,7 @@ func main() {
 	departmentRepo := repositories.NewDepartmentRepository(database)
 	positionRepo := repositories.NewPositionRepository(database)
 
-	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage)
+	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage, taskRepo)
 	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
 	adminSvc := services.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	dropDownSvc := services.NewDropDownService(*cfg, dropDownRepo)
