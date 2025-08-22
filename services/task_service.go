@@ -583,8 +583,8 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 				}
 				if p.Status != nil {
 					newStatus := strings.ToLower(strings.TrimSpace(*p.Status)) // normalize สถานะ
-					if !helpers.InSet(newStatus, "todo", "in_progress", "blocked", "done") {
-						return fmt.Errorf("step_patches[%d].status invalid (todo|in_progress|blocked|done)", j)
+					if !helpers.InSet(newStatus, "todo", "in_progress", "skip", "done") {
+						return fmt.Errorf("step_patches[%d].status invalid (todo|in_progress|skip|done)", j)
 					}
 					// ถ้าเปลี่ยนเป็น in_progress แต่ยังไม่มี started_at และ caller ไม่ได้ส่ง started_at มา → เซ็ตเดี๋ยวนี้
 					if newStatus == "in_progress" && st.StartedAt == nil && p.StartedAt == nil {
@@ -592,7 +592,7 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 						st.StartedAt = &t
 					}
 					// ถ้าเปลี่ยนเป็น done แต่ยังไม่มี completed_at และ caller ไม่ได้ส่ง → เซ็ตเดี๋ยวนี้
-					if newStatus == "done" && st.CompletedAt == nil && p.CompletedAt == nil {
+					if (newStatus == "done" || newStatus == "skip") && st.CompletedAt == nil && p.CompletedAt == nil {
 						t := now
 						st.CompletedAt = &t
 					}
@@ -791,7 +791,7 @@ func (s *taskService) DeleteTask(ctx context.Context, taskID string, claims *dto
 		bson.M{"assignee": 1, "status": 1, "department": 1},
 	)
 
-	err := s.taskRepo.SoftDeleteTaskByJobID(ctx, taskID)
+	err := s.taskRepo.SoftDeleteTaskByID(ctx, taskID)
 	if err == mongo.ErrNoDocuments {
 		return nil
 	}

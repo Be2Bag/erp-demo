@@ -21,7 +21,7 @@ type TaskService interface {
 type TaskRepository interface {
 	CreateTask(ctx context.Context, task models.Tasks) error
 	UpdateTaskByID(ctx context.Context, taskID string, update models.Tasks) (*models.Tasks, error)
-	SoftDeleteTaskByJobID(ctx context.Context, taskID string) error
+	SoftDeleteTaskByID(ctx context.Context, taskID string) error
 	GetAllTaskByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Tasks, error)
 	GetOneTasksByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.Tasks, error)
 	GetListTasksByFilter(ctx context.Context, filter interface{}, projection interface{}, sort bson.D, skip, limit int64) ([]models.Tasks, int64, error)

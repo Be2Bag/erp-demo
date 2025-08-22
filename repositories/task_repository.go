@@ -60,7 +60,7 @@ func (r *taskRepo) UpdateTaskByID(ctx context.Context, taskID string, update mod
 	return &updated, nil
 }
 
-func (r *taskRepo) SoftDeleteTaskByJobID(ctx context.Context, taskID string) error {
+func (r *taskRepo) SoftDeleteTaskByID(ctx context.Context, taskID string) error {
 	_, err := r.coll.UpdateOne(ctx, bson.M{"task_id": taskID}, bson.M{"$set": bson.M{"deleted_at": time.Now()}})
 	return err
 }
@@ -157,57 +157,57 @@ func (r *taskRepo) GetAllStepSteps(ctx context.Context, taskID string) ([]models
 }
 
 // อัปเดตฟิลด์ของ step เดียว (status optional, notes optional)
-func (r *taskRepo) UpdateOneStepFields(ctx context.Context, taskID, stepID string, status *string, notes *string, now time.Time) error {
-	filter := bson.M{
-		"task_id":                        taskID,
-		"deleted_at":                     nil,
-		"applied_workflow.steps.step_id": stepID, // ensure exists
-	}
+// func (r *taskRepo) UpdateOneStepFields(ctx context.Context, taskID, stepID string, status *string, notes *string, now time.Time) error {
+// 	filter := bson.M{
+// 		"task_id":                        taskID,
+// 		"deleted_at":                     nil,
+// 		"applied_workflow.steps.step_id": stepID, // ensure exists
+// 	}
 
-	set := bson.M{
-		"applied_workflow.steps.$[s].updated_at": now,
-	}
-	if status != nil {
-		set["applied_workflow.steps.$[s].status"] = *status
-	}
-	if notes != nil {
-		set["applied_workflow.steps.$[s].notes"] = *notes
-	}
+// 	set := bson.M{
+// 		"applied_workflow.steps.$[s].updated_at": now,
+// 	}
+// 	if status != nil {
+// 		set["applied_workflow.steps.$[s].status"] = *status
+// 	}
+// 	if notes != nil {
+// 		set["applied_workflow.steps.$[s].notes"] = *notes
+// 	}
 
-	arrayFilters := []interface{}{
-		bson.M{"s.step_id": stepID},
-	}
+// 	arrayFilters := []interface{}{
+// 		bson.M{"s.step_id": stepID},
+// 	}
 
-	// ตั้ง timestamp ตามสถานะใหม่ (เฉพาะตอนขออัปเดต status)
-	if status != nil {
-		switch *status {
-		case "in_progress":
-			// set started_at เมื่อยังไม่มี
-			set["applied_workflow.steps.$[sNotStarted].started_at"] = now
-			arrayFilters = append(arrayFilters, bson.M{
-				"sNotStarted.step_id": stepID,
-				"$or":                 []bson.M{{"sNotStarted.started_at": bson.M{"$exists": false}}, {"sNotStarted.started_at": nil}},
-			})
-		case "done", "skip":
-			// set completed_at เมื่อยังไม่มี
-			set["applied_workflow.steps.$[sNotCompleted].completed_at"] = now
-			arrayFilters = append(arrayFilters, bson.M{
-				"sNotCompleted.step_id": stepID,
-				"$or":                   []bson.M{{"sNotCompleted.completed_at": bson.M{"$exists": false}}, {"sNotCompleted.completed_at": nil}},
-			})
-		}
-	}
+// 	// ตั้ง timestamp ตามสถานะใหม่ (เฉพาะตอนขออัปเดต status)
+// 	if status != nil {
+// 		switch *status {
+// 		case "in_progress":
+// 			// set started_at เมื่อยังไม่มี
+// 			set["applied_workflow.steps.$[sNotStarted].started_at"] = now
+// 			arrayFilters = append(arrayFilters, bson.M{
+// 				"sNotStarted.step_id": stepID,
+// 				"$or":                 []bson.M{{"sNotStarted.started_at": bson.M{"$exists": false}}, {"sNotStarted.started_at": nil}},
+// 			})
+// 		case "done", "skip":
+// 			// set completed_at เมื่อยังไม่มี
+// 			set["applied_workflow.steps.$[sNotCompleted].completed_at"] = now
+// 			arrayFilters = append(arrayFilters, bson.M{
+// 				"sNotCompleted.step_id": stepID,
+// 				"$or":                   []bson.M{{"sNotCompleted.completed_at": bson.M{"$exists": false}}, {"sNotCompleted.completed_at": nil}},
+// 			})
+// 		}
+// 	}
 
-	opts := options.Update().SetArrayFilters(options.ArrayFilters{Filters: arrayFilters})
-	res, err := r.coll.UpdateOne(ctx, filter, bson.M{"$set": set}, opts)
-	if err != nil {
-		return err
-	}
-	if res.MatchedCount == 0 {
-		return mongo.ErrNoDocuments
-	}
-	return nil
-}
+// 	opts := options.Update().SetArrayFilters(options.ArrayFilters{Filters: arrayFilters})
+// 	res, err := r.coll.UpdateOne(ctx, filter, bson.M{"$set": set}, opts)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if res.MatchedCount == 0 {
+// 		return mongo.ErrNoDocuments
+// 	}
+// 	return nil
+// }
 
 func (r *taskRepo) UpdateTaskStatus(ctx context.Context, taskID, status string, now time.Time) error {
 	filter := bson.M{"task_id": taskID, "deleted_at": nil}
@@ -242,6 +242,96 @@ func (r *taskRepo) UpsertUserTaskStats(ctx context.Context, stats *models.UserTa
 	update := bson.M{"$set": stats}
 	opts := options.Update().SetUpsert(true)
 	res, err := r.collUserTaskStats.UpdateOne(ctx, filter, update, opts)
+	if err != nil {
+		return err
+	}
+	if res.MatchedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
+	return nil
+}
+
+func (r *taskRepo) UpdateOneStepFields(ctx context.Context, taskID, stepID string, status *string, notes *string, now time.Time) error {
+	filter := bson.M{
+		"task_id":                        taskID,
+		"deleted_at":                     nil,
+		"applied_workflow.steps.step_id": stepID, // ensure exists
+	}
+
+	set := bson.M{
+		"applied_workflow.steps.$[s].updated_at": now,
+	}
+	if status != nil {
+		set["applied_workflow.steps.$[s].status"] = *status
+	}
+	if notes != nil {
+		set["applied_workflow.steps.$[s].notes"] = *notes
+	}
+
+	// --- เพิ่มส่วนสำหรับ unset เมื่อ revert ---
+	unset := bson.M{}
+	needAnyFilter := false
+
+	arrayFilters := []interface{}{
+		bson.M{"s.step_id": stepID}, // ตัวหลัก
+	}
+
+	// ตั้ง/เคลียร์ timestamp ตามสถานะใหม่ (เฉพาะตอนขออัปเดต status)
+	if status != nil {
+		switch *status {
+		case "in_progress":
+			// ถ้ายังไม่เคย start ให้ set started_at
+			set["applied_workflow.steps.$[sNotStarted].started_at"] = now
+			arrayFilters = append(arrayFilters, bson.M{
+				"sNotStarted.step_id": stepID,
+				"$or": []bson.M{
+					{"sNotStarted.started_at": bson.M{"$exists": false}},
+					{"sNotStarted.started_at": nil},
+				},
+			})
+			// ถ้าเคย done/skip มาก่อน ให้เคลียร์ completed_at
+			unset["applied_workflow.steps.$[sAny].completed_at"] = ""
+			needAnyFilter = true
+
+		case "done", "skip":
+			// ถ้ายังไม่เคย complete ให้ set completed_at
+			set["applied_workflow.steps.$[sNotCompleted].completed_at"] = now
+			arrayFilters = append(arrayFilters, bson.M{
+				"sNotCompleted.step_id": stepID,
+				"$or": []bson.M{
+					{"sNotCompleted.completed_at": bson.M{"$exists": false}},
+					{"sNotCompleted.completed_at": nil},
+				},
+			})
+			// (ออปชัน) จะบังคับ set started_at ถ้ายังไม่มี ก็ทำเพิ่มได้:
+			// set["applied_workflow.steps.$[sNotStarted].started_at"] = now
+			// arrayFilters = append(arrayFilters, bson.M{
+			// 	"sNotStarted.step_id": stepID,
+			// 	"$or": []bson.M{
+			// 		{"sNotStarted.started_at": bson.M{"$exists": false}},
+			// 		{"sNotStarted.started_at": nil},
+			// 	},
+			// })
+
+		case "todo":
+			// กลับไปยังไม่เริ่ม → เคลียร์ทั้ง started_at และ completed_at
+			unset["applied_workflow.steps.$[sAny].started_at"] = ""
+			unset["applied_workflow.steps.$[sAny].completed_at"] = ""
+			needAnyFilter = true
+		}
+	}
+
+	if needAnyFilter {
+		arrayFilters = append(arrayFilters, bson.M{"sAny.step_id": stepID})
+	}
+
+	update := bson.M{"$set": set}
+	if len(unset) > 0 {
+		update["$unset"] = unset
+	}
+
+	opts := options.Update().SetArrayFilters(options.ArrayFilters{Filters: arrayFilters})
+	res, err := r.coll.UpdateOne(ctx, filter, update, opts)
 	if err != nil {
 		return err
 	}
