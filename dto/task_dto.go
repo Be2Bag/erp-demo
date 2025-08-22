@@ -84,9 +84,11 @@ type TaskDTO struct {
 	JobName     string `json:"job_name"`    // ชื่องาน
 	Description string `json:"description"` // รายละเอียดงาน
 
-	Department string `json:"department_id"` // แผนกที่เกี่ยวข้อง
-	Assignee   string `json:"assignee"`      // ผู้รับผิดชอบหลัก
-	Importance string `json:"importance"`    // ความสำคัญ (low|medium|high)
+	Department     string `json:"department_id"`   // แผนกที่เกี่ยวข้อง
+	DepartmentName string `json:"department_name"` // ชื่อแผนก (อาจจะไม่ต้องมีถ้าไม่ใช้)
+	Assignee       string `json:"assignee"`        // ผู้รับผิดชอบหลัก
+	AssigneeName   string `json:"assignee_name"`   // ชื่อผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)
+	Importance     string `json:"importance"`      // ความสำคัญ (low|medium|high)
 
 	StartDate time.Time `json:"start_date"` // วันที่เริ่มงาน
 	EndDate   time.Time `json:"end_date"`   // วันที่สิ้นสุดงาน
@@ -96,12 +98,13 @@ type TaskDTO struct {
 
 	AppliedWorkflow TaskAppliedWorkflow `json:"applied_workflow"` // Snapshot workflow ที่ใช้ในงานนี้
 
-	Status    string     `json:"status"`     // สถานะปัจจุบันของงาน (todos|in_progress|skip|done)
-	StepName  string     `json:"step_name"`  // ชื่อขั้นตอนปัจจุบัน
-	CreatedBy string     `json:"created_by"` // ผู้สร้างงาน
-	CreatedAt time.Time  `json:"created_at"` // วันที่สร้าง
-	UpdatedAt time.Time  `json:"updated_at"` // วันที่อัปเดตล่าสุด
-	DeletedAt *time.Time `json:"deleted_at"` // วันที่ลบ (soft delete)
+	Status        string     `json:"status"`          // สถานะปัจจุบันของงาน (todos|in_progress|skip|done)
+	StepName      string     `json:"step_name"`       // ชื่อขั้นตอนปัจจุบัน
+	CreatedBy     string     `json:"created_by"`      // ผู้สร้างงาน
+	CreatedByName string     `json:"created_by_name"` // ชื่อผู้สร้างงาน
+	CreatedAt     time.Time  `json:"created_at"`      // วันที่สร้าง
+	UpdatedAt     time.Time  `json:"updated_at"`      // วันที่อัปเดตล่าสุด
+	DeletedAt     *time.Time `json:"deleted_at"`      // วันที่ลบ (soft delete)
 }
 
 type TaskAppliedWorkflow struct {

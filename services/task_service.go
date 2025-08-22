@@ -20,14 +20,15 @@ import (
 )
 
 type taskService struct {
-	config       config.Config
-	taskRepo     ports.TaskRepository
-	userRepo     ports.UserRepository
-	workflowRepo ports.WorkFlowRepository
+	config         config.Config
+	taskRepo       ports.TaskRepository
+	userRepo       ports.UserRepository
+	workflowRepo   ports.WorkFlowRepository
+	departmentRepo ports.DepartmentRepository
 }
 
-func NewTaskService(cfg config.Config, taskRepo ports.TaskRepository, userRepo ports.UserRepository, workflowRepo ports.WorkFlowRepository) ports.TaskService {
-	return &taskService{config: cfg, taskRepo: taskRepo, userRepo: userRepo, workflowRepo: workflowRepo}
+func NewTaskService(cfg config.Config, taskRepo ports.TaskRepository, userRepo ports.UserRepository, workflowRepo ports.WorkFlowRepository, departmentRepo ports.DepartmentRepository) ports.TaskService {
+	return &taskService{config: cfg, taskRepo: taskRepo, userRepo: userRepo, workflowRepo: workflowRepo, departmentRepo: departmentRepo}
 }
 
 func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error) {
@@ -82,6 +83,25 @@ func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, p
 
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
+
+		departmentsName := "ไม่พบแผนก"
+		createdByName := "ไม่พบผู้สร้าง"
+		assigneeName := "ไม่พบผู้รับผิดชอบ"
+
+		createdBy, _ := s.userRepo.GetByID(ctx, m.CreatedBy)
+		assignee, _ := s.userRepo.GetByID(ctx, m.Assignee)
+		departments, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.Department, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1})
+
+		if departments != nil {
+			departmentsName = departments.DepartmentName
+		}
+		if createdBy != nil {
+			createdByName = fmt.Sprintf("%s %s %s", createdBy.TitleTH, createdBy.FirstNameTH, createdBy.LastNameTH)
+		}
+		if assignee != nil {
+			assigneeName = fmt.Sprintf("%s %s %s", assignee.TitleTH, assignee.FirstNameTH, assignee.LastNameTH)
+		}
+
 		steps := make([]dto.TaskWorkflowStep, 0, len(m.AppliedWorkflow.Steps))
 		for _, st := range m.AppliedWorkflow.Steps {
 			steps = append(steps, dto.TaskWorkflowStep{
@@ -106,9 +126,11 @@ func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, p
 			JobName:     m.JobName,
 			Description: m.Description,
 
-			Department: m.Department,
-			Assignee:   m.Assignee,
-			Importance: m.Importance,
+			Department:     m.Department,
+			DepartmentName: departmentsName,
+			Assignee:       m.Assignee,
+			AssigneeName:   assigneeName,
+			Importance:     m.Importance,
 
 			StartDate: m.StartDate,
 			EndDate:   m.EndDate,
@@ -126,12 +148,13 @@ func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, p
 				Version:      m.AppliedWorkflow.Version,
 			},
 
-			Status:    m.Status,
-			StepName:  m.StepName,
-			CreatedBy: m.CreatedBy,
-			CreatedAt: m.CreatedAt,
-			UpdatedAt: m.UpdatedAt,
-			DeletedAt: m.DeletedAt,
+			Status:        m.Status,
+			StepName:      m.StepName,
+			CreatedBy:     m.CreatedBy,
+			CreatedByName: createdByName,
+			CreatedAt:     m.CreatedAt,
+			UpdatedAt:     m.UpdatedAt,
+			DeletedAt:     m.DeletedAt,
 		})
 	}
 
