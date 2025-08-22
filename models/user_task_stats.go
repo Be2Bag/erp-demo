@@ -4,7 +4,6 @@ import "time"
 
 const CollectionUserTaskStats = "user_task_stats"
 
-// สถิติงานต่อผู้ใช้ (unique โดย (user_id, period))
 type UserTaskStats struct {
 	UserID       string         `json:"user_id" bson:"user_id"`                       // อ้างอิงผู้ใช้
 	DepartmentID string         `json:"department_id,omitempty" bson:"department_id"` // ช่วย filter รายแผนก (เลือกใส่)

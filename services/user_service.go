@@ -325,7 +325,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 
 		if existingStats != nil {
 			tasksCompleted = fmt.Sprintf("%d", existingStats.Totals.Completed)
-			tasksTotal = fmt.Sprintf("%d", existingStats.Totals.Open)
+			tasksTotal = fmt.Sprintf("%d", existingStats.Totals.Assigned)
 		}
 
 		dtoUsers = append(dtoUsers, &dto.ResponseGetUserAll{

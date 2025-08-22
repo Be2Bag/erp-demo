@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"log"
 	"regexp"
 	"sort"
 	"strings"
@@ -376,6 +375,10 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 		return mongo.ErrNoDocuments
 	}
 
+	// เก็บค่าก่อนแก้
+	oldAssignee := existing.Assignee
+	oldStatus := existing.Status
+
 	// --- 2) อัปเดตฟิลด์ระดับงาน (ตาม pointer) ---
 	if v := req.ProjectID; v != nil {
 		existing.ProjectID = strings.TrimSpace(*v) // trim ช่องว่างก่อน-หลัง
@@ -672,20 +675,198 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 	if updated == nil {
 		return mongo.ErrNoDocuments // ป้องกันกรณีไม่เจอระหว่างเขียน (edge case)
 	}
+
+	// <============================ Update Stats Inline ============================>
+	newAssignee := existing.Assignee
+	newStatus := existing.Status
+
+	// ฟังก์ชันย่อยในบล็อก (ไม่ประกาศนอก method): อ่าน->แก้ totals->upsert
+	updateStats := func(userID string, assignedDelta, openDelta, inProgDelta, completedDelta int) error {
+		if strings.TrimSpace(userID) == "" {
+			return nil
+		}
+
+		existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx,
+			bson.M{"user_id": userID},
+			bson.M{},
+		)
+		if err != nil && err != mongo.ErrNoDocuments {
+			return err
+		}
+		nowUTC := time.Now().UTC()
+
+		totals := models.UserTaskTotals{}
+		createdAt := nowUTC
+		if existingStats != nil {
+			totals = existingStats.Totals
+			createdAt = existingStats.CreatedAt
+		}
+
+		// apply delta + กันติดลบ
+		totals.Assigned += assignedDelta
+		totals.Open += openDelta
+		totals.InProgress += inProgDelta
+		totals.Completed += completedDelta
+		if totals.Assigned < 0 {
+			totals.Assigned = 0
+		}
+		if totals.Open < 0 {
+			totals.Open = 0
+		}
+		if totals.InProgress < 0 {
+			totals.InProgress = 0
+		}
+		if totals.Completed < 0 {
+			totals.Completed = 0
+		}
+
+		statsDoc := &models.UserTaskStats{
+			UserID:       userID,
+			DepartmentID: existing.Department,
+			Totals:       totals,
+			KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
+			CreatedAt:    createdAt,
+			UpdatedAt:    nowUTC,
+		}
+		return s.taskRepo.UpsertUserTaskStats(ctx, statsDoc)
+	}
+
+	// 1) หากเปลี่ยนผู้รับผิดชอบ: หักของเก่า + บวกของใหม่ (อิงสถานะ "ใหม่" หลังแก้)
+	if oldAssignee != newAssignee {
+		// หักของผู้เก่า: -assigned, -open/-in_progress หรือ -completed ตาม oldStatus เดิม
+		switch oldStatus {
+		case "done":
+			_ = updateStats(oldAssignee, -1, 0, 0, -1)
+		case "in_progress":
+			_ = updateStats(oldAssignee, -1, -1, -1, 0)
+		default: // "todo" หรืออื่นๆที่นับเป็น open
+			_ = updateStats(oldAssignee, -1, -1, 0, 0)
+		}
+		// บวกของผู้ใหม่: +assigned, +open/+in_progress หรือ +completed ตาม newStatus ใหม่
+		switch newStatus {
+		case "done":
+			_ = updateStats(newAssignee, +1, 0, 0, +1)
+		case "in_progress":
+			_ = updateStats(newAssignee, +1, +1, +1, 0)
+		default: // "todo"
+			_ = updateStats(newAssignee, +1, +1, 0, 0)
+		}
+		return nil
+	}
+
+	// 2) ผู้รับผิดชอบเดิม แต่สถานะ “เปลี่ยน” → ปรับยอดเฉพาะ open/in_progress/completed
+	if oldStatus != newStatus {
+		switch oldStatus {
+		case "todo":
+			switch newStatus {
+			case "in_progress":
+				_ = updateStats(newAssignee, 0, 0, +1, 0) // open เท่าเดิม
+			case "done":
+				_ = updateStats(newAssignee, 0, -1, 0, +1) // todo -> done
+			}
+		case "in_progress":
+			switch newStatus {
+			case "todo":
+				_ = updateStats(newAssignee, 0, 0, -1, 0) // in_progress -> todo (open เท่าเดิม)
+			case "done":
+				_ = updateStats(newAssignee, 0, -1, -1, +1) // in_progress -> done
+			}
+		case "done":
+			switch newStatus {
+			case "in_progress":
+				_ = updateStats(newAssignee, 0, +1, +1, -1) // done -> in_progress
+			case "todo":
+				_ = updateStats(newAssignee, 0, +1, 0, -1) // done -> todo
+			}
+		}
+	}
+
 	return nil
 }
 
 func (s *taskService) DeleteTask(ctx context.Context, taskID string, claims *dto.JWTClaims) error {
+
+	t, _ := s.taskRepo.GetOneTasksByFilter(ctx,
+		bson.M{"task_id": taskID, "deleted_at": nil},
+		bson.M{"assignee": 1, "status": 1, "department": 1},
+	)
+
 	err := s.taskRepo.SoftDeleteTaskByJobID(ctx, taskID)
 	if err == mongo.ErrNoDocuments {
 		return nil
 	}
-	return err
+
+	// <============================ Update Stats Inline ============================>
+	if t != nil && strings.TrimSpace(t.Assignee) != "" {
+		updateStats := func(userID string, assignedDelta, openDelta, inProgDelta, completedDelta int) error {
+			existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx, bson.M{"user_id": userID}, bson.M{})
+			if err != nil && err != mongo.ErrNoDocuments {
+				return err
+			}
+			nowUTC := time.Now().UTC()
+
+			totals := models.UserTaskTotals{}
+			createdAt := nowUTC
+			if existingStats != nil {
+				totals = existingStats.Totals
+				createdAt = existingStats.CreatedAt
+			}
+			totals.Assigned += assignedDelta
+			totals.Open += openDelta
+			totals.InProgress += inProgDelta
+			totals.Completed += completedDelta
+			if totals.Assigned < 0 {
+				totals.Assigned = 0
+			}
+			if totals.Open < 0 {
+				totals.Open = 0
+			}
+			if totals.InProgress < 0 {
+				totals.InProgress = 0
+			}
+			if totals.Completed < 0 {
+				totals.Completed = 0
+			}
+
+			return s.taskRepo.UpsertUserTaskStats(ctx, &models.UserTaskStats{
+				UserID:       userID,
+				DepartmentID: t.Department,
+				Totals:       totals,
+				KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
+				CreatedAt:    createdAt,
+				UpdatedAt:    nowUTC,
+			})
+		}
+
+		switch t.Status {
+		case "done":
+			_ = updateStats(t.Assignee, -1, 0, 0, -1)
+		case "in_progress":
+			_ = updateStats(t.Assignee, -1, -1, -1, 0)
+		default: // "todo"
+			_ = updateStats(t.Assignee, -1, -1, 0, 0)
+		}
+	}
+
+	return nil
+
 }
 
 func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID string, req dto.UpdateStepStatusNoteRequest, claims *dto.JWTClaims) error {
 
-	now := time.Now().UTC()
+	now := time.Now()
+
+	// ดึงสถานะ/assignee ปัจจุบันไว้ก่อน (เพื่อเทียบหลังอัปเดต)
+	prevTask, _ := s.taskRepo.GetOneTasksByFilter(ctx,
+		bson.M{"task_id": taskID, "deleted_at": nil},
+		bson.M{"assignee": 1, "status": 1, "department": 1},
+	)
+	var prevStatus, assignee, department string
+	if prevTask != nil {
+		prevStatus = prevTask.Status
+		assignee = prevTask.Assignee
+		department = prevTask.Department
+	}
 
 	var normalized *string
 	if req.Status != nil {
@@ -731,15 +912,86 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 		return err
 	}
 
-	// เผื่ออยากคำนวณ “สเต็ปถัดไปที่ยังเปิดอยู่ (todo)” เพื่อ UI เด้งไป
-	var next *models.TaskWorkflowStep
-	for i := range steps {
-		if steps[i].Status == "todo" {
-			next = &steps[i]
-			break
+	// <============================ Update Stats Inline ============================>
+	// ปรับเฉพาะเมื่อ status งานเปลี่ยน (assignee เดิม)
+	if assignee != "" && prevStatus != "" && prevStatus != newTaskStatus {
+		updateStats := func(userID string, assignedDelta, openDelta, inProgDelta, completedDelta int) error {
+			if strings.TrimSpace(userID) == "" {
+				return nil
+			}
+			existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx, bson.M{"user_id": userID}, bson.M{})
+			if err != nil && err != mongo.ErrNoDocuments {
+				return err
+			}
+			nowUTC := time.Now().UTC()
+
+			totals := models.UserTaskTotals{}
+			createdAt := nowUTC
+			if existingStats != nil {
+				totals = existingStats.Totals
+				createdAt = existingStats.CreatedAt
+			}
+			totals.Assigned += assignedDelta // ปกติ status change ไม่แตะ assigned (0)
+			totals.Open += openDelta
+			totals.InProgress += inProgDelta
+			totals.Completed += completedDelta
+			if totals.Assigned < 0 {
+				totals.Assigned = 0
+			}
+			if totals.Open < 0 {
+				totals.Open = 0
+			}
+			if totals.InProgress < 0 {
+				totals.InProgress = 0
+			}
+			if totals.Completed < 0 {
+				totals.Completed = 0
+			}
+
+			return s.taskRepo.UpsertUserTaskStats(ctx, &models.UserTaskStats{
+				UserID:       userID,
+				DepartmentID: department,
+				Totals:       totals,
+				KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
+				CreatedAt:    createdAt,
+				UpdatedAt:    nowUTC,
+			})
+		}
+
+		switch prevStatus {
+		case "todo":
+			switch newTaskStatus {
+			case "in_progress":
+				_ = updateStats(assignee, 0, 0, +1, 0)
+			case "done":
+				_ = updateStats(assignee, 0, -1, 0, +1)
+			}
+		case "in_progress":
+			switch newTaskStatus {
+			case "todo":
+				_ = updateStats(assignee, 0, 0, -1, 0)
+			case "done":
+				_ = updateStats(assignee, 0, -1, -1, +1)
+			}
+		case "done":
+			switch newTaskStatus {
+			case "in_progress":
+				_ = updateStats(assignee, 0, +1, +1, -1)
+			case "todo":
+				_ = updateStats(assignee, 0, +1, 0, -1)
+			}
 		}
 	}
 
-	log.Println("Next step:", next)
+	// เผื่ออยากคำนวณ “สเต็ปถัดไปที่ยังเปิดอยู่ (todo)” เพื่อ UI เด้งไป
+	// var next *models.TaskWorkflowStep
+	// for i := range steps {
+	// 	if steps[i].Status == "todo" {
+	// 		next = &steps[i]
+	// 		break
+	// 	}
+	// }
+
+	// log.Println("Next step:", next)
 	return nil
 }

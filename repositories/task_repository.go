@@ -228,7 +228,7 @@ func (r *taskRepo) GetOneUserTaskStatsByFilter(ctx context.Context, filter inter
 		opts.SetProjection(projection)
 	}
 	var stats models.UserTaskStats
-	if err := r.coll.FindOne(ctx, filter, opts).Decode(&stats); err != nil {
+	if err := r.collUserTaskStats.FindOne(ctx, filter, opts).Decode(&stats); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
