@@ -31,6 +31,7 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 	dropdown.Get("/district/:id", h.GetDistrict)
 	dropdown.Get("/subdistrict/:id", h.GetSubDistrict)
 	dropdown.Get("/customer-type", h.GetCustomerTypes)
+	dropdown.Get("/kpi", h.mdw.AuthCookieMiddleware(), h.GetKPI)
 
 }
 
@@ -339,5 +340,36 @@ func (h *DropDownHandler) GetUser(c *fiber.Ctx) error {
 		MessageTH:  "ดึงข้อมูลผู้ใช้สำเร็จ",
 		Status:     "success",
 		Data:       users,
+	})
+}
+
+// @Summary Get all KPIs
+// @Description ใช้สำหรับดึงข้อมูล KPI ทั้งหมด
+// @Tags Dropdown
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.BaseResponse{data=[]dto.KPITemplateDTO}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/kpi [get]
+func (h *DropDownHandler) GetKPI(c *fiber.Ctx) error {
+
+	kpis, errOnGetKPI := h.svc.GetKPI(c.Context())
+	if errOnGetKPI != nil {
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  fiber.ErrBadGateway.Message,
+			MessageTH:  "ไม่สามารถดึงข้อมูล KPI ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get KPI successfully",
+		MessageTH:  "ดึงข้อมูล KPI สำเร็จ",
+		Status:     "success",
+		Data:       kpis,
 	})
 }

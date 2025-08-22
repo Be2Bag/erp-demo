@@ -274,3 +274,47 @@ func (s *dropDownService) GetUserList(ctx context.Context) ([]dto.ResponseGetUse
 
 	return response, nil
 }
+
+func (s *dropDownService) GetKPI(ctx context.Context) ([]dto.KPITemplateDTO, error) {
+	filter := bson.M{"deleted_at": nil}
+	projection := bson.M{}
+
+	kpis, errOnGetKPI := s.dropDownRepo.GetKPIList(ctx, filter, projection)
+	if errOnGetKPI != nil {
+		return nil, errOnGetKPI
+	}
+
+	if len(kpis) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.KPITemplateDTO
+
+	for _, m := range kpis {
+		ItemsDTO := make([]dto.KPITemplateItemDTO, 0, len(m.Items))
+		for _, st := range m.Items {
+			ItemsDTO = append(ItemsDTO, dto.KPITemplateItemDTO{
+				ItemID:      st.ItemID,
+				Name:        st.Name,
+				Description: st.Description,
+				Category:    st.Category,
+				MaxScore:    st.MaxScore,
+				Weight:      st.Weight,
+				CreatedAt:   st.CreatedAt,
+				UpdatedAt:   st.UpdatedAt,
+			})
+		}
+		response = append(response, dto.KPITemplateDTO{
+			KPIID:       m.KPIID,
+			KPIName:     m.KPIName,
+			Department:  m.Department,
+			TotalWeight: m.TotalWeight,
+			Items:       ItemsDTO,
+			Version:     m.Version,
+			CreatedBy:   m.CreatedBy,
+			CreatedAt:   m.CreatedAt,
+			UpdatedAt:   m.UpdatedAt,
+		})
+	}
+	return response, nil
+}

@@ -20,6 +20,7 @@ type dropDownRepo struct {
 	signJobsColl      *mongo.Collection
 	projectsColl      *mongo.Collection
 	usersColl         *mongo.Collection
+	kpiColl           *mongo.Collection
 }
 
 func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
@@ -34,6 +35,7 @@ func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
 		signJobsColl:      db.Collection(models.CollectionSignJobs),
 		projectsColl:      db.Collection(models.CollectionSProject),
 		usersColl:         db.Collection(models.CollectionUsers),
+		kpiColl:           db.Collection(models.CollectionKPITemplates),
 	}
 }
 func (r *dropDownRepo) GetPositions(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Position, error) {
@@ -264,4 +266,28 @@ func (r *dropDownRepo) GetUsersList(ctx context.Context, filter interface{}, pro
 	}
 
 	return users, nil
+}
+
+func (r *dropDownRepo) GetKPIList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.KPITemplate, error) {
+	var kpis []*models.KPITemplate
+
+	cursor, err := r.kpiColl.Find(ctx, filter, options.Find().SetProjection(projection))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var kpi models.KPITemplate
+		if err := cursor.Decode(&kpi); err != nil {
+			return nil, err
+		}
+		kpis = append(kpis, &kpi)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return kpis, nil
 }
