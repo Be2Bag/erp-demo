@@ -3911,7 +3911,7 @@ const docTemplate = `{
         "dto.CreateKPITemplateDTO": {
             "type": "object",
             "properties": {
-                "department": {
+                "department_id": {
                     "description": "แผนก",
                     "type": "string"
                 },
@@ -4080,7 +4080,7 @@ const docTemplate = `{
                 "assignee": {
                     "type": "string"
                 },
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "description": {
@@ -4148,7 +4148,7 @@ const docTemplate = `{
         "dto.CreateWorkflowTemplateDTO": {
             "type": "object",
             "properties": {
-                "department": {
+                "department_id": {
                     "description": "แผนก (dropdown)",
                     "type": "string"
                 },
@@ -4293,7 +4293,7 @@ const docTemplate = `{
                 "created_by": {
                     "type": "string"
                 },
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "items": {
@@ -4994,7 +4994,7 @@ const docTemplate = `{
         "dto.UpdateKPITemplateDTO": {
             "type": "object",
             "properties": {
-                "department": {
+                "department_id": {
                     "description": "แผนก",
                     "type": "string"
                 },
@@ -5168,7 +5168,7 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "description": {
@@ -5233,7 +5233,7 @@ const docTemplate = `{
         "dto.UpdateWorkflowTemplateDTO": {
             "type": "object",
             "properties": {
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "description": {
@@ -5286,7 +5286,7 @@ const docTemplate = `{
                 "created_by": {
                     "type": "string"
                 },
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "description": {

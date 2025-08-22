@@ -37,7 +37,7 @@ func (r *taskRepo) UpdateTaskByID(ctx context.Context, taskID string, update mod
 		"job_id":           update.JobID,
 		"job_name":         update.JobName,
 		"description":      update.Description,
-		"department":       update.Department,
+		"department_id":    update.Department,
 		"assignee":         update.Assignee,
 		"importance":       update.Importance,
 		"start_date":       update.StartDate,

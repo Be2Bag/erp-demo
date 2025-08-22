@@ -9,7 +9,7 @@ type CreateTaskRequest struct {
 	JobID       string             `json:"job_id"`
 	JobName     string             `json:"job_name"`
 	Description string             `json:"description,omitempty"`
-	Department  string             `json:"department"`
+	Department  string             `json:"department_id"`
 	Assignee    string             `json:"assignee"`
 	Importance  string             `json:"importance"`
 	StartDate   string             `json:"start_date"`
@@ -33,7 +33,7 @@ type UpdateTaskRequest struct {
 	JobID       *string `json:"job_id,omitempty"`
 	JobName     *string `json:"job_name,omitempty"`
 	Description *string `json:"description,omitempty"`
-	Department  *string `json:"department,omitempty"`
+	Department  *string `json:"department_id,omitempty"`
 	Assignee    *string `json:"assignee,omitempty"`
 	Importance  *string `json:"importance,omitempty"` // low|medium|high
 	StartDate   *string `json:"start_date,omitempty"` // "YYYY-MM-DD"
@@ -84,9 +84,9 @@ type TaskDTO struct {
 	JobName     string `json:"job_name"`    // ชื่องาน
 	Description string `json:"description"` // รายละเอียดงาน
 
-	Department string `json:"department"` // แผนกที่เกี่ยวข้อง
-	Assignee   string `json:"assignee"`   // ผู้รับผิดชอบหลัก
-	Importance string `json:"importance"` // ความสำคัญ (low|medium|high)
+	Department string `json:"department_id"` // แผนกที่เกี่ยวข้อง
+	Assignee   string `json:"assignee"`      // ผู้รับผิดชอบหลัก
+	Importance string `json:"importance"`    // ความสำคัญ (low|medium|high)
 
 	StartDate time.Time `json:"start_date"` // วันที่เริ่มงาน
 	EndDate   time.Time `json:"end_date"`   // วันที่สิ้นสุดงาน
@@ -107,7 +107,7 @@ type TaskDTO struct {
 type TaskAppliedWorkflow struct {
 	WorkFlowID   string             `json:"workflow_id"`   // รหัส Workflow (UUID)
 	WorkFlowName string             `json:"workflow_name"` // ชื่อ Workflow
-	Department   string             `json:"department"`    // แผนกที่เกี่ยวข้อง
+	Department   string             `json:"department_id"` // แผนกที่เกี่ยวข้อง
 	Description  string             `json:"description"`   // รายละเอียดเพิ่มเติม
 	TotalHours   float64            `json:"total_hours"`   // ชั่วโมงรวม (แคชจากผลรวม step)
 	Steps        []TaskWorkflowStep `json:"steps"`         // ลำดับขั้นตอนทั้งหมด

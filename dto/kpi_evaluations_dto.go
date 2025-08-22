@@ -9,7 +9,7 @@ type CreateKPIEvaluationRequest struct {
 	Version     int               `json:"version" binding:"required"`
 	EvaluatorID string            `json:"evaluator_id" binding:"required"`
 	EvaluateeID string            `json:"evaluatee_id" binding:"required"`
-	Department  string            `json:"department" binding:"required"`
+	Department  string            `json:"department_id" binding:"required"`
 	Scores      []KPIScoreRequest `json:"scores" binding:"required"`
 	Feedback    string            `json:"feedback,omitempty"`
 }
@@ -31,7 +31,7 @@ type KPIEvaluationResponse struct {
 	Version      int                `json:"version"`
 	EvaluatorID  string             `json:"evaluator_id"`
 	EvaluateeID  string             `json:"evaluatee_id"`
-	Department   string             `json:"department"`
+	Department   string             `json:"department_id"`
 	Scores       []KPIScoreResponse `json:"scores"`
 	TotalScore   int                `json:"total_score"`
 	Feedback     string             `json:"feedback,omitempty"`

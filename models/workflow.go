@@ -9,7 +9,7 @@ const CollectionWorkflowTemplates = "workflow_templates" // ชื่อคอ�
 type WorkFlowTemplate struct {
 	WorkFlowID   string         `bson:"workflow_id" json:"workflow_id"`     // รหัส Workflow (UUID)
 	WorkFlowName string         `bson:"workflow_name" json:"workflow_name"` // ชื่อ Workflow
-	Department   string         `bson:"department" json:"department"`       // แผนกที่เกี่ยวข้อง
+	Department   string         `bson:"department_id" json:"department_id"` // แผนกที่เกี่ยวข้อง
 	Description  string         `bson:"description" json:"description"`     // รายละเอียดเพิ่มเติม
 	TotalHours   float64        `bson:"total_hours" json:"total_hours"`     // ชั่วโมงรวม (แคชจากผลรวม step)
 	Steps        []WorkFlowStep `bson:"steps" json:"steps"`                 // ลำดับขั้นตอนทั้งหมด

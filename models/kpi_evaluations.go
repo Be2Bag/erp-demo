@@ -12,7 +12,7 @@ type KPIEvaluation struct {
 	Version      int        `bson:"version" json:"version"`                     // ใช้ version ของ KPI template ตอนนั้น
 	EvaluatorID  string     `bson:"evaluator_id" json:"evaluator_id"`           // ใครประเมิน
 	EvaluateeID  string     `bson:"evaluatee_id" json:"evaluatee_id"`           // ใครถูกประเมิน (เช่น assignee)
-	Department   string     `bson:"department" json:"department"`               // แผนก
+	Department   string     `bson:"department_id" json:"department_id"`         // แผนก
 	Scores       []KPIScore `bson:"scores" json:"scores"`                       // รายการคะแนนแต่ละ item
 	TotalScore   int        `bson:"total_score" json:"total_score"`             // รวมคะแนน
 	Feedback     string     `bson:"feedback" json:"feedback"`                   // คอมเมนต์รวม

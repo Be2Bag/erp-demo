@@ -9,7 +9,7 @@ const CollectionKPITemplates = "kpi_templates"
 type KPITemplate struct {
 	KPIID       string            `bson:"kpi_id" json:"kpi_id"`
 	KPIName     string            `bson:"kpi_name" json:"kpi_name"`
-	Department  string            `bson:"department" json:"department"`
+	Department  string            `bson:"department_id" json:"department_id"`
 	TotalWeight int               `bson:"total_weight" json:"total_weight"`
 	Items       []KPITemplateItem `bson:"items" json:"items"`
 	IsActive    bool              `bson:"is_active" json:"is_active"`

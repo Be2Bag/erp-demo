@@ -69,9 +69,9 @@ func (s *kpiService) CreateKPITemplate(ctx context.Context, req dto.CreateKPITem
 	}
 
 	filter := bson.M{
-		"kpi_name":   req.KPIName,
-		"department": req.Department,
-		"deleted_at": nil,
+		"kpi_name":      req.KPIName,
+		"department_id": req.Department,
+		"deleted_at":    nil,
 	}
 	opts := options.Find().SetProjection(bson.M{"_id": 1})
 
@@ -262,7 +262,7 @@ func (s *kpiService) ListKPITemplates(ctx context.Context, claims *dto.JWTClaims
 
 	department = strings.TrimSpace(department)
 	if department != "" {
-		filter["department"] = department
+		filter["department_id"] = department
 	}
 
 	search = strings.TrimSpace(search)

@@ -11,7 +11,7 @@ import (
 type WorkFlowService interface {
 	CreateWorkflowTemplate(ctx context.Context, req dto.CreateWorkflowTemplateDTO, claims *dto.JWTClaims) error
 	GetWorkflowTemplateByID(ctx context.Context, workflowID string) (*dto.WorkflowTemplateDTO, error)
-	ListWorkflowTemplates(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error)
+	ListWorkflowTemplates(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department_id string, sortBy string, sortOrder string) (dto.Pagination, error)
 	UpdateWorkflowTemplate(ctx context.Context, workflowID string, req dto.UpdateWorkflowTemplateDTO, updatedBy string) error
 	DeleteWorkflowTemplate(ctx context.Context, workflowID string) error
 }

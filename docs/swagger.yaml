@@ -144,7 +144,7 @@ definitions:
     type: object
   dto.CreateKPITemplateDTO:
     properties:
-      department:
+      department_id:
         description: แผนก
         type: string
       items:
@@ -266,7 +266,7 @@ definitions:
     properties:
       assignee:
         type: string
-      department:
+      department_id:
         type: string
       description:
         type: string
@@ -312,7 +312,7 @@ definitions:
     type: object
   dto.CreateWorkflowTemplateDTO:
     properties:
-      department:
+      department_id:
         description: แผนก (dropdown)
         type: string
       description:
@@ -415,7 +415,7 @@ definitions:
         type: string
       created_by:
         type: string
-      department:
+      department_id:
         type: string
       items:
         items:
@@ -909,7 +909,7 @@ definitions:
     type: object
   dto.UpdateKPITemplateDTO:
     properties:
-      department:
+      department_id:
         description: แผนก
         type: string
       items:
@@ -1034,7 +1034,7 @@ definitions:
         items:
           type: string
         type: array
-      department:
+      department_id:
         type: string
       description:
         type: string
@@ -1082,7 +1082,7 @@ definitions:
     type: object
   dto.UpdateWorkflowTemplateDTO:
     properties:
-      department:
+      department_id:
         type: string
       description:
         type: string
@@ -1117,7 +1117,7 @@ definitions:
         type: string
       created_by:
         type: string
-      department:
+      department_id:
         type: string
       description:
         type: string

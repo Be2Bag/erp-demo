@@ -3905,7 +3905,7 @@
         "dto.CreateKPITemplateDTO": {
             "type": "object",
             "properties": {
-                "department": {
+                "department_id": {
                     "description": "แผนก",
                     "type": "string"
                 },
@@ -4074,7 +4074,7 @@
                 "assignee": {
                     "type": "string"
                 },
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "description": {
@@ -4142,7 +4142,7 @@
         "dto.CreateWorkflowTemplateDTO": {
             "type": "object",
             "properties": {
-                "department": {
+                "department_id": {
                     "description": "แผนก (dropdown)",
                     "type": "string"
                 },
@@ -4287,7 +4287,7 @@
                 "created_by": {
                     "type": "string"
                 },
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "items": {
@@ -4988,7 +4988,7 @@
         "dto.UpdateKPITemplateDTO": {
             "type": "object",
             "properties": {
-                "department": {
+                "department_id": {
                     "description": "แผนก",
                     "type": "string"
                 },
@@ -5162,7 +5162,7 @@
                         "type": "string"
                     }
                 },
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "description": {
@@ -5227,7 +5227,7 @@
         "dto.UpdateWorkflowTemplateDTO": {
             "type": "object",
             "properties": {
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "description": {
@@ -5280,7 +5280,7 @@
                 "created_by": {
                     "type": "string"
                 },
-                "department": {
+                "department_id": {
                     "type": "string"
                 },
                 "description": {

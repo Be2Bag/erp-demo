@@ -14,9 +14,9 @@ type Tasks struct {
 	JobName     string `bson:"job_name" json:"job_name"`         // ชื่องาน
 	Description string `bson:"description" json:"description"`   // รายละเอียดงาน
 
-	Department string `bson:"department" json:"department"` // แผนกที่เกี่ยวข้อง
-	Assignee   string `bson:"assignee" json:"assignee"`     // ผู้รับผิดชอบหลัก
-	Importance string `bson:"importance" json:"importance"` // ความสำคัญ (low|medium|high)
+	Department string `bson:"department_id" json:"department_id"` // แผนกที่เกี่ยวข้อง
+	Assignee   string `bson:"assignee" json:"assignee"`           // ผู้รับผิดชอบหลัก
+	Importance string `bson:"importance" json:"importance"`       // ความสำคัญ (low|medium|high)
 
 	StartDate time.Time `bson:"start_date" json:"start_date"` // วันที่เริ่มงาน
 	EndDate   time.Time `bson:"end_date" json:"end_date"`     // วันที่สิ้นสุดงาน
@@ -37,7 +37,7 @@ type Tasks struct {
 type TaskAppliedWorkflow struct {
 	WorkFlowID   string             `bson:"workflow_id" json:"workflow_id"`     // รหัส Workflow (UUID)
 	WorkFlowName string             `bson:"workflow_name" json:"workflow_name"` // ชื่อ Workflow
-	Department   string             `bson:"department" json:"department"`       // แผนกที่เกี่ยวข้อง
+	Department   string             `bson:"department_id" json:"department_id"` // แผนกที่เกี่ยวข้อง
 	Description  string             `bson:"description" json:"description"`     // รายละเอียดเพิ่มเติม
 	TotalHours   float64            `bson:"total_hours" json:"total_hours"`     // ชั่วโมงรวม (แคชจากผลรวม step)
 	Steps        []TaskWorkflowStep `bson:"steps" json:"steps"`                 // ลำดับขั้นตอนทั้งหมด

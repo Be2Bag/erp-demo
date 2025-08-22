@@ -135,7 +135,7 @@ func (s *workflowService) ListWorkflowTemplates(ctx context.Context, claims *dto
 
 	department = strings.TrimSpace(department)
 	if department != "" {
-		filter["department"] = department
+		filter["department_id"] = department
 	}
 
 	search = strings.TrimSpace(search)

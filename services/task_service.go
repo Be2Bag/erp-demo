@@ -40,7 +40,7 @@ func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, p
 
 	department = strings.TrimSpace(department)
 	if department != "" {
-		filter["department"] = department
+		filter["department_id"] = department
 	}
 
 	search = strings.TrimSpace(search)
@@ -842,7 +842,7 @@ func (s *taskService) DeleteTask(ctx context.Context, taskID string, claims *dto
 
 	t, _ := s.taskRepo.GetOneTasksByFilter(ctx,
 		bson.M{"task_id": taskID, "deleted_at": nil},
-		bson.M{"assignee": 1, "status": 1, "department": 1},
+		bson.M{"assignee": 1, "status": 1, "department_id": 1},
 	)
 
 	err := s.taskRepo.SoftDeleteTaskByID(ctx, taskID)
@@ -913,7 +913,7 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 	// ดึงสถานะ/assignee ปัจจุบันไว้ก่อน (เพื่อเทียบหลังอัปเดต)
 	prevTask, _ := s.taskRepo.GetOneTasksByFilter(ctx,
 		bson.M{"task_id": taskID, "deleted_at": nil},
-		bson.M{"assignee": 1, "status": 1, "department": 1},
+		bson.M{"assignee": 1, "status": 1, "department_id": 1},
 	)
 	var prevStatus, assignee, department string
 	if prevTask != nil {

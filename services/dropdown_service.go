@@ -276,7 +276,7 @@ func (s *dropDownService) GetUserList(ctx context.Context) ([]dto.ResponseGetUse
 }
 
 func (s *dropDownService) GetKPI(ctx context.Context, departmentID string) ([]dto.ResponseGetKPI, error) {
-	filter := bson.M{"deleted_at": nil, "department_id": departmentID}
+	filter := bson.M{"department_id": departmentID, "deleted_at": nil}
 	projection := bson.M{}
 
 	kpis, errOnGetKPI := s.dropDownRepo.GetKPIList(ctx, filter, projection)
@@ -301,7 +301,7 @@ func (s *dropDownService) GetKPI(ctx context.Context, departmentID string) ([]dt
 }
 
 func (s *dropDownService) GetWorkflows(ctx context.Context, departmentID string) ([]dto.ResponseGetWorkflows, error) {
-	filter := bson.M{"deleted_at": nil, "department_id": departmentID}
+	filter := bson.M{"department_id": departmentID, "deleted_at": nil}
 	projection := bson.M{}
 
 	workflows, errOnGetWorkflows := s.dropDownRepo.GetWorkflowsList(ctx, filter, projection)

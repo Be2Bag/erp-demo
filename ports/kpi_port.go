@@ -13,7 +13,7 @@ type KPIService interface {
 	GetKPITemplateByID(ctx context.Context, id string) (*dto.KPITemplateDTO, error)
 	UpdateKPITemplate(ctx context.Context, kpiID string, req dto.UpdateKPITemplateDTO, claims *dto.JWTClaims) error
 	DeleteKPITemplate(ctx context.Context, kpiID string) error
-	ListKPITemplates(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error)
+	ListKPITemplates(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department_id string, sortBy string, sortOrder string) (dto.Pagination, error)
 }
 type KPIRepository interface {
 	CreateKPI(ctx context.Context, kpi models.KPITemplate) error

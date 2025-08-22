@@ -30,7 +30,7 @@ func (r *workFlowRepo) UpdateWorkFlowTemplateByID(ctx context.Context, workflowI
 	set := bson.M{
 		"workflow_name": update.WorkFlowName,
 		"workflow_id":   update.WorkFlowID,
-		"department":    update.Department,
+		"department_id": update.Department,
 		"description":   update.Description,
 		"total_hours":   update.TotalHours,
 		"steps":         update.Steps,

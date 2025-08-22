@@ -58,6 +58,16 @@ func (h *DropDownHandler) GetPosition(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(positions) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No positions found",
+			MessageTH:  "ไม่พบข้อมูลตำแหน่งงาน",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Get positions successfully",
@@ -88,6 +98,16 @@ func (h *DropDownHandler) GetDepartment(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(departments) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No departments found",
+			MessageTH:  "ไม่พบข้อมูลแผนก",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Get departments successfully",
@@ -113,6 +133,16 @@ func (h *DropDownHandler) GetProvince(c *fiber.Ctx) error {
 			StatusCode: fiber.ErrBadGateway.Code,
 			MessageEN:  fiber.ErrBadGateway.Message,
 			MessageTH:  "ไม่สามารถดึงจังหวัดได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	if len(provinces) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No provinces found",
+			MessageTH:  "ไม่พบข้อมูลจังหวัด",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -150,6 +180,16 @@ func (h *DropDownHandler) GetDistrict(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(districts) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No districts found",
+			MessageTH:  "ไม่พบข้อมูลอำเภอ",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Get districts successfully",
@@ -177,6 +217,15 @@ func (h *DropDownHandler) GetSubDistrict(c *fiber.Ctx) error {
 			StatusCode: fiber.ErrBadGateway.Code,
 			MessageEN:  fiber.ErrBadGateway.Message,
 			MessageTH:  "ไม่สามารถดึงตำบลได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	if len(subDistricts) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No sub-districts found",
+			MessageTH:  "ไม่พบข้อมูลตำบล",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -212,6 +261,16 @@ func (h *DropDownHandler) GetSignType(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(signTypes) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No sign types found",
+			MessageTH:  "ไม่พบข้อมูลประเภทงาน",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Get sign types successfully",
@@ -237,6 +296,16 @@ func (h *DropDownHandler) GetCustomerTypes(c *fiber.Ctx) error {
 			StatusCode: fiber.ErrBadGateway.Code,
 			MessageEN:  fiber.ErrBadGateway.Message,
 			MessageTH:  "ไม่สามารถดึงประเภทลูกค้าได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	if len(customerTypes) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No customer types found",
+			MessageTH:  "ไม่พบข้อมูลประเภทลูกค้า",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -275,6 +344,16 @@ func (h *DropDownHandler) GetSignJobList(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(signJobs) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No sign jobs found",
+			MessageTH:  "ไม่พบข้อมูลใบงาน",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Get sign jobs successfully",
@@ -305,6 +384,16 @@ func (h *DropDownHandler) GetProject(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(projects) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No projects found",
+			MessageTH:  "ไม่พบข้อมูลโครงการ",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Get projects successfully",
@@ -330,6 +419,16 @@ func (h *DropDownHandler) GetUser(c *fiber.Ctx) error {
 			StatusCode: fiber.ErrBadGateway.Code,
 			MessageEN:  fiber.ErrBadGateway.Message,
 			MessageTH:  "ไม่สามารถดึงข้อมูลผู้ใช้ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	if len(users) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No users found",
+			MessageTH:  "ไม่พบข้อมูลผู้ใช้",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -369,6 +468,16 @@ func (h *DropDownHandler) GetKPI(c *fiber.Ctx) error {
 		})
 	}
 
+	if len(kpis) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No KPIs found",
+			MessageTH:  "ไม่พบข้อมูล KPI",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Get KPI successfully",
@@ -403,11 +512,21 @@ func (h *DropDownHandler) GetWorkflow(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.Status(fiber.StatusNotImplemented).JSON(dto.BaseResponse{
-		StatusCode: fiber.StatusNotImplemented,
-		MessageEN:  "Workflow retrieval not implemented",
-		MessageTH:  "ยังไม่ได้ implement การดึงข้อมูล workflow",
-		Status:     "error",
+	if len(workflows) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No workflows found",
+			MessageTH:  "ไม่พบข้อมูล Workflow",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get workflows successfully",
+		MessageTH:  "ดึงข้อมูล Workflow สำเร็จ",
+		Status:     "success",
 		Data:       workflows,
 	})
 }

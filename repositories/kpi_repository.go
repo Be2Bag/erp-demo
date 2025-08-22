@@ -28,13 +28,13 @@ func (r *kpiRepo) CreateKPI(ctx context.Context, kpi models.KPITemplate) error {
 func (r *kpiRepo) UpdateKPIByID(ctx context.Context, kpiID string, update models.KPITemplate) (*models.KPITemplate, error) {
 	filter := bson.M{"kpi_id": kpiID}
 	set := bson.M{
-		"kpi_name":     update.KPIName,
-		"department":   update.Department,
-		"total_weight": update.TotalWeight,
-		"items":        update.Items,
-		"is_active":    update.IsActive,
-		"version":      update.Version,
-		"updated_at":   update.UpdatedAt,
+		"kpi_name":      update.KPIName,
+		"department_id": update.Department,
+		"total_weight":  update.TotalWeight,
+		"items":         update.Items,
+		"is_active":     update.IsActive,
+		"version":       update.Version,
+		"updated_at":    update.UpdatedAt,
 	}
 
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
