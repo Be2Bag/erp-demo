@@ -5,6 +5,7 @@ import (
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type DropDownHandler struct {
@@ -459,9 +460,20 @@ func (h *DropDownHandler) GetKPI(c *fiber.Ctx) error {
 
 	kpis, errOnGetKPI := h.svc.GetKPI(c.Context(), departmentID)
 	if errOnGetKPI != nil {
+
+		if errOnGetKPI == mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "No KPIs found",
+				MessageTH:  "ไม่สามารถดึงข้อมูล KPI ได้",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
 		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
 			StatusCode: fiber.ErrBadGateway.Code,
-			MessageEN:  fiber.ErrBadGateway.Message,
+			MessageEN:  errOnGetKPI.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูล KPI ได้",
 			Status:     "error",
 			Data:       nil,
@@ -503,6 +515,17 @@ func (h *DropDownHandler) GetWorkflow(c *fiber.Ctx) error {
 
 	workflows, errOnGetWorkflows := h.svc.GetWorkflows(c.Context(), departmentID)
 	if errOnGetWorkflows != nil {
+
+		if errOnGetWorkflows == mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "No workflows found",
+				MessageTH:  "ไม่สามารถดึงข้อมูล Workflow ได้",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
 		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
 			StatusCode: fiber.ErrBadGateway.Code,
 			MessageEN:  fiber.ErrBadGateway.Message,
