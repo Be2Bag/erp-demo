@@ -2081,7 +2081,7 @@ paths:
       - description: 'Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003:
           แผนกติดตั้ง, DPT004: แผนกบัญชี'
         in: query
-        name: department
+        name: department_id
         type: string
       - description: 'เรียงตาม created_at updated_at workflow_name (ค่าเริ่มต้น: created_at)'
         in: query
@@ -2268,7 +2268,7 @@ paths:
       - description: 'Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003:
           แผนกติดตั้ง, DPT004: แผนกบัญชี'
         in: query
-        name: department
+        name: department_id
         type: string
       - description: เรียงตาม created_at updated_at department_name position_name
           level
@@ -2913,7 +2913,7 @@ paths:
       - description: 'Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003:
           แผนกติดตั้ง, DPT004: แผนกบัญชี'
         in: query
-        name: department
+        name: department_id
         type: string
       - description: 'เรียงตาม created_at updated_at project_name job_name  (ค่าเริ่มต้น:
           created_at)'
@@ -3485,7 +3485,7 @@ paths:
       - description: 'Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003:
           แผนกติดตั้ง, DPT004: แผนกบัญชี'
         in: query
-        name: department
+        name: department_id
         type: string
       - description: 'เรียงตาม created_at updated_at workflow_name (ค่าเริ่มต้น: created_at)'
         in: query

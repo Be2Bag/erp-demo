@@ -1342,7 +1342,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี",
-                        "name": "department",
+                        "name": "department_id",
                         "in": "query"
                     },
                     {
@@ -1628,7 +1628,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี",
-                        "name": "department",
+                        "name": "department_id",
                         "in": "query"
                     },
                     {
@@ -2570,7 +2570,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี",
-                        "name": "department",
+                        "name": "department_id",
                         "in": "query"
                     },
                     {
@@ -3501,7 +3501,7 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี",
-                        "name": "department",
+                        "name": "department_id",
                         "in": "query"
                     },
                     {
