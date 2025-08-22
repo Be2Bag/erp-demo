@@ -97,6 +97,7 @@ type TaskDTO struct {
 	AppliedWorkflow TaskAppliedWorkflow `json:"applied_workflow"` // Snapshot workflow ที่ใช้ในงานนี้
 
 	Status    string     `json:"status"`     // สถานะปัจจุบันของงาน (todos|in_progress|skip|done)
+	StepName  string     `json:"step_name"`  // ชื่อขั้นตอนปัจจุบัน
 	CreatedBy string     `json:"created_by"` // ผู้สร้างงาน
 	CreatedAt time.Time  `json:"created_at"` // วันที่สร้าง
 	UpdatedAt time.Time  `json:"updated_at"` // วันที่อัปเดตล่าสุด

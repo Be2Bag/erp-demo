@@ -127,6 +127,7 @@ func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, p
 			},
 
 			Status:    m.Status,
+			StepName:  m.StepName,
 			CreatedBy: m.CreatedBy,
 			CreatedAt: m.CreatedAt,
 			UpdatedAt: m.UpdatedAt,
@@ -219,6 +220,26 @@ func (s *taskService) CreateTask(ctx context.Context, createTask dto.CreateTaskR
 		Version:      1,
 	}
 
+	// [ADD] เลือกชื่อสเต็ปปัจจุบัน (in_progress > todo > สุดท้าย) — วางไว้ก่อนสร้าง model
+	curStepName := ""
+	for _, s := range steps {
+		if s.Status == "in_progress" {
+			curStepName = s.StepName
+			break
+		}
+	}
+	if curStepName == "" {
+		for _, s := range steps {
+			if s.Status == "todo" {
+				curStepName = s.StepName
+				break
+			}
+		}
+	}
+	if curStepName == "" && len(steps) > 0 {
+		curStepName = steps[len(steps)-1].StepName
+	}
+
 	model := models.Tasks{
 		TaskID:      uuid.New().String(),
 		ProjectID:   createTask.ProjectID,
@@ -238,6 +259,7 @@ func (s *taskService) CreateTask(ctx context.Context, createTask dto.CreateTaskR
 		AppliedWorkflow: AppliedWorkflow,
 
 		Status:    "todo",
+		StepName:  curStepName,
 		CreatedBy: claims.UserID,
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -355,6 +377,7 @@ func (s *taskService) GetTaskByID(ctx context.Context, taskID string) (*dto.Task
 		},
 
 		Status:    m.Status,
+		StepName:  m.StepName,
 		CreatedBy: m.CreatedBy,
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
@@ -661,6 +684,27 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 		existing.AppliedWorkflow.TotalHours = total
 	}
 
+	// [ADD] (4.7) คำนวณ step_name ปัจจุบันจาก steps (in_progress > todo > สุดท้าย)
+	curStepName := ""
+	for _, s2 := range existing.AppliedWorkflow.Steps {
+		if s2.Status == "in_progress" {
+			curStepName = s2.StepName
+			break
+		}
+	}
+	if curStepName == "" {
+		for _, s2 := range existing.AppliedWorkflow.Steps {
+			if s2.Status == "todo" {
+				curStepName = s2.StepName
+				break
+			}
+		}
+	}
+	if curStepName == "" && len(existing.AppliedWorkflow.Steps) > 0 {
+		curStepName = existing.AppliedWorkflow.Steps[len(existing.AppliedWorkflow.Steps)-1].StepName
+	}
+	existing.StepName = curStepName // [ADD]
+
 	// --- 5) สรุป task.status จากสถานะของ steps ทั้งหมด ---
 	existing.Status = helpers.DeriveTaskStatusFromSteps(existing.AppliedWorkflow.Steps) // all done → done, มี in_progress → in_progress, มี ไม่งั้น → todo
 
@@ -908,7 +952,27 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 	// สรุปสถานะงานจาก steps (skip = ปิดสเต็ปเหมือน done)
 	newTaskStatus := helpers.DeriveTaskStatusFromSteps(steps)
 
-	if err := s.taskRepo.UpdateTaskStatus(ctx, taskID, newTaskStatus, now); err != nil {
+	// [ADD] คำนวณ step_name ปัจจุบันจาก steps ล่าสุด (in_progress > todo > สุดท้าย)
+	curStepName := ""
+	for _, s2 := range steps {
+		if s2.Status == "in_progress" {
+			curStepName = s2.StepName
+			break
+		}
+	}
+	if curStepName == "" {
+		for _, s2 := range steps {
+			if s2.Status == "todo" {
+				curStepName = s2.StepName
+				break
+			}
+		}
+	}
+	if curStepName == "" && len(steps) > 0 {
+		curStepName = steps[len(steps)-1].StepName
+	}
+
+	if err := s.taskRepo.UpdateTaskStatus(ctx, taskID, newTaskStatus, curStepName, now); err != nil {
 		return err
 	}
 
@@ -983,15 +1047,5 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 		}
 	}
 
-	// เผื่ออยากคำนวณ “สเต็ปถัดไปที่ยังเปิดอยู่ (todo)” เพื่อ UI เด้งไป
-	// var next *models.TaskWorkflowStep
-	// for i := range steps {
-	// 	if steps[i].Status == "todo" {
-	// 		next = &steps[i]
-	// 		break
-	// 	}
-	// }
-
-	// log.Println("Next step:", next)
 	return nil
 }

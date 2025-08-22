@@ -209,9 +209,9 @@ func (r *taskRepo) GetAllStepSteps(ctx context.Context, taskID string) ([]models
 // 	return nil
 // }
 
-func (r *taskRepo) UpdateTaskStatus(ctx context.Context, taskID, status string, now time.Time) error {
+func (r *taskRepo) UpdateTaskStatus(ctx context.Context, taskID, status, stepName string, now time.Time) error {
 	filter := bson.M{"task_id": taskID, "deleted_at": nil}
-	update := bson.M{"$set": bson.M{"status": status, "updated_at": now}}
+	update := bson.M{"$set": bson.M{"status": status, "step_name": stepName, "updated_at": now}}
 	res, err := r.coll.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err

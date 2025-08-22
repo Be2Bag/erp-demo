@@ -27,6 +27,7 @@ type Tasks struct {
 	AppliedWorkflow TaskAppliedWorkflow `bson:"applied_workflow" json:"applied_workflow"` // Snapshot workflow ที่ใช้ในงานนี้
 
 	Status    string     `bson:"status" json:"status"`         // สถานะปัจจุบันของงาน (todos|in_progress|skip|done)
+	StepName  string     `bson:"step_name" json:"step_name"`   // ชื่อขั้นตอนปัจจุบัน
 	CreatedBy string     `bson:"created_by" json:"created_by"` // ผู้สร้างงาน
 	CreatedAt time.Time  `bson:"created_at" json:"created_at"` // วันที่สร้าง
 	UpdatedAt time.Time  `bson:"updated_at" json:"updated_at"` // วันที่อัปเดตล่าสุด
