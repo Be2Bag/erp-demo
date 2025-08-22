@@ -353,7 +353,7 @@ func (h *DropDownHandler) GetUser(c *fiber.Ctx) error {
 // @Success 200 {object} dto.BaseResponse{data=[]dto.KPITemplateDTO}
 // @Failure 502 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/dropdown/kpi [get]
+// @Router /v1/dropdown/kpi/{id} [get]
 func (h *DropDownHandler) GetKPI(c *fiber.Ctx) error {
 
 	departmentID := c.Params("id")
@@ -387,7 +387,7 @@ func (h *DropDownHandler) GetKPI(c *fiber.Ctx) error {
 // @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetWorkflows}
 // @Failure 502 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/dropdown/workflow [get]
+// @Router /v1/dropdown/workflow/{id} [get]
 func (h *DropDownHandler) GetWorkflow(c *fiber.Ctx) error {
 
 	departmentID := c.Params("id")

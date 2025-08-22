@@ -766,7 +766,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dropdown/kpi": {
+        "/v1/dropdown/kpi/{id}": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูล KPI ทั้งหมด",
                 "consumes": [
@@ -1196,7 +1196,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dropdown/workflow": {
+        "/v1/dropdown/workflow/{id}": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูล Workflow ทั้งหมด",
                 "consumes": [

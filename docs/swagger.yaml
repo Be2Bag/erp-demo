@@ -1627,7 +1627,7 @@ paths:
       summary: Get all districts by province ID
       tags:
       - Dropdown
-  /v1/dropdown/kpi:
+  /v1/dropdown/kpi/{id}:
     get:
       consumes:
       - application/json
@@ -1887,7 +1887,7 @@ paths:
       summary: Get all users
       tags:
       - Dropdown
-  /v1/dropdown/workflow:
+  /v1/dropdown/workflow/{id}:
     get:
       consumes:
       - application/json
