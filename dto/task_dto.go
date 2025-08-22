@@ -4,20 +4,20 @@ import "time"
 
 // ===== Task Create Request =====
 type CreateTaskRequest struct {
-	ProjectID   string `json:"project_id"`
-	ProjectName string `json:"project_name"`
-	JobID       string `json:"job_id"`
-	JobName     string `json:"job_name"`
-	Description string `json:"description,omitempty"`
-	Department  string `json:"department"`
-	Assignee    string `json:"assignee"`
-	Importance  string `json:"importance"`
-	StartDate   string `json:"start_date"`
-	EndDate     string `json:"end_date"`
-	KPIID       string `json:"kpi_id"`
-	WorkflowID  string `json:"workflow_id"`
-
-	ExtraSteps []ExtraStepRequest `json:"extra_steps,omitempty"`
+	ProjectID   string             `json:"project_id"`
+	ProjectName string             `json:"project_name"`
+	JobID       string             `json:"job_id"`
+	JobName     string             `json:"job_name"`
+	Description string             `json:"description,omitempty"`
+	Department  string             `json:"department"`
+	Assignee    string             `json:"assignee"`
+	Importance  string             `json:"importance"`
+	StartDate   string             `json:"start_date"`
+	EndDate     string             `json:"end_date"`
+	KPIID       string             `json:"kpi_id"`
+	WorkflowID  string             `json:"workflow_id"`
+	IsEdit      bool               `json:"is_edit"`
+	ExtraSteps  []ExtraStepRequest `json:"extra_steps,omitempty"`
 }
 
 type ExtraStepRequest struct {

@@ -178,36 +178,46 @@ func (s *taskService) CreateTask(ctx context.Context, createTask dto.CreateTaskR
 		end = parsedDate
 	}
 
-	steps := make([]models.TaskWorkflowStep, 0, len(workflow.Steps)+(len(createTask.ExtraSteps)))
-	var total float64
-	for _, st := range workflow.Steps {
-		steps = append(steps, models.TaskWorkflowStep{
-			StepID:      uuid.NewString(),
-			StepName:    st.StepName,
-			Description: st.Description,
-			Hours:       st.Hours,
-			Order:       st.Order,
-			Status:      "todo",
-			Notes:       "",
-			CreatedAt:   now,
-			UpdatedAt:   now,
-		})
-		total += st.Hours
+	// ปรับความจุเริ่มต้นให้สอดคล้องกับชุดข้อมูลที่จะใช้จริง
+	capacity := 0
+	if !createTask.IsEdit {
+		capacity = len(workflow.Steps)
+	} else {
+		capacity = len(createTask.ExtraSteps)
 	}
+	steps := make([]models.TaskWorkflowStep, 0, capacity)
+	var total float64
 
-	for i, st := range createTask.ExtraSteps {
-		steps = append(steps, models.TaskWorkflowStep{
-			StepID:      uuid.NewString(),
-			StepName:    st.StepName,
-			Description: st.Description,
-			Hours:       st.Hours,
-			Order:       len(workflow.Steps) + i + 1,
-			Status:      "todo",
-			Notes:       "",
-			CreatedAt:   now,
-			UpdatedAt:   now,
-		})
-		total += st.Hours
+	if !createTask.IsEdit {
+		for _, st := range workflow.Steps {
+			steps = append(steps, models.TaskWorkflowStep{
+				StepID:      uuid.NewString(),
+				StepName:    st.StepName,
+				Description: st.Description,
+				Hours:       st.Hours,
+				Order:       st.Order,
+				Status:      "todo",
+				Notes:       "",
+				CreatedAt:   now,
+				UpdatedAt:   now,
+			})
+			total += st.Hours
+		}
+	} else {
+		for i, st := range createTask.ExtraSteps {
+			steps = append(steps, models.TaskWorkflowStep{
+				StepID:      uuid.NewString(),
+				StepName:    st.StepName,
+				Description: st.Description,
+				Hours:       st.Hours,
+				Order:       i + 1, // คง logic เดิมไว้
+				Status:      "todo",
+				Notes:       "",
+				CreatedAt:   now,
+				UpdatedAt:   now,
+			})
+			total += st.Hours
+		}
 	}
 
 	AppliedWorkflow := models.TaskAppliedWorkflow{
