@@ -18,7 +18,8 @@ type DropDownService interface {
 	GetSignJobList(ctx context.Context, projectID string) ([]dto.ResponseGetSignList, error)
 	GetProjectList(ctx context.Context) ([]dto.ResponseGetProjects, error)
 	GetUserList(ctx context.Context) ([]dto.ResponseGetUsers, error)
-	GetKPI(ctx context.Context) ([]dto.KPITemplateDTO, error)
+	GetKPI(ctx context.Context, kpiID string) ([]dto.ResponseGetKPI, error)
+	GetWorkflows(ctx context.Context, workflowID string) ([]dto.ResponseGetWorkflows, error)
 }
 
 type DropDownRepository interface {
@@ -33,4 +34,5 @@ type DropDownRepository interface {
 	GetProjectsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Project, error)
 	GetUsersList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.User, error)
 	GetKPIList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.KPITemplate, error)
+	GetWorkflowsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.WorkFlowTemplate, error)
 }

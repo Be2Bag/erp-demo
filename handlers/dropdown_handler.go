@@ -31,7 +31,8 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 	dropdown.Get("/district/:id", h.GetDistrict)
 	dropdown.Get("/subdistrict/:id", h.GetSubDistrict)
 	dropdown.Get("/customer-type", h.GetCustomerTypes)
-	dropdown.Get("/kpi", h.mdw.AuthCookieMiddleware(), h.GetKPI)
+	dropdown.Get("/kpi/:id", h.mdw.AuthCookieMiddleware(), h.GetKPI)
+	dropdown.Get("/workflow/:id", h.mdw.AuthCookieMiddleware(), h.GetWorkflow)
 
 }
 
@@ -348,13 +349,16 @@ func (h *DropDownHandler) GetUser(c *fiber.Ctx) error {
 // @Tags Dropdown
 // @Accept json
 // @Produce json
+// @Param id path string true "Department ID"
 // @Success 200 {object} dto.BaseResponse{data=[]dto.KPITemplateDTO}
 // @Failure 502 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/dropdown/kpi [get]
 func (h *DropDownHandler) GetKPI(c *fiber.Ctx) error {
 
-	kpis, errOnGetKPI := h.svc.GetKPI(c.Context())
+	departmentID := c.Params("id")
+
+	kpis, errOnGetKPI := h.svc.GetKPI(c.Context(), departmentID)
 	if errOnGetKPI != nil {
 		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
 			StatusCode: fiber.ErrBadGateway.Code,
@@ -371,5 +375,39 @@ func (h *DropDownHandler) GetKPI(c *fiber.Ctx) error {
 		MessageTH:  "ดึงข้อมูล KPI สำเร็จ",
 		Status:     "success",
 		Data:       kpis,
+	})
+}
+
+// @Summary Get all workflows
+// @Description ใช้สำหรับดึงข้อมูล Workflow ทั้งหมด
+// @Tags Dropdown
+// @Accept json
+// @Produce json
+// @Param id path string true "Department ID"
+// @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetWorkflows}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/workflow [get]
+func (h *DropDownHandler) GetWorkflow(c *fiber.Ctx) error {
+
+	departmentID := c.Params("id")
+
+	workflows, errOnGetWorkflows := h.svc.GetWorkflows(c.Context(), departmentID)
+	if errOnGetWorkflows != nil {
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  fiber.ErrBadGateway.Message,
+			MessageTH:  "ไม่สามารถดึงข้อมูล Workflow ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusNotImplemented).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusNotImplemented,
+		MessageEN:  "Workflow retrieval not implemented",
+		MessageTH:  "ยังไม่ได้ implement การดึงข้อมูล workflow",
+		Status:     "error",
+		Data:       workflows,
 	})
 }

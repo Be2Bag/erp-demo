@@ -275,8 +275,8 @@ func (s *dropDownService) GetUserList(ctx context.Context) ([]dto.ResponseGetUse
 	return response, nil
 }
 
-func (s *dropDownService) GetKPI(ctx context.Context) ([]dto.KPITemplateDTO, error) {
-	filter := bson.M{"deleted_at": nil}
+func (s *dropDownService) GetKPI(ctx context.Context, departmentID string) ([]dto.ResponseGetKPI, error) {
+	filter := bson.M{"deleted_at": nil, "department_id": departmentID}
 	projection := bson.M{}
 
 	kpis, errOnGetKPI := s.dropDownRepo.GetKPIList(ctx, filter, projection)
@@ -288,33 +288,38 @@ func (s *dropDownService) GetKPI(ctx context.Context) ([]dto.KPITemplateDTO, err
 		return nil, mongo.ErrNoDocuments
 	}
 
-	var response []dto.KPITemplateDTO
+	var response []dto.ResponseGetKPI
 
 	for _, m := range kpis {
-		ItemsDTO := make([]dto.KPITemplateItemDTO, 0, len(m.Items))
-		for _, st := range m.Items {
-			ItemsDTO = append(ItemsDTO, dto.KPITemplateItemDTO{
-				ItemID:      st.ItemID,
-				Name:        st.Name,
-				Description: st.Description,
-				Category:    st.Category,
-				MaxScore:    st.MaxScore,
-				Weight:      st.Weight,
-				CreatedAt:   st.CreatedAt,
-				UpdatedAt:   st.UpdatedAt,
-			})
-		}
-		response = append(response, dto.KPITemplateDTO{
-			KPIID:       m.KPIID,
-			KPIName:     m.KPIName,
-			Department:  m.Department,
-			TotalWeight: m.TotalWeight,
-			Items:       ItemsDTO,
-			Version:     m.Version,
-			CreatedBy:   m.CreatedBy,
-			CreatedAt:   m.CreatedAt,
-			UpdatedAt:   m.UpdatedAt,
+
+		response = append(response, dto.ResponseGetKPI{
+			KPIID:   m.KPIID,
+			KPIName: m.KPIName,
 		})
 	}
+	return response, nil
+}
+
+func (s *dropDownService) GetWorkflows(ctx context.Context, departmentID string) ([]dto.ResponseGetWorkflows, error) {
+	filter := bson.M{"deleted_at": nil, "department_id": departmentID}
+	projection := bson.M{}
+
+	workflows, errOnGetWorkflows := s.dropDownRepo.GetWorkflowsList(ctx, filter, projection)
+	if errOnGetWorkflows != nil {
+		return nil, errOnGetWorkflows
+	}
+
+	if len(workflows) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetWorkflows
+	for _, workflow := range workflows {
+		response = append(response, dto.ResponseGetWorkflows{
+			WorkflowID:   workflow.WorkFlowID,
+			WorkflowName: workflow.WorkFlowName,
+		})
+	}
+
 	return response, nil
 }

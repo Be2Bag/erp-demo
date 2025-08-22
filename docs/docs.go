@@ -779,6 +779,15 @@ const docTemplate = `{
                     "Dropdown"
                 ],
                 "summary": "Get all KPIs",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1165,6 +1174,65 @@ const docTemplate = `{
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/definitions/dto.ResponseGetUsers"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/dropdown/workflow": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูล Workflow ทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dropdown"
+                ],
+                "summary": "Get all workflows",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetWorkflows"
                                             }
                                         }
                                     }
@@ -4734,6 +4802,19 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "description": "รหัสผู้ใช้ (ไม่ซ้ำกัน)",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ResponseGetWorkflows": {
+            "type": "object",
+            "properties": {
+                "workflow_id": {
+                    "description": "รหัส Workflow (ไม่ซ้ำกัน)",
+                    "type": "string"
+                },
+                "workflow_name": {
+                    "description": "ชื่อ Workflow",
                     "type": "string"
                 }
             }

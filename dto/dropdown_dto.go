@@ -54,3 +54,13 @@ type ResponseGetUsers struct {
 	UserID     string `json:"user_id"`      // รหัสผู้ใช้ (ไม่ซ้ำกัน)
 	FullNameTH string `json:"full_name_th"` // ชื่อเต็ม (ภาษาไทย)
 }
+
+type ResponseGetKPI struct {
+	KPIID   string `json:"kpi_id"`   // รหัส KPI (ไม่ซ้ำกัน)
+	KPIName string `json:"kpi_name"` // ชื่อ KPI
+}
+
+type ResponseGetWorkflows struct {
+	WorkflowID   string `json:"workflow_id"`   // รหัส Workflow (ไม่ซ้ำกัน)
+	WorkflowName string `json:"workflow_name"` // ชื่อ Workflow
+}
