@@ -1041,7 +1041,7 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 			if err != nil && err != mongo.ErrNoDocuments {
 				return err
 			}
-			nowUTC := time.Now().UTC()
+			nowUTC := time.Now()
 
 			totals := models.UserTaskTotals{}
 			createdAt := nowUTC
@@ -1104,7 +1104,6 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 	return nil
 }
 
-// package services
 func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.UpdateTaskPutRequest, updatedBy string) error {
 	now := time.Now()
 

@@ -23,6 +23,7 @@ func NewKPIHandler(s ports.KPIService, mdw *middleware.Middleware) *KPIHandler {
 func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	kpi := versionOne.Group("kpi")
+	kpiEvaluations := versionOne.Group("kpi-evaluations")
 
 	kpi.Get("/list", h.mdw.AuthCookieMiddleware(), h.GetKPITemplateList)
 	kpi.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateKPITemplate)
@@ -30,8 +31,8 @@ func (h *KPIHandler) KPIRoutes(router fiber.Router) {
 	kpi.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateKPITemplate)
 	kpi.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteKPITemplate)
 
-	kpi.Get("/evaluations", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluations)
-	kpi.Post("/evaluations", h.mdw.AuthCookieMiddleware(), h.CreateKPIEvaluation)
+	kpiEvaluations.Get("/", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluations)
+	kpiEvaluations.Post("/", h.mdw.AuthCookieMiddleware(), h.CreateKPIEvaluation)
 
 	kpi.Get("/stats", h.mdw.AuthCookieMiddleware(), h.GetKPIStatistics)
 }

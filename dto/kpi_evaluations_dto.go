@@ -3,21 +3,28 @@ package dto
 import "time"
 
 type CreateKPIEvaluationRequest struct {
-	JobID       string            `json:"job_id" binding:"required"`
-	TaskID      string            `json:"task_id,omitempty"`
-	KPIID       string            `json:"kpi_id" binding:"required"`
-	Version     int               `json:"version" binding:"required"`
-	EvaluatorID string            `json:"evaluator_id" binding:"required"`
-	EvaluateeID string            `json:"evaluatee_id" binding:"required"`
-	Department  string            `json:"department_id" binding:"required"`
-	Scores      []KPIScoreRequest `json:"scores" binding:"required"`
-	Feedback    string            `json:"feedback,omitempty"`
+	JobID       string            `json:"job_id" binding:"required"`        // อ้างถึง SignJob
+	TaskID      string            `json:"task_id,omitempty"`                // งานย่อย (ถ้ามี)
+	KPIID       string            `json:"kpi_id" binding:"required"`        // อ้างถึง KPITemplate
+	EvaluateeID string            `json:"evaluatee_id" binding:"required"`  // ผู้ถูกประเมิน
+	Department  string            `json:"department_id" binding:"required"` // แผนก
+	Scores      []KPIScoreRequest `json:"scores" binding:"required"`        // รายการคะแนนแต่ละ item
+	Feedback    string            `json:"feedback,omitempty"`               // คอมเมนต์รวม (ถ้ามี)
 }
 
 type KPIScoreRequest struct {
-	ItemID string `json:"item_id" binding:"required"`
-	Score  int    `json:"score" binding:"required"`
-	Notes  string `json:"notes,omitempty"`
+	ItemID string `json:"item_id" binding:"required"` // อ้างถึง item ใน KPI template
+	Score  int    `json:"score" binding:"required"`   // คะแนนที่ให้
+	Notes  string `json:"notes,omitempty"`            // หมายเหตุเพิ่มเติม (ถ้ามี)
+}
+
+type RequestListKPIEvaluation struct {
+	Page       int    `query:"page"`          // หมายเลขหน้าที่ต้องการดึงข้อมูล
+	Limit      int    `query:"limit"`         // จำนวนรายการต่อหน้า
+	Search     string `query:"search"`        // คำค้นหาสำหรับกรองข้อมูล
+	Department string `query:"department_id"` // แผนก
+	SortBy     string `query:"sort_by"`       // คอลัมน์ที่ต้องการเรียงลำดับ
+	SortOrder  string `query:"sort_order"`    // ทิศทางการเรียงลำดับ (asc หรือ desc)
 }
 
 // <===================== Response ===============================>

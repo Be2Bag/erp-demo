@@ -13,11 +13,15 @@ import (
 )
 
 type kpiRepo struct {
-	coll *mongo.Collection
+	coll               *mongo.Collection
+	collKPIEvaluations *mongo.Collection
 }
 
 func NewKPIRepository(db *mongo.Database) ports.KPIRepository {
-	return &kpiRepo{coll: db.Collection(models.CollectionKPITemplates)}
+	return &kpiRepo{
+		coll:               db.Collection(models.CollectionKPITemplates),
+		collKPIEvaluations: db.Collection(models.CollectionKPIEvaluations),
+	}
 }
 
 func (r *kpiRepo) CreateKPI(ctx context.Context, kpi models.KPITemplate) error {
