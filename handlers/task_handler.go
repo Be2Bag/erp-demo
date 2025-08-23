@@ -22,7 +22,10 @@ func NewTaskHandler(s ports.TaskService, mdw *middleware.Middleware) *TaskHandle
 
 func (h *TaskHandler) TaskRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
+	versionTwo := router.Group("v2")
+
 	tasks := versionOne.Group("tasks")
+	tasksV2 := versionTwo.Group("tasks")
 
 	tasks.Get("/list", h.mdw.AuthCookieMiddleware(), h.GetListTasks)
 	tasks.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateTask)
@@ -30,6 +33,8 @@ func (h *TaskHandler) TaskRoutes(router fiber.Router) {
 	tasks.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateTask)
 	tasks.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteTask)
 	tasks.Put("/:task_id/steps/:step_id", h.mdw.AuthCookieMiddleware(), h.UpdateStepStatusNote)
+
+	tasksV2.Put("/:id", h.mdw.AuthCookieMiddleware(), h.PutTaskV2)
 
 }
 
@@ -376,5 +381,59 @@ func (h *TaskHandler) UpdateStepStatusNote(c *fiber.Ctx) error {
 		MessageTH:  "อัปเดตสำเร็จ",
 		Status:     "success",
 		Data:       nil, // คืนข้อมูลที่อัปเดตแล้ว (ดู struct ด้านล่าง)
+	})
+}
+
+// @Summary Update task
+// @Description Update task by ID
+// @Tags Tasks
+// @Accept json
+// @Produce json
+// @Param id path string true "Task ID"
+// @Param request body dto.UpdateTaskPutRequest true "Update Task Request (PUT)"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 400 {object} dto.BaseResponse
+// @Failure 404 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v2/tasks/{id} [put]
+func (h *TaskHandler) PutTaskV2(c *fiber.Ctx) error {
+	id := c.Params("id")
+
+	var req dto.UpdateTaskPutRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request body",
+			MessageTH:  "รูปแบบคำขอไม่ถูกต้อง",
+			Status:     "error",
+		})
+	}
+
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+		})
+	}
+
+	if err := h.svc.ReplaceTask(c.Context(), id, req, claims.UserID); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  err.Error(),
+			MessageTH:  "ไม่สามารถอัปเดต Task (PUT) ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Task replaced successfully",
+		MessageTH:  "แทนที่ Task สำเร็จ",
+		Status:     "success",
+		Data:       nil,
 	})
 }

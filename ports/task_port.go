@@ -16,6 +16,8 @@ type TaskService interface {
 	UpdateTask(ctx context.Context, taskID string, req dto.UpdateTaskRequest, updatedBy string) error
 	DeleteTask(ctx context.Context, taskID string, claims *dto.JWTClaims) error
 	UpdateStepStatus(ctx context.Context, taskID, stepID string, req dto.UpdateStepStatusNoteRequest, claims *dto.JWTClaims) error
+
+	ReplaceTask(ctx context.Context, taskID string, req dto.UpdateTaskPutRequest, updatedBy string) error
 }
 
 type TaskRepository interface {
@@ -32,4 +34,6 @@ type TaskRepository interface {
 
 	GetOneUserTaskStatsByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.UserTaskStats, error)
 	UpsertUserTaskStats(ctx context.Context, stats *models.UserTaskStats) error
+
+	ReplaceTaskByID(ctx context.Context, taskID string, doc *models.Tasks) (*models.Tasks, error)
 }

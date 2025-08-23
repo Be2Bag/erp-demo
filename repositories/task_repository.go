@@ -340,3 +340,19 @@ func (r *taskRepo) UpdateOneStepFields(ctx context.Context, taskID, stepID strin
 	}
 	return nil
 }
+
+//<===============================================================================================>
+
+// package repositories
+func (r *taskRepo) ReplaceTaskByID(ctx context.Context, taskID string, doc *models.Tasks) (*models.Tasks, error) {
+	filter := bson.M{"task_id": taskID}
+	opts := options.FindOneAndReplace().SetReturnDocument(options.After)
+	var out models.Tasks
+	if err := r.coll.FindOneAndReplace(ctx, filter, doc, opts).Decode(&out); err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &out, nil
+}

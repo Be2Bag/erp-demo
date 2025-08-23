@@ -52,5 +52,5 @@ type SignJob struct {
 	CreatedBy string     `bson:"created_by" json:"created_by"` // ใครสร้างงานนี้
 	CreatedAt time.Time  `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time  `bson:"updated_at" json:"updated_at"`
-	DeletedAt *time.Time `bson:"deleted_at " json:"deleted_at"` // สำหรับ soft delete
+	DeletedAt *time.Time `bson:"deleted_at" json:"deleted_at"` // สำหรับ soft delete
 }

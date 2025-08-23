@@ -3702,6 +3702,65 @@
                     }
                 }
             }
+        },
+        "/v2/tasks/{id}": {
+            "put": {
+                "description": "Update task by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tasks"
+                ],
+                "summary": "Update task",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Task ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Task Request (PUT)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateTaskPutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -4419,6 +4478,74 @@
                 },
                 "updated_at": {
                     "description": "เวลาอัปเดตล่าสุด",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PutTaskAppliedWorkflow": {
+            "type": "object",
+            "properties": {
+                "department_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "steps": {
+                    "description": "ต้องส่งทั้งชุด",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PutWorkflowStep"
+                    }
+                },
+                "total_hours": {
+                    "description": "เซิร์ฟเวอร์จะคำนวณทับใหม่",
+                    "type": "number"
+                },
+                "version": {
+                    "type": "integer"
+                },
+                "workflow_id": {
+                    "type": "string"
+                },
+                "workflow_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PutWorkflowStep": {
+            "type": "object",
+            "properties": {
+                "completed_at": {
+                    "description": "optional",
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "hours": {
+                    "type": "number"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "order": {
+                    "description": "จะถูก normalize และ reindex เป็น 1..N",
+                    "type": "integer"
+                },
+                "started_at": {
+                    "description": "optional",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "todo|in_progress|skip|done",
+                    "type": "string"
+                },
+                "step_id": {
+                    "description": "ถ้าต้องการเก็บ id เดิม ส่งมาเลย",
+                    "type": "string"
+                },
+                "step_name": {
                     "type": "string"
                 }
             }
@@ -5145,6 +5272,61 @@
                 },
                 "status": {
                     "description": "todo|in_progress|skip|done (optional)",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateTaskPutRequest": {
+            "type": "object",
+            "properties": {
+                "applied_workflow": {
+                    "description": "Snapshot ใหม่ทั้งก้อน (จำเป็น)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/dto.PutTaskAppliedWorkflow"
+                        }
+                    ]
+                },
+                "assignee": {
+                    "type": "string"
+                },
+                "department_id": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "importance": {
+                    "description": "low|medium|high",
+                    "type": "string"
+                },
+                "job_id": {
+                    "type": "string"
+                },
+                "job_name": {
+                    "type": "string"
+                },
+                "kpi_id": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "project_name": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "description": "แนะนำให้ client ส่งรูปแบบ YYYY-MM-DD (ฝั่งเซิร์ฟเวอร์แปลงเป็น time)",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "สถานะระดับงาน (ถ้าส่งมาเราจะคำนวณจาก steps ทับให้อยู่ดี)",
+                    "type": "string"
+                },
+                "workflow_id": {
                     "type": "string"
                 }
             }

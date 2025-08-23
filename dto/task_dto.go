@@ -130,3 +130,58 @@ type TaskWorkflowStep struct {
 	CreatedAt   time.Time  `json:"created_at"`             // วันที่สร้างขั้นตอนนี้
 	UpdatedAt   time.Time  `json:"updated_at"`             // วันที่อัปเดตขั้นตอนล่าสุด
 }
+
+// NEW
+
+// ===== Task Replace (PUT) Request =====
+// ข้อกำหนด:
+// - ต้องส่งครบทุกคีย์ที่ระบุ (required)
+// - applied_workflow.steps ต้องส่งเป็น "ทั้งชุด" ที่ต้องการให้เก็บหลังอัปเดต
+type UpdateTaskPutRequest struct {
+	ProjectID   string `json:"project_id"`
+	ProjectName string `json:"project_name"`
+	JobID       string `json:"job_id"`
+	JobName     string `json:"job_name"`
+	Description string `json:"description"`
+
+	Department string `json:"department_id"`
+	Assignee   string `json:"assignee"`
+	Importance string `json:"importance"` // low|medium|high
+
+	// แนะนำให้ client ส่งรูปแบบ YYYY-MM-DD (ฝั่งเซิร์ฟเวอร์แปลงเป็น time)
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
+
+	KPIID      string `json:"kpi_id"`
+	WorkflowID string `json:"workflow_id"`
+
+	// Snapshot ใหม่ทั้งก้อน (จำเป็น)
+	AppliedWorkflow PutTaskAppliedWorkflow `json:"applied_workflow"`
+
+	// สถานะระดับงาน (ถ้าส่งมาเราจะคำนวณจาก steps ทับให้อยู่ดี)
+	Status string `json:"status"`
+
+	// step_name จะถูกคำนวณทับ ไม่ต้องพยายามตั้งค่าเอง
+}
+
+type PutTaskAppliedWorkflow struct {
+	WorkFlowID   string            `json:"workflow_id"`
+	WorkFlowName string            `json:"workflow_name"`
+	Department   string            `json:"department_id"`
+	Description  string            `json:"description"`
+	TotalHours   float64           `json:"total_hours"` // เซิร์ฟเวอร์จะคำนวณทับใหม่
+	Steps        []PutWorkflowStep `json:"steps"`       // ต้องส่งทั้งชุด
+	Version      int               `json:"version"`
+}
+
+type PutWorkflowStep struct {
+	StepID      string     `json:"step_id"` // ถ้าต้องการเก็บ id เดิม ส่งมาเลย
+	StepName    string     `json:"step_name"`
+	Description string     `json:"description"`
+	Hours       float64    `json:"hours"`
+	Order       int        `json:"order"`                  // จะถูก normalize และ reindex เป็น 1..N
+	Status      string     `json:"status"`                 // todo|in_progress|skip|done
+	StartedAt   *time.Time `json:"started_at,omitempty"`   // optional
+	CompletedAt *time.Time `json:"completed_at,omitempty"` // optional
+	Notes       string     `json:"notes"`
+}

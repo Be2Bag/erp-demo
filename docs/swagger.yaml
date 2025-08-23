@@ -509,6 +509,53 @@ definitions:
         description: เวลาอัปเดตล่าสุด
         type: string
     type: object
+  dto.PutTaskAppliedWorkflow:
+    properties:
+      department_id:
+        type: string
+      description:
+        type: string
+      steps:
+        description: ต้องส่งทั้งชุด
+        items:
+          $ref: '#/definitions/dto.PutWorkflowStep'
+        type: array
+      total_hours:
+        description: เซิร์ฟเวอร์จะคำนวณทับใหม่
+        type: number
+      version:
+        type: integer
+      workflow_id:
+        type: string
+      workflow_name:
+        type: string
+    type: object
+  dto.PutWorkflowStep:
+    properties:
+      completed_at:
+        description: optional
+        type: string
+      description:
+        type: string
+      hours:
+        type: number
+      notes:
+        type: string
+      order:
+        description: จะถูก normalize และ reindex เป็น 1..N
+        type: integer
+      started_at:
+        description: optional
+        type: string
+      status:
+        description: todo|in_progress|skip|done
+        type: string
+      step_id:
+        description: ถ้าต้องการเก็บ id เดิม ส่งมาเลย
+        type: string
+      step_name:
+        type: string
+    type: object
   dto.RequestConfirmResetPassword:
     properties:
       new_password:
@@ -1023,6 +1070,43 @@ definitions:
         type: string
       status:
         description: todo|in_progress|skip|done (optional)
+        type: string
+    type: object
+  dto.UpdateTaskPutRequest:
+    properties:
+      applied_workflow:
+        allOf:
+        - $ref: '#/definitions/dto.PutTaskAppliedWorkflow'
+        description: Snapshot ใหม่ทั้งก้อน (จำเป็น)
+      assignee:
+        type: string
+      department_id:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      importance:
+        description: low|medium|high
+        type: string
+      job_id:
+        type: string
+      job_name:
+        type: string
+      kpi_id:
+        type: string
+      project_id:
+        type: string
+      project_name:
+        type: string
+      start_date:
+        description: แนะนำให้ client ส่งรูปแบบ YYYY-MM-DD (ฝั่งเซิร์ฟเวอร์แปลงเป็น
+          time)
+        type: string
+      status:
+        description: สถานะระดับงาน (ถ้าส่งมาเราจะคำนวณจาก steps ทับให้อยู่ดี)
+        type: string
+      workflow_id:
         type: string
     type: object
   dto.UpdateTaskRequest:
@@ -3520,4 +3604,43 @@ paths:
       summary: List all workflows
       tags:
       - Workflow
+  /v2/tasks/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update task by ID
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Task Request (PUT)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTaskPutRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update task
+      tags:
+      - Tasks
 swagger: "2.0"
