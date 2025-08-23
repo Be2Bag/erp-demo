@@ -39,7 +39,6 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 	}
 
 	model := models.SignJob{
-		ID:             primitive.NewObjectID(),
 		JobID:          uuid.NewString(),
 		CompanyName:    signJob.CompanyName,
 		ContactPerson:  signJob.ContactPerson,
