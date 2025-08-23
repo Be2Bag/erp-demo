@@ -210,6 +210,9 @@ definitions:
       customer_type_id:
         description: รหัสประเภทลูกค้า
         type: string
+      deposit_amount:
+        description: เงินมัดจำ
+        type: integer
       design_option:
         description: '---------- งานออกแบบ / การติดตั้ง ----------'
         type: string
@@ -234,6 +237,9 @@ definitions:
       notes:
         description: '---------- หมายเหตุ ----------'
         type: string
+      outstanding_amount:
+        description: ยอดค้างชำระ
+        type: integer
       payment_method:
         description: '---------- การชำระเงิน ----------'
         type: string
@@ -855,6 +861,9 @@ definitions:
       deleted_at:
         description: เวลาเมื่อถูกลบ (soft delete)
         type: string
+      deposit_amount:
+        description: เงินมัดจำ
+        type: integer
       design_option:
         description: '---------- งานออกแบบ / การติดตั้ง ----------'
         type: string
@@ -882,6 +891,9 @@ definitions:
       notes:
         description: '---------- หมายเหตุ ----------'
         type: string
+      outstanding_amount:
+        description: ยอดค้างชำระ
+        type: integer
       payment_method:
         description: '---------- การชำระเงิน ----------'
         type: string
@@ -1008,6 +1020,9 @@ definitions:
       customer_type_id:
         description: รหัสประเภทลูกค้า
         type: string
+      deposit_amount:
+        description: เงินมัดจำ
+        type: integer
       design_option:
         description: '---------- งานออกแบบ / การติดตั้ง ----------'
         type: string
@@ -1032,6 +1047,9 @@ definitions:
       notes:
         description: '---------- หมายเหตุ ----------'
         type: string
+      outstanding_amount:
+        description: ยอดค้างชำระ
+        type: integer
       payment_method:
         description: '---------- การชำระเงิน ----------'
         type: string

@@ -4063,6 +4063,10 @@ const docTemplate = `{
                     "description": "รหัสประเภทลูกค้า",
                     "type": "string"
                 },
+                "deposit_amount": {
+                    "description": "เงินมัดจำ",
+                    "type": "integer"
+                },
                 "design_option": {
                     "description": "---------- งานออกแบบ / การติดตั้ง ----------",
                     "type": "string"
@@ -4094,6 +4098,10 @@ const docTemplate = `{
                 "notes": {
                     "description": "---------- หมายเหตุ ----------",
                     "type": "string"
+                },
+                "outstanding_amount": {
+                    "description": "ยอดค้างชำระ",
+                    "type": "integer"
                 },
                 "payment_method": {
                     "description": "---------- การชำระเงิน ----------",
@@ -4981,6 +4989,10 @@ const docTemplate = `{
                     "description": "เวลาเมื่อถูกลบ (soft delete)",
                     "type": "string"
                 },
+                "deposit_amount": {
+                    "description": "เงินมัดจำ",
+                    "type": "integer"
+                },
                 "design_option": {
                     "description": "---------- งานออกแบบ / การติดตั้ง ----------",
                     "type": "string"
@@ -5016,6 +5028,10 @@ const docTemplate = `{
                 "notes": {
                     "description": "---------- หมายเหตุ ----------",
                     "type": "string"
+                },
+                "outstanding_amount": {
+                    "description": "ยอดค้างชำระ",
+                    "type": "integer"
                 },
                 "payment_method": {
                     "description": "---------- การชำระเงิน ----------",
@@ -5195,6 +5211,10 @@ const docTemplate = `{
                     "description": "รหัสประเภทลูกค้า",
                     "type": "string"
                 },
+                "deposit_amount": {
+                    "description": "เงินมัดจำ",
+                    "type": "integer"
+                },
                 "design_option": {
                     "description": "---------- งานออกแบบ / การติดตั้ง ----------",
                     "type": "string"
@@ -5226,6 +5246,10 @@ const docTemplate = `{
                 "notes": {
                     "description": "---------- หมายเหตุ ----------",
                     "type": "string"
+                },
+                "outstanding_amount": {
+                    "description": "ยอดค้างชำระ",
+                    "type": "integer"
                 },
                 "payment_method": {
                     "description": "---------- การชำระเงิน ----------",
