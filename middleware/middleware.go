@@ -67,18 +67,14 @@ func GetClaims(c *fiber.Ctx) (*dto.JWTClaims, error) {
 
 func (m *Middleware) TimeoutMiddleware(d time.Duration) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, cancel := context.WithTimeout(context.Background(), d)
+		ctx, cancel := context.WithTimeout(c.Context(), d)
 		defer cancel()
 
-		done := make(chan error, 1)
-		go func() {
-			done <- c.Next()
-		}()
+		c.SetUserContext(ctx)
 
-		select {
-		case err := <-done:
-			return err
-		case <-ctx.Done():
+		err := c.Next()
+
+		if ctx.Err() != nil {
 			return c.Status(fiber.StatusRequestTimeout).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusRequestTimeout,
 				MessageEN:  "Request timed out",
@@ -87,5 +83,7 @@ func (m *Middleware) TimeoutMiddleware(d time.Duration) fiber.Handler {
 				Data:       nil,
 			})
 		}
+
+		return err
 	}
 }
