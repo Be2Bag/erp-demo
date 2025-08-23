@@ -22,16 +22,18 @@ type SignJob struct {
 	Address        string `bson:"address" json:"address"`                   // ที่อยู่ติดตั้ง / จัดส่ง
 
 	// ---------- Sign detail ----------
-	ProjectID   string  `bson:"project_id" json:"project_id"`
-	ProjectName string  `bson:"project_name" json:"project_name"` // ชื่อโปรเจกต์
-	JobName     string  `bson:"job_name" json:"job_name"`         // ชื่องาน
-	SignTypeID  string  `bson:"sign_type_id" json:"sign_type_id"` // ประเภทป้าย
-	Width       float64 `bson:"width" json:"width"`               // ซม.
-	Height      float64 `bson:"height" json:"height"`             // ซม.
-	Quantity    int     `bson:"quantity" json:"quantity"`         // จำนวน
-	PriceTHB    int64   `bson:"price_thb" json:"price_thb"`       // ราคาเป็นสตางค์หรือบาททั้งจำนวน เลือกแนวทางเดียวให้คงที่
-	Content     string  `bson:"content" json:"content"`           // รายละเอียด
-	MainColor   string  `bson:"main_color" json:"main_color"`     // สีหลัก
+	ProjectID         string  `bson:"project_id" json:"project_id"`
+	ProjectName       string  `bson:"project_name" json:"project_name"`             // ชื่อโปรเจกต์
+	JobName           string  `bson:"job_name" json:"job_name"`                     // ชื่องาน
+	SignTypeID        string  `bson:"sign_type_id" json:"sign_type_id"`             // ประเภทป้าย
+	Width             float64 `bson:"width" json:"width"`                           // ซม.
+	Height            float64 `bson:"height" json:"height"`                         // ซม.
+	Quantity          int     `bson:"quantity" json:"quantity"`                     // จำนวน
+	PriceTHB          int64   `bson:"price_thb" json:"price_thb"`                   // ราคาเป็นสตางค์หรือบาททั้งจำนวน เลือกแนวทางเดียวให้คงที่
+	DepositAmount     int64   `bson:"deposit_amount" json:"deposit_amount"`         // เงินมัดจำ
+	OutstandingAmount int64   `bson:"outstanding_amount" json:"outstanding_amount"` // ยอดค้างชำระ
+	Content           string  `bson:"content" json:"content"`                       // รายละเอียด
+	MainColor         string  `bson:"main_color" json:"main_color"`                 // สีหลัก
 
 	// ---------- Payment ----------
 	PaymentMethod string `bson:"payment_method" json:"payment_method"` // deposit|cash|transfer|credit

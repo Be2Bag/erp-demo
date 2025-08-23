@@ -48,16 +48,18 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 		CustomerTypeID: signJob.CustomerTypeID,
 		Address:        signJob.Address,
 
-		ProjectID:   signJob.ProjectID,
-		ProjectName: signJob.ProjectName,
-		JobName:     signJob.JobName,
-		SignTypeID:  signJob.SignTypeID,
-		Width:       signJob.Width,
-		Height:      signJob.Height,
-		Quantity:    signJob.Quantity,
-		PriceTHB:    signJob.PriceTHB,
-		Content:     signJob.Content,
-		MainColor:   signJob.MainColor,
+		ProjectID:         signJob.ProjectID,
+		ProjectName:       signJob.ProjectName,
+		JobName:           signJob.JobName,
+		SignTypeID:        signJob.SignTypeID,
+		Width:             signJob.Width,
+		Height:            signJob.Height,
+		Quantity:          signJob.Quantity,
+		PriceTHB:          signJob.PriceTHB,
+		DepositAmount:     signJob.DepositAmount,
+		OutstandingAmount: signJob.OutstandingAmount,
+		Content:           signJob.Content,
+		MainColor:         signJob.MainColor,
 
 		PaymentMethod:  signJob.PaymentMethod,
 		ProductionTime: signJob.ProductionTime,
@@ -104,36 +106,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 		}
 	}
 
-	projection := bson.M{
-		"job_id":           1,
-		"company_name":     1,
-		"contact_person":   1,
-		"phone":            1,
-		"email":            1,
-		"customer_type_id": 1,
-		"address":          1,
-		"project_id":       1,
-		"project_name":     1,
-		"job_name":         1,
-		"sign_type_id":     1,
-		"width":            1,
-		"height":           1,
-		"quantity":         1,
-		"price_thb":        1,
-		"content":          1,
-		"main_color":       1,
-		"payment_method":   1,
-		"production_time":  1,
-		"due_date":         1,
-		"design_option":    1,
-		"install_option":   1,
-		"notes":            1,
-		"status":           1,
-		"created_by":       1,
-		"created_at":       1,
-		"updated_at":       1,
-		"deleted_at":       1,
-	}
+	projection := bson.M{}
 
 	// sort
 	allowedSortFields := map[string]string{
@@ -183,35 +156,37 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 		}
 
 		list = append(list, dto.SignJobDTO{
-			JobID:          m.JobID,
-			CompanyName:    m.CompanyName,
-			ContactPerson:  m.ContactPerson,
-			Phone:          m.Phone,
-			Email:          m.Email,
-			CustomerTypeID: m.CustomerTypeID,
-			Address:        m.Address,
-			ProjectID:      m.ProjectID,
-			ProjectName:    m.ProjectName,
-			JobName:        m.JobName,
-			SignTypeName:   SignTypeName,
-			SignTypeID:     m.SignTypeID,
-			Width:          m.Width,
-			Height:         m.Height,
-			Quantity:       m.Quantity,
-			PriceTHB:       m.PriceTHB,
-			Content:        m.Content,
-			MainColor:      m.MainColor,
-			PaymentMethod:  m.PaymentMethod,
-			ProductionTime: m.ProductionTime,
-			DueDate:        m.DueDate,
-			DesignOption:   m.DesignOption,
-			InstallOption:  m.InstallOption,
-			Notes:          m.Notes,
-			Status:         m.Status,
-			CreatedBy:      m.CreatedBy,
-			CreatedAt:      m.CreatedAt,
-			UpdatedAt:      m.UpdatedAt,
-			DeletedAt:      m.DeletedAt,
+			JobID:             m.JobID,
+			CompanyName:       m.CompanyName,
+			ContactPerson:     m.ContactPerson,
+			Phone:             m.Phone,
+			Email:             m.Email,
+			CustomerTypeID:    m.CustomerTypeID,
+			Address:           m.Address,
+			ProjectID:         m.ProjectID,
+			ProjectName:       m.ProjectName,
+			JobName:           m.JobName,
+			SignTypeName:      SignTypeName,
+			SignTypeID:        m.SignTypeID,
+			Width:             m.Width,
+			Height:            m.Height,
+			Quantity:          m.Quantity,
+			PriceTHB:          m.PriceTHB,
+			DepositAmount:     m.DepositAmount,
+			OutstandingAmount: m.OutstandingAmount,
+			Content:           m.Content,
+			MainColor:         m.MainColor,
+			PaymentMethod:     m.PaymentMethod,
+			ProductionTime:    m.ProductionTime,
+			DueDate:           m.DueDate,
+			DesignOption:      m.DesignOption,
+			InstallOption:     m.InstallOption,
+			Notes:             m.Notes,
+			Status:            m.Status,
+			CreatedBy:         m.CreatedBy,
+			CreatedAt:         m.CreatedAt,
+			UpdatedAt:         m.UpdatedAt,
+			DeletedAt:         m.DeletedAt,
 		})
 	}
 
@@ -265,17 +240,19 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 		CustomerTypeID: m.CustomerTypeID,
 		Address:        m.Address,
 		// ---------- รายละเอียดงานป้าย ----------
-		ProjectID:    m.ProjectID,
-		ProjectName:  m.ProjectName,
-		JobName:      m.JobName,
-		SignTypeName: SignTypeName,
-		SignTypeID:   m.SignTypeID,
-		Width:        m.Width,
-		Height:       m.Height,
-		Quantity:     m.Quantity,
-		PriceTHB:     m.PriceTHB,
-		Content:      m.Content,
-		MainColor:    m.MainColor,
+		ProjectID:         m.ProjectID,
+		ProjectName:       m.ProjectName,
+		JobName:           m.JobName,
+		SignTypeName:      SignTypeName,
+		SignTypeID:        m.SignTypeID,
+		Width:             m.Width,
+		Height:            m.Height,
+		Quantity:          m.Quantity,
+		PriceTHB:          m.PriceTHB,
+		DepositAmount:     m.DepositAmount,
+		OutstandingAmount: m.OutstandingAmount,
+		Content:           m.Content,
+		MainColor:         m.MainColor,
 		// ---------- การชำระเงิน ----------
 		PaymentMethod: m.PaymentMethod,
 		// ---------- การผลิต / ไทม์ไลน์ ----------
@@ -379,6 +356,13 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	}
 	if update.Notes != "" {
 		existing.Notes = update.Notes
+	}
+
+	if update.DepositAmount > 0 {
+		existing.DepositAmount = update.DepositAmount
+	}
+	if update.OutstandingAmount > 0 {
+		existing.OutstandingAmount = update.OutstandingAmount
 	}
 
 	if existing.Status != "" {
