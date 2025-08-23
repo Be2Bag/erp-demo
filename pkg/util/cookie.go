@@ -14,6 +14,7 @@ import (
 func GenerateJWTToken(claims dto.JWTClaims, secretKey string, expiration time.Duration) (string, error) {
 	tokenClaims := jwt.MapClaims{
 		"user_id":       claims.UserID,
+		"email":         claims.Email,
 		"employee_code": claims.EmployeeCode,
 		"role":          claims.Role,
 		"title_th":      claims.TitleTH,

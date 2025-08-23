@@ -59,6 +59,7 @@ func (s *authService) Login(ctx context.Context, user dto.RequestLogin) (string,
 
 	claims := dto.JWTClaims{
 		UserID:       userData[0].UserID,
+		Email:        userData[0].Email,
 		EmployeeCode: userData[0].EmployeeCode,
 		Role:         userData[0].Role,
 		TitleTH:      userData[0].TitleTH,
@@ -100,6 +101,7 @@ func (s *authService) ResetPassword(ctx context.Context, req dto.RequestResetPas
 
 	claims := dto.JWTClaims{
 		UserID:       userData[0].UserID,
+		Email:        userData[0].Email,
 		EmployeeCode: userData[0].EmployeeCode,
 		Role:         userData[0].Role,
 		TitleTH:      userData[0].TitleTH,
