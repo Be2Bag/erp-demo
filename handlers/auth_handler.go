@@ -121,7 +121,7 @@ func (h *AuthHandler) GetSessions(c *fiber.Ctx) error {
 	claims, err := h.svc.GetSessions(c.Context(), cookie)
 	if err != nil {
 
-		if err.Error() == "token expired" {
+		if err.Error() == "Token is expired" {
 			return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusUnauthorized,
 				MessageEN:  "Token expired",
@@ -259,7 +259,7 @@ func (h *AuthHandler) ConfirmResetPassword(c *fiber.Ctx) error {
 
 	err := h.svc.ConfirmResetPassword(c.Context(), req)
 	if err != nil {
-		if err.Error() == "token expired" || err.Error() == "invalid token" {
+		if err.Error() == "Token is expired" || err.Error() == "invalid token" {
 			return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusUnauthorized,
 				MessageEN:  "Invalid or expired token",

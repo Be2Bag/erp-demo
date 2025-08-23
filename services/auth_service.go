@@ -69,7 +69,7 @@ func (s *authService) Login(ctx context.Context, user dto.RequestLogin) (string,
 		Status:       userData[0].Status,
 	}
 
-	token, err := util.GenerateJWTToken(claims, s.config.JWT.SecretKey, 50000*time.Second) // 5 minutes expiration
+	token, err := util.GenerateJWTToken(claims, s.config.JWT.SecretKey, 30*24*time.Hour) // 30 days expiration
 	if err != nil {
 		return "", fmt.Errorf("failed to generate token: %w", err)
 	}
