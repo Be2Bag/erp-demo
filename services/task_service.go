@@ -313,38 +313,57 @@ func (s *taskService) CreateTask(ctx context.Context, createTask dto.CreateTaskR
 
 	existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx, filterUserTaskStats, projectionUserTaskStats)
 	if err != nil && err != mongo.ErrNoDocuments {
-		return err // error จริง
+		return err
 	}
 
-	totals := models.UserTaskTotals{}
+	nowUTC := time.Now().UTC()
+
+	var totals models.UserTaskTotals
+	var kpi models.UserTaskKPI
+	var createdAt time.Time
+
 	if existingStats == nil {
-		// ยังไม่มีเอกสาร → เริ่มนับใหม่
+		// สร้างเริ่มต้น
 		totals = models.UserTaskTotals{
 			Assigned:   1,
-			Open:       1, // งานที่เพิ่งสร้างสถานะ "todo" ถือว่า open
+			Open:       1,
 			InProgress: 0,
 			Completed:  0,
 			Skipped:    0,
 		}
+		createdAt = nowUTC
 	} else {
-		// มีเอกสารอยู่แล้ว → บวกเพิ่ม
 		totals = existingStats.Totals
 		totals.Assigned++
 		totals.Open++
+		// กันค่าติดลบ (เผื่อข้อมูลก่อนหน้าเพี้ยน)
+		if totals.Assigned < 0 {
+			totals.Assigned = 0
+		}
+		if totals.Open < 0 {
+			totals.Open = 0
+		}
+		if totals.InProgress < 0 {
+			totals.InProgress = 0
+		}
+		if totals.Completed < 0 {
+			totals.Completed = 0
+		}
+		if totals.Skipped < 0 {
+			totals.Skipped = 0
+		}
+		kpi = existingStats.KPI
+		createdAt = existingStats.CreatedAt
 	}
 
-	// เตรียม doc สำหรับ upsert
 	statsDoc := &models.UserTaskStats{
 		UserID:       createTask.Assignee,
 		DepartmentID: createTask.Department,
 		Totals:       totals,
-		KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
-		UpdatedAt:    now,
-	}
-	if existingStats == nil {
-		statsDoc.CreatedAt = now
-	} else {
-		statsDoc.CreatedAt = existingStats.CreatedAt
+		KPI:          kpi,
+		CreatedAt:    createdAt,
+		UpdatedAt:    nowUTC,
+		DeletedAt:    nil,
 	}
 
 	if err := s.taskRepo.UpsertUserTaskStats(ctx, statsDoc); err != nil {
