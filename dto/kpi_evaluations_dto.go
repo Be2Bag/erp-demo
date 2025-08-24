@@ -49,7 +49,6 @@ type KPIEvaluationResponse struct {
 	EvaluateeName  string             `json:"evaluatee_name"`
 	Department     string             `json:"department_id"`
 	DepartmentName string             `json:"department_name"`
-	KPIScore       string             `json:"kpi_score"`
 	Scores         []KPIScoreResponse `json:"scores"`
 	TotalScore     float32            `json:"total_score"`
 	IsEvaluated    bool               `json:"is_evaluated"` // ประเมินแล้วหรือยัง

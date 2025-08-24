@@ -48,12 +48,21 @@ func (s *kpiEvaluationRepoService) GetKPIEvaluationByID(ctx context.Context, eva
 	assigneeName := "ไม่พบผู้รับผิดชอบ"
 	jobName := "ไม่พบใบงาน"
 	projectName := "ไม่พบโครงการ"
+	evaluatorName := "ไม่พบผู้ประเมิน"
+	kpiName := "ไม่พบ KPI"
+
+	if kpi, _ := s.kpiRepo.GetOneKPIByFilter(ctx, bson.M{"kpi_id": m.KPIID, "deleted_at": nil}, bson.M{"_id": 0, "kpi_name": 1}); kpi != nil {
+		kpiName = kpi.KPIName
+	}
 
 	if dept, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.Department, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1}); dept != nil {
 		departmentsName = dept.DepartmentName
 	}
 	if assignee, _ := s.userRepo.GetByID(ctx, m.EvaluateeID); assignee != nil {
 		assigneeName = fmt.Sprintf("%s %s %s", assignee.TitleTH, assignee.FirstNameTH, assignee.LastNameTH)
+	}
+	if evaluator, _ := s.userRepo.GetByID(ctx, m.EvaluatorID); evaluator != nil {
+		evaluatorName = fmt.Sprintf("%s %s %s", evaluator.TitleTH, evaluator.FirstNameTH, evaluator.LastNameTH)
 	}
 
 	if job, _ := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": m.JobID, "deleted_at": nil}, bson.M{"_id": 0, "job_name": 1, "project_id": 1}); job != nil {
@@ -84,15 +93,14 @@ func (s *kpiEvaluationRepoService) GetKPIEvaluationByID(ctx context.Context, eva
 		ProjectName:    projectName,
 		TaskID:         m.TaskID,
 		KPIID:          m.KPIID,
-		KPIName:        "",
+		KPIName:        kpiName,
 		Version:        1,
-		EvaluatorID:    "",
-		EvaluatorName:  "ไม่มีผู้ประเมิน",
+		EvaluatorID:    m.EvaluatorID,
+		EvaluatorName:  evaluatorName,
 		EvaluateeID:    m.EvaluateeID,
 		EvaluateeName:  assigneeName,
 		Department:     m.Department,
 		DepartmentName: departmentsName,
-		KPIScore:       "",
 		Scores:         scores,
 		TotalScore:     m.TotalScore,
 		IsEvaluated:    m.IsEvaluated,
@@ -230,12 +238,21 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 		assigneeName := "ไม่พบผู้รับผิดชอบ"
 		jobName := "ไม่พบใบงาน"
 		projectName := "ไม่พบโครงการ"
+		evaluatorName := "ไม่พบผู้ประเมิน"
+		kpiName := "ไม่พบ KPI"
+
+		if kpi, _ := s.kpiRepo.GetOneKPIByFilter(ctx, bson.M{"kpi_id": m.KPIID, "deleted_at": nil}, bson.M{"_id": 0, "kpi_name": 1}); kpi != nil {
+			kpiName = kpi.KPIName
+		}
 
 		if dept, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.Department, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1}); dept != nil {
 			departmentsName = dept.DepartmentName
 		}
 		if assignee, _ := s.userRepo.GetByID(ctx, m.EvaluateeID); assignee != nil {
 			assigneeName = fmt.Sprintf("%s %s %s", assignee.TitleTH, assignee.FirstNameTH, assignee.LastNameTH)
+		}
+		if evaluator, _ := s.userRepo.GetByID(ctx, m.EvaluatorID); evaluator != nil {
+			evaluatorName = fmt.Sprintf("%s %s %s", evaluator.TitleTH, evaluator.FirstNameTH, evaluator.LastNameTH)
 		}
 
 		if job, _ := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": m.JobID, "deleted_at": nil}, bson.M{"_id": 0, "job_name": 1, "project_id": 1}); job != nil {
@@ -266,15 +283,14 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 			ProjectName:    projectName,
 			TaskID:         m.TaskID,
 			KPIID:          m.KPIID,
-			KPIName:        "",
+			KPIName:        kpiName,
 			Version:        1,
-			EvaluatorID:    "",
-			EvaluatorName:  "ไม่มีผู้ประเมิน",
+			EvaluatorID:    m.EvaluatorID,
+			EvaluatorName:  evaluatorName,
 			EvaluateeID:    m.EvaluateeID,
 			EvaluateeName:  assigneeName,
 			Department:     m.Department,
 			DepartmentName: departmentsName,
-			KPIScore:       "",
 			Scores:         scores,
 			TotalScore:     m.TotalScore,
 			IsEvaluated:    m.IsEvaluated,

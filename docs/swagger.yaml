@@ -448,8 +448,6 @@ definitions:
         type: string
       kpi_name:
         type: string
-      kpi_score:
-        type: string
       project_id:
         type: string
       project_name:
@@ -461,7 +459,7 @@ definitions:
       task_id:
         type: string
       total_score:
-        type: integer
+        type: number
       updated_at:
         type: string
       version:

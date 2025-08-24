@@ -4547,9 +4547,6 @@ const docTemplate = `{
                 "kpi_name": {
                     "type": "string"
                 },
-                "kpi_score": {
-                    "type": "string"
-                },
                 "project_id": {
                     "type": "string"
                 },
@@ -4566,7 +4563,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "total_score": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "updated_at": {
                     "type": "string"
