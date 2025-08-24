@@ -67,7 +67,7 @@ func main() {
 	adminSvc := services.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	dropDownSvc := services.NewDropDownService(*cfg, dropDownRepo)
 	kpiSvc := services.NewKPIService(*cfg, kpiRepo, userRepo)
-	taskSvc := services.NewTaskService(*cfg, taskRepo, userRepo, workFlowRepo, departmentRepo)
+	taskSvc := services.NewTaskService(*cfg, taskRepo, userRepo, workFlowRepo, departmentRepo, kpiEvaluationRepo, kpiRepo)
 	authSvc := services.NewAuthService(*cfg, authRepo, userRepo)
 	workFlowSvc := services.NewWorkflowService(*cfg, workFlowRepo)
 	signJobSvc := services.NewSignJobService(*cfg, signJobRepo, dropDownRepo)
