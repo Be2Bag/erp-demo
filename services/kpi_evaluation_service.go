@@ -179,8 +179,11 @@ func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, eval
 	if updated == nil {
 		return mongo.ErrNoDocuments
 	}
-
-	scores, errOnGetScores := s.kpiEvaluationRepo.GetAllKPIEvaluationByFilter(ctx, bson.M{"evaluation_id": evaluationID}, bson.M{"_id": 0, "total_score": 1})
+	scores, errOnGetScores := s.kpiEvaluationRepo.GetAllKPIEvaluationByFilter(
+		ctx,
+		bson.M{"evaluatee_id": existing.EvaluateeID, "deleted_at": nil},
+		bson.M{"_id": 0, "total_score": 1},
+	)
 	if errOnGetScores != nil {
 		return errOnGetScores
 	}
@@ -191,7 +194,11 @@ func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, eval
 	}
 	finalScores := helpers.KPIFromScores(rawScores, 5)
 
-	userTaskStats, errOnGetOneUserTaskStats := s.taskRepo.GetOneUserTaskStatsByFilter(ctx, bson.M{"user_id": existing.EvaluateeID}, bson.M{})
+	userTaskStats, errOnGetOneUserTaskStats := s.taskRepo.GetOneUserTaskStatsByFilter(
+		ctx,
+		bson.M{"user_id": existing.EvaluateeID},
+		bson.M{},
+	)
 	if errOnGetOneUserTaskStats != nil {
 		return errOnGetOneUserTaskStats
 	}
@@ -199,9 +206,8 @@ func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, eval
 	userTaskStats.KPI.Score = &finalScores
 	userTaskStats.KPI.LastCalculatedAt = &now
 
-	errOnUpdateUserTaskStats := s.taskRepo.UpsertUserTaskStats(ctx, userTaskStats)
-	if errOnUpdateUserTaskStats != nil {
-		return errOnUpdateUserTaskStats
+	if err := s.taskRepo.UpsertUserTaskStats(ctx, userTaskStats); err != nil {
+		return err
 	}
 
 	return nil
