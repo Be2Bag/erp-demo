@@ -305,6 +305,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 		departmentsName := "ไม่พบแผนก"
 		tasksCompleted := "0"
 		tasksTotal := "0"
+		tasksKPIScore := "100%"
 
 		positions, _ := s.dropDownRepo.GetPositions(ctx, bson.M{"position_id": u.PositionID, "deleted_at": nil}, bson.M{"_id": 0, "position_name": 1, "level": 1})
 
@@ -326,6 +327,9 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 		if existingStats != nil {
 			tasksCompleted = fmt.Sprintf("%d", existingStats.Totals.Completed)
 			tasksTotal = fmt.Sprintf("%d", existingStats.Totals.Assigned)
+			if existingStats.KPI.Score != nil {
+				tasksKPIScore = fmt.Sprintf("%.0f%%", *existingStats.KPI.Score)
+			}
 		}
 
 		dtoUsers = append(dtoUsers, &dto.ResponseGetUserAll{
@@ -345,7 +349,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 			DepartmentName: departmentsName,
 			Role:           u.Role,
 			Status:         u.Status,
-			KPIScore:       "100%",
+			KPIScore:       tasksKPIScore,
 			TasksCompleted: tasksCompleted,
 			TasksTotal:     tasksTotal,
 			CreatedAt:      u.CreatedAt,
