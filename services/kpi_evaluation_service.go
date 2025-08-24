@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/ports"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type kpiEvaluationRepoService struct {
@@ -69,96 +71,67 @@ func NewKPIEvaluationService(cfg config.Config, kpiRepo ports.KPIRepository, use
 // 	return dtoObj, nil
 // }
 
-// func (s *kpiService) UpdateKPITemplate(ctx context.Context, kpiID string, req dto.UpdateKPITemplateDTO, claims *dto.JWTClaims) error {
+func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, evaluationID string, req dto.UpdateKPIEvaluationRequest, claims *dto.JWTClaims) error {
 
-// 	now := time.Now()
-// 	// ดึงข้อมูลเดิม
-// 	filter := bson.M{"kpi_id": kpiID, "deleted_at": nil}
-// 	existing, err := s.kpiRepo.GetOneKPIByFilter(ctx, filter, bson.M{})
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if existing == nil {
-// 		return mongo.ErrNoDocuments
-// 	}
+	now := time.Now()
+	// ดึงข้อมูลเดิม
+	filter := bson.M{"evaluation_id": evaluationID, "deleted_at": nil}
+	existing, err := s.kpiEvaluationRepo.GetOneKPIEvaluationByFilter(ctx, filter, bson.M{})
+	if err != nil {
+		return err
+	}
 
-// 	// อัปเดตฟิลด์ข้อความ (trim)
-// 	if strings.TrimSpace(req.KPIName) != "" {
-// 		existing.KPIName = strings.TrimSpace(req.KPIName)
-// 	}
-// 	if strings.TrimSpace(req.Department) != "" {
-// 		existing.Department = strings.TrimSpace(req.Department)
-// 	}
+	if existing == nil {
+		return mongo.ErrNoDocuments
+	}
 
-// 	// ถ้า client ส่ง items มา (pointer != nil) → validate + แทนที่ทั้งชุด
-// 	if req.Items != nil {
-// 		if len(*req.Items) == 0 {
-// 			return fmt.Errorf("items must not be empty")
-// 		}
-// 		sumWeight := 0
-// 		seen := make(map[string]struct{})
-// 		newItems := make([]models.KPITemplateItem, 0, len(*req.Items))
+	if req.Scores != nil {
 
-// 		for i, it := range *req.Items {
-// 			name := strings.TrimSpace(it.Name)
-// 			if name == "" {
-// 				return fmt.Errorf("items[%d].name is required", i)
-// 			}
-// 			key := strings.ToLower(name)
-// 			if _, ok := seen[key]; ok {
-// 				return fmt.Errorf("items[%d].name duplicated: %s", i, name)
-// 			}
-// 			seen[key] = struct{}{}
+		reqMap := make(map[string]dto.KPIScoreRequest, len(req.Scores))
+		for _, r := range req.Scores {
+			id := strings.TrimSpace(r.ItemID)
+			if id == "" {
+				continue
+			}
+			reqMap[id] = r
+		}
 
-// 			if it.MaxScore <= 0 {
-// 				return fmt.Errorf("items[%d].max_score must be > 0", i)
-// 			}
-// 			if it.Weight <= 0 {
-// 				return fmt.Errorf("items[%d].weight must be > 0", i)
-// 			}
-// 			sumWeight += it.Weight
+		updatedAny := false
+		total := 0
+		for i, sc := range existing.Scores {
+			if r, ok := reqMap[sc.ItemID]; ok {
+				score := r.Score
+				if score < 0 {
+					score = 0
+				}
+				if score > sc.MaxScore {
+					score = sc.MaxScore
+				}
+				existing.Scores[i].Score = score
+				existing.Scores[i].Notes = strings.TrimSpace(r.Notes)
+				updatedAny = true
+			}
+			total += existing.Scores[i].Score
+		}
 
-// 			newItems = append(newItems, models.KPITemplateItem{
-// 				ItemID:      uuid.NewString(),
-// 				Name:        name,
-// 				Description: strings.TrimSpace(it.Description),
-// 				Category:    strings.TrimSpace(it.Category),
-// 				MaxScore:    it.MaxScore,
-// 				Weight:      it.Weight,
-// 				CreatedAt:   now,
-// 				UpdatedAt:   now,
-// 				DeletedAt:   nil,
-// 			})
-// 		}
-// 		// ให้ข้อความตรงกับ handler ตอนนี้ (เช็คเท่ากับ 100 ตรง ๆ)
-// 		if sumWeight != 100 {
-// 			return fmt.Errorf("sum of weights must be 100")
-// 		}
+		if updatedAny {
+			existing.TotalScore = total
+			existing.IsEvaluated = true
+		}
+	}
 
-// 		existing.Items = newItems
-// 		existing.TotalWeight = 100 // คงเป็น 100 เสมอ เพื่อความชัดเจน
-// 	}
+	existing.Version += 1    // เพิ่มเวอร์ชัน
+	existing.UpdatedAt = now // อัปเดตเวลา
 
-// 	existing.Version += 1    // เพิ่มเวอร์ชัน
-// 	existing.UpdatedAt = now // อัปเดตเวลา
-
-// 	updated, err := s.kpiRepo.UpdateKPIByID(ctx, kpiID, *existing)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if updated == nil {
-// 		return mongo.ErrNoDocuments
-// 	}
-// 	return nil
-// }
-
-// func (s *kpiService) DeleteKPITemplate(ctx context.Context, kpiID string) error {
-// 	err := s.kpiRepo.SoftDeleteKPIByID(ctx, kpiID)
-// 	if err == mongo.ErrNoDocuments {
-// 		return nil
-// 	}
-// 	return err
-// }
+	updated, err := s.kpiEvaluationRepo.UpdateKPIEvaluationByID(ctx, evaluationID, *existing)
+	if err != nil {
+		return err
+	}
+	if updated == nil {
+		return mongo.ErrNoDocuments
+	}
+	return nil
+}
 
 func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)

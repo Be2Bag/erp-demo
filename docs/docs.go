@@ -1331,6 +1331,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/kpi-evaluations/{id}": {
+            "put": {
+                "description": "Update an existing KPI evaluation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KPI Evaluations"
+                ],
+                "summary": "Update KPI Evaluation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "KPI Evaluation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update KPI Evaluation Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateKPIEvaluationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/kpi/create": {
             "post": {
                 "description": "Create a new KPI Template",
@@ -4505,6 +4546,27 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.KPIScoreRequest": {
+            "type": "object",
+            "required": [
+                "item_id",
+                "score"
+            ],
+            "properties": {
+                "item_id": {
+                    "description": "อ้างถึง item ใน KPI template",
+                    "type": "string"
+                },
+                "notes": {
+                    "description": "หมายเหตุเพิ่มเติม (ถ้ามี)",
+                    "type": "string"
+                },
+                "score": {
+                    "description": "คะแนนที่ให้",
+                    "type": "integer"
+                }
+            }
+        },
         "dto.KPIScoreResponse": {
             "type": "object",
             "properties": {
@@ -5311,6 +5373,25 @@ const docTemplate = `{
                 },
                 "note": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.UpdateKPIEvaluationRequest": {
+            "type": "object",
+            "required": [
+                "scores"
+            ],
+            "properties": {
+                "feedback": {
+                    "description": "คอมเมนต์รวม (ถ้ามี)",
+                    "type": "string"
+                },
+                "scores": {
+                    "description": "รายการคะแนนแต่ละ item",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.KPIScoreRequest"
+                    }
                 }
             }
         },

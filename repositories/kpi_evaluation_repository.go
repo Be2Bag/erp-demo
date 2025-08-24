@@ -28,9 +28,10 @@ func (r *kpiEvaluationRepo) CreateKPIEvaluations(ctx context.Context, kpi models
 }
 
 func (r *kpiEvaluationRepo) UpdateKPIEvaluationByID(ctx context.Context, evaluationID string, update models.KPIEvaluation) (*models.KPIEvaluation, error) {
-	filter := bson.M{"evaluation_id": evaluationID, "deleted_at": bson.M{"$exists": false}}
+	filter := bson.M{"evaluation_id": evaluationID, "deleted_at": nil}
 
 	set := bson.M{
+		"project_id":    update.ProjectID,
 		"job_id":        update.JobID,
 		"task_id":       update.TaskID,
 		"kpi_id":        update.KPIID,
@@ -41,6 +42,7 @@ func (r *kpiEvaluationRepo) UpdateKPIEvaluationByID(ctx context.Context, evaluat
 		"scores":        update.Scores,
 		"total_score":   update.TotalScore,
 		"feedback":      update.Feedback,
+		"is_evaluated":  update.IsEvaluated,
 		"updated_at":    update.UpdatedAt,
 	}
 

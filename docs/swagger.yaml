@@ -467,6 +467,21 @@ definitions:
       version:
         type: integer
     type: object
+  dto.KPIScoreRequest:
+    properties:
+      item_id:
+        description: อ้างถึง item ใน KPI template
+        type: string
+      notes:
+        description: หมายเหตุเพิ่มเติม (ถ้ามี)
+        type: string
+      score:
+        description: คะแนนที่ให้
+        type: integer
+    required:
+    - item_id
+    - score
+    type: object
   dto.KPIScoreResponse:
     properties:
       category:
@@ -1034,6 +1049,19 @@ definitions:
         type: string
       note:
         type: string
+    type: object
+  dto.UpdateKPIEvaluationRequest:
+    properties:
+      feedback:
+        description: คอมเมนต์รวม (ถ้ามี)
+        type: string
+      scores:
+        description: รายการคะแนนแต่ละ item
+        items:
+          $ref: '#/definitions/dto.KPIScoreRequest'
+        type: array
+    required:
+    - scores
     type: object
   dto.UpdateKPITemplateDTO:
     properties:
@@ -2094,6 +2122,33 @@ paths:
       summary: Get all workflows
       tags:
       - Dropdown
+  /v1/kpi-evaluations/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing KPI evaluation
+      parameters:
+      - description: KPI Evaluation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update KPI Evaluation Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateKPIEvaluationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update KPI Evaluation
+      tags:
+      - KPI Evaluations
   /v1/kpi-evaluations/list:
     get:
       consumes:

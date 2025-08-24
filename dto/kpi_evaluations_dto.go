@@ -12,6 +12,10 @@ type CreateKPIEvaluationRequest struct {
 	Feedback    string            `json:"feedback,omitempty"`               // คอมเมนต์รวม (ถ้ามี)
 }
 
+type UpdateKPIEvaluationRequest struct {
+	Scores   []KPIScoreRequest `json:"scores" binding:"required"` // รายการคะแนนแต่ละ item
+	Feedback string            `json:"feedback,omitempty"`        // คอมเมนต์รวม (ถ้ามี)
+}
 type KPIScoreRequest struct {
 	ItemID string `json:"item_id" binding:"required"` // อ้างถึง item ใน KPI template
 	Score  int    `json:"score" binding:"required"`   // คะแนนที่ให้

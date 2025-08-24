@@ -10,6 +10,7 @@ import (
 
 type KPIEvaluationService interface {
 	ListKPIEvaluation(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error)
+	UpdateKPIEvaluation(ctx context.Context, evaluationID string, req dto.UpdateKPIEvaluationRequest, claims *dto.JWTClaims) error
 }
 type KPIEvaluationRepository interface {
 	CreateKPIEvaluations(ctx context.Context, kpi models.KPIEvaluation) error

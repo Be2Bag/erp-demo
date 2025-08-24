@@ -23,7 +23,7 @@ func (h *KPIEvaluationHandler) KPIEvaluationRoutes(router fiber.Router) {
 	kpiEvaluations.Get("/list", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluationList)
 	// kpiEvaluations.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateKPIEvaluation)
 	// kpiEvaluations.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluationByID)
-	// kpiEvaluations.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateKPIEvaluation)
+	kpiEvaluations.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateKPIEvaluation)
 	// kpiEvaluations.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteKPIEvaluation)
 
 	// kpiEvaluations.Get("/", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluations)
@@ -93,5 +93,57 @@ func (h *KPIEvaluationHandler) GetKPIEvaluationList(c *fiber.Ctx) error {
 		MessageTH:  "สำเร็จ",
 		Status:     "success",
 		Data:       tasks,
+	})
+}
+
+// @Summary Update KPI Evaluation
+// @Description Update an existing KPI evaluation
+// @Tags KPI Evaluations
+// @Accept json
+// @Produce json
+// @Param id path string true "KPI Evaluation ID"
+// @Param request body dto.UpdateKPIEvaluationRequest true "Update KPI Evaluation Request"
+// @Success 200 {object} dto.BaseResponse
+// @Router /v1/kpi-evaluations/{id} [put]
+func (h *KPIEvaluationHandler) UpdateKPIEvaluation(c *fiber.Ctx) error {
+	var req dto.UpdateKPIEvaluationRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request body",
+			MessageTH:  "รูปแบบคำขอไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	evaluationID := c.Params("id")
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	if err := h.svc.UpdateKPIEvaluation(c.Context(), evaluationID, req, claims); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  err.Error(),
+			MessageTH:  "ไม่สามารถอัปเดตการประเมิน KPI ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "OK",
+		MessageTH:  "สำเร็จ",
+		Status:     "success",
+		Data:       nil,
 	})
 }
