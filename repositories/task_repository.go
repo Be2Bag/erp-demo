@@ -156,59 +156,6 @@ func (r *taskRepo) GetAllStepSteps(ctx context.Context, taskID string) ([]models
 	return doc.AppliedWorkflow.Steps, nil
 }
 
-// อัปเดตฟิลด์ของ step เดียว (status optional, notes optional)
-// func (r *taskRepo) UpdateOneStepFields(ctx context.Context, taskID, stepID string, status *string, notes *string, now time.Time) error {
-// 	filter := bson.M{
-// 		"task_id":                        taskID,
-// 		"deleted_at":                     nil,
-// 		"applied_workflow.steps.step_id": stepID, // ensure exists
-// 	}
-
-// 	set := bson.M{
-// 		"applied_workflow.steps.$[s].updated_at": now,
-// 	}
-// 	if status != nil {
-// 		set["applied_workflow.steps.$[s].status"] = *status
-// 	}
-// 	if notes != nil {
-// 		set["applied_workflow.steps.$[s].notes"] = *notes
-// 	}
-
-// 	arrayFilters := []interface{}{
-// 		bson.M{"s.step_id": stepID},
-// 	}
-
-// 	// ตั้ง timestamp ตามสถานะใหม่ (เฉพาะตอนขออัปเดต status)
-// 	if status != nil {
-// 		switch *status {
-// 		case "in_progress":
-// 			// set started_at เมื่อยังไม่มี
-// 			set["applied_workflow.steps.$[sNotStarted].started_at"] = now
-// 			arrayFilters = append(arrayFilters, bson.M{
-// 				"sNotStarted.step_id": stepID,
-// 				"$or":                 []bson.M{{"sNotStarted.started_at": bson.M{"$exists": false}}, {"sNotStarted.started_at": nil}},
-// 			})
-// 		case "done", "skip":
-// 			// set completed_at เมื่อยังไม่มี
-// 			set["applied_workflow.steps.$[sNotCompleted].completed_at"] = now
-// 			arrayFilters = append(arrayFilters, bson.M{
-// 				"sNotCompleted.step_id": stepID,
-// 				"$or":                   []bson.M{{"sNotCompleted.completed_at": bson.M{"$exists": false}}, {"sNotCompleted.completed_at": nil}},
-// 			})
-// 		}
-// 	}
-
-// 	opts := options.Update().SetArrayFilters(options.ArrayFilters{Filters: arrayFilters})
-// 	res, err := r.coll.UpdateOne(ctx, filter, bson.M{"$set": set}, opts)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	if res.MatchedCount == 0 {
-// 		return mongo.ErrNoDocuments
-// 	}
-// 	return nil
-// }
-
 func (r *taskRepo) UpdateTaskStatus(ctx context.Context, taskID, status, stepName string, now time.Time) error {
 	filter := bson.M{"task_id": taskID, "deleted_at": nil}
 	update := bson.M{"$set": bson.M{"status": status, "step_name": stepName, "updated_at": now}}
@@ -235,6 +182,33 @@ func (r *taskRepo) GetOneUserTaskStatsByFilter(ctx context.Context, filter inter
 		return nil, err
 	}
 	return &stats, nil
+}
+
+func (r *taskRepo) GetAllUserTaskStatsByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.UserTaskStats, error) {
+	opts := options.Find()
+	if projection != nil {
+		opts.SetProjection(projection)
+	}
+	cursor, err := r.collUserTaskStats.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var userTaskStats []*models.UserTaskStats
+	for cursor.Next(ctx) {
+		var userTaskStat models.UserTaskStats
+		if err := cursor.Decode(&userTaskStat); err != nil {
+			return nil, err
+		}
+		userTaskStats = append(userTaskStats, &userTaskStat)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return userTaskStats, nil
 }
 
 func (r *taskRepo) UpsertUserTaskStats(ctx context.Context, stats *models.UserTaskStats) error {

@@ -604,15 +604,10 @@ definitions:
       description:
         type: string
       steps:
-        description: ต้องส่งทั้งชุด
+        description: TotalHours   float64           `json:"total_hours"` // เซิร์ฟเวอร์จะคำนวณทับใหม่
         items:
           $ref: '#/definitions/dto.PutWorkflowStep'
         type: array
-      total_hours:
-        description: เซิร์ฟเวอร์จะคำนวณทับใหม่
-        type: number
-      version:
-        type: integer
       workflow_id:
         type: string
       workflow_name:

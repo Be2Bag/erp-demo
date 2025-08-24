@@ -165,12 +165,12 @@ type UpdateTaskPutRequest struct {
 }
 
 type PutTaskAppliedWorkflow struct {
-	WorkFlowID   string            `json:"workflow_id"`
-	WorkFlowName string            `json:"workflow_name"`
-	Department   string            `json:"department_id"`
-	Description  string            `json:"description"`
-	TotalHours   float64           `json:"total_hours"` // เซิร์ฟเวอร์จะคำนวณทับใหม่
-	Steps        []PutWorkflowStep `json:"steps"`       // ต้องส่งทั้งชุด
+	WorkFlowID   string `json:"workflow_id"`
+	WorkFlowName string `json:"workflow_name"`
+	Department   string `json:"department_id"`
+	Description  string `json:"description"`
+	// TotalHours   float64           `json:"total_hours"` // เซิร์ฟเวอร์จะคำนวณทับใหม่
+	Steps []PutWorkflowStep `json:"steps"` // ต้องส่งทั้งชุด
 	// Version      int               `json:"version"`
 }
 

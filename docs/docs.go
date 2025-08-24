@@ -4775,18 +4775,11 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "steps": {
-                    "description": "ต้องส่งทั้งชุด",
+                    "description": "TotalHours   float64           ` + "`" + `json:\"total_hours\"` + "`" + ` // เซิร์ฟเวอร์จะคำนวณทับใหม่",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/dto.PutWorkflowStep"
                     }
-                },
-                "total_hours": {
-                    "description": "เซิร์ฟเวอร์จะคำนวณทับใหม่",
-                    "type": "number"
-                },
-                "version": {
-                    "type": "integer"
                 },
                 "workflow_id": {
                     "type": "string"

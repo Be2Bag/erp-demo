@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"math"
 	"strings"
 	"time"
 
@@ -61,4 +62,22 @@ func DateToISO(s string) (time.Time, error) {
 		return time.Time{}, err
 	}
 	return t, nil
+}
+
+func KPIFromScores(scores []float64, maxScore float64) float64 {
+	if len(scores) == 0 || maxScore <= 0 {
+		return 0
+	}
+	var sum float64
+	for _, s := range scores {
+		if s < 0 {
+			s = 0
+		}
+		if s > maxScore {
+			s = maxScore
+		}
+		sum += s
+	}
+	percent := (sum / (maxScore * float64(len(scores)))) * 100.0
+	return math.Round(percent*100) / 100
 }
