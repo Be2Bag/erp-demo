@@ -10,6 +10,7 @@ import (
 
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
+	"github.com/Be2Bag/erp-demo/pkg/helpers"
 	"github.com/Be2Bag/erp-demo/ports"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -178,6 +179,31 @@ func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, eval
 	if updated == nil {
 		return mongo.ErrNoDocuments
 	}
+
+	scores, errOnGetScores := s.kpiEvaluationRepo.GetAllKPIEvaluationByFilter(ctx, bson.M{"evaluation_id": evaluationID}, bson.M{"_id": 0, "total_score": 1})
+	if errOnGetScores != nil {
+		return errOnGetScores
+	}
+
+	rawScores := make([]float64, 0, len(scores))
+	for _, ev := range scores {
+		rawScores = append(rawScores, float64(ev.TotalScore))
+	}
+	finalScores := helpers.KPIFromScores(rawScores, 5)
+
+	userTaskStats, errOnGetOneUserTaskStats := s.taskRepo.GetOneUserTaskStatsByFilter(ctx, bson.M{"user_id": existing.EvaluateeID}, bson.M{})
+	if errOnGetOneUserTaskStats != nil {
+		return errOnGetOneUserTaskStats
+	}
+
+	userTaskStats.KPI.Score = &finalScores
+	userTaskStats.KPI.LastCalculatedAt = &now
+
+	errOnUpdateUserTaskStats := s.taskRepo.UpsertUserTaskStats(ctx, userTaskStats)
+	if errOnUpdateUserTaskStats != nil {
+		return errOnUpdateUserTaskStats
+	}
+
 	return nil
 }
 
