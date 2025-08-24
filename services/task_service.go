@@ -1432,8 +1432,6 @@ func (s *taskService) CreateEvaluationIfNeeded(ctx context.Context, taskID strin
 
 	// 4) (ทางเลือก) Auto-generate รายการ KPI items จาก KPI Template
 
-	log.Println(" task.KPIID: ", task.KPIID)
-
 	filter := bson.M{"kpi_id": task.KPIID, "deleted_at": nil}
 	projection := bson.M{}
 
@@ -1443,7 +1441,6 @@ func (s *taskService) CreateEvaluationIfNeeded(ctx context.Context, taskID strin
 		return errOnGetOneKPIByFilter
 	}
 
-	log.Println("KPI Template: ", tpl)
 	if tpl != nil {
 		for _, it := range tpl.Items {
 			doc.Scores = append(doc.Scores, models.KPIScore{
