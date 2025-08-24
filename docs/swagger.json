@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:3000",
+    "host": "api.rkp-media.com",
     "basePath": "/service/api",
     "paths": {
         "/v1/admin/update-position-user": {
@@ -1242,40 +1242,6 @@
                     },
                     "502": {
                         "description": "Bad Gateway",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/v1/kpi-evaluations/create": {
-            "post": {
-                "description": "Create a new KPI evaluation",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "KPI Evaluations"
-                ],
-                "summary": "Create KPI Evaluation",
-                "parameters": [
-                    {
-                        "description": "KPI Evaluation Request",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.CreateKPIEvaluationRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
                         }
@@ -4071,49 +4037,6 @@
                 }
             }
         },
-        "dto.CreateKPIEvaluationRequest": {
-            "type": "object",
-            "required": [
-                "department_id",
-                "evaluatee_id",
-                "job_id",
-                "kpi_id",
-                "scores"
-            ],
-            "properties": {
-                "department_id": {
-                    "description": "แผนก",
-                    "type": "string"
-                },
-                "evaluatee_id": {
-                    "description": "ผู้ถูกประเมิน",
-                    "type": "string"
-                },
-                "feedback": {
-                    "description": "คอมเมนต์รวม (ถ้ามี)",
-                    "type": "string"
-                },
-                "job_id": {
-                    "description": "อ้างถึง SignJob",
-                    "type": "string"
-                },
-                "kpi_id": {
-                    "description": "อ้างถึง KPITemplate",
-                    "type": "string"
-                },
-                "scores": {
-                    "description": "รายการคะแนนแต่ละ item",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.KPIScoreRequest"
-                    }
-                },
-                "task_id": {
-                    "description": "งานย่อย (ถ้ามี)",
-                    "type": "string"
-                }
-            }
-        },
         "dto.CreateKPITemplateDTO": {
             "type": "object",
             "properties": {
@@ -4507,7 +4430,13 @@
                 "department_id": {
                     "type": "string"
                 },
+                "department_name": {
+                    "type": "string"
+                },
                 "evaluatee_id": {
+                    "type": "string"
+                },
+                "evaluatee_name": {
                     "type": "string"
                 },
                 "evaluation_id": {
@@ -4516,16 +4445,38 @@
                 "evaluator_id": {
                     "type": "string"
                 },
+                "evaluator_name": {
+                    "type": "string"
+                },
                 "feedback": {
                     "type": "string"
                 },
+                "finished_at": {
+                    "type": "string"
+                },
+                "is_evaluated": {
+                    "description": "ประเมินแล้วหรือยัง",
+                    "type": "boolean"
+                },
                 "job_id": {
+                    "type": "string"
+                },
+                "job_name": {
                     "type": "string"
                 },
                 "kpi_id": {
                     "type": "string"
                 },
                 "kpi_name": {
+                    "type": "string"
+                },
+                "kpi_score": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "string"
+                },
+                "project_name": {
                     "type": "string"
                 },
                 "scores": {
@@ -4544,27 +4495,6 @@
                     "type": "string"
                 },
                 "version": {
-                    "type": "integer"
-                }
-            }
-        },
-        "dto.KPIScoreRequest": {
-            "type": "object",
-            "required": [
-                "item_id",
-                "score"
-            ],
-            "properties": {
-                "item_id": {
-                    "description": "อ้างถึง item ใน KPI template",
-                    "type": "string"
-                },
-                "notes": {
-                    "description": "หมายเหตุเพิ่มเติม (ถ้ามี)",
-                    "type": "string"
-                },
-                "score": {
-                    "description": "คะแนนที่ให้",
                     "type": "integer"
                 }
             }

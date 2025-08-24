@@ -166,7 +166,6 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 
 	filter := bson.M{
 		"deleted_at": nil,
-		"status":     "done",
 	}
 
 	department = strings.TrimSpace(department)
@@ -233,8 +232,21 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 			}
 		}
 
+		scores := make([]dto.KPIScoreResponse, 0, len(m.Scores))
+		for _, score := range m.Scores {
+			scores = append(scores, dto.KPIScoreResponse{
+				ItemID:   score.ItemID,
+				Name:     score.Name,
+				Category: score.Category,
+				Weight:   score.Weight,
+				MaxScore: score.MaxScore,
+				Score:    score.Score,
+				Notes:    score.Notes,
+			})
+		}
+
 		list = append(list, dto.KPIEvaluationResponse{
-			EvaluationID:   "",
+			EvaluationID:   m.EvaluationID,
 			JobID:          m.JobID,
 			JobName:        jobName,
 			ProjectID:      m.ProjectID,
@@ -250,8 +262,8 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 			Department:     m.Department,
 			DepartmentName: departmentsName,
 			KPIScore:       "",
-			Scores:         []dto.KPIScoreResponse{},
-			TotalScore:     0,
+			Scores:         scores,
+			TotalScore:     m.TotalScore,
 			IsEvaluated:    m.IsEvaluated,
 			Feedback:       m.Feedback,
 			FinishedAt:     m.UpdatedAt,
