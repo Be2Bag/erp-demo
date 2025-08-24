@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -147,7 +148,12 @@ func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, eval
 		}
 
 		if updatedAny {
-			existing.TotalScore = total / len(existing.Scores) // ค่าเฉลี่ย
+			if len(existing.Scores) > 0 {
+				avg := float64(total) / float64(len(existing.Scores))
+				existing.TotalScore = float32(math.Round(avg*100) / 100) // ปัดเป็นทศนิยม 2 ตำแหน่ง
+			} else {
+				existing.TotalScore = 0
+			}
 			existing.IsEvaluated = true
 		}
 	}

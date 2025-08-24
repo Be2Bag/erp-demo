@@ -15,7 +15,7 @@ type KPIEvaluation struct {
 	EvaluateeID  string     `bson:"evaluatee_id" json:"evaluatee_id"`           // ใครถูกประเมิน (เช่น assignee)
 	Department   string     `bson:"department_id" json:"department_id"`         // แผนก
 	Scores       []KPIScore `bson:"scores" json:"scores"`                       // รายการคะแนนแต่ละ item
-	TotalScore   int        `bson:"total_score" json:"total_score"`             // รวมคะแนน
+	TotalScore   float32    `bson:"total_score" json:"total_score"`             // รวมคะแนน
 	Feedback     string     `bson:"feedback" json:"feedback"`                   // คอมเมนต์รวม
 	IsEvaluated  bool       `bson:"is_evaluated" json:"is_evaluated"`           // ประเมินแล้วหรือยัง
 	CreatedAt    time.Time  `bson:"created_at" json:"created_at"`
