@@ -1116,275 +1116,275 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 	return nil
 }
 
-func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.UpdateTaskPutRequest, updatedBy string) error {
-	now := time.Now()
+// func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.UpdateTaskPutRequest, updatedBy string) error {
+// 	now := time.Now()
 
-	// 1) โหลดงานเดิม
-	existing, err := s.taskRepo.GetOneTasksByFilter(ctx, bson.M{"task_id": taskID, "deleted_at": nil}, bson.M{})
-	if err != nil {
-		return err
-	}
-	if existing == nil {
-		return mongo.ErrNoDocuments
-	}
-	oldAssignee := existing.Assignee
-	oldStatus := existing.Status
-	oldCreatedAt := existing.CreatedAt
-	oldCreatedBy := existing.CreatedBy
-	oldTaskID := existing.TaskID
+// 	// 1) โหลดงานเดิม
+// 	existing, err := s.taskRepo.GetOneTasksByFilter(ctx, bson.M{"task_id": taskID, "deleted_at": nil}, bson.M{})
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if existing == nil {
+// 		return mongo.ErrNoDocuments
+// 	}
+// 	oldAssignee := existing.Assignee
+// 	oldStatus := existing.Status
+// 	oldCreatedAt := existing.CreatedAt
+// 	oldCreatedBy := existing.CreatedBy
+// 	oldTaskID := existing.TaskID
 
-	// 2) validate ขั้นพื้นฐาน
-	imp := strings.ToLower(strings.TrimSpace(req.Importance))
-	if imp != "low" && imp != "medium" && imp != "high" {
-		return fmt.Errorf("importance must be one of: low|medium|high")
-	}
+// 	// 2) validate ขั้นพื้นฐาน
+// 	imp := strings.ToLower(strings.TrimSpace(req.Importance))
+// 	if imp != "low" && imp != "medium" && imp != "high" {
+// 		return fmt.Errorf("importance must be one of: low|medium|high")
+// 	}
 
-	start, err := helpers.DateToISO(strings.TrimSpace(req.StartDate))
-	if err != nil {
-		return fmt.Errorf("invalid start_date: %w", err)
-	}
-	end, err := helpers.DateToISO(strings.TrimSpace(req.EndDate))
-	if err != nil {
-		return fmt.Errorf("invalid end_date: %w", err)
-	}
-	if !start.IsZero() && !end.IsZero() && end.Before(start) {
-		return fmt.Errorf("end_date must be on or after start_date")
-	}
+// 	start, err := helpers.DateToISO(strings.TrimSpace(req.StartDate))
+// 	if err != nil {
+// 		return fmt.Errorf("invalid start_date: %w", err)
+// 	}
+// 	end, err := helpers.DateToISO(strings.TrimSpace(req.EndDate))
+// 	if err != nil {
+// 		return fmt.Errorf("invalid end_date: %w", err)
+// 	}
+// 	if !start.IsZero() && !end.IsZero() && end.Before(start) {
+// 		return fmt.Errorf("end_date must be on or after start_date")
+// 	}
 
-	// 3) สร้าง snapshot steps ใหม่จาก req.AppliedWorkflow.Steps (ต้องส่งทั้งชุด)
-	//    - validate hours > 0, status ถูกต้อง, reindex order, auto started/completed
-	normalizeStatus := func(s string) (string, error) {
-		ss := strings.ToLower(strings.TrimSpace(s))
-		switch ss {
-		case "todo", "in_progress", "skip", "done":
-			return ss, nil
-		default:
-			return "", fmt.Errorf("invalid step status: %s", s)
-		}
-	}
+// 	// 3) สร้าง snapshot steps ใหม่จาก req.AppliedWorkflow.Steps (ต้องส่งทั้งชุด)
+// 	//    - validate hours > 0, status ถูกต้อง, reindex order, auto started/completed
+// 	normalizeStatus := func(s string) (string, error) {
+// 		ss := strings.ToLower(strings.TrimSpace(s))
+// 		switch ss {
+// 		case "todo", "in_progress", "skip", "done":
+// 			return ss, nil
+// 		default:
+// 			return "", fmt.Errorf("invalid step status: %s", s)
+// 		}
+// 	}
 
-	steps := make([]models.TaskWorkflowStep, 0, len(req.AppliedWorkflow.Steps))
-	for i, st := range req.AppliedWorkflow.Steps {
-		if st.Hours <= 0 {
-			return fmt.Errorf("steps[%d].hours must be > 0", i)
-		}
-		ns, err := normalizeStatus(st.Status)
-		if err != nil {
-			return fmt.Errorf("steps[%d]: %w", i, err)
-		}
+// 	steps := make([]models.TaskWorkflowStep, 0, len(req.AppliedWorkflow.Steps))
+// 	for i, st := range req.AppliedWorkflow.Steps {
+// 		if st.Hours <= 0 {
+// 			return fmt.Errorf("steps[%d].hours must be > 0", i)
+// 		}
+// 		ns, err := normalizeStatus(st.Status)
+// 		if err != nil {
+// 			return fmt.Errorf("steps[%d]: %w", i, err)
+// 		}
 
-		// auto time fields ตามลอจิกเดิม
-		started := st.StartedAt
-		completed := st.CompletedAt
-		if ns == "in_progress" && started == nil {
-			t := now
-			started = &t
-		}
-		if (ns == "done" || ns == "skip") && completed == nil {
-			t := now
-			completed = &t
-		}
+// 		// auto time fields ตามลอจิกเดิม
+// 		started := st.StartedAt
+// 		completed := st.CompletedAt
+// 		if ns == "in_progress" && started == nil {
+// 			t := now
+// 			started = &t
+// 		}
+// 		if (ns == "done" || ns == "skip") && completed == nil {
+// 			t := now
+// 			completed = &t
+// 		}
 
-		steps = append(steps, models.TaskWorkflowStep{
-			StepID:      strings.TrimSpace(st.StepID),
-			StepName:    strings.TrimSpace(st.StepName),
-			Description: strings.TrimSpace(st.Description),
-			Hours:       st.Hours,
-			Order:       st.Order, // เดี๋ยว reindex อีกที
-			Status:      ns,
-			StartedAt:   started,
-			CompletedAt: completed,
-			Notes:       strings.TrimSpace(st.Notes),
-			CreatedAt:   existing.CreatedAt, // หรือจะใช้เวลาตอนสร้างเดิมก็ได้ (ขึ้นกับนโยบาย)
-			UpdatedAt:   now,
-		})
-	}
+// 		steps = append(steps, models.TaskWorkflowStep{
+// 			StepID:      strings.TrimSpace(st.StepID),
+// 			StepName:    strings.TrimSpace(st.StepName),
+// 			Description: strings.TrimSpace(st.Description),
+// 			Hours:       st.Hours,
+// 			Order:       st.Order, // เดี๋ยว reindex อีกที
+// 			Status:      ns,
+// 			StartedAt:   started,
+// 			CompletedAt: completed,
+// 			Notes:       strings.TrimSpace(st.Notes),
+// 			CreatedAt:   existing.CreatedAt, // หรือจะใช้เวลาตอนสร้างเดิมก็ได้ (ขึ้นกับนโยบาย)
+// 			UpdatedAt:   now,
+// 		})
+// 	}
 
-	// sort ตาม Order แล้ว reindex 1..N
-	sort.SliceStable(steps, func(i, j int) bool { return steps[i].Order < steps[j].Order })
-	for i := range steps {
-		steps[i].Order = i + 1
-	}
+// 	// sort ตาม Order แล้ว reindex 1..N
+// 	sort.SliceStable(steps, func(i, j int) bool { return steps[i].Order < steps[j].Order })
+// 	for i := range steps {
+// 		steps[i].Order = i + 1
+// 	}
 
-	// คำนวณ total hours
-	var total float64
-	for _, s := range steps {
-		total += s.Hours
-	}
+// 	// คำนวณ total hours
+// 	var total float64
+// 	for _, s := range steps {
+// 		total += s.Hours
+// 	}
 
-	// 4) คำนวณ step_name และ task.status จาก steps
-	curStepName := ""
-	for _, s2 := range steps {
-		if s2.Status == "in_progress" {
-			curStepName = s2.StepName
-			break
-		}
-	}
-	if curStepName == "" {
-		for _, s2 := range steps {
-			if s2.Status == "todo" {
-				curStepName = s2.StepName
-				break
-			}
-		}
-	}
-	if curStepName == "" && len(steps) > 0 {
-		curStepName = steps[len(steps)-1].StepName
-	}
+// 	// 4) คำนวณ step_name และ task.status จาก steps
+// 	curStepName := ""
+// 	for _, s2 := range steps {
+// 		if s2.Status == "in_progress" {
+// 			curStepName = s2.StepName
+// 			break
+// 		}
+// 	}
+// 	if curStepName == "" {
+// 		for _, s2 := range steps {
+// 			if s2.Status == "todo" {
+// 				curStepName = s2.StepName
+// 				break
+// 			}
+// 		}
+// 	}
+// 	if curStepName == "" && len(steps) > 0 {
+// 		curStepName = steps[len(steps)-1].StepName
+// 	}
 
-	derived := helpers.DeriveTaskStatusFromSteps(steps)
+// 	derived := helpers.DeriveTaskStatusFromSteps(steps)
 
-	// 5) ประกอบเอกสารใหม่ทั้งก้อน (replace) โดย "คง" immutable เดิม
-	newDoc := models.Tasks{
-		TaskID:      oldTaskID,
-		ProjectID:   strings.TrimSpace(req.ProjectID),
-		ProjectName: strings.TrimSpace(req.ProjectName),
-		JobID:       strings.TrimSpace(req.JobID),
-		JobName:     strings.TrimSpace(req.JobName),
-		Description: strings.TrimSpace(req.Description),
+// 	// 5) ประกอบเอกสารใหม่ทั้งก้อน (replace) โดย "คง" immutable เดิม
+// 	newDoc := models.Tasks{
+// 		TaskID:      oldTaskID,
+// 		ProjectID:   strings.TrimSpace(req.ProjectID),
+// 		ProjectName: strings.TrimSpace(req.ProjectName),
+// 		JobID:       strings.TrimSpace(req.JobID),
+// 		JobName:     strings.TrimSpace(req.JobName),
+// 		Description: strings.TrimSpace(req.Description),
 
-		Department: strings.TrimSpace(req.Department),
-		Assignee:   strings.TrimSpace(req.Assignee),
-		Importance: imp,
+// 		Department: strings.TrimSpace(req.Department),
+// 		Assignee:   strings.TrimSpace(req.Assignee),
+// 		Importance: imp,
 
-		StartDate: start,
-		EndDate:   end,
+// 		StartDate: start,
+// 		EndDate:   end,
 
-		KPIID:      strings.TrimSpace(req.KPIID),
-		WorkFlowID: strings.TrimSpace(req.WorkflowID),
+// 		KPIID:      strings.TrimSpace(req.KPIID),
+// 		WorkFlowID: strings.TrimSpace(req.WorkflowID),
 
-		AppliedWorkflow: models.TaskAppliedWorkflow{
-			WorkFlowID:   strings.TrimSpace(req.AppliedWorkflow.WorkFlowID),
-			WorkFlowName: strings.TrimSpace(req.AppliedWorkflow.WorkFlowName),
-			Department:   strings.TrimSpace(req.AppliedWorkflow.Department),
-			Description:  strings.TrimSpace(req.AppliedWorkflow.Description),
-			TotalHours:   total, // ทับ req
-			Steps:        steps,
-			Version:      existing.AppliedWorkflow.Version + 1,
-		},
+// 		AppliedWorkflow: models.TaskAppliedWorkflow{
+// 			WorkFlowID:   strings.TrimSpace(req.AppliedWorkflow.WorkFlowID),
+// 			WorkFlowName: strings.TrimSpace(req.AppliedWorkflow.WorkFlowName),
+// 			Department:   strings.TrimSpace(req.AppliedWorkflow.Department),
+// 			Description:  strings.TrimSpace(req.AppliedWorkflow.Description),
+// 			TotalHours:   total, // ทับ req
+// 			Steps:        steps,
+// 			Version:      existing.AppliedWorkflow.Version + 1,
+// 		},
 
-		Status:    derived,      // ทับ req.Status
-		StepName:  curStepName,  // จากขั้นตอน
-		CreatedBy: oldCreatedBy, // คงของเดิม
-		CreatedAt: oldCreatedAt, // คงของเดิม
-		UpdatedAt: now,
-		DeletedAt: nil,
-	}
+// 		Status:    derived,      // ทับ req.Status
+// 		StepName:  curStepName,  // จากขั้นตอน
+// 		CreatedBy: oldCreatedBy, // คงของเดิม
+// 		CreatedAt: oldCreatedAt, // คงของเดิม
+// 		UpdatedAt: now,
+// 		DeletedAt: nil,
+// 	}
 
-	// 6) Replace ใน DB
-	updated, err := s.taskRepo.ReplaceTaskByID(ctx, taskID, &newDoc)
-	if err != nil {
-		return err
-	}
-	if updated == nil {
-		return mongo.ErrNoDocuments
-	}
+// 	// 6) Replace ใน DB
+// 	updated, err := s.taskRepo.ReplaceTaskByID(ctx, taskID, &newDoc)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if updated == nil {
+// 		return mongo.ErrNoDocuments
+// 	}
 
-	// [EVAL] ถ้าเพิ่งเปลี่ยนเป็น done ให้สร้างแบบประเมิน
-	if oldStatus != "done" && newDoc.Status == "done" {
-		_ = s.CreateEvaluationIfNeeded(ctx, taskID)
-	}
+// 	// [EVAL] ถ้าเพิ่งเปลี่ยนเป็น done ให้สร้างแบบประเมิน
+// 	if oldStatus != "done" && newDoc.Status == "done" {
+// 		_ = s.CreateEvaluationIfNeeded(ctx, taskID)
+// 	}
 
-	// 7) อัปเดตสถิติ (เหมือนเดิม) — diff ผู้รับผิดชอบ/สถานะ
-	newAssignee := newDoc.Assignee
-	newStatus := newDoc.Status
+// 	// 7) อัปเดตสถิติ (เหมือนเดิม) — diff ผู้รับผิดชอบ/สถานะ
+// 	newAssignee := newDoc.Assignee
+// 	newStatus := newDoc.Status
 
-	updateStats := func(userID string, assignedDelta, openDelta, inProgDelta, completedDelta int) error {
-		if strings.TrimSpace(userID) == "" {
-			return nil
-		}
-		existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx,
-			bson.M{"user_id": userID},
-			bson.M{},
-		)
-		if err != nil && err != mongo.ErrNoDocuments {
-			return err
-		}
-		nowUTC := time.Now().UTC()
-		totals := models.UserTaskTotals{}
-		createdAt := nowUTC
-		if existingStats != nil {
-			totals = existingStats.Totals
-			createdAt = existingStats.CreatedAt
-		}
-		totals.Assigned += assignedDelta
-		totals.Open += openDelta
-		totals.InProgress += inProgDelta
-		totals.Completed += completedDelta
-		if totals.Assigned < 0 {
-			totals.Assigned = 0
-		}
-		if totals.Open < 0 {
-			totals.Open = 0
-		}
-		if totals.InProgress < 0 {
-			totals.InProgress = 0
-		}
-		if totals.Completed < 0 {
-			totals.Completed = 0
-		}
+// 	updateStats := func(userID string, assignedDelta, openDelta, inProgDelta, completedDelta int) error {
+// 		if strings.TrimSpace(userID) == "" {
+// 			return nil
+// 		}
+// 		existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx,
+// 			bson.M{"user_id": userID},
+// 			bson.M{},
+// 		)
+// 		if err != nil && err != mongo.ErrNoDocuments {
+// 			return err
+// 		}
+// 		nowUTC := time.Now().UTC()
+// 		totals := models.UserTaskTotals{}
+// 		createdAt := nowUTC
+// 		if existingStats != nil {
+// 			totals = existingStats.Totals
+// 			createdAt = existingStats.CreatedAt
+// 		}
+// 		totals.Assigned += assignedDelta
+// 		totals.Open += openDelta
+// 		totals.InProgress += inProgDelta
+// 		totals.Completed += completedDelta
+// 		if totals.Assigned < 0 {
+// 			totals.Assigned = 0
+// 		}
+// 		if totals.Open < 0 {
+// 			totals.Open = 0
+// 		}
+// 		if totals.InProgress < 0 {
+// 			totals.InProgress = 0
+// 		}
+// 		if totals.Completed < 0 {
+// 			totals.Completed = 0
+// 		}
 
-		statsDoc := &models.UserTaskStats{
-			UserID:       userID,
-			DepartmentID: newDoc.Department,
-			Totals:       totals,
-			KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
-			CreatedAt:    createdAt,
-			UpdatedAt:    nowUTC,
-		}
-		return s.taskRepo.UpsertUserTaskStats(ctx, statsDoc)
-	}
+// 		statsDoc := &models.UserTaskStats{
+// 			UserID:       userID,
+// 			DepartmentID: newDoc.Department,
+// 			Totals:       totals,
+// 			KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
+// 			CreatedAt:    createdAt,
+// 			UpdatedAt:    nowUTC,
+// 		}
+// 		return s.taskRepo.UpsertUserTaskStats(ctx, statsDoc)
+// 	}
 
-	if oldAssignee != newAssignee {
-		// หักของเก่า
-		switch oldStatus {
-		case "done":
-			_ = updateStats(oldAssignee, -1, 0, 0, -1)
-		case "in_progress":
-			_ = updateStats(oldAssignee, -1, -1, -1, 0)
-		default:
-			_ = updateStats(oldAssignee, -1, -1, 0, 0)
-		}
-		// บวกของใหม่
-		switch newStatus {
-		case "done":
-			_ = updateStats(newAssignee, +1, 0, 0, +1)
-		case "in_progress":
-			_ = updateStats(newAssignee, +1, +1, +1, 0)
-		default:
-			_ = updateStats(newAssignee, +1, +1, 0, 0)
-		}
-		return nil
-	}
+// 	if oldAssignee != newAssignee {
+// 		// หักของเก่า
+// 		switch oldStatus {
+// 		case "done":
+// 			_ = updateStats(oldAssignee, -1, 0, 0, -1)
+// 		case "in_progress":
+// 			_ = updateStats(oldAssignee, -1, -1, -1, 0)
+// 		default:
+// 			_ = updateStats(oldAssignee, -1, -1, 0, 0)
+// 		}
+// 		// บวกของใหม่
+// 		switch newStatus {
+// 		case "done":
+// 			_ = updateStats(newAssignee, +1, 0, 0, +1)
+// 		case "in_progress":
+// 			_ = updateStats(newAssignee, +1, +1, +1, 0)
+// 		default:
+// 			_ = updateStats(newAssignee, +1, +1, 0, 0)
+// 		}
+// 		return nil
+// 	}
 
-	if oldStatus != newStatus {
-		switch oldStatus {
-		case "todo":
-			switch newStatus {
-			case "in_progress":
-				_ = updateStats(newAssignee, 0, 0, +1, 0)
-			case "done":
-				_ = updateStats(newAssignee, 0, -1, 0, +1)
-			}
-		case "in_progress":
-			switch newStatus {
-			case "todo":
-				_ = updateStats(newAssignee, 0, 0, -1, 0)
-			case "done":
-				_ = updateStats(newAssignee, 0, -1, -1, +1)
-			}
-		case "done":
-			switch newStatus {
-			case "in_progress":
-				_ = updateStats(newAssignee, 0, +1, +1, -1)
-			case "todo":
-				_ = updateStats(newAssignee, 0, +1, 0, -1)
-			}
-		}
-	}
+// 	if oldStatus != newStatus {
+// 		switch oldStatus {
+// 		case "todo":
+// 			switch newStatus {
+// 			case "in_progress":
+// 				_ = updateStats(newAssignee, 0, 0, +1, 0)
+// 			case "done":
+// 				_ = updateStats(newAssignee, 0, -1, 0, +1)
+// 			}
+// 		case "in_progress":
+// 			switch newStatus {
+// 			case "todo":
+// 				_ = updateStats(newAssignee, 0, 0, -1, 0)
+// 			case "done":
+// 				_ = updateStats(newAssignee, 0, -1, -1, +1)
+// 			}
+// 		case "done":
+// 			switch newStatus {
+// 			case "in_progress":
+// 				_ = updateStats(newAssignee, 0, +1, +1, -1)
+// 			case "todo":
+// 				_ = updateStats(newAssignee, 0, +1, 0, -1)
+// 			}
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func (s *taskService) CreateEvaluationIfNeeded(ctx context.Context, taskID string) error {
 	// 1) โหลด Task ล่าสุด (ต้องมีข้อมูลพื้นฐานพอให้ตั้งแบบประเมิน)
@@ -1463,4 +1463,338 @@ func (s *taskService) CreateEvaluationIfNeeded(ctx context.Context, taskID strin
 
 	// 5) Insert
 	return s.kpiEvaluationRepo.CreateKPIEvaluations(ctx, *doc)
+}
+
+func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.UpdateTaskPutRequest, updatedBy string) error {
+	now := time.Now()
+
+	// 1) โหลดงานเดิม
+	existing, err := s.taskRepo.GetOneTasksByFilter(ctx, bson.M{"task_id": taskID, "deleted_at": nil}, bson.M{})
+	if err != nil {
+		return err
+	}
+	if existing == nil {
+		return mongo.ErrNoDocuments
+	}
+	oldAssignee := existing.Assignee
+	oldStatus := existing.Status
+	oldCreatedAt := existing.CreatedAt
+	oldCreatedBy := existing.CreatedBy
+	oldTaskID := existing.TaskID
+
+	// 2) validate ขั้นพื้นฐาน
+	imp := strings.ToLower(strings.TrimSpace(req.Importance))
+	if imp != "low" && imp != "medium" && imp != "high" {
+		return fmt.Errorf("importance must be one of: low|medium|high")
+	}
+
+	start, err := helpers.DateToISO(strings.TrimSpace(req.StartDate))
+	if err != nil {
+		return fmt.Errorf("invalid start_date: %w", err)
+	}
+	end, err := helpers.DateToISO(strings.TrimSpace(req.EndDate))
+	if err != nil {
+		return fmt.Errorf("invalid end_date: %w", err)
+	}
+	if !start.IsZero() && !end.IsZero() && end.Before(start) {
+		return fmt.Errorf("end_date must be on or after start_date")
+	}
+
+	// 3) สร้าง snapshot steps ใหม่ (รองรับกรณี FE ไม่ส่ง step_id/started_at/completed_at)
+	normalizeStatus := func(s string) (string, error) {
+		ss := strings.ToLower(strings.TrimSpace(s))
+		switch ss {
+		case "todo", "in_progress", "skip", "done":
+			return ss, nil
+		default:
+			return "", fmt.Errorf("invalid step status: %s", s)
+		}
+	}
+
+	// index ของสเต็ปเดิมไว้ให้แมป
+	byID := make(map[string]*models.TaskWorkflowStep, len(existing.AppliedWorkflow.Steps))
+	byName := make(map[string]*models.TaskWorkflowStep, len(existing.AppliedWorkflow.Steps)) // ถ้ากังวลชื่อซ้ำ ให้ใช้ name#order แทน
+	for i := range existing.AppliedWorkflow.Steps {
+		prev := &existing.AppliedWorkflow.Steps[i]
+		if prev.StepID != "" {
+			byID[prev.StepID] = prev
+		}
+		key := strings.ToLower(strings.TrimSpace(prev.StepName))
+		// เก็บตัวแรกไว้พอ (ต้องการแค่คงค่าเดิม)
+		if _, ok := byName[key]; !ok {
+			byName[key] = prev
+		}
+	}
+
+	steps := make([]models.TaskWorkflowStep, 0, len(req.AppliedWorkflow.Steps))
+
+	for i, st := range req.AppliedWorkflow.Steps {
+		ns, err := normalizeStatus(st.Status)
+		if err != nil {
+			return fmt.Errorf("steps[%d]: %w", i, err)
+		}
+
+		// หา prev โดย id ก่อน ถ้าไม่มี id ค่อยหาโดยชื่อ
+		var prev *models.TaskWorkflowStep
+		stepID := strings.TrimSpace(st.StepID)
+		if stepID != "" {
+			prev = byID[stepID]
+		} else {
+			key := strings.ToLower(strings.TrimSpace(st.StepName))
+			prev = byName[key]
+		}
+
+		// hours: ถ้า FE ส่ง <= 0 และมี prev -> ใช้ของเดิม, ไม่งั้นต้อง > 0
+		hours := st.Hours
+		if hours <= 0 && prev != nil {
+			hours = prev.Hours
+		}
+		if hours <= 0 {
+			return fmt.Errorf("steps[%d].hours must be > 0", i)
+		}
+
+		// step_id: ถ้าไม่มีและแมปไม่เจอ -> gen ใหม่
+		if stepID == "" {
+			if prev != nil {
+				stepID = prev.StepID
+			} else {
+				stepID = uuid.NewString()
+			}
+		}
+
+		// เวลาต่างๆ: ใช้ของที่ส่งมา > ถ้าไม่ส่งและมี prev -> คงของเดิม > แล้วเติมออโต้ตามสถานะ
+		started := st.StartedAt
+		if started == nil && prev != nil {
+			started = prev.StartedAt
+		}
+		completed := st.CompletedAt
+		if completed == nil && prev != nil {
+			completed = prev.CompletedAt
+		}
+		if ns == "in_progress" && started == nil {
+			t := now
+			started = &t
+		}
+		if (ns == "done" || ns == "skip") && completed == nil {
+			t := now
+			completed = &t
+		}
+		// (ออปชัน) ย้อนสถานะจาก done -> todo/in_progress ให้ล้าง completed_at
+		if prev != nil && prev.Status == "done" && (ns == "todo" || ns == "in_progress") {
+			completed = nil
+		}
+
+		// คง description/notes เดิม ถ้า FE ส่งว่าง
+		desc := strings.TrimSpace(st.Description)
+		if desc == "" && prev != nil {
+			desc = prev.Description
+		}
+		notes := strings.TrimSpace(st.Notes)
+		if notes == "" && prev != nil {
+			notes = prev.Notes
+		}
+
+		// created_at: คงของเดิมถ้ามี prev, ไม่งั้น now
+		createdAt := now
+		if prev != nil {
+			createdAt = prev.CreatedAt
+		}
+
+		steps = append(steps, models.TaskWorkflowStep{
+			StepID:      stepID,
+			StepName:    strings.TrimSpace(st.StepName),
+			Description: desc,
+			Hours:       hours,
+			Order:       st.Order, // จะ reindex อีกที
+			Status:      ns,
+			StartedAt:   started,
+			CompletedAt: completed,
+			Notes:       notes,
+			CreatedAt:   createdAt,
+			UpdatedAt:   now,
+		})
+	}
+
+	// sort + reindex
+	sort.SliceStable(steps, func(i, j int) bool { return steps[i].Order < steps[j].Order })
+	for i := range steps {
+		steps[i].Order = i + 1
+	}
+
+	// คำนวณ total hours ใหม่
+	var total float64
+	for _, s2 := range steps {
+		total += s2.Hours
+	}
+
+	// 4) คำนวณ step_name และ task.status จาก steps
+	curStepName := ""
+	for _, s2 := range steps {
+		if s2.Status == "in_progress" {
+			curStepName = s2.StepName
+			break
+		}
+	}
+	if curStepName == "" {
+		for _, s2 := range steps {
+			if s2.Status == "todo" {
+				curStepName = s2.StepName
+				break
+			}
+		}
+	}
+	if curStepName == "" && len(steps) > 0 {
+		curStepName = steps[len(steps)-1].StepName
+	}
+
+	derived := helpers.DeriveTaskStatusFromSteps(steps)
+
+	// 5) ประกอบเอกสารใหม่ทั้งก้อน (replace) โดยคง immutable เดิม
+	newDoc := models.Tasks{
+		TaskID:      oldTaskID,
+		ProjectID:   strings.TrimSpace(req.ProjectID),
+		ProjectName: strings.TrimSpace(req.ProjectName),
+		JobID:       strings.TrimSpace(req.JobID),
+		JobName:     strings.TrimSpace(req.JobName),
+		Description: strings.TrimSpace(req.Description),
+
+		Department: strings.TrimSpace(req.Department),
+		Assignee:   strings.TrimSpace(req.Assignee),
+		Importance: imp,
+
+		StartDate: start,
+		EndDate:   end,
+
+		KPIID:      strings.TrimSpace(req.KPIID),
+		WorkFlowID: strings.TrimSpace(req.WorkflowID),
+
+		AppliedWorkflow: models.TaskAppliedWorkflow{
+			WorkFlowID:   strings.TrimSpace(req.AppliedWorkflow.WorkFlowID),
+			WorkFlowName: strings.TrimSpace(req.AppliedWorkflow.WorkFlowName),
+			Department:   strings.TrimSpace(req.AppliedWorkflow.Department),
+			Description:  strings.TrimSpace(req.AppliedWorkflow.Description),
+			TotalHours:   total,
+			Steps:        steps,
+			Version:      existing.AppliedWorkflow.Version + 1, // bump version
+		},
+
+		Status:    derived,     // ทับ req.Status
+		StepName:  curStepName, // จากขั้นตอน
+		CreatedBy: oldCreatedBy,
+		CreatedAt: oldCreatedAt,
+		UpdatedAt: now,
+		DeletedAt: nil,
+	}
+
+	// 6) Replace ใน DB
+	updated, err := s.taskRepo.ReplaceTaskByID(ctx, taskID, &newDoc)
+	if err != nil {
+		return err
+	}
+	if updated == nil {
+		return mongo.ErrNoDocuments
+	}
+
+	// (ออปชัน) ถ้าเพิ่งเปลี่ยนเป็น done ให้สร้างแบบประเมิน
+	if oldStatus != "done" && newDoc.Status == "done" {
+		_ = s.CreateEvaluationIfNeeded(ctx, taskID)
+	}
+
+	// 7) อัปเดตสถิติ — diff ผู้รับผิดชอบ/สถานะ
+	newAssignee := newDoc.Assignee
+	newStatus := newDoc.Status
+
+	updateStats := func(userID string, assignedDelta, openDelta, inProgDelta, completedDelta int) error {
+		if strings.TrimSpace(userID) == "" {
+			return nil
+		}
+		existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx,
+			bson.M{"user_id": userID},
+			bson.M{},
+		)
+		if err != nil && err != mongo.ErrNoDocuments {
+			return err
+		}
+		nowUTC := time.Now().UTC()
+		totals := models.UserTaskTotals{}
+		createdAt := nowUTC
+		if existingStats != nil {
+			totals = existingStats.Totals
+			createdAt = existingStats.CreatedAt
+		}
+		totals.Assigned += assignedDelta
+		totals.Open += openDelta
+		totals.InProgress += inProgDelta
+		totals.Completed += completedDelta
+		if totals.Assigned < 0 {
+			totals.Assigned = 0
+		}
+		if totals.Open < 0 {
+			totals.Open = 0
+		}
+		if totals.InProgress < 0 {
+			totals.InProgress = 0
+		}
+		if totals.Completed < 0 {
+			totals.Completed = 0
+		}
+
+		statsDoc := &models.UserTaskStats{
+			UserID:       userID,
+			DepartmentID: newDoc.Department,
+			Totals:       totals,
+			KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
+			CreatedAt:    createdAt,
+			UpdatedAt:    nowUTC,
+		}
+		return s.taskRepo.UpsertUserTaskStats(ctx, statsDoc)
+	}
+
+	if oldAssignee != newAssignee {
+		switch oldStatus {
+		case "done":
+			_ = updateStats(oldAssignee, -1, 0, 0, -1)
+		case "in_progress":
+			_ = updateStats(oldAssignee, -1, -1, -1, 0)
+		default:
+			_ = updateStats(oldAssignee, -1, -1, 0, 0)
+		}
+		switch newStatus {
+		case "done":
+			_ = updateStats(newAssignee, +1, 0, 0, +1)
+		case "in_progress":
+			_ = updateStats(newAssignee, +1, +1, +1, 0)
+		default:
+			_ = updateStats(newAssignee, +1, +1, 0, 0)
+		}
+		return nil
+	}
+
+	if oldStatus != newStatus {
+		switch oldStatus {
+		case "todo":
+			switch newStatus {
+			case "in_progress":
+				_ = updateStats(newAssignee, 0, 0, +1, 0)
+			case "done":
+				_ = updateStats(newAssignee, 0, -1, 0, +1)
+			}
+		case "in_progress":
+			switch newStatus {
+			case "todo":
+				_ = updateStats(newAssignee, 0, 0, -1, 0)
+			case "done":
+				_ = updateStats(newAssignee, 0, -1, -1, +1)
+			}
+		case "done":
+			switch newStatus {
+			case "in_progress":
+				_ = updateStats(newAssignee, 0, +1, +1, -1)
+			case "todo":
+				_ = updateStats(newAssignee, 0, +1, 0, -1)
+			}
+		}
+	}
+
+	return nil
 }

@@ -33,6 +33,7 @@ type TaskRepository interface {
 	UpdateTaskStatus(ctx context.Context, taskID, status, stepName string, now time.Time) error
 
 	GetOneUserTaskStatsByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.UserTaskStats, error)
+	GetAllUserTaskStatsByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.UserTaskStats, error)
 	UpsertUserTaskStats(ctx context.Context, stats *models.UserTaskStats) error
 
 	ReplaceTaskByID(ctx context.Context, taskID string, doc *models.Tasks) (*models.Tasks, error)
