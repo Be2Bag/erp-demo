@@ -6,6 +6,7 @@ const CollectionKPIEvaluations = "kpi_evaluations"
 
 type KPIEvaluation struct {
 	EvaluationID string     `bson:"evaluation_id" json:"evaluation_id"`         // UUID
+	ProjectID    string     `bson:"project_id" json:"project_id"`               // อ้างถึง Project
 	JobID        string     `bson:"job_id" json:"job_id"`                       // อ้างถึง SignJob
 	TaskID       string     `bson:"task_id,omitempty" json:"task_id,omitempty"` // ถ้ามีงานย่อย
 	KPIID        string     `bson:"kpi_id" json:"kpi_id"`                       // อ้างถึง KPITemplate
@@ -16,6 +17,7 @@ type KPIEvaluation struct {
 	Scores       []KPIScore `bson:"scores" json:"scores"`                       // รายการคะแนนแต่ละ item
 	TotalScore   int        `bson:"total_score" json:"total_score"`             // รวมคะแนน
 	Feedback     string     `bson:"feedback" json:"feedback"`                   // คอมเมนต์รวม
+	IsEvaluated  bool       `bson:"is_evaluated" json:"is_evaluated"`           // ประเมินแล้วหรือยัง
 	CreatedAt    time.Time  `bson:"created_at" json:"created_at"`
 	UpdatedAt    time.Time  `bson:"updated_at" json:"updated_at"`
 	DeletedAt    *time.Time `json:"deleted_at" bson:"deleted_at"` // วันที่ลบ (ถ้ามี)

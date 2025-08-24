@@ -30,20 +30,29 @@ type RequestListKPIEvaluation struct {
 // <===================== Response ===============================>
 
 type KPIEvaluationResponse struct {
-	EvaluationID string             `json:"evaluation_id"`
-	JobID        string             `json:"job_id"`
-	TaskID       string             `json:"task_id,omitempty"`
-	KPIID        string             `json:"kpi_id"`
-	KPIName      string             `json:"kpi_name"`
-	Version      int                `json:"version"`
-	EvaluatorID  string             `json:"evaluator_id"`
-	EvaluateeID  string             `json:"evaluatee_id"`
-	Department   string             `json:"department_id"`
-	Scores       []KPIScoreResponse `json:"scores"`
-	TotalScore   int                `json:"total_score"`
-	Feedback     string             `json:"feedback,omitempty"`
-	CreatedAt    time.Time          `json:"created_at"`
-	UpdatedAt    time.Time          `json:"updated_at"`
+	EvaluationID   string             `json:"evaluation_id"`
+	JobID          string             `json:"job_id"`
+	JobName        string             `json:"job_name"`
+	ProjectID      string             `json:"project_id"`
+	ProjectName    string             `json:"project_name"`
+	TaskID         string             `json:"task_id,omitempty"`
+	KPIID          string             `json:"kpi_id"`
+	KPIName        string             `json:"kpi_name"`
+	Version        int                `json:"version"`
+	EvaluatorID    string             `json:"evaluator_id"`
+	EvaluatorName  string             `json:"evaluator_name"`
+	EvaluateeID    string             `json:"evaluatee_id"`
+	EvaluateeName  string             `json:"evaluatee_name"`
+	Department     string             `json:"department_id"`
+	DepartmentName string             `json:"department_name"`
+	KPIScore       string             `json:"kpi_score"`
+	Scores         []KPIScoreResponse `json:"scores"`
+	TotalScore     int                `json:"total_score"`
+	IsEvaluated    bool               `json:"is_evaluated"` // ประเมินแล้วหรือยัง
+	Feedback       string             `json:"feedback,omitempty"`
+	FinishedAt     time.Time          `json:"finished_at"`
+	CreatedAt      time.Time          `json:"created_at"`
+	UpdatedAt      time.Time          `json:"updated_at"`
 }
 
 type KPIScoreResponse struct {

@@ -21,7 +21,7 @@ func (h *KPIEvaluationHandler) KPIEvaluationRoutes(router fiber.Router) {
 	kpiEvaluations := versionOne.Group("kpi-evaluations")
 
 	kpiEvaluations.Get("/list", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluationList)
-	kpiEvaluations.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateKPIEvaluation)
+	// kpiEvaluations.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateKPIEvaluation)
 	// kpiEvaluations.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluationByID)
 	// kpiEvaluations.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateKPIEvaluation)
 	// kpiEvaluations.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteKPIEvaluation)
@@ -32,6 +32,19 @@ func (h *KPIEvaluationHandler) KPIEvaluationRoutes(router fiber.Router) {
 	// kpiEvaluations.Get("/stats", h.mdw.AuthCookieMiddleware(), h.GetKPIStatistics)
 }
 
+// @Summary List KPI Evaluations
+// @Description Get a list of KPI evaluations
+// @Tags KPI Evaluations
+// @Accept json
+// @Produce json
+// @Param page query int false "Page number"
+// @Param limit query int false "Number of items per page"
+// @Param search query string false "Search term"
+// @Param department_id query string false "Department ID"
+// @Param sort_by query string false "Sort by"
+// @Param sort_order query string false "Sort order (asc or desc)"
+// @Success 200 {object} dto.BaseResponse{data=[]dto.KPIEvaluationResponse}
+// @Router /v1/kpi-evaluations/list [get]
 func (h *KPIEvaluationHandler) GetKPIEvaluationList(c *fiber.Ctx) error {
 
 	claims, err := middleware.GetClaims(c)
@@ -80,48 +93,5 @@ func (h *KPIEvaluationHandler) GetKPIEvaluationList(c *fiber.Ctx) error {
 		MessageTH:  "สำเร็จ",
 		Status:     "success",
 		Data:       tasks,
-	})
-}
-
-func (h *KPIEvaluationHandler) CreateKPIEvaluation(c *fiber.Ctx) error {
-	claims, err := middleware.GetClaims(c)
-	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusUnauthorized,
-			MessageEN:  "Unauthorized",
-			MessageTH:  "ไม่ได้รับอนุญาต",
-			Status:     "error",
-			Data:       nil,
-		})
-	}
-
-	var createKPIEvaluation dto.CreateKPIEvaluationRequest
-	if err := c.BodyParser(&createKPIEvaluation); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Invalid request payload",
-			MessageTH:  "ข้อมูลที่ส่งมาไม่ถูกต้อง",
-			Status:     "error",
-			Data:       nil,
-		})
-	}
-
-	err = h.svc.CreateKPIEvaluation(c.Context(), createKPIEvaluation, claims)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create KPI evaluation" + err.Error(),
-			MessageTH:  "สร้างการประเมิน KPI ไม่สำเร็จ",
-			Status:     "error",
-			Data:       nil,
-		})
-	}
-
-	return c.Status(fiber.StatusCreated).JSON(dto.BaseResponse{
-		StatusCode: fiber.StatusCreated,
-		MessageEN:  "KPI evaluation created successfully",
-		MessageTH:  "สร้างการประเมิน KPI เรียบร้อยแล้ว",
-		Status:     "success",
-		Data:       nil,
 	})
 }

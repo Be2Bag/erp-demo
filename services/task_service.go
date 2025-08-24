@@ -1415,6 +1415,7 @@ func (s *taskService) CreateEvaluationIfNeeded(ctx context.Context, taskID strin
 	// 3) เตรียมเอกสารแบบประเมินเริ่มต้น (ปรับ fields ให้ตรง model/eval DTO ของคุณ)
 	doc := &models.KPIEvaluation{
 		EvaluationID: uuid.NewString(),
+		ProjectID:    task.ProjectID,
 		JobID:        task.JobID,
 		TaskID:       task.TaskID,
 		KPIID:        task.KPIID,
@@ -1425,6 +1426,7 @@ func (s *taskService) CreateEvaluationIfNeeded(ctx context.Context, taskID strin
 		Scores:       []models.KPIScore{}, // will append after loading template
 		TotalScore:   0,
 		Feedback:     "",
+		IsEvaluated:  false,
 		CreatedAt:    now,
 		UpdatedAt:    now,
 		DeletedAt:    nil,

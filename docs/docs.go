@@ -1255,6 +1255,116 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/kpi-evaluations/create": {
+            "post": {
+                "description": "Create a new KPI evaluation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KPI Evaluations"
+                ],
+                "summary": "Create KPI Evaluation",
+                "parameters": [
+                    {
+                        "description": "KPI Evaluation Request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateKPIEvaluationRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/kpi-evaluations/list": {
+            "get": {
+                "description": "Get a list of KPI evaluations",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KPI Evaluations"
+                ],
+                "summary": "List KPI Evaluations",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Department ID",
+                        "name": "department_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc or desc)",
+                        "name": "sort_order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.KPIEvaluationResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/v1/kpi/create": {
             "post": {
                 "description": "Create a new KPI Template",
@@ -3967,6 +4077,49 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateKPIEvaluationRequest": {
+            "type": "object",
+            "required": [
+                "department_id",
+                "evaluatee_id",
+                "job_id",
+                "kpi_id",
+                "scores"
+            ],
+            "properties": {
+                "department_id": {
+                    "description": "แผนก",
+                    "type": "string"
+                },
+                "evaluatee_id": {
+                    "description": "ผู้ถูกประเมิน",
+                    "type": "string"
+                },
+                "feedback": {
+                    "description": "คอมเมนต์รวม (ถ้ามี)",
+                    "type": "string"
+                },
+                "job_id": {
+                    "description": "อ้างถึง SignJob",
+                    "type": "string"
+                },
+                "kpi_id": {
+                    "description": "อ้างถึง KPITemplate",
+                    "type": "string"
+                },
+                "scores": {
+                    "description": "รายการคะแนนแต่ละ item",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.KPIScoreRequest"
+                    }
+                },
+                "task_id": {
+                    "description": "งานย่อย (ถ้ามี)",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateKPITemplateDTO": {
             "type": "object",
             "properties": {
@@ -4348,6 +4501,103 @@ const docTemplate = `{
                 },
                 "step_name": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.KPIEvaluationResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "department_id": {
+                    "type": "string"
+                },
+                "evaluatee_id": {
+                    "type": "string"
+                },
+                "evaluation_id": {
+                    "type": "string"
+                },
+                "evaluator_id": {
+                    "type": "string"
+                },
+                "feedback": {
+                    "type": "string"
+                },
+                "job_id": {
+                    "type": "string"
+                },
+                "kpi_id": {
+                    "type": "string"
+                },
+                "kpi_name": {
+                    "type": "string"
+                },
+                "scores": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.KPIScoreResponse"
+                    }
+                },
+                "task_id": {
+                    "type": "string"
+                },
+                "total_score": {
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.KPIScoreRequest": {
+            "type": "object",
+            "required": [
+                "item_id",
+                "score"
+            ],
+            "properties": {
+                "item_id": {
+                    "description": "อ้างถึง item ใน KPI template",
+                    "type": "string"
+                },
+                "notes": {
+                    "description": "หมายเหตุเพิ่มเติม (ถ้ามี)",
+                    "type": "string"
+                },
+                "score": {
+                    "description": "คะแนนที่ให้",
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.KPIScoreResponse": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "item_id": {
+                    "type": "string"
+                },
+                "max_score": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "notes": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "weight": {
+                    "type": "integer"
                 }
             }
         },
@@ -5532,7 +5782,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "api.rkp-media.com",
+	Host:             "localhost:3000",
 	BasePath:         "/service/api",
 	Schemes:          []string{},
 	Title:            "ERP Demo API",

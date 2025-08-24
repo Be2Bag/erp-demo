@@ -74,7 +74,7 @@ func main() {
 	projectSvc := services.NewProjectService(*cfg, projectRepo)
 	departmentSvc := services.NewDepartmentService(*cfg, departmentRepo, userRepo)
 	positionSvc := services.NewPositionService(*cfg, positionRepo)
-	kpiEvaluationSvc := services.NewKPIEvaluationService(*cfg, kpiRepo, userRepo, kpiEvaluationRepo, taskRepo, departmentRepo)
+	kpiEvaluationSvc := services.NewKPIEvaluationService(*cfg, kpiRepo, userRepo, kpiEvaluationRepo, taskRepo, departmentRepo, projectRepo, signJobRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
