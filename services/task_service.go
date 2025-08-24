@@ -1260,7 +1260,7 @@ func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.Up
 			Description:  strings.TrimSpace(req.AppliedWorkflow.Description),
 			TotalHours:   total, // ทับ req
 			Steps:        steps,
-			Version:      helpers.MaxInt(1, req.AppliedWorkflow.Version),
+			Version:      existing.AppliedWorkflow.Version + 1,
 		},
 
 		Status:    derived,      // ทับ req.Status
