@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"sort"
 	"strings"
@@ -20,15 +21,17 @@ import (
 )
 
 type taskService struct {
-	config         config.Config
-	taskRepo       ports.TaskRepository
-	userRepo       ports.UserRepository
-	workflowRepo   ports.WorkFlowRepository
-	departmentRepo ports.DepartmentRepository
+	config            config.Config
+	taskRepo          ports.TaskRepository
+	userRepo          ports.UserRepository
+	workflowRepo      ports.WorkFlowRepository
+	departmentRepo    ports.DepartmentRepository
+	kpiEvaluationRepo ports.KPIEvaluationRepository
+	kpiRepo           ports.KPIRepository
 }
 
-func NewTaskService(cfg config.Config, taskRepo ports.TaskRepository, userRepo ports.UserRepository, workflowRepo ports.WorkFlowRepository, departmentRepo ports.DepartmentRepository) ports.TaskService {
-	return &taskService{config: cfg, taskRepo: taskRepo, userRepo: userRepo, workflowRepo: workflowRepo, departmentRepo: departmentRepo}
+func NewTaskService(cfg config.Config, taskRepo ports.TaskRepository, userRepo ports.UserRepository, workflowRepo ports.WorkFlowRepository, departmentRepo ports.DepartmentRepository, kpiEvaluationRepo ports.KPIEvaluationRepository, kpiRepo ports.KPIRepository) ports.TaskService {
+	return &taskService{config: cfg, taskRepo: taskRepo, userRepo: userRepo, workflowRepo: workflowRepo, departmentRepo: departmentRepo, kpiEvaluationRepo: kpiEvaluationRepo, kpiRepo: kpiRepo}
 }
 
 func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error) {
@@ -1030,6 +1033,11 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 		return err
 	}
 
+	// [EVAL] ถ้าเพิ่งเปลี่ยนเป็น done ให้สร้างแบบประเมิน
+	if prevStatus != "done" && newTaskStatus == "done" {
+		_ = s.CreateEvaluationIfNeeded(ctx, taskID)
+	}
+
 	// <============================ Update Stats Inline ============================>
 	// ปรับเฉพาะเมื่อ status งานเปลี่ยน (assignee เดิม)
 	if assignee != "" && prevStatus != "" && prevStatus != newTaskStatus {
@@ -1268,6 +1276,11 @@ func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.Up
 		return mongo.ErrNoDocuments
 	}
 
+	// [EVAL] ถ้าเพิ่งเปลี่ยนเป็น done ให้สร้างแบบประเมิน
+	if oldStatus != "done" && newDoc.Status == "done" {
+		_ = s.CreateEvaluationIfNeeded(ctx, taskID)
+	}
+
 	// 7) อัปเดตสถิติ (เหมือนเดิม) — diff ผู้รับผิดชอบ/สถานะ
 	newAssignee := newDoc.Assignee
 	newStatus := newDoc.Status
@@ -1367,4 +1380,84 @@ func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.Up
 	}
 
 	return nil
+}
+
+func (s *taskService) CreateEvaluationIfNeeded(ctx context.Context, taskID string) error {
+	// 1) โหลด Task ล่าสุด (ต้องมีข้อมูลพื้นฐานพอให้ตั้งแบบประเมิน)
+	task, errOnGetOneTasksByFilter := s.taskRepo.GetOneTasksByFilter(ctx,
+		bson.M{"task_id": taskID, "deleted_at": nil},
+		bson.M{},
+	)
+	if errOnGetOneTasksByFilter != nil {
+		log.Println("Error loading task for CreateEvaluationIfNeeded:", errOnGetOneTasksByFilter)
+		return errOnGetOneTasksByFilter
+	}
+	if task == nil {
+		return mongo.ErrNoDocuments
+	}
+
+	// 2) กันซ้ำด้วย unique key (เช่น unique index ที่ collection: {task_id:1} หรือ {task_id:1,kpi_id:1})
+	exists, errOnGetOneKPIEvaluationByFilter := s.kpiEvaluationRepo.GetOneKPIEvaluationByFilter(ctx,
+		bson.M{"task_id": task.TaskID, "deleted_at": nil},
+		bson.M{"_id": 1},
+	)
+	if errOnGetOneKPIEvaluationByFilter != nil && errOnGetOneKPIEvaluationByFilter != mongo.ErrNoDocuments {
+		log.Println("Error loading KPI evaluation for CreateEvaluationIfNeeded:", errOnGetOneKPIEvaluationByFilter)
+		return errOnGetOneKPIEvaluationByFilter
+	}
+	if exists != nil {
+		// มีแล้ว -> ไม่ต้องสร้างซ้ำ
+		return nil
+	}
+
+	now := time.Now()
+
+	// 3) เตรียมเอกสารแบบประเมินเริ่มต้น (ปรับ fields ให้ตรง model/eval DTO ของคุณ)
+	doc := &models.KPIEvaluation{
+		EvaluationID: uuid.NewString(),
+		JobID:        task.JobID,
+		TaskID:       task.TaskID,
+		KPIID:        task.KPIID,
+		Version:      1, // default; update if KPI template provides version
+		EvaluatorID:  "",
+		EvaluateeID:  task.Assignee,
+		Department:   task.Department,
+		Scores:       []models.KPIScore{}, // will append after loading template
+		TotalScore:   0,
+		Feedback:     "",
+		CreatedAt:    now,
+		UpdatedAt:    now,
+		DeletedAt:    nil,
+	}
+
+	// 4) (ทางเลือก) Auto-generate รายการ KPI items จาก KPI Template
+
+	log.Println(" task.KPIID: ", task.KPIID)
+
+	filter := bson.M{"kpi_id": task.KPIID, "deleted_at": nil}
+	projection := bson.M{}
+
+	tpl, errOnGetOneKPIByFilter := s.kpiRepo.GetOneKPIByFilter(ctx, filter, projection)
+	if errOnGetOneKPIByFilter != nil {
+		log.Println("Error loading KPI template for CreateEvaluationIfNeeded:", errOnGetOneKPIByFilter)
+		return errOnGetOneKPIByFilter
+	}
+
+	log.Println("KPI Template: ", tpl)
+	if tpl != nil {
+		for _, it := range tpl.Items {
+			doc.Scores = append(doc.Scores, models.KPIScore{
+				ItemID:   it.ItemID,
+				Name:     it.Name,     // snapshot ชื่อ item
+				Category: it.Category, // snapshot หมวดหมู่
+				Weight:   it.Weight,   // weight ปัจจุบัน (int)
+				MaxScore: it.MaxScore, // คะแนนเต็ม
+				Score:    0,           // ยังไม่ประเมิน (zero value)
+				Notes:    "",
+			})
+		}
+	}
+
+	// 5) Insert
+	return s.kpiEvaluationRepo.CreateKPIEvaluations(ctx, *doc)
 }
