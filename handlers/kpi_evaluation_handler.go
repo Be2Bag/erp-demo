@@ -5,6 +5,7 @@ import (
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type KPIEvaluationHandler struct {
@@ -22,7 +23,7 @@ func (h *KPIEvaluationHandler) KPIEvaluationRoutes(router fiber.Router) {
 
 	kpiEvaluations.Get("/list", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluationList)
 	// kpiEvaluations.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateKPIEvaluation)
-	// kpiEvaluations.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluationByID)
+	kpiEvaluations.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetKPIEvaluationByID)
 	kpiEvaluations.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateKPIEvaluation)
 	// kpiEvaluations.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteKPIEvaluation)
 
@@ -145,5 +146,66 @@ func (h *KPIEvaluationHandler) UpdateKPIEvaluation(c *fiber.Ctx) error {
 		MessageTH:  "สำเร็จ",
 		Status:     "success",
 		Data:       nil,
+	})
+}
+
+// @Summary Get KPI Evaluation by ID
+// @Description Get a KPI evaluation by its ID
+// @Tags KPI Evaluations
+// @Accept json
+// @Produce json
+// @Param id path string true "KPI Evaluation ID"
+// @Success 200 {object} dto.BaseResponse
+// @Router /v1/kpi-evaluations/{id} [get]
+func (h *KPIEvaluationHandler) GetKPIEvaluationByID(c *fiber.Ctx) error {
+	evaluationID := c.Params("id")
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	kpiEvaluation, err := h.svc.GetKPIEvaluationByID(c.Context(), evaluationID, claims)
+	if err != nil {
+
+		if err == mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "No KPI Evaluation found",
+				MessageTH:  "ไม่สามารถดึงข้อมูลการประเมิน KPI ได้",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  err.Error(),
+			MessageTH:  "ไม่สามารถดึงข้อมูลการประเมิน KPI ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	if kpiEvaluation == nil {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "KPI Evaluation not found",
+			MessageTH:  "ไม่พบการประเมิน KPI",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "OK",
+		MessageTH:  "สำเร็จ",
+		Status:     "success",
+		Data:       kpiEvaluation,
 	})
 }

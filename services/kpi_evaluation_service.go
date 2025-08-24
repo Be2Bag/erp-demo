@@ -30,46 +30,78 @@ func NewKPIEvaluationService(cfg config.Config, kpiRepo ports.KPIRepository, use
 	return &kpiEvaluationRepoService{config: cfg, kpiRepo: kpiRepo, userRepo: userRepo, kpiEvaluationRepo: kpiEvaluationRepo, taskRepo: taskRepo, departmentRepo: departmentRepo, projectRepo: projectRepo, signJobRepo: signJobRepo}
 }
 
-// func (s *kpiService) GetKPITemplateByID(ctx context.Context, kpiID string) (*dto.KPITemplateDTO, error) {
+func (s *kpiEvaluationRepoService) GetKPIEvaluationByID(ctx context.Context, evaluationID string, claims *dto.JWTClaims) (*dto.KPIEvaluationResponse, error) {
 
-// 	filter := bson.M{"kpi_id": kpiID, "deleted_at": nil}
-// 	projection := bson.M{}
+	filter := bson.M{"evaluation_id": evaluationID, "deleted_at": nil}
+	projection := bson.M{}
 
-// 	m, err := s.kpiRepo.GetOneKPIByFilter(ctx, filter, projection)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	if m == nil {
-// 		return nil, nil
-// 	}
+	m, err := s.kpiEvaluationRepo.GetOneKPIEvaluationByFilter(ctx, filter, projection)
+	if err != nil {
+		return nil, err
+	}
+	if m == nil {
+		return nil, nil
+	}
 
-// 	ItemsDTO := make([]dto.KPITemplateItemDTO, 0, len(m.Items))
-// 	for _, st := range m.Items {
-// 		ItemsDTO = append(ItemsDTO, dto.KPITemplateItemDTO{
-// 			ItemID:      st.ItemID,
-// 			Name:        st.Name,
-// 			Description: st.Description,
-// 			Category:    st.Category,
-// 			MaxScore:    st.MaxScore,
-// 			Weight:      st.Weight,
-// 			CreatedAt:   st.CreatedAt,
-// 			UpdatedAt:   st.UpdatedAt,
-// 		})
-// 	}
+	departmentsName := "ไม่พบแผนก"
+	assigneeName := "ไม่พบผู้รับผิดชอบ"
+	jobName := "ไม่พบใบงาน"
+	projectName := "ไม่พบโครงการ"
 
-// 	dtoObj := &dto.KPITemplateDTO{
-// 		KPIID:       m.KPIID,
-// 		KPIName:     m.KPIName,
-// 		Department:  m.Department,
-// 		TotalWeight: m.TotalWeight,
-// 		Items:       ItemsDTO,
-// 		Version:     m.Version,
-// 		CreatedBy:   m.CreatedBy,
-// 		CreatedAt:   m.CreatedAt,
-// 		UpdatedAt:   m.UpdatedAt,
-// 	}
-// 	return dtoObj, nil
-// }
+	if dept, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.Department, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1}); dept != nil {
+		departmentsName = dept.DepartmentName
+	}
+	if assignee, _ := s.userRepo.GetByID(ctx, m.EvaluateeID); assignee != nil {
+		assigneeName = fmt.Sprintf("%s %s %s", assignee.TitleTH, assignee.FirstNameTH, assignee.LastNameTH)
+	}
+
+	if job, _ := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": m.JobID, "deleted_at": nil}, bson.M{"_id": 0, "job_name": 1, "project_id": 1}); job != nil {
+		jobName = job.JobName
+		if project, _ := s.projectRepo.GetOneProjectByFilter(ctx, bson.M{"project_id": job.ProjectID, "deleted_at": nil}, bson.M{"_id": 0, "project_name": 1}); project != nil {
+			projectName = project.ProjectName
+		}
+	}
+
+	scores := make([]dto.KPIScoreResponse, 0, len(m.Scores))
+	for _, score := range m.Scores {
+		scores = append(scores, dto.KPIScoreResponse{
+			ItemID:   score.ItemID,
+			Name:     score.Name,
+			Category: score.Category,
+			Weight:   score.Weight,
+			MaxScore: score.MaxScore,
+			Score:    score.Score,
+			Notes:    score.Notes,
+		})
+	}
+
+	dtoObj := &dto.KPIEvaluationResponse{
+		EvaluationID:   m.EvaluationID,
+		JobID:          m.JobID,
+		JobName:        jobName,
+		ProjectID:      m.ProjectID,
+		ProjectName:    projectName,
+		TaskID:         m.TaskID,
+		KPIID:          m.KPIID,
+		KPIName:        "",
+		Version:        1,
+		EvaluatorID:    "",
+		EvaluatorName:  "ไม่มีผู้ประเมิน",
+		EvaluateeID:    m.EvaluateeID,
+		EvaluateeName:  assigneeName,
+		Department:     m.Department,
+		DepartmentName: departmentsName,
+		KPIScore:       "",
+		Scores:         scores,
+		TotalScore:     m.TotalScore,
+		IsEvaluated:    m.IsEvaluated,
+		Feedback:       m.Feedback,
+		FinishedAt:     m.UpdatedAt,
+		CreatedAt:      m.CreatedAt,
+		UpdatedAt:      m.UpdatedAt,
+	}
+	return dtoObj, nil
+}
 
 func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, evaluationID string, req dto.UpdateKPIEvaluationRequest, claims *dto.JWTClaims) error {
 

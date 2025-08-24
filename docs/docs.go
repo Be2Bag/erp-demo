@@ -1332,6 +1332,36 @@ const docTemplate = `{
             }
         },
         "/v1/kpi-evaluations/{id}": {
+            "get": {
+                "description": "Get a KPI evaluation by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "KPI Evaluations"
+                ],
+                "summary": "Get KPI Evaluation by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "KPI Evaluation ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Update an existing KPI evaluation",
                 "consumes": [

@@ -2123,6 +2123,26 @@ paths:
       tags:
       - Dropdown
   /v1/kpi-evaluations/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a KPI evaluation by its ID
+      parameters:
+      - description: KPI Evaluation ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get KPI Evaluation by ID
+      tags:
+      - KPI Evaluations
     put:
       consumes:
       - application/json
