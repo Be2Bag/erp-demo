@@ -2811,7 +2811,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Update a task",
+                "description": "Update task by ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -2821,7 +2821,7 @@ const docTemplate = `{
                 "tags": [
                     "Tasks"
                 ],
-                "summary": "Update a task",
+                "summary": "Update task",
                 "parameters": [
                     {
                         "type": "string",
@@ -2831,12 +2831,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Update Task Request",
+                        "description": "Update Task Request (PUT)",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UpdateTaskRequest"
+                            "$ref": "#/definitions/dto.UpdateTaskPutRequest"
                         }
                     }
                 ],
@@ -3849,65 +3849,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/v2/tasks/{id}": {
-            "put": {
-                "description": "Update task by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Tasks"
-                ],
-                "summary": "Update task",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Task ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Update Task Request (PUT)",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UpdateTaskPutRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
                         }
@@ -5345,41 +5286,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.TaskStepPatch": {
-            "type": "object",
-            "properties": {
-                "completed_at": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "hours": {
-                    "type": "number"
-                },
-                "notes": {
-                    "type": "string"
-                },
-                "order": {
-                    "type": "integer"
-                },
-                "started_at": {
-                    "description": "หรือใช้สตริง ISO8601 ก็ได้",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "todo|in_progress|skip|done",
-                    "type": "string"
-                },
-                "step_id": {
-                    "description": "target",
-                    "type": "string"
-                },
-                "step_name": {
-                    "type": "string"
-                }
-            }
-        },
         "dto.UpdateDepartmentDTO": {
             "type": "object",
             "properties": {
@@ -5638,81 +5544,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "workflow_id": {
-                    "type": "string"
-                }
-            }
-        },
-        "dto.UpdateTaskRequest": {
-            "type": "object",
-            "properties": {
-                "assignee": {
-                    "type": "string"
-                },
-                "delete_step_ids": {
-                    "description": "3) ลบสเต็ปตาม id",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "department_id": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "end_date": {
-                    "description": "\"YYYY-MM-DD\"",
-                    "type": "string"
-                },
-                "importance": {
-                    "description": "low|medium|high",
-                    "type": "string"
-                },
-                "job_id": {
-                    "type": "string"
-                },
-                "job_name": {
-                    "type": "string"
-                },
-                "kpi_id": {
-                    "type": "string"
-                },
-                "new_steps": {
-                    "description": "การจัดการ Steps\n1) เพิ่มสเต็ปใหม่ (append ต่อท้าย หรือถ้าจะ replace ทั้งชุดให้ดู ReplaceSteps)",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.ExtraStepRequest"
-                    }
-                },
-                "project_id": {
-                    "description": "ฟิลด์ระดับงาน (อัปเดตเฉพาะที่ส่งมา)",
-                    "type": "string"
-                },
-                "project_name": {
-                    "type": "string"
-                },
-                "replace_steps": {
-                    "description": "4) รีเพลสทั้งชุด (ถ้า true จะทับ steps เดิมด้วย NewSteps)",
-                    "type": "boolean"
-                },
-                "start_date": {
-                    "description": "\"YYYY-MM-DD\"",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "todo|in_progress|skip|done",
-                    "type": "string"
-                },
-                "step_patches": {
-                    "description": "2) แก้ไขสเต็ปเดิมเป็นรายตัว (ระบุ step_id)",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/dto.TaskStepPatch"
-                    }
-                },
-                "workflow_id": {
-                    "description": "ถ้าเปลี่ยน workflow ควรรีเพลส steps",
                     "type": "string"
                 }
             }

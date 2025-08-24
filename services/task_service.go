@@ -462,451 +462,451 @@ func (s *taskService) GetTaskByID(ctx context.Context, taskID string) (*dto.Task
 	return dtoObj, nil
 }
 
-func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.UpdateTaskRequest, updatedBy string) error {
-	now := time.Now()
+// func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.UpdateTaskRequest, updatedBy string) error {
+// 	now := time.Now()
 
-	filter := bson.M{"task_id": taskID, "deleted_at": nil}
-	existing, err := s.taskRepo.GetOneTasksByFilter(ctx, filter, bson.M{})
-	if err != nil {
-		return err
-	}
-	if existing == nil {
-		return mongo.ErrNoDocuments
-	}
+// 	filter := bson.M{"task_id": taskID, "deleted_at": nil}
+// 	existing, err := s.taskRepo.GetOneTasksByFilter(ctx, filter, bson.M{})
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if existing == nil {
+// 		return mongo.ErrNoDocuments
+// 	}
 
-	// เก็บค่าก่อนแก้
-	oldAssignee := existing.Assignee
-	oldStatus := existing.Status
+// 	// เก็บค่าก่อนแก้
+// 	oldAssignee := existing.Assignee
+// 	oldStatus := existing.Status
 
-	// --- 2) อัปเดตฟิลด์ระดับงาน (ตาม pointer) ---
-	if v := req.ProjectID; v != nil {
-		existing.ProjectID = strings.TrimSpace(*v) // trim ช่องว่างก่อน-หลัง
-	}
-	if v := req.ProjectName; v != nil {
-		existing.ProjectName = strings.TrimSpace(*v)
-	}
-	if v := req.JobID; v != nil {
-		existing.JobID = strings.TrimSpace(*v)
-	}
-	if v := req.JobName; v != nil {
-		existing.JobName = strings.TrimSpace(*v)
-	}
-	if v := req.Description; v != nil {
-		existing.Description = strings.TrimSpace(*v)
-	}
-	if v := req.Department; v != nil {
-		existing.Department = strings.TrimSpace(*v)
-	}
-	if v := req.Assignee; v != nil {
-		existing.Assignee = strings.TrimSpace(*v)
-	}
-	if v := req.Importance; v != nil {
-		val := strings.ToLower(strings.TrimSpace(*v)) // normalize เป็น lower-case
-		switch val {
-		case "low", "medium", "high": // validate ชุดค่า
-			existing.Importance = val
-		default:
-			return fmt.Errorf("importance must be one of: low|medium|high") // แจ้ง error ถ้าค่าไม่อยู่ในชุดที่ยอมรับ
-		}
-	}
+// 	// --- 2) อัปเดตฟิลด์ระดับงาน (ตาม pointer) ---
+// 	if v := req.ProjectID; v != nil {
+// 		existing.ProjectID = strings.TrimSpace(*v) // trim ช่องว่างก่อน-หลัง
+// 	}
+// 	if v := req.ProjectName; v != nil {
+// 		existing.ProjectName = strings.TrimSpace(*v)
+// 	}
+// 	if v := req.JobID; v != nil {
+// 		existing.JobID = strings.TrimSpace(*v)
+// 	}
+// 	if v := req.JobName; v != nil {
+// 		existing.JobName = strings.TrimSpace(*v)
+// 	}
+// 	if v := req.Description; v != nil {
+// 		existing.Description = strings.TrimSpace(*v)
+// 	}
+// 	if v := req.Department; v != nil {
+// 		existing.Department = strings.TrimSpace(*v)
+// 	}
+// 	if v := req.Assignee; v != nil {
+// 		existing.Assignee = strings.TrimSpace(*v)
+// 	}
+// 	if v := req.Importance; v != nil {
+// 		val := strings.ToLower(strings.TrimSpace(*v)) // normalize เป็น lower-case
+// 		switch val {
+// 		case "low", "medium", "high": // validate ชุดค่า
+// 			existing.Importance = val
+// 		default:
+// 			return fmt.Errorf("importance must be one of: low|medium|high") // แจ้ง error ถ้าค่าไม่อยู่ในชุดที่ยอมรับ
+// 		}
+// 	}
 
-	if v := req.StartDate; v != nil {
-		t, err := helpers.DateToISO(*v) // แปลง start_date
-		if err != nil {
-			return fmt.Errorf("invalid start_date: %w", err) // แจ้ง error รูปแบบไม่ถูกต้อง
-		}
-		existing.StartDate = t
-	}
-	if v := req.EndDate; v != nil {
-		t, err := helpers.DateToISO(*v) // แปลง end_date
-		if err != nil {
-			return fmt.Errorf("invalid end_date: %w", err)
-		}
-		existing.EndDate = t
-	}
-	if !existing.StartDate.IsZero() && !existing.EndDate.IsZero() && existing.EndDate.Before(existing.StartDate) {
-		return fmt.Errorf("end_date must be on or after start_date") // ตรวจเงื่อนไข end >= start
-	}
+// 	if v := req.StartDate; v != nil {
+// 		t, err := helpers.DateToISO(*v) // แปลง start_date
+// 		if err != nil {
+// 			return fmt.Errorf("invalid start_date: %w", err) // แจ้ง error รูปแบบไม่ถูกต้อง
+// 		}
+// 		existing.StartDate = t
+// 	}
+// 	if v := req.EndDate; v != nil {
+// 		t, err := helpers.DateToISO(*v) // แปลง end_date
+// 		if err != nil {
+// 			return fmt.Errorf("invalid end_date: %w", err)
+// 		}
+// 		existing.EndDate = t
+// 	}
+// 	if !existing.StartDate.IsZero() && !existing.EndDate.IsZero() && existing.EndDate.Before(existing.StartDate) {
+// 		return fmt.Errorf("end_date must be on or after start_date") // ตรวจเงื่อนไข end >= start
+// 	}
 
-	if v := req.KPIID; v != nil {
-		existing.KPIID = strings.TrimSpace(*v) // ปรับ kpi_id ถ้ามีส่งมา
-	}
+// 	if v := req.KPIID; v != nil {
+// 		existing.KPIID = strings.TrimSpace(*v) // ปรับ kpi_id ถ้ามีส่งมา
+// 	}
 
-	// --- 3) จัดการกรณีเปลี่ยน Workflow ---
-	if v := req.WorkflowID; v != nil { // ถ้าผู้ใช้ส่ง workflow_id มา
-		newWfID := strings.TrimSpace(*v)
-		if newWfID == "" {
-			return fmt.Errorf("workflow_id cannot be empty when provided") // ป้องกันค่าเว้นว่าง
-		}
-		if newWfID != existing.WorkFlowID { // เฉพาะกรณีต่างจากของเดิม
-			wfFilter := bson.M{"workflow_id": newWfID, "deleted_at": nil} // หา template workflow ใหม่
-			wf, err := s.workflowRepo.GetOneWorkFlowTemplateByFilter(ctx, wfFilter, bson.M{})
-			if err != nil {
-				return err
-			}
-			if wf == nil {
-				return mongo.ErrNoDocuments // ไม่พบ workflow ใหม่
-			}
+// 	// --- 3) จัดการกรณีเปลี่ยน Workflow ---
+// 	if v := req.WorkflowID; v != nil { // ถ้าผู้ใช้ส่ง workflow_id มา
+// 		newWfID := strings.TrimSpace(*v)
+// 		if newWfID == "" {
+// 			return fmt.Errorf("workflow_id cannot be empty when provided") // ป้องกันค่าเว้นว่าง
+// 		}
+// 		if newWfID != existing.WorkFlowID { // เฉพาะกรณีต่างจากของเดิม
+// 			wfFilter := bson.M{"workflow_id": newWfID, "deleted_at": nil} // หา template workflow ใหม่
+// 			wf, err := s.workflowRepo.GetOneWorkFlowTemplateByFilter(ctx, wfFilter, bson.M{})
+// 			if err != nil {
+// 				return err
+// 			}
+// 			if wf == nil {
+// 				return mongo.ErrNoDocuments // ไม่พบ workflow ใหม่
+// 			}
 
-			// สร้าง snapshot ของ steps จาก template ใหม่ (เริ่มด้วย status=todo)
-			steps := make([]models.TaskWorkflowStep, 0, len(wf.Steps)+len(req.NewSteps))
-			var total float64
-			for _, st := range wf.Steps {
-				steps = append(steps, models.TaskWorkflowStep{
-					StepID:      st.StepID,                      // ถ้าอยากให้ StepID แยกจาก template ให้ใช้ uuid.NewString()
-					StepName:    strings.TrimSpace(st.StepName), // trim ข้อความ
-					Description: strings.TrimSpace(st.Description),
-					Hours:       st.Hours,
-					Order:       st.Order,
-					Status:      "todo",
-					CreatedAt:   now,
-					UpdatedAt:   now,
-				})
-				total += st.Hours // รวมชั่วโมง
-			}
+// 			// สร้าง snapshot ของ steps จาก template ใหม่ (เริ่มด้วย status=todo)
+// 			steps := make([]models.TaskWorkflowStep, 0, len(wf.Steps)+len(req.NewSteps))
+// 			var total float64
+// 			for _, st := range wf.Steps {
+// 				steps = append(steps, models.TaskWorkflowStep{
+// 					StepID:      st.StepID,                      // ถ้าอยากให้ StepID แยกจาก template ให้ใช้ uuid.NewString()
+// 					StepName:    strings.TrimSpace(st.StepName), // trim ข้อความ
+// 					Description: strings.TrimSpace(st.Description),
+// 					Hours:       st.Hours,
+// 					Order:       st.Order,
+// 					Status:      "todo",
+// 					CreatedAt:   now,
+// 					UpdatedAt:   now,
+// 				})
+// 				total += st.Hours // รวมชั่วโมง
+// 			}
 
-			// ถ้ามี new_steps และไม่ได้ตั้งใจ replace ทั้งชุด → append ต่อท้าย
-			if req.ReplaceSteps == nil || !*req.ReplaceSteps {
-				base := len(steps) // เริ่มลำดับต่อจากจำนวนเดิม
-				for i, ns := range req.NewSteps {
-					if ns.Hours <= 0 {
-						return fmt.Errorf("new_steps[%d].hours must be > 0", i) // validate ชั่วโมง > 0
-					}
-					steps = append(steps, models.TaskWorkflowStep{
-						StepID:      uuid.NewString(), // step ใหม่ → gen UUID
-						StepName:    strings.TrimSpace(ns.StepName),
-						Description: strings.TrimSpace(ns.Description),
-						Hours:       ns.Hours,
-						Order:       base + i + 1, // ลำดับต่อท้าย
-						Status:      "todo",
-						CreatedAt:   now,
-						UpdatedAt:   now,
-					})
-					total += ns.Hours // บวกชั่วโมงของ step ใหม่เข้าไป
-				}
-			} else {
-				// replace ทั้งชุดด้วย new_steps เท่านั้น (ไม่เอาของ template)
-				steps = steps[:0] // เคลียร์ steps
-				total = 0
-				for i, ns := range req.NewSteps {
-					if ns.Hours <= 0 {
-						return fmt.Errorf("new_steps[%d].hours must be > 0", i)
-					}
-					steps = append(steps, models.TaskWorkflowStep{
-						StepID:      uuid.NewString(),
-						StepName:    strings.TrimSpace(ns.StepName),
-						Description: strings.TrimSpace(ns.Description),
-						Hours:       ns.Hours,
-						Order:       i + 1, // เริ่มนับใหม่ตั้งแต่ 1
-						Status:      "todo",
-						CreatedAt:   now,
-						UpdatedAt:   now,
-					})
-					total += ns.Hours
-				}
-			}
+// 			// ถ้ามี new_steps และไม่ได้ตั้งใจ replace ทั้งชุด → append ต่อท้าย
+// 			if req.ReplaceSteps == nil || !*req.ReplaceSteps {
+// 				base := len(steps) // เริ่มลำดับต่อจากจำนวนเดิม
+// 				for i, ns := range req.NewSteps {
+// 					if ns.Hours <= 0 {
+// 						return fmt.Errorf("new_steps[%d].hours must be > 0", i) // validate ชั่วโมง > 0
+// 					}
+// 					steps = append(steps, models.TaskWorkflowStep{
+// 						StepID:      uuid.NewString(), // step ใหม่ → gen UUID
+// 						StepName:    strings.TrimSpace(ns.StepName),
+// 						Description: strings.TrimSpace(ns.Description),
+// 						Hours:       ns.Hours,
+// 						Order:       base + i + 1, // ลำดับต่อท้าย
+// 						Status:      "todo",
+// 						CreatedAt:   now,
+// 						UpdatedAt:   now,
+// 					})
+// 					total += ns.Hours // บวกชั่วโมงของ step ใหม่เข้าไป
+// 				}
+// 			} else {
+// 				// replace ทั้งชุดด้วย new_steps เท่านั้น (ไม่เอาของ template)
+// 				steps = steps[:0] // เคลียร์ steps
+// 				total = 0
+// 				for i, ns := range req.NewSteps {
+// 					if ns.Hours <= 0 {
+// 						return fmt.Errorf("new_steps[%d].hours must be > 0", i)
+// 					}
+// 					steps = append(steps, models.TaskWorkflowStep{
+// 						StepID:      uuid.NewString(),
+// 						StepName:    strings.TrimSpace(ns.StepName),
+// 						Description: strings.TrimSpace(ns.Description),
+// 						Hours:       ns.Hours,
+// 						Order:       i + 1, // เริ่มนับใหม่ตั้งแต่ 1
+// 						Status:      "todo",
+// 						CreatedAt:   now,
+// 						UpdatedAt:   now,
+// 					})
+// 					total += ns.Hours
+// 				}
+// 			}
 
-			// เขียน snapshot applied_workflow ใหม่ทับของเดิม
-			existing.WorkFlowID = newWfID
-			existing.AppliedWorkflow = models.TaskAppliedWorkflow{
-				WorkFlowID:   wf.WorkFlowID,
-				WorkFlowName: strings.TrimSpace(wf.WorkFlowName),
-				Department:   strings.TrimSpace(wf.Department),
-				Description:  strings.TrimSpace(wf.Description),
-				TotalHours:   total,                         // ชั่วโมงรวมใหม่
-				Steps:        steps,                         // steps snapshot ใหม่
-				Version:      helpers.MaxInt(1, wf.Version), // ถ้ามีเวอร์ชันใน template ใช้ค่านั้น
-			}
-		}
-	}
+// 			// เขียน snapshot applied_workflow ใหม่ทับของเดิม
+// 			existing.WorkFlowID = newWfID
+// 			existing.AppliedWorkflow = models.TaskAppliedWorkflow{
+// 				WorkFlowID:   wf.WorkFlowID,
+// 				WorkFlowName: strings.TrimSpace(wf.WorkFlowName),
+// 				Department:   strings.TrimSpace(wf.Department),
+// 				Description:  strings.TrimSpace(wf.Description),
+// 				TotalHours:   total,                         // ชั่วโมงรวมใหม่
+// 				Steps:        steps,                         // steps snapshot ใหม่
+// 				Version:      helpers.MaxInt(1, wf.Version), // ถ้ามีเวอร์ชันใน template ใช้ค่านั้น
+// 			}
+// 		}
+// 	}
 
-	// --- 4) ไม่ได้เปลี่ยน workflow แต่มีคำสั่งจัดการ steps ---
-	if req.WorkflowID == nil || strings.TrimSpace(*req.WorkflowID) == existing.WorkFlowID {
-		// (4.1) replace steps ทั้งชุดด้วย new_steps
-		if req.ReplaceSteps != nil && *req.ReplaceSteps {
-			steps := make([]models.TaskWorkflowStep, 0, len(req.NewSteps))
-			var total float64
-			for i, ns := range req.NewSteps {
-				if ns.Hours <= 0 {
-					return fmt.Errorf("new_steps[%d].hours must be > 0", i)
-				}
-				steps = append(steps, models.TaskWorkflowStep{
-					StepID:      uuid.NewString(),
-					StepName:    strings.TrimSpace(ns.StepName),
-					Description: strings.TrimSpace(ns.Description),
-					Hours:       ns.Hours,
-					Order:       i + 1, // เริ่ม 1..N
-					Status:      "todo",
-					CreatedAt:   now,
-					UpdatedAt:   now,
-				})
-				total += ns.Hours
-			}
-			existing.AppliedWorkflow.Steps = steps      // ทับ steps เดิมทั้งหมด
-			existing.AppliedWorkflow.TotalHours = total // อัปเดต total_hours
-		}
+// 	// --- 4) ไม่ได้เปลี่ยน workflow แต่มีคำสั่งจัดการ steps ---
+// 	if req.WorkflowID == nil || strings.TrimSpace(*req.WorkflowID) == existing.WorkFlowID {
+// 		// (4.1) replace steps ทั้งชุดด้วย new_steps
+// 		if req.ReplaceSteps != nil && *req.ReplaceSteps {
+// 			steps := make([]models.TaskWorkflowStep, 0, len(req.NewSteps))
+// 			var total float64
+// 			for i, ns := range req.NewSteps {
+// 				if ns.Hours <= 0 {
+// 					return fmt.Errorf("new_steps[%d].hours must be > 0", i)
+// 				}
+// 				steps = append(steps, models.TaskWorkflowStep{
+// 					StepID:      uuid.NewString(),
+// 					StepName:    strings.TrimSpace(ns.StepName),
+// 					Description: strings.TrimSpace(ns.Description),
+// 					Hours:       ns.Hours,
+// 					Order:       i + 1, // เริ่ม 1..N
+// 					Status:      "todo",
+// 					CreatedAt:   now,
+// 					UpdatedAt:   now,
+// 				})
+// 				total += ns.Hours
+// 			}
+// 			existing.AppliedWorkflow.Steps = steps      // ทับ steps เดิมทั้งหมด
+// 			existing.AppliedWorkflow.TotalHours = total // อัปเดต total_hours
+// 		}
 
-		// (4.2) แพตช์ step ที่มีอยู่ (เจาะจงด้วย step_id)
-		if len(req.StepPatches) > 0 {
-			idxByID := make(map[string]int, len(existing.AppliedWorkflow.Steps)) // map หา index ของแต่ละ step_id
-			for i := range existing.AppliedWorkflow.Steps {
-				idxByID[existing.AppliedWorkflow.Steps[i].StepID] = i
-			}
-			for j, p := range req.StepPatches {
-				i, ok := idxByID[p.StepID] // ตรวจ step_id ว่ามีไหม
-				if !ok {
-					return fmt.Errorf("step_patches[%d]: step_id not found: %s", j, p.StepID)
-				}
-				st := existing.AppliedWorkflow.Steps[i]
+// 		// (4.2) แพตช์ step ที่มีอยู่ (เจาะจงด้วย step_id)
+// 		if len(req.StepPatches) > 0 {
+// 			idxByID := make(map[string]int, len(existing.AppliedWorkflow.Steps)) // map หา index ของแต่ละ step_id
+// 			for i := range existing.AppliedWorkflow.Steps {
+// 				idxByID[existing.AppliedWorkflow.Steps[i].StepID] = i
+// 			}
+// 			for j, p := range req.StepPatches {
+// 				i, ok := idxByID[p.StepID] // ตรวจ step_id ว่ามีไหม
+// 				if !ok {
+// 					return fmt.Errorf("step_patches[%d]: step_id not found: %s", j, p.StepID)
+// 				}
+// 				st := existing.AppliedWorkflow.Steps[i]
 
-				if p.StepName != nil {
-					st.StepName = strings.TrimSpace(*p.StepName)
-				}
-				if p.Description != nil {
-					st.Description = strings.TrimSpace(*p.Description)
-				}
-				if p.Hours != nil {
-					if *p.Hours <= 0 {
-						return fmt.Errorf("step_patches[%d].hours must be > 0", j) // hours ต้อง > 0
-					}
-					st.Hours = *p.Hours
-				}
-				if p.Order != nil {
-					if *p.Order < 1 {
-						return fmt.Errorf("step_patches[%d].order must be >= 1", j) // order ขั้นต่ำ 1
-					}
-					st.Order = *p.Order
-				}
-				if p.Notes != nil {
-					st.Notes = strings.TrimSpace(*p.Notes)
-				}
-				if p.Status != nil {
-					newStatus := strings.ToLower(strings.TrimSpace(*p.Status)) // normalize สถานะ
-					if !helpers.InSet(newStatus, "todo", "in_progress", "skip", "done") {
-						return fmt.Errorf("step_patches[%d].status invalid (todo|in_progress|skip|done)", j)
-					}
-					// ถ้าเปลี่ยนเป็น in_progress แต่ยังไม่มี started_at และ caller ไม่ได้ส่ง started_at มา → เซ็ตเดี๋ยวนี้
-					if newStatus == "in_progress" && st.StartedAt == nil && p.StartedAt == nil {
-						t := now
-						st.StartedAt = &t
-					}
-					// ถ้าเปลี่ยนเป็น done แต่ยังไม่มี completed_at และ caller ไม่ได้ส่ง → เซ็ตเดี๋ยวนี้
-					if (newStatus == "done" || newStatus == "skip") && st.CompletedAt == nil && p.CompletedAt == nil {
-						t := now
-						st.CompletedAt = &t
-					}
-					st.Status = newStatus
-				}
-				if p.StartedAt != nil {
-					st.StartedAt = p.StartedAt // ยอมรับเวลาจาก caller ถ้าต้องการควบคุมเอง
-				}
-				if p.CompletedAt != nil {
-					st.CompletedAt = p.CompletedAt
-				}
+// 				if p.StepName != nil {
+// 					st.StepName = strings.TrimSpace(*p.StepName)
+// 				}
+// 				if p.Description != nil {
+// 					st.Description = strings.TrimSpace(*p.Description)
+// 				}
+// 				if p.Hours != nil {
+// 					if *p.Hours <= 0 {
+// 						return fmt.Errorf("step_patches[%d].hours must be > 0", j) // hours ต้อง > 0
+// 					}
+// 					st.Hours = *p.Hours
+// 				}
+// 				if p.Order != nil {
+// 					if *p.Order < 1 {
+// 						return fmt.Errorf("step_patches[%d].order must be >= 1", j) // order ขั้นต่ำ 1
+// 					}
+// 					st.Order = *p.Order
+// 				}
+// 				if p.Notes != nil {
+// 					st.Notes = strings.TrimSpace(*p.Notes)
+// 				}
+// 				if p.Status != nil {
+// 					newStatus := strings.ToLower(strings.TrimSpace(*p.Status)) // normalize สถานะ
+// 					if !helpers.InSet(newStatus, "todo", "in_progress", "skip", "done") {
+// 						return fmt.Errorf("step_patches[%d].status invalid (todo|in_progress|skip|done)", j)
+// 					}
+// 					// ถ้าเปลี่ยนเป็น in_progress แต่ยังไม่มี started_at และ caller ไม่ได้ส่ง started_at มา → เซ็ตเดี๋ยวนี้
+// 					if newStatus == "in_progress" && st.StartedAt == nil && p.StartedAt == nil {
+// 						t := now
+// 						st.StartedAt = &t
+// 					}
+// 					// ถ้าเปลี่ยนเป็น done แต่ยังไม่มี completed_at และ caller ไม่ได้ส่ง → เซ็ตเดี๋ยวนี้
+// 					if (newStatus == "done" || newStatus == "skip") && st.CompletedAt == nil && p.CompletedAt == nil {
+// 						t := now
+// 						st.CompletedAt = &t
+// 					}
+// 					st.Status = newStatus
+// 				}
+// 				if p.StartedAt != nil {
+// 					st.StartedAt = p.StartedAt // ยอมรับเวลาจาก caller ถ้าต้องการควบคุมเอง
+// 				}
+// 				if p.CompletedAt != nil {
+// 					st.CompletedAt = p.CompletedAt
+// 				}
 
-				st.UpdatedAt = now                     // อัปเดตเวลาแก้ไขของ step
-				existing.AppliedWorkflow.Steps[i] = st // เขียนกลับเข้า slice
-			}
-		}
+// 				st.UpdatedAt = now                     // อัปเดตเวลาแก้ไขของ step
+// 				existing.AppliedWorkflow.Steps[i] = st // เขียนกลับเข้า slice
+// 			}
+// 		}
 
-		// (4.3) ลบสเต็ปตามรายการ id
-		if len(req.DeleteStepIDs) > 0 {
-			toDel := make(map[string]struct{}, len(req.DeleteStepIDs))
-			for _, id := range req.DeleteStepIDs {
-				toDel[id] = struct{}{}
-			}
-			kept := make([]models.TaskWorkflowStep, 0, len(existing.AppliedWorkflow.Steps))
-			for _, st := range existing.AppliedWorkflow.Steps {
-				if _, del := toDel[st.StepID]; !del { // เก็บเฉพาะตัวที่ไม่ต้องลบ
-					kept = append(kept, st)
-				}
-			}
-			existing.AppliedWorkflow.Steps = kept // เขียนชุดใหม่ (ลบรายการที่ขอ)
-		}
+// 		// (4.3) ลบสเต็ปตามรายการ id
+// 		if len(req.DeleteStepIDs) > 0 {
+// 			toDel := make(map[string]struct{}, len(req.DeleteStepIDs))
+// 			for _, id := range req.DeleteStepIDs {
+// 				toDel[id] = struct{}{}
+// 			}
+// 			kept := make([]models.TaskWorkflowStep, 0, len(existing.AppliedWorkflow.Steps))
+// 			for _, st := range existing.AppliedWorkflow.Steps {
+// 				if _, del := toDel[st.StepID]; !del { // เก็บเฉพาะตัวที่ไม่ต้องลบ
+// 					kept = append(kept, st)
+// 				}
+// 			}
+// 			existing.AppliedWorkflow.Steps = kept // เขียนชุดใหม่ (ลบรายการที่ขอ)
+// 		}
 
-		// (4.4) เพิ่มสเต็ปใหม่ต่อท้าย (เฉพาะกรณีไม่ได้ replace ทั้งชุด)
-		if len(req.NewSteps) > 0 && (req.ReplaceSteps == nil || !*req.ReplaceSteps) {
-			base := len(existing.AppliedWorkflow.Steps) // เริ่มลำดับต่อท้าย
-			for i, ns := range req.NewSteps {
-				if ns.Hours <= 0 {
-					return fmt.Errorf("new_steps[%d].hours must be > 0", i)
-				}
-				existing.AppliedWorkflow.Steps = append(existing.AppliedWorkflow.Steps, models.TaskWorkflowStep{
-					StepID:      uuid.NewString(),
-					StepName:    strings.TrimSpace(ns.StepName),
-					Description: strings.TrimSpace(ns.Description),
-					Hours:       ns.Hours,
-					Order:       base + i + 1,
-					Status:      "todo",
-					CreatedAt:   now,
-					UpdatedAt:   now,
-				})
-			}
-		}
+// 		// (4.4) เพิ่มสเต็ปใหม่ต่อท้าย (เฉพาะกรณีไม่ได้ replace ทั้งชุด)
+// 		if len(req.NewSteps) > 0 && (req.ReplaceSteps == nil || !*req.ReplaceSteps) {
+// 			base := len(existing.AppliedWorkflow.Steps) // เริ่มลำดับต่อท้าย
+// 			for i, ns := range req.NewSteps {
+// 				if ns.Hours <= 0 {
+// 					return fmt.Errorf("new_steps[%d].hours must be > 0", i)
+// 				}
+// 				existing.AppliedWorkflow.Steps = append(existing.AppliedWorkflow.Steps, models.TaskWorkflowStep{
+// 					StepID:      uuid.NewString(),
+// 					StepName:    strings.TrimSpace(ns.StepName),
+// 					Description: strings.TrimSpace(ns.Description),
+// 					Hours:       ns.Hours,
+// 					Order:       base + i + 1,
+// 					Status:      "todo",
+// 					CreatedAt:   now,
+// 					UpdatedAt:   now,
+// 				})
+// 			}
+// 		}
 
-		// (4.5) จัด order ให้เรียงและรีเซ็ตหมายเลข 1..N
-		sort.SliceStable(existing.AppliedWorkflow.Steps, func(i, j int) bool {
-			return existing.AppliedWorkflow.Steps[i].Order < existing.AppliedWorkflow.Steps[j].Order
-		})
-		for i := range existing.AppliedWorkflow.Steps {
-			existing.AppliedWorkflow.Steps[i].Order = i + 1 // รีindex ให้ต่อเนื่อง
-		}
+// 		// (4.5) จัด order ให้เรียงและรีเซ็ตหมายเลข 1..N
+// 		sort.SliceStable(existing.AppliedWorkflow.Steps, func(i, j int) bool {
+// 			return existing.AppliedWorkflow.Steps[i].Order < existing.AppliedWorkflow.Steps[j].Order
+// 		})
+// 		for i := range existing.AppliedWorkflow.Steps {
+// 			existing.AppliedWorkflow.Steps[i].Order = i + 1 // รีindex ให้ต่อเนื่อง
+// 		}
 
-		// (4.6) คำนวณ total_hours ใหม่จากชั่วโมงของทุก step
-		var total float64
-		for _, s := range existing.AppliedWorkflow.Steps {
-			total += s.Hours
-		}
-		existing.AppliedWorkflow.TotalHours = total
-	}
+// 		// (4.6) คำนวณ total_hours ใหม่จากชั่วโมงของทุก step
+// 		var total float64
+// 		for _, s := range existing.AppliedWorkflow.Steps {
+// 			total += s.Hours
+// 		}
+// 		existing.AppliedWorkflow.TotalHours = total
+// 	}
 
-	// [ADD] (4.7) คำนวณ step_name ปัจจุบันจาก steps (in_progress > todo > สุดท้าย)
-	curStepName := ""
-	for _, s2 := range existing.AppliedWorkflow.Steps {
-		if s2.Status == "in_progress" {
-			curStepName = s2.StepName
-			break
-		}
-	}
-	if curStepName == "" {
-		for _, s2 := range existing.AppliedWorkflow.Steps {
-			if s2.Status == "todo" {
-				curStepName = s2.StepName
-				break
-			}
-		}
-	}
-	if curStepName == "" && len(existing.AppliedWorkflow.Steps) > 0 {
-		curStepName = existing.AppliedWorkflow.Steps[len(existing.AppliedWorkflow.Steps)-1].StepName
-	}
-	existing.StepName = curStepName // [ADD]
+// 	// [ADD] (4.7) คำนวณ step_name ปัจจุบันจาก steps (in_progress > todo > สุดท้าย)
+// 	curStepName := ""
+// 	for _, s2 := range existing.AppliedWorkflow.Steps {
+// 		if s2.Status == "in_progress" {
+// 			curStepName = s2.StepName
+// 			break
+// 		}
+// 	}
+// 	if curStepName == "" {
+// 		for _, s2 := range existing.AppliedWorkflow.Steps {
+// 			if s2.Status == "todo" {
+// 				curStepName = s2.StepName
+// 				break
+// 			}
+// 		}
+// 	}
+// 	if curStepName == "" && len(existing.AppliedWorkflow.Steps) > 0 {
+// 		curStepName = existing.AppliedWorkflow.Steps[len(existing.AppliedWorkflow.Steps)-1].StepName
+// 	}
+// 	existing.StepName = curStepName // [ADD]
 
-	// --- 5) สรุป task.status จากสถานะของ steps ทั้งหมด ---
-	existing.Status = helpers.DeriveTaskStatusFromSteps(existing.AppliedWorkflow.Steps) // all done → done, มี in_progress → in_progress, มี ไม่งั้น → todo
+// 	// --- 5) สรุป task.status จากสถานะของ steps ทั้งหมด ---
+// 	existing.Status = helpers.DeriveTaskStatusFromSteps(existing.AppliedWorkflow.Steps) // all done → done, มี in_progress → in_progress, มี ไม่งั้น → todo
 
-	// --- 6) อัปเดตเวลาแก้งาน ---
-	existing.UpdatedAt = now
+// 	// --- 6) อัปเดตเวลาแก้งาน ---
+// 	existing.UpdatedAt = now
 
-	// --- 7) บันทึกลง DB ---
-	updated, err := s.taskRepo.UpdateTaskByID(ctx, taskID, *existing) // เขียนกลับ
-	if err != nil {
-		return err
-	}
-	if updated == nil {
-		return mongo.ErrNoDocuments // ป้องกันกรณีไม่เจอระหว่างเขียน (edge case)
-	}
+// 	// --- 7) บันทึกลง DB ---
+// 	updated, err := s.taskRepo.UpdateTaskByID(ctx, taskID, *existing) // เขียนกลับ
+// 	if err != nil {
+// 		return err
+// 	}
+// 	if updated == nil {
+// 		return mongo.ErrNoDocuments // ป้องกันกรณีไม่เจอระหว่างเขียน (edge case)
+// 	}
 
-	// [EVAL] ถ้าเพิ่งเปลี่ยนเป็น done ⇒ สร้างแบบประเมิน (ต้องอยู่ก่อนบล็อคอัปเดตสถิติ)
-	if oldStatus != "done" && existing.Status == "done" {
-		_ = s.CreateEvaluationIfNeeded(ctx, taskID)
-	}
-	// <============================ Update Stats Inline ============================>
-	newAssignee := existing.Assignee
-	newStatus := existing.Status
+// 	// [EVAL] ถ้าเพิ่งเปลี่ยนเป็น done ⇒ สร้างแบบประเมิน (ต้องอยู่ก่อนบล็อคอัปเดตสถิติ)
+// 	if oldStatus != "done" && existing.Status == "done" {
+// 		_ = s.CreateEvaluationIfNeeded(ctx, taskID)
+// 	}
+// 	// <============================ Update Stats Inline ============================>
+// 	newAssignee := existing.Assignee
+// 	newStatus := existing.Status
 
-	// ฟังก์ชันย่อยในบล็อก (ไม่ประกาศนอก method): อ่าน->แก้ totals->upsert
-	updateStats := func(userID string, assignedDelta, openDelta, inProgDelta, completedDelta int) error {
-		if strings.TrimSpace(userID) == "" {
-			return nil
-		}
+// 	// ฟังก์ชันย่อยในบล็อก (ไม่ประกาศนอก method): อ่าน->แก้ totals->upsert
+// 	updateStats := func(userID string, assignedDelta, openDelta, inProgDelta, completedDelta int) error {
+// 		if strings.TrimSpace(userID) == "" {
+// 			return nil
+// 		}
 
-		existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx,
-			bson.M{"user_id": userID},
-			bson.M{},
-		)
-		if err != nil && err != mongo.ErrNoDocuments {
-			return err
-		}
-		nowUTC := time.Now().UTC()
+// 		existingStats, err := s.taskRepo.GetOneUserTaskStatsByFilter(ctx,
+// 			bson.M{"user_id": userID},
+// 			bson.M{},
+// 		)
+// 		if err != nil && err != mongo.ErrNoDocuments {
+// 			return err
+// 		}
+// 		nowUTC := time.Now().UTC()
 
-		totals := models.UserTaskTotals{}
-		createdAt := nowUTC
-		if existingStats != nil {
-			totals = existingStats.Totals
-			createdAt = existingStats.CreatedAt
-		}
+// 		totals := models.UserTaskTotals{}
+// 		createdAt := nowUTC
+// 		if existingStats != nil {
+// 			totals = existingStats.Totals
+// 			createdAt = existingStats.CreatedAt
+// 		}
 
-		// apply delta + กันติดลบ
-		totals.Assigned += assignedDelta
-		totals.Open += openDelta
-		totals.InProgress += inProgDelta
-		totals.Completed += completedDelta
-		if totals.Assigned < 0 {
-			totals.Assigned = 0
-		}
-		if totals.Open < 0 {
-			totals.Open = 0
-		}
-		if totals.InProgress < 0 {
-			totals.InProgress = 0
-		}
-		if totals.Completed < 0 {
-			totals.Completed = 0
-		}
+// 		// apply delta + กันติดลบ
+// 		totals.Assigned += assignedDelta
+// 		totals.Open += openDelta
+// 		totals.InProgress += inProgDelta
+// 		totals.Completed += completedDelta
+// 		if totals.Assigned < 0 {
+// 			totals.Assigned = 0
+// 		}
+// 		if totals.Open < 0 {
+// 			totals.Open = 0
+// 		}
+// 		if totals.InProgress < 0 {
+// 			totals.InProgress = 0
+// 		}
+// 		if totals.Completed < 0 {
+// 			totals.Completed = 0
+// 		}
 
-		statsDoc := &models.UserTaskStats{
-			UserID:       userID,
-			DepartmentID: existing.Department,
-			Totals:       totals,
-			KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
-			CreatedAt:    createdAt,
-			UpdatedAt:    nowUTC,
-		}
-		return s.taskRepo.UpsertUserTaskStats(ctx, statsDoc)
-	}
+// 		statsDoc := &models.UserTaskStats{
+// 			UserID:       userID,
+// 			DepartmentID: existing.Department,
+// 			Totals:       totals,
+// 			KPI:          models.UserTaskKPI{Score: nil, LastCalculatedAt: nil},
+// 			CreatedAt:    createdAt,
+// 			UpdatedAt:    nowUTC,
+// 		}
+// 		return s.taskRepo.UpsertUserTaskStats(ctx, statsDoc)
+// 	}
 
-	// 1) หากเปลี่ยนผู้รับผิดชอบ: หักของเก่า + บวกของใหม่ (อิงสถานะ "ใหม่" หลังแก้)
-	if oldAssignee != newAssignee {
-		// หักของผู้เก่า: -assigned, -open/-in_progress หรือ -completed ตาม oldStatus เดิม
-		switch oldStatus {
-		case "done":
-			_ = updateStats(oldAssignee, -1, 0, 0, -1)
-		case "in_progress":
-			_ = updateStats(oldAssignee, -1, -1, -1, 0)
-		default: // "todo" หรืออื่นๆที่นับเป็น open
-			_ = updateStats(oldAssignee, -1, -1, 0, 0)
-		}
-		// บวกของผู้ใหม่: +assigned, +open/+in_progress หรือ +completed ตาม newStatus ใหม่
-		switch newStatus {
-		case "done":
-			_ = updateStats(newAssignee, +1, 0, 0, +1)
-		case "in_progress":
-			_ = updateStats(newAssignee, +1, +1, +1, 0)
-		default: // "todo"
-			_ = updateStats(newAssignee, +1, +1, 0, 0)
-		}
-		return nil
-	}
+// 	// 1) หากเปลี่ยนผู้รับผิดชอบ: หักของเก่า + บวกของใหม่ (อิงสถานะ "ใหม่" หลังแก้)
+// 	if oldAssignee != newAssignee {
+// 		// หักของผู้เก่า: -assigned, -open/-in_progress หรือ -completed ตาม oldStatus เดิม
+// 		switch oldStatus {
+// 		case "done":
+// 			_ = updateStats(oldAssignee, -1, 0, 0, -1)
+// 		case "in_progress":
+// 			_ = updateStats(oldAssignee, -1, -1, -1, 0)
+// 		default: // "todo" หรืออื่นๆที่นับเป็น open
+// 			_ = updateStats(oldAssignee, -1, -1, 0, 0)
+// 		}
+// 		// บวกของผู้ใหม่: +assigned, +open/+in_progress หรือ +completed ตาม newStatus ใหม่
+// 		switch newStatus {
+// 		case "done":
+// 			_ = updateStats(newAssignee, +1, 0, 0, +1)
+// 		case "in_progress":
+// 			_ = updateStats(newAssignee, +1, +1, +1, 0)
+// 		default: // "todo"
+// 			_ = updateStats(newAssignee, +1, +1, 0, 0)
+// 		}
+// 		return nil
+// 	}
 
-	// 2) ผู้รับผิดชอบเดิม แต่สถานะ “เปลี่ยน” → ปรับยอดเฉพาะ open/in_progress/completed
-	if oldStatus != newStatus {
-		switch oldStatus {
-		case "todo":
-			switch newStatus {
-			case "in_progress":
-				_ = updateStats(newAssignee, 0, 0, +1, 0) // open เท่าเดิม
-			case "done":
-				_ = updateStats(newAssignee, 0, -1, 0, +1) // todo -> done
-			}
-		case "in_progress":
-			switch newStatus {
-			case "todo":
-				_ = updateStats(newAssignee, 0, 0, -1, 0) // in_progress -> todo (open เท่าเดิม)
-			case "done":
-				_ = updateStats(newAssignee, 0, -1, -1, +1) // in_progress -> done
-			}
-		case "done":
-			switch newStatus {
-			case "in_progress":
-				_ = updateStats(newAssignee, 0, +1, +1, -1) // done -> in_progress
-			case "todo":
-				_ = updateStats(newAssignee, 0, +1, 0, -1) // done -> todo
-			}
-		}
-	}
+// 	// 2) ผู้รับผิดชอบเดิม แต่สถานะ “เปลี่ยน” → ปรับยอดเฉพาะ open/in_progress/completed
+// 	if oldStatus != newStatus {
+// 		switch oldStatus {
+// 		case "todo":
+// 			switch newStatus {
+// 			case "in_progress":
+// 				_ = updateStats(newAssignee, 0, 0, +1, 0) // open เท่าเดิม
+// 			case "done":
+// 				_ = updateStats(newAssignee, 0, -1, 0, +1) // todo -> done
+// 			}
+// 		case "in_progress":
+// 			switch newStatus {
+// 			case "todo":
+// 				_ = updateStats(newAssignee, 0, 0, -1, 0) // in_progress -> todo (open เท่าเดิม)
+// 			case "done":
+// 				_ = updateStats(newAssignee, 0, -1, -1, +1) // in_progress -> done
+// 			}
+// 		case "done":
+// 			switch newStatus {
+// 			case "in_progress":
+// 				_ = updateStats(newAssignee, 0, +1, +1, -1) // done -> in_progress
+// 			case "todo":
+// 				_ = updateStats(newAssignee, 0, +1, 0, -1) // done -> todo
+// 			}
+// 		}
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
 func (s *taskService) DeleteTask(ctx context.Context, taskID string, claims *dto.JWTClaims) error {
 
