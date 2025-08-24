@@ -32,19 +32,6 @@ func (h *KPIEvaluationHandler) KPIEvaluationRoutes(router fiber.Router) {
 	// kpiEvaluations.Get("/stats", h.mdw.AuthCookieMiddleware(), h.GetKPIStatistics)
 }
 
-// @Summary List KPI Evaluations
-// @Description Get a list of KPI evaluations
-// @Tags KPI Evaluations
-// @Accept json
-// @Produce json
-// @Param page query int false "Page number"
-// @Param limit query int false "Number of items per page"
-// @Param search query string false "Search term"
-// @Param department_id query string false "Department ID"
-// @Param sort_by query string false "Sort by"
-// @Param sort_order query string false "Sort order (asc or desc)"
-// @Success 200 {object} dto.BaseResponse{data=[]dto.KPIEvaluationResponse}
-// @Router /v1/kpi-evaluations/list [get]
 func (h *KPIEvaluationHandler) GetKPIEvaluationList(c *fiber.Ctx) error {
 
 	claims, err := middleware.GetClaims(c)
@@ -96,14 +83,6 @@ func (h *KPIEvaluationHandler) GetKPIEvaluationList(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Create KPI Evaluation
-// @Description Create a new KPI evaluation
-// @Tags KPI Evaluations
-// @Accept json
-// @Produce json
-// @Param request body dto.CreateKPIEvaluationRequest true "KPI Evaluation Request"
-// @Success 201 {object} dto.BaseResponse
-// @Router /v1/kpi-evaluations/create [post]
 func (h *KPIEvaluationHandler) CreateKPIEvaluation(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {

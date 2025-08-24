@@ -142,38 +142,6 @@ definitions:
         description: รหัสผู้จัดการแผนก (FK ไปยัง User)
         type: string
     type: object
-  dto.CreateKPIEvaluationRequest:
-    properties:
-      department_id:
-        description: แผนก
-        type: string
-      evaluatee_id:
-        description: ผู้ถูกประเมิน
-        type: string
-      feedback:
-        description: คอมเมนต์รวม (ถ้ามี)
-        type: string
-      job_id:
-        description: อ้างถึง SignJob
-        type: string
-      kpi_id:
-        description: อ้างถึง KPITemplate
-        type: string
-      scores:
-        description: รายการคะแนนแต่ละ item
-        items:
-          $ref: '#/definitions/dto.KPIScoreRequest'
-        type: array
-      task_id:
-        description: งานย่อย (ถ้ามี)
-        type: string
-    required:
-    - department_id
-    - evaluatee_id
-    - job_id
-    - kpi_id
-    - scores
-    type: object
   dto.CreateKPITemplateDTO:
     properties:
       department_id:
@@ -446,71 +414,6 @@ definitions:
         type: number
       step_name:
         type: string
-    type: object
-  dto.KPIEvaluationResponse:
-    properties:
-      created_at:
-        type: string
-      department_id:
-        type: string
-      evaluatee_id:
-        type: string
-      evaluation_id:
-        type: string
-      evaluator_id:
-        type: string
-      feedback:
-        type: string
-      job_id:
-        type: string
-      kpi_id:
-        type: string
-      kpi_name:
-        type: string
-      scores:
-        items:
-          $ref: '#/definitions/dto.KPIScoreResponse'
-        type: array
-      task_id:
-        type: string
-      total_score:
-        type: integer
-      updated_at:
-        type: string
-      version:
-        type: integer
-    type: object
-  dto.KPIScoreRequest:
-    properties:
-      item_id:
-        description: อ้างถึง item ใน KPI template
-        type: string
-      notes:
-        description: หมายเหตุเพิ่มเติม (ถ้ามี)
-        type: string
-      score:
-        description: คะแนนที่ให้
-        type: integer
-    required:
-    - item_id
-    - score
-    type: object
-  dto.KPIScoreResponse:
-    properties:
-      category:
-        type: string
-      item_id:
-        type: string
-      max_score:
-        type: integer
-      name:
-        type: string
-      notes:
-        type: string
-      score:
-        type: integer
-      weight:
-        type: integer
     type: object
   dto.KPITemplateDTO:
     properties:
@@ -2122,75 +2025,6 @@ paths:
       summary: Get all workflows
       tags:
       - Dropdown
-  /v1/kpi-evaluations/create:
-    post:
-      consumes:
-      - application/json
-      description: Create a new KPI evaluation
-      parameters:
-      - description: KPI Evaluation Request
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateKPIEvaluationRequest'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-      summary: Create KPI Evaluation
-      tags:
-      - KPI Evaluations
-  /v1/kpi-evaluations/list:
-    get:
-      consumes:
-      - application/json
-      description: Get a list of KPI evaluations
-      parameters:
-      - description: Page number
-        in: query
-        name: page
-        type: integer
-      - description: Number of items per page
-        in: query
-        name: limit
-        type: integer
-      - description: Search term
-        in: query
-        name: search
-        type: string
-      - description: Department ID
-        in: query
-        name: department_id
-        type: string
-      - description: Sort by
-        in: query
-        name: sort_by
-        type: string
-      - description: Sort order (asc or desc)
-        in: query
-        name: sort_order
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/dto.BaseResponse'
-            - properties:
-                data:
-                  items:
-                    $ref: '#/definitions/dto.KPIEvaluationResponse'
-                  type: array
-              type: object
-      summary: List KPI Evaluations
-      tags:
-      - KPI Evaluations
   /v1/kpi/{id}:
     delete:
       consumes:

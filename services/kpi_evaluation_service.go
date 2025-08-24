@@ -310,77 +310,55 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
 
-		departmentsName := "ไม่พบแผนก"
-		createdByName := "ไม่พบผู้สร้าง"
-		assigneeName := "ไม่พบผู้รับผิดชอบ"
+		// departmentsName := "ไม่พบแผนก"
+		// createdByName := "ไม่พบผู้สร้าง"
+		// assigneeName := "ไม่พบผู้รับผิดชอบ"
 
-		createdBy, _ := s.userRepo.GetByID(ctx, m.CreatedBy)
-		assignee, _ := s.userRepo.GetByID(ctx, m.Assignee)
-		departments, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.Department, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1})
+		// createdBy, _ := s.userRepo.GetByID(ctx, m.CreatedBy)
+		// assignee, _ := s.userRepo.GetByID(ctx, m.Assignee)
+		// departments, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.Department, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1})
 
-		if departments != nil {
-			departmentsName = departments.DepartmentName
-		}
-		if createdBy != nil {
-			createdByName = fmt.Sprintf("%s %s %s", createdBy.TitleTH, createdBy.FirstNameTH, createdBy.LastNameTH)
-		}
-		if assignee != nil {
-			assigneeName = fmt.Sprintf("%s %s %s", assignee.TitleTH, assignee.FirstNameTH, assignee.LastNameTH)
-		}
+		// if departments != nil {
+		// 	departmentsName = departments.DepartmentName
+		// }
+		// if createdBy != nil {
+		// 	createdByName = fmt.Sprintf("%s %s %s", createdBy.TitleTH, createdBy.FirstNameTH, createdBy.LastNameTH)
+		// }
+		// if assignee != nil {
+		// 	assigneeName = fmt.Sprintf("%s %s %s", assignee.TitleTH, assignee.FirstNameTH, assignee.LastNameTH)
+		// }
 
-		steps := make([]dto.TaskWorkflowStep, 0, len(m.AppliedWorkflow.Steps))
-		for _, st := range m.AppliedWorkflow.Steps {
-			steps = append(steps, dto.TaskWorkflowStep{
-				StepID:      st.StepID,
-				StepName:    st.StepName,
-				Description: st.Description,
-				Hours:       st.Hours,
-				Order:       st.Order,
-				Status:      st.Status,
-				StartedAt:   st.StartedAt,
-				CompletedAt: st.CompletedAt,
-				Notes:       st.Notes,
-				CreatedAt:   st.CreatedAt,
-				UpdatedAt:   st.UpdatedAt,
-			})
-		}
-		list = append(list, dto.TaskDTO{
-			TaskID:      m.TaskID,
-			ProjectID:   m.ProjectID,
-			ProjectName: m.ProjectName,
-			JobID:       m.JobID,
-			JobName:     m.JobName,
-			Description: m.Description,
-
-			Department:     m.Department,
-			DepartmentName: departmentsName,
-			Assignee:       m.Assignee,
-			AssigneeName:   assigneeName,
-			Importance:     m.Importance,
-
-			StartDate: m.StartDate,
-			EndDate:   m.EndDate,
-
-			KPIID:      m.KPIID,
-			WorkFlowID: m.WorkFlowID,
-
-			AppliedWorkflow: dto.TaskAppliedWorkflow{
-				WorkFlowID:   m.AppliedWorkflow.WorkFlowID,
-				WorkFlowName: m.AppliedWorkflow.WorkFlowName,
-				Department:   m.AppliedWorkflow.Department,
-				Description:  m.AppliedWorkflow.Description,
-				TotalHours:   m.AppliedWorkflow.TotalHours,
-				Steps:        steps,
-				Version:      m.AppliedWorkflow.Version,
-			},
-
-			Status:        m.Status,
-			StepName:      m.StepName,
-			CreatedBy:     m.CreatedBy,
-			CreatedByName: createdByName,
-			CreatedAt:     m.CreatedAt,
-			UpdatedAt:     m.UpdatedAt,
-			DeletedAt:     m.DeletedAt,
+		// steps := make([]dto.TaskWorkflowStep, 0, len(m.AppliedWorkflow.Steps))
+		// for _, st := range m.AppliedWorkflow.Steps {
+		// 	steps = append(steps, dto.TaskWorkflowStep{
+		// 		StepID:      st.StepID,
+		// 		StepName:    st.StepName,
+		// 		Description: st.Description,
+		// 		Hours:       st.Hours,
+		// 		Order:       st.Order,
+		// 		Status:      st.Status,
+		// 		StartedAt:   st.StartedAt,
+		// 		CompletedAt: st.CompletedAt,
+		// 		Notes:       st.Notes,
+		// 		CreatedAt:   st.CreatedAt,
+		// 		UpdatedAt:   st.UpdatedAt,
+		// 	})
+		// }
+		list = append(list, dto.KPIEvaluationResponse{
+			EvaluationID: "",
+			JobID:        m.JobID,
+			TaskID:       m.TaskID,
+			KPIID:        m.KPIID,
+			KPIName:      "",
+			Version:      1,
+			EvaluatorID:  m.CreatedBy,
+			EvaluateeID:  m.Assignee,
+			Department:   m.Department,
+			Scores:       []dto.KPIScoreResponse{},
+			TotalScore:   0,
+			Feedback:     "",
+			CreatedAt:    m.CreatedAt,
+			UpdatedAt:    m.UpdatedAt,
 		})
 	}
 
