@@ -115,11 +115,13 @@ func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, eval
 		}
 
 		if updatedAny {
-			existing.TotalScore = total
+			existing.TotalScore = total / len(existing.Scores) // ค่าเฉลี่ย
 			existing.IsEvaluated = true
 		}
 	}
 
+	existing.EvaluatorID = claims.UserID
+	existing.Feedback = strings.TrimSpace(req.Feedback)
 	existing.Version += 1    // เพิ่มเวอร์ชัน
 	existing.UpdatedAt = now // อัปเดตเวลา
 
