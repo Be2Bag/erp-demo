@@ -777,6 +777,10 @@ func (s *taskService) UpdateTask(ctx context.Context, taskID string, req dto.Upd
 		return mongo.ErrNoDocuments // ป้องกันกรณีไม่เจอระหว่างเขียน (edge case)
 	}
 
+	// [EVAL] ถ้าเพิ่งเปลี่ยนเป็น done ⇒ สร้างแบบประเมิน (ต้องอยู่ก่อนบล็อคอัปเดตสถิติ)
+	if oldStatus != "done" && existing.Status == "done" {
+		_ = s.CreateEvaluationIfNeeded(ctx, taskID)
+	}
 	// <============================ Update Stats Inline ============================>
 	newAssignee := existing.Assignee
 	newStatus := existing.Status
