@@ -307,6 +307,7 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 			})
 		}
 
+		roundedTotal := math.Round(m.TotalScore*10) / 10 // ปัดเป็นทศนิยม 1 ตำแหน่ง
 		list = append(list, dto.KPIEvaluationResponse{
 			EvaluationID:   m.EvaluationID,
 			JobID:          m.JobID,
@@ -324,7 +325,7 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 			Department:     m.Department,
 			DepartmentName: departmentsName,
 			Scores:         scores,
-			TotalScore:     m.TotalScore,
+			TotalScore:     roundedTotal,
 			IsEvaluated:    m.IsEvaluated,
 			Feedback:       m.Feedback,
 			FinishedAt:     m.UpdatedAt,
