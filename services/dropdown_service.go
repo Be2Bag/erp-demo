@@ -343,6 +343,7 @@ func (s *dropDownService) GetCategorys(ctx context.Context) ([]dto.ResponseGetCa
 			CategoryID:     category.CategoryID,
 			CategoryNameTH: category.CategoryNameTH,
 			CategoryNameEN: category.CategoryNameEN,
+			Description:    category.Description,
 		})
 	}
 

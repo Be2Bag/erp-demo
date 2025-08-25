@@ -69,4 +69,5 @@ type ResponseGetCategorys struct {
 	CategoryID     string `json:"category_id"`      // รหัสหมวดหมู่ (ไม่ซ้ำกัน)
 	CategoryNameTH string `json:"category_name_th"` // ชื่อหมวดหมู่
 	CategoryNameEN string `json:"category_name_en"` // ชื่อหมวดหมู่ (ภาษาอังกฤษ)
+	Description    string `json:"description"`
 }
