@@ -323,3 +323,28 @@ func (s *dropDownService) GetWorkflows(ctx context.Context, departmentID string)
 
 	return response, nil
 }
+
+func (s *dropDownService) GetCategorys(ctx context.Context) ([]dto.ResponseGetCategorys, error) {
+	filter := bson.M{}
+	projection := bson.M{}
+
+	categorys, errOnGetCategorys := s.dropDownRepo.GetCategorysList(ctx, filter, projection)
+	if errOnGetCategorys != nil {
+		return nil, errOnGetCategorys
+	}
+
+	if len(categorys) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetCategorys
+	for _, category := range categorys {
+		response = append(response, dto.ResponseGetCategorys{
+			CategoryID:     category.CategoryID,
+			CategoryNameTH: category.CategoryNameTH,
+			CategoryNameEN: category.CategoryNameEN,
+		})
+	}
+
+	return response, nil
+}

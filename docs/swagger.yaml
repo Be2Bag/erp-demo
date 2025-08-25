@@ -133,6 +133,59 @@ definitions:
         example: 200
         type: integer
     type: object
+  dto.CategoryDTO:
+    properties:
+      category_id:
+        description: UUID
+        type: string
+      category_name_en:
+        description: ชื่อหมวดหมู่ภาษาอังกฤษ
+        type: string
+      category_name_th:
+        description: ชื่อหมวดหมู่ภาษาไทย
+        type: string
+      created_at:
+        description: วันเวลาที่สร้าง
+        type: string
+      created_by:
+        description: ผู้สร้าง (user_id หรือ username)
+        type: string
+      deleted_at:
+        description: วันเวลาที่ลบ (ถ้ามี)
+        type: string
+      department_id:
+        description: รหัสแผนก
+        type: string
+      description:
+        description: รายละเอียด
+        type: string
+      note:
+        description: หมายเหตุเพิ่มเติม
+        type: string
+      updated_at:
+        description: วันเวลาที่แก้ไขล่าสุด
+        type: string
+    type: object
+  dto.CreateCategoryDTO:
+    properties:
+      category_name_en:
+        description: ชื่อหมวดหมู่ภาษาอังกฤษ
+        type: string
+      category_name_th:
+        description: ชื่อหมวดหมู่ภาษาไทย
+        type: string
+      department_id:
+        description: รหัสแผนก (FK ไปยัง Department)
+        type: string
+      description:
+        description: รายละเอียด
+        type: string
+    required:
+    - category_name_en
+    - category_name_th
+    - department_id
+    - description
+    type: object
   dto.CreateDepartmentDTO:
     properties:
       department_name:
@@ -1008,6 +1061,24 @@ definitions:
         description: ความกว้าง (ซม.)
         type: number
     type: object
+  dto.UpdateCategoryDTO:
+    properties:
+      category_name_en:
+        description: ชื่อหมวดหมู่ภาษาอังกฤษ
+        type: string
+      category_name_th:
+        description: ชื่อหมวดหมู่ภาษาไทย
+        type: string
+      department_id:
+        description: รหัสแผนก
+        type: string
+      description:
+        description: รายละเอียด
+        type: string
+      note:
+        description: หมายเหตุเพิ่มเติม
+        type: string
+    type: object
   dto.UpdateDepartmentDTO:
     properties:
       department_name:
@@ -1457,6 +1528,203 @@ paths:
       summary: Get user sessions
       tags:
       - Auth
+  /v1/category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete a category
+      tags:
+      - Category
+    get:
+      consumes:
+      - application/json
+      description: Get a category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a category by ID
+      tags:
+      - Category
+    put:
+      consumes:
+      - application/json
+      description: Update a category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Category data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCategoryDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update a category
+      tags:
+      - Category
+  /v1/category/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new category
+      parameters:
+      - description: Category data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateCategoryDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new category
+      tags:
+      - Category
+  /v1/category/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of categories
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get a list of categories
+      tags:
+      - Category
   /v1/department/{id}:
     delete:
       consumes:
@@ -1644,6 +1912,36 @@ paths:
       summary: Get a list of departments
       tags:
       - Departments
+  /v1/dropdown/category:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลหมวดหมู่ทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.CategoryDTO'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all categories
+      tags:
+      - Dropdown
   /v1/dropdown/customer-type:
     get:
       consumes:

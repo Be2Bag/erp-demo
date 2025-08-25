@@ -22,6 +22,7 @@ type dropDownRepo struct {
 	usersColl         *mongo.Collection
 	kpiColl           *mongo.Collection
 	workflowsColl     *mongo.Collection
+	categorysColl     *mongo.Collection
 }
 
 func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
@@ -38,6 +39,7 @@ func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
 		usersColl:         db.Collection(models.CollectionUsers),
 		kpiColl:           db.Collection(models.CollectionKPITemplates),
 		workflowsColl:     db.Collection(models.CollectionWorkflowTemplates),
+		categorysColl:     db.Collection(models.CollectionCategory),
 	}
 }
 func (r *dropDownRepo) GetPositions(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Position, error) {
@@ -316,4 +318,28 @@ func (r *dropDownRepo) GetWorkflowsList(ctx context.Context, filter interface{},
 	}
 
 	return workflows, nil
+}
+
+func (r *dropDownRepo) GetCategorysList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Category, error) {
+	var categorys []*models.Category
+
+	cursor, err := r.categorysColl.Find(ctx, filter, options.Find().SetProjection(projection))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var category models.Category
+		if err := cursor.Decode(&category); err != nil {
+			return nil, err
+		}
+		categorys = append(categorys, &category)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return categorys, nil
 }

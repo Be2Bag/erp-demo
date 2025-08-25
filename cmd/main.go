@@ -61,6 +61,7 @@ func main() {
 	departmentRepo := repositories.NewDepartmentRepository(database)
 	positionRepo := repositories.NewPositionRepository(database)
 	kpiEvaluationRepo := repositories.NewKPIEvaluationRepository(database)
+	categoryRepo := repositories.NewCategoryRepository(database)
 
 	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage, taskRepo)
 	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
@@ -75,6 +76,7 @@ func main() {
 	departmentSvc := services.NewDepartmentService(*cfg, departmentRepo, userRepo)
 	positionSvc := services.NewPositionService(*cfg, positionRepo)
 	kpiEvaluationSvc := services.NewKPIEvaluationService(*cfg, kpiRepo, userRepo, kpiEvaluationRepo, taskRepo, departmentRepo, projectRepo, signJobRepo)
+	categorySvc := services.NewCategoryService(*cfg, categoryRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
@@ -89,6 +91,7 @@ func main() {
 	departmentHdl := handlers.NewDepartmentHandler(departmentSvc, authCookieMiddleware)
 	positionHdl := handlers.NewPositionHandler(positionSvc, authCookieMiddleware)
 	kpiEvaluationHdl := handlers.NewKPIEvaluationHandler(kpiEvaluationSvc, authCookieMiddleware)
+	categoryHdl := handlers.NewCategoryHandler(categorySvc, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -114,6 +117,7 @@ func main() {
 	departmentHdl.DepartmentRoutes(apiGroup)
 	positionHdl.PositionRoutes(apiGroup)
 	kpiEvaluationHdl.KPIEvaluationRoutes(apiGroup)
+	categoryHdl.CategoryRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{

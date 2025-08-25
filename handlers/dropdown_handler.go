@@ -34,7 +34,7 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 	dropdown.Get("/customer-type", h.GetCustomerTypes)
 	dropdown.Get("/kpi/:id", h.mdw.AuthCookieMiddleware(), h.GetKPI)
 	dropdown.Get("/workflow/:id", h.mdw.AuthCookieMiddleware(), h.GetWorkflow)
-
+	dropdown.Get("/category", h.mdw.AuthCookieMiddleware(), h.GetCategory)
 }
 
 // @Summary Get all positions
@@ -551,5 +551,57 @@ func (h *DropDownHandler) GetWorkflow(c *fiber.Ctx) error {
 		MessageTH:  "ดึงข้อมูล Workflow สำเร็จ",
 		Status:     "success",
 		Data:       workflows,
+	})
+}
+
+// @Summary Get all categories
+// @Description ใช้สำหรับดึงข้อมูลหมวดหมู่ทั้งหมด
+// @Tags Dropdown
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.BaseResponse{data=[]dto.CategoryDTO}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/category [get]
+func (h *DropDownHandler) GetCategory(c *fiber.Ctx) error {
+
+	categorys, errOnGetCategorys := h.svc.GetCategorys(c.Context())
+	if errOnGetCategorys != nil {
+
+		if errOnGetCategorys == mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "No categories found",
+				MessageTH:  "ไม่สามารถดึงข้อมูลหมวดหมู่ได้",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  errOnGetCategorys.Error(),
+			MessageTH:  "ไม่สามารถดึงข้อมูลหมวดหมู่ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	if len(categorys) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No categories found",
+			MessageTH:  "ไม่พบข้อมูลหมวดหมู่",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get workflows successfully",
+		MessageTH:  "ดึงข้อมูล Workflow สำเร็จ",
+		Status:     "success",
+		Data:       categorys,
 	})
 }
