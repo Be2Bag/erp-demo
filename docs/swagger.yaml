@@ -321,6 +321,18 @@ definitions:
         description: ความกว้าง (ซม.)
         type: number
     type: object
+  dto.CreateSignTypeDTO:
+    properties:
+      name_en:
+        description: ชื่อภาษาอังกฤษ (บังคับ)
+        type: string
+      name_th:
+        description: ชื่อภาษาไทย (บังคับ)
+        type: string
+    required:
+    - name_en
+    - name_th
+    type: object
   dto.CreateTaskRequest:
     properties:
       assignee:
@@ -528,7 +540,7 @@ definitions:
         type: string
       score:
         description: คะแนนที่ให้
-        type: integer
+        type: number
     required:
     - item_id
     - score
@@ -1076,6 +1088,23 @@ definitions:
         description: ความกว้าง (ซม.)
         type: number
     type: object
+  dto.SignTypeDTO:
+    properties:
+      created_at:
+        type: string
+      created_by:
+        type: string
+      deleted_at:
+        type: string
+      name_en:
+        type: string
+      name_th:
+        type: string
+      type_id:
+        type: string
+      updated_at:
+        type: string
+    type: object
   dto.UpdateCategoryDTO:
     properties:
       category_name_en:
@@ -1232,6 +1261,18 @@ definitions:
       width:
         description: ความกว้าง (ซม.)
         type: number
+    type: object
+  dto.UpdateSignTypeDTO:
+    properties:
+      name_en:
+        description: ชื่อภาษาอังกฤษ (บังคับ)
+        type: string
+      name_th:
+        description: ชื่อภาษาไทย (บังคับ)
+        type: string
+    required:
+    - name_en
+    - name_th
     type: object
   dto.UpdateStepStatusNoteRequest:
     properties:
@@ -3233,6 +3274,208 @@ paths:
       summary: List Sign Jobs
       tags:
       - SignJob
+  /v1/sign-type/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a sign type by its ID
+      parameters:
+      - description: Sign Type ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete Sign Type by ID
+      tags:
+      - SignType
+    get:
+      consumes:
+      - application/json
+      description: Get a sign type by its ID
+      parameters:
+      - description: Sign Type ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.SignTypeDTO'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get Sign Type by ID
+      tags:
+      - SignType
+    put:
+      consumes:
+      - application/json
+      description: Update a sign type by its ID
+      parameters:
+      - description: Sign Type ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Sign Type
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateSignTypeDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update Sign Type by ID
+      tags:
+      - SignType
+  /v1/sign-type/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new sign type
+      parameters:
+      - description: Create Sign Type
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSignTypeDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.CreateSignTypeDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create Sign Type
+      tags:
+      - SignType
+  /v1/sign-type/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of sign types
+      parameters:
+      - description: จำนวนรายการต่อหน้า
+        in: query
+        name: limit
+        type: integer
+      - description: หมายเลขหน้าที่ต้องการดึงข้อมูล
+        in: query
+        name: page
+        type: integer
+      - description: คำค้นหาสำหรับกรองข้อมูล
+        in: query
+        name: search
+        type: string
+      - description: คอลัมน์ที่ต้องการเรียงลำดับ
+        in: query
+        name: sortBy
+        type: string
+      - description: ทิศทางการเรียงลำดับ (asc หรือ desc)
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.SignTypeDTO'
+                  type: array
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List Sign Types
+      tags:
+      - SignType
   /v1/tasks/{id}:
     delete:
       consumes:

@@ -2978,6 +2978,325 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/sign-type/create": {
+            "post": {
+                "description": "Create a new sign type",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignType"
+                ],
+                "summary": "Create Sign Type",
+                "parameters": [
+                    {
+                        "description": "Create Sign Type",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateSignTypeDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.CreateSignTypeDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/sign-type/list": {
+            "get": {
+                "description": "Get a list of sign types",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignType"
+                ],
+                "summary": "List Sign Types",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "จำนวนรายการต่อหน้า",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "หมายเลขหน้าที่ต้องการดึงข้อมูล",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "คำค้นหาสำหรับกรองข้อมูล",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "คอลัมน์ที่ต้องการเรียงลำดับ",
+                        "name": "sortBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ทิศทางการเรียงลำดับ (asc หรือ desc)",
+                        "name": "sortOrder",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.SignTypeDTO"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/sign-type/{id}": {
+            "get": {
+                "description": "Get a sign type by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignType"
+                ],
+                "summary": "Get Sign Type by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sign Type ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.SignTypeDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a sign type by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignType"
+                ],
+                "summary": "Update Sign Type by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sign Type ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Sign Type",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateSignTypeDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a sign type by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SignType"
+                ],
+                "summary": "Delete Sign Type by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sign Type ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/tasks/create": {
             "post": {
                 "description": "Create a new task",
@@ -4666,6 +4985,23 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateSignTypeDTO": {
+            "type": "object",
+            "required": [
+                "name_en",
+                "name_th"
+            ],
+            "properties": {
+                "name_en": {
+                    "description": "ชื่อภาษาอังกฤษ (บังคับ)",
+                    "type": "string"
+                },
+                "name_th": {
+                    "description": "ชื่อภาษาไทย (บังคับ)",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateTaskRequest": {
             "type": "object",
             "properties": {
@@ -4968,7 +5304,7 @@ const docTemplate = `{
                 },
                 "score": {
                     "description": "คะแนนที่ให้",
-                    "type": "integer"
+                    "type": "number"
                 }
             }
         },
@@ -5744,6 +6080,32 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.SignTypeDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "name_en": {
+                    "type": "string"
+                },
+                "name_th": {
+                    "type": "string"
+                },
+                "type_id": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.UpdateCategoryDTO": {
             "type": "object",
             "properties": {
@@ -5960,6 +6322,23 @@ const docTemplate = `{
                 "width": {
                     "description": "ความกว้าง (ซม.)",
                     "type": "number"
+                }
+            }
+        },
+        "dto.UpdateSignTypeDTO": {
+            "type": "object",
+            "required": [
+                "name_en",
+                "name_th"
+            ],
+            "properties": {
+                "name_en": {
+                    "description": "ชื่อภาษาอังกฤษ (บังคับ)",
+                    "type": "string"
+                },
+                "name_th": {
+                    "description": "ชื่อภาษาไทย (บังคับ)",
+                    "type": "string"
                 }
             }
         },

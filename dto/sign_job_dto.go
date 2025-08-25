@@ -45,7 +45,7 @@ type CreateSignJobDTO struct { // DTO สำหรับสร้างงาน
 	// CreatedBy string `json:"created_by"` // ผู้สร้าง (อาจให้ระบบตั้ง)
 }
 
-type UpdateSignJobDTO = struct { // DTO สำหรับสร้างงานป้ายใหม่
+type UpdateSignJobDTO struct { // DTO สำหรับสร้างงานป้ายใหม่
 	// ---------- ลูกค้า ----------
 	CompanyName    string `json:"company_name"`     // ชื่อบริษัท (จำเป็น)
 	ContactPerson  string `json:"contact_person"`   // ชื่อผู้ติดต่อ
