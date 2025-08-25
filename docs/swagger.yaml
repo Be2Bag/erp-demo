@@ -851,6 +851,21 @@ definitions:
     - status
     - user_id
     type: object
+  dto.ResponseGetCountUsers:
+    properties:
+      total_approved:
+        description: จำนวนผู้ใช้ที่ได้รับการอนุมัติ
+        type: integer
+      total_pending:
+        description: จำนวนผู้ใช้ที่รอดำเนินการ
+        type: integer
+      total_rejected:
+        description: จำนวนผู้ใช้ที่ถูกปฏิเสธ
+        type: integer
+      total_users:
+        description: จำนวนผู้ใช้ทั้งหมดในระบบ
+        type: integer
+    type: object
   dto.ResponseGetCustomerTypes:
     properties:
       name_en:
@@ -3600,6 +3615,17 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseError500ResponseSwagger'
       summary: Update user by ID
+      tags:
+      - User
+  /v1/user/count:
+    get:
+      description: Get the total number of users in the system
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ResponseGetCountUsers'
+      summary: Count the total number of users
       tags:
       - User
   /v1/user/create:

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"maps"
 	"math"
 	"strings"
 	"time"
@@ -602,4 +603,49 @@ func (s *userService) UpdateDocuments(ctx context.Context, req dto.RequestUpdate
 	}
 
 	return updatedUser, nil
+}
+
+func (s *userService) CountUsers(ctx context.Context) (dto.ResponseGetCountUsers, error) {
+	baseFilter := bson.M{
+		"role":       bson.M{"$ne": "admin"}, // ตัด admin ออก
+		"deleted_at": nil,
+	}
+	projection := bson.M{"_id": 1}
+
+	// --- Total users ---
+	count, err := s.userRepo.GetUserByFilter(ctx, baseFilter, projection)
+	if err != nil {
+		return dto.ResponseGetCountUsers{}, fmt.Errorf("failed to count users: %w", err)
+	}
+
+	// --- Pending ---
+	filterPending := maps.Clone(baseFilter) // ต้อง copy ไม่งั้นจะ reuse filter เดิมแล้วทับค่า
+	filterPending["status"] = "pending"
+	countPending, err := s.userRepo.GetUserByFilter(ctx, filterPending, projection)
+	if err != nil {
+		return dto.ResponseGetCountUsers{}, fmt.Errorf("failed to count pending users: %w", err)
+	}
+
+	// --- Approved ---
+	filterApproved := maps.Clone(baseFilter)
+	filterApproved["status"] = "approved"
+	countApproved, err := s.userRepo.GetUserByFilter(ctx, filterApproved, projection)
+	if err != nil {
+		return dto.ResponseGetCountUsers{}, fmt.Errorf("failed to count approved users: %w", err)
+	}
+
+	// --- Rejected ---
+	filterRejected := maps.Clone(baseFilter)
+	filterRejected["status"] = "rejected"
+	countRejected, err := s.userRepo.GetUserByFilter(ctx, filterRejected, projection)
+	if err != nil {
+		return dto.ResponseGetCountUsers{}, fmt.Errorf("failed to count rejected users: %w", err)
+	}
+
+	return dto.ResponseGetCountUsers{
+		TotalUsers:    int64(len(count)),
+		TotalPending:  int64(len(countPending)),
+		TotalApproved: int64(len(countApproved)),
+		TotalRejected: int64(len(countRejected)),
+	}, nil
 }

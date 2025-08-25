@@ -15,6 +15,7 @@ type UserService interface {
 	UpdateUserByID(ctx context.Context, id string, req dto.RequestUpdateUser) (*models.User, error)
 	DeleteUserByID(ctx context.Context, id string) error
 	UpdateDocuments(ctx context.Context, req dto.RequestUpdateDocuments) (*models.User, error)
+	CountUsers(ctx context.Context) (dto.ResponseGetCountUsers, error)
 }
 type UserRepository interface {
 	Create(ctx context.Context, u *models.User) (*models.User, error)

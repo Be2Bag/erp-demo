@@ -3419,6 +3419,23 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/user/count": {
+            "get": {
+                "description": "Get the total number of users in the system",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Count the total number of users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ResponseGetCountUsers"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/user/create": {
             "post": {
                 "description": "ใช้สำหรับสร้างผู้ใช้ใหม่ โดยจะไม่สามารถสร้างผู้ใช้ที่มีบัตรประชาชนซ้ำได้",
@@ -5411,6 +5428,27 @@ const docTemplate = `{
                 "user_id": {
                     "type": "string",
                     "example": "50f7a957-8c2c-4a76-88ed-7c247471f28f"
+                }
+            }
+        },
+        "dto.ResponseGetCountUsers": {
+            "type": "object",
+            "properties": {
+                "total_approved": {
+                    "description": "จำนวนผู้ใช้ที่ได้รับการอนุมัติ",
+                    "type": "integer"
+                },
+                "total_pending": {
+                    "description": "จำนวนผู้ใช้ที่รอดำเนินการ",
+                    "type": "integer"
+                },
+                "total_rejected": {
+                    "description": "จำนวนผู้ใช้ที่ถูกปฏิเสธ",
+                    "type": "integer"
+                },
+                "total_users": {
+                    "description": "จำนวนผู้ใช้ทั้งหมดในระบบ",
+                    "type": "integer"
                 }
             }
         },

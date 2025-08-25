@@ -35,9 +35,10 @@ func (h *UserHandler) UserRoutes(router fiber.Router) {
 	user := versionOne.Group("user")
 
 	user.Post("/create", h.CreateUser)
+	user.Get("/count", h.mdw.AuthCookieMiddleware(), h.CountUsers)
 	user.Get("/list", h.mdw.AuthCookieMiddleware(), h.GetAllUser)
-	user.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetUserByID)
 	user.Put("/documents", h.mdw.AuthCookieMiddleware(), h.UpdateDocuments)
+	user.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetUserByID)
 	user.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateUserByID)
 	user.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteUserByID)
 
@@ -607,5 +608,32 @@ func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
 		MessageTH:  "อัปเดตเอกสารสำเร็จ",
 		Status:     "success",
 		Data:       url,
+	})
+}
+
+// @Summary Count the total number of users
+// @Description Get the total number of users in the system
+// @Tags User
+// @Success 200 {object} dto.ResponseGetCountUsers
+// @Router /v1/user/count [get]
+func (h *UserHandler) CountUsers(c *fiber.Ctx) error {
+
+	count, err := h.svc.CountUsers(c.Context())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to count users: " + err.Error(),
+			MessageTH:  "ไม่สามารถนับผู้ใช้ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "User count retrieved successfully",
+		MessageTH:  "ดึงข้อมูลจำนวนผู้ใช้สำเร็จ",
+		Status:     "success",
+		Data:       count,
 	})
 }

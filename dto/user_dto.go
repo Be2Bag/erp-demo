@@ -161,3 +161,10 @@ type ResponseGetUserAll struct {
 	UpdatedAt      time.Time  `json:"updated_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่แก้ไขข้อมูลล่าสุด
 	DeletedAt      *time.Time `json:"deleted_at" example:"null"`                              // วันที่ลบข้อมูล (soft delete)
 }
+
+type ResponseGetCountUsers struct {
+	TotalUsers    int64 `json:"total_users"`    // จำนวนผู้ใช้ทั้งหมดในระบบ
+	TotalPending  int64 `json:"total_pending"`  // จำนวนผู้ใช้ที่รอดำเนินการ
+	TotalApproved int64 `json:"total_approved"` // จำนวนผู้ใช้ที่ได้รับการอนุมัติ
+	TotalRejected int64 `json:"total_rejected"` // จำนวนผู้ใช้ที่ถูกปฏิเสธ
+}
