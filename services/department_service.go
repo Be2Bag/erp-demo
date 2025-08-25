@@ -33,6 +33,7 @@ func (s *departmentService) CreateDepartment(ctx context.Context, createDepartme
 	model := models.Department{
 		DepartmentID:   uuid.New().String(),
 		DepartmentName: createDepartment.DepartmentName,
+		ManagerID:      createDepartment.ManagerID,
 		CreatedAt:      now,
 		UpdatedAt:      now,
 	}
