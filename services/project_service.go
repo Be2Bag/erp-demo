@@ -20,10 +20,11 @@ import (
 type projectService struct {
 	config      config.Config
 	projectRepo ports.ProjectRepository
+	userRepo    ports.UserRepository
 }
 
-func NewProjectService(cfg config.Config, projectRepo ports.ProjectRepository) ports.ProjectService {
-	return &projectService{config: cfg, projectRepo: projectRepo}
+func NewProjectService(cfg config.Config, projectRepo ports.ProjectRepository, userRepo ports.UserRepository) ports.ProjectService {
+	return &projectService{config: cfg, projectRepo: projectRepo, userRepo: userRepo}
 }
 
 func (s *projectService) CreateProject(ctx context.Context, createProject dto.CreateProjectDTO, claims *dto.JWTClaims) error {
@@ -62,13 +63,7 @@ func (s *projectService) ListProject(ctx context.Context, claims *dto.JWTClaims,
 		}
 	}
 
-	projection := bson.M{
-		"project_id":   1,
-		"project_name": 1,
-		"created_at":   1,
-		"updated_at":   1,
-		"deleted_at":   1,
-	}
+	projection := bson.M{}
 
 	// sort
 	allowedSortFields := map[string]string{
@@ -98,10 +93,17 @@ func (s *projectService) ListProject(ctx context.Context, claims *dto.JWTClaims,
 
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
+
+		createdByName := "ไม่พบผู้สร้าง"
+		createdBy, _ := s.userRepo.GetByID(ctx, m.CreatedBy)
+		if createdBy != nil {
+			createdByName = fmt.Sprintf("%s %s %s", createdBy.TitleTH, createdBy.FirstNameTH, createdBy.LastNameTH)
+		}
+
 		list = append(list, dto.ProjectDTO{
 			ProjectID:   m.ProjectID,
 			ProjectName: m.ProjectName,
-			CreatedBy:   m.CreatedBy,
+			CreatedBy:   createdByName,
 			CreatedAt:   m.CreatedAt,
 			UpdatedAt:   m.UpdatedAt,
 			DeletedAt:   m.DeletedAt,
@@ -135,10 +137,16 @@ func (s *projectService) GetProjectByID(ctx context.Context, projectID string, c
 		return nil, nil
 	}
 
+	createdByName := "ไม่พบผู้สร้าง"
+	createdBy, _ := s.userRepo.GetByID(ctx, m.CreatedBy)
+	if createdBy != nil {
+		createdByName = fmt.Sprintf("%s %s %s", createdBy.TitleTH, createdBy.FirstNameTH, createdBy.LastNameTH)
+	}
+
 	dtoObj := &dto.ProjectDTO{
 		ProjectID:   m.ProjectID,
 		ProjectName: m.ProjectName,
-		CreatedBy:   m.CreatedBy,
+		CreatedBy:   createdByName,
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,
 		DeletedAt:   m.DeletedAt,

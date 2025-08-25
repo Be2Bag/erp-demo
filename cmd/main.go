@@ -62,6 +62,7 @@ func main() {
 	positionRepo := repositories.NewPositionRepository(database)
 	kpiEvaluationRepo := repositories.NewKPIEvaluationRepository(database)
 	categoryRepo := repositories.NewCategoryRepository(database)
+	signTypeRepo := repositories.NewSignTypeRepository(database)
 
 	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage, taskRepo)
 	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
@@ -72,11 +73,12 @@ func main() {
 	authSvc := services.NewAuthService(*cfg, authRepo, userRepo)
 	workFlowSvc := services.NewWorkflowService(*cfg, workFlowRepo)
 	signJobSvc := services.NewSignJobService(*cfg, signJobRepo, dropDownRepo)
-	projectSvc := services.NewProjectService(*cfg, projectRepo)
+	projectSvc := services.NewProjectService(*cfg, projectRepo, userRepo)
 	departmentSvc := services.NewDepartmentService(*cfg, departmentRepo, userRepo)
 	positionSvc := services.NewPositionService(*cfg, positionRepo)
 	kpiEvaluationSvc := services.NewKPIEvaluationService(*cfg, kpiRepo, userRepo, kpiEvaluationRepo, taskRepo, departmentRepo, projectRepo, signJobRepo)
 	categorySvc := services.NewCategoryService(*cfg, categoryRepo)
+	signTypeSvc := services.NewSignTypeService(*cfg, signTypeRepo, userRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
@@ -92,6 +94,7 @@ func main() {
 	positionHdl := handlers.NewPositionHandler(positionSvc, authCookieMiddleware)
 	kpiEvaluationHdl := handlers.NewKPIEvaluationHandler(kpiEvaluationSvc, authCookieMiddleware)
 	categoryHdl := handlers.NewCategoryHandler(categorySvc, authCookieMiddleware)
+	signTypeHdl := handlers.NewSignTypeHandler(signTypeSvc, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -118,6 +121,7 @@ func main() {
 	positionHdl.PositionRoutes(apiGroup)
 	kpiEvaluationHdl.KPIEvaluationRoutes(apiGroup)
 	categoryHdl.CategoryRoutes(apiGroup)
+	signTypeHdl.SignTypeRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{
