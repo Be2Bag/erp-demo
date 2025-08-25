@@ -142,7 +142,7 @@ func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, eval
 		total := 0
 		for i, sc := range existing.Scores {
 			if r, ok := reqMap[sc.ItemID]; ok {
-				score := r.Score
+				score := int(math.Round(r.Score))
 				if score < 0 {
 					score = 0
 				}
@@ -159,7 +159,7 @@ func (s *kpiEvaluationRepoService) UpdateKPIEvaluation(ctx context.Context, eval
 		if updatedAny {
 			if len(existing.Scores) > 0 {
 				avg := float64(total) / float64(len(existing.Scores))
-				existing.TotalScore = float32(math.Round(avg*100) / 100) // ปัดเป็นทศนิยม 2 ตำแหน่ง
+				existing.TotalScore = float64(math.Round(avg*100) / 100) // ปัดเป็นทศนิยม 2 ตำแหน่ง
 			} else {
 				existing.TotalScore = 0
 			}

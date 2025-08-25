@@ -17,9 +17,9 @@ type UpdateKPIEvaluationRequest struct {
 	Feedback string            `json:"feedback,omitempty"`        // คอมเมนต์รวม (ถ้ามี)
 }
 type KPIScoreRequest struct {
-	ItemID string `json:"item_id" binding:"required"` // อ้างถึง item ใน KPI template
-	Score  int    `json:"score" binding:"required"`   // คะแนนที่ให้
-	Notes  string `json:"notes,omitempty"`            // หมายเหตุเพิ่มเติม (ถ้ามี)
+	ItemID string  `json:"item_id" binding:"required"` // อ้างถึง item ใน KPI template
+	Score  float64 `json:"score" binding:"required"`   // คะแนนที่ให้
+	Notes  string  `json:"notes,omitempty"`            // หมายเหตุเพิ่มเติม (ถ้ามี)
 }
 
 type RequestListKPIEvaluation struct {
@@ -50,7 +50,7 @@ type KPIEvaluationResponse struct {
 	Department     string             `json:"department_id"`
 	DepartmentName string             `json:"department_name"`
 	Scores         []KPIScoreResponse `json:"scores"`
-	TotalScore     float32            `json:"total_score"`
+	TotalScore     float64            `json:"total_score"`
 	IsEvaluated    bool               `json:"is_evaluated"` // ประเมินแล้วหรือยัง
 	Feedback       string             `json:"feedback,omitempty"`
 	FinishedAt     time.Time          `json:"finished_at"`
