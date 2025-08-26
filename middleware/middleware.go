@@ -67,14 +67,17 @@ func GetClaims(c *fiber.Ctx) (*dto.JWTClaims, error) {
 
 func (m *Middleware) TimeoutMiddleware(d time.Duration) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		ctx, cancel := context.WithTimeout(c.Context(), d)
+		// BUG (เดิม): ใช้ c.Context() ซึ่งเป็น *fasthttp.RequestCtx ไม่ใช่ context.Context -> ทำให้ compile ผิด/ทำงานไม่ถูกต้อง
+		parentCtx := c.UserContext()
+		ctx, cancel := context.WithTimeout(parentCtx, d)
 		defer cancel()
 
 		c.SetUserContext(ctx)
 
 		err := c.Next()
 
-		if ctx.Err() != nil {
+		// หาก handler ใช้ ctx จาก c.UserContext() จะโดน timeout ได้ถูกต้อง
+		if ctx.Err() == context.DeadlineExceeded {
 			return c.Status(fiber.StatusRequestTimeout).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusRequestTimeout,
 				MessageEN:  "Request timed out",
@@ -83,7 +86,6 @@ func (m *Middleware) TimeoutMiddleware(d time.Duration) fiber.Handler {
 				Data:       nil,
 			})
 		}
-
 		return err
 	}
 }
