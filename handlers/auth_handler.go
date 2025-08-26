@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"strings"
 	"time"
 
 	"github.com/Be2Bag/erp-demo/dto"
@@ -86,7 +87,8 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 
 	}
 
-	util.SetSessionCookie(c, "auth_token", token, 50000*time.Second) // 5 minutes expiration
+	// ตั้งอายุคุกกี้ 30 วัน
+	util.SetSessionCookie(c, "auth_token", token, 30*24*time.Hour)
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
@@ -120,8 +122,8 @@ func (h *AuthHandler) GetSessions(c *fiber.Ctx) error {
 
 	claims, err := h.svc.GetSessions(c.Context(), cookie)
 	if err != nil {
-
-		if err.Error() == "Token is expired" {
+		lower := strings.ToLower(err.Error())
+		if strings.Contains(lower, "token expired") {
 			return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusUnauthorized,
 				MessageEN:  "Token expired",
@@ -130,7 +132,6 @@ func (h *AuthHandler) GetSessions(c *fiber.Ctx) error {
 				Data:       nil,
 			})
 		}
-
 		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusUnauthorized,
 			MessageEN:  "Invalid token",
@@ -259,7 +260,8 @@ func (h *AuthHandler) ConfirmResetPassword(c *fiber.Ctx) error {
 
 	err := h.svc.ConfirmResetPassword(c.Context(), req)
 	if err != nil {
-		if err.Error() == "Token is expired" || err.Error() == "invalid token" {
+		lower := strings.ToLower(err.Error())
+		if strings.Contains(lower, "token expired") || strings.Contains(lower, "invalid token") {
 			return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusUnauthorized,
 				MessageEN:  "Invalid or expired token",

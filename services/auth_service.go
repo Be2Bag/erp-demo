@@ -47,7 +47,8 @@ func (s *authService) Login(ctx context.Context, user dto.RequestLogin) (string,
 	if errOnGetUserData != nil {
 		return "", errOnGetUserData
 	}
-	if userData == nil {
+	// ตรวจสอบความยาว slice ป้องกัน panic จากการเข้าถึง index 0 เมื่อไม่มีข้อมูล
+	if len(userData) == 0 {
 		return "", mongo.ErrNoDocuments
 	}
 
