@@ -28,28 +28,30 @@ func (r *signJobRepo) CreateSignJob(ctx context.Context, signJob models.SignJob)
 func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, update models.SignJob) (*models.SignJob, error) {
 	filter := bson.M{"job_id": jobID}
 	set := bson.M{
-		"company_name":     update.CompanyName,
-		"contact_person":   update.ContactPerson,
-		"phone":            update.Phone,
-		"email":            update.Email,
-		"customer_type_id": update.CustomerTypeID,
-		"address":          update.Address,
-		"project_name":     update.ProjectName,
-		"job_name":         update.JobName,
-		"sign_type_id":     update.SignTypeID,
-		"width":            update.Width,
-		"height":           update.Height,
-		"quantity":         update.Quantity,
-		"price_thb":        update.PriceTHB,
-		"content":          update.Content,
-		"main_color":       update.MainColor,
-		"payment_method":   update.PaymentMethod,
-		"production_time":  update.ProductionTime,
-		"design_option":    update.DesignOption,
-		"install_option":   update.InstallOption,
-		"notes":            update.Notes,
-		"status":           update.Status,
-		"updated_at":       update.UpdatedAt,
+		"company_name":       update.CompanyName,
+		"contact_person":     update.ContactPerson,
+		"phone":              update.Phone,
+		"email":              update.Email,
+		"customer_type_id":   update.CustomerTypeID,
+		"address":            update.Address,
+		"project_name":       update.ProjectName,
+		"job_name":           update.JobName,
+		"sign_type_id":       update.SignTypeID,
+		"width":              update.Width,
+		"height":             update.Height,
+		"quantity":           update.Quantity,
+		"price_thb":          update.PriceTHB,
+		"deposit_amount":     update.DepositAmount,
+		"outstanding_amount": update.OutstandingAmount,
+		"content":            update.Content,
+		"main_color":         update.MainColor,
+		"payment_method":     update.PaymentMethod,
+		"production_time":    update.ProductionTime,
+		"design_option":      update.DesignOption,
+		"install_option":     update.InstallOption,
+		"notes":              update.Notes,
+		"status":             update.Status,
+		"updated_at":         update.UpdatedAt,
 	}
 	if !update.DueDate.IsZero() {
 		set["due_date"] = update.DueDate
@@ -66,7 +68,7 @@ func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, up
 }
 
 func (r *signJobRepo) SoftDeleteSignJobByJobID(ctx context.Context, jobID string) error {
-	_, err := r.coll.UpdateOne(ctx, bson.M{"job_id": jobID}, bson.M{"$set": bson.M{"deleted_at": time.Now()}})
+	_, err := r.coll.UpdateOne(ctx, bson.M{"job_id": jobID}, bson.M{"$set": bson.M{"deleted_at": time.Now(), "updated_at": time.Now()}})
 	return err
 }
 

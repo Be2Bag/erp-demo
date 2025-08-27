@@ -150,7 +150,8 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 			return dto.Pagination{}, errOnGetSignTypes
 		}
 
-		if signTypes != nil {
+		// avoid panic when slice is empty (len==0 but slice not nil)
+		if len(signTypes) > 0 {
 			SignTypeName = signTypes[0].NameTH
 		}
 
@@ -225,7 +226,7 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 		return nil, errOnGetSignTypes
 	}
 
-	if signTypes != nil {
+	if len(signTypes) > 0 { // prevent potential panic when empty slice returned
 		SignTypeName = signTypes[0].NameTH
 	}
 
@@ -364,7 +365,8 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		existing.OutstandingAmount = update.OutstandingAmount
 	}
 
-	if existing.Status != "" {
+	// update status only when a new status is provided (was previously checking existing.Status)
+	if update.Status != "" {
 		existing.Status = update.Status
 	}
 
