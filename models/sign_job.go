@@ -2,16 +2,13 @@ package models
 
 import (
 	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 const CollectionSignJobs = "sign_jobs"
 
 type SignJob struct {
 	// ---------- Keys ----------
-	ID    primitive.ObjectID `bson:"_id" json:"_id"`       // ObjectId
-	JobID string             `bson:"job_id" json:"job_id"` // UUID/รหัสงาน (unique)
+	JobID string `bson:"job_id" json:"job_id"` // UUID/รหัสงาน (unique)
 
 	// ---------- Customer ----------
 	CompanyName    string `bson:"company_name" json:"company_name"`         // ชื่อบริษัท
