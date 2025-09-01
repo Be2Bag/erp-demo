@@ -368,9 +368,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		existing.OutstandingAmount = update.OutstandingAmount
 	}
 
-	if update.IsDeposit {
-		existing.IsDeposit = update.IsDeposit
-	}
+	existing.IsDeposit = update.IsDeposit
 
 	// update status only when a new status is provided (was previously checking existing.Status)
 	if update.Status != "" {
