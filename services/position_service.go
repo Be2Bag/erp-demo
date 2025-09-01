@@ -21,10 +21,11 @@ type positionService struct {
 	config         config.Config
 	positionRepo   ports.PositionRepository
 	departmentRepo ports.DepartmentRepository
+	userRepo       ports.UserRepository
 }
 
-func NewPositionService(cfg config.Config, positionRepo ports.PositionRepository, departmentRepo ports.DepartmentRepository) ports.PositionService {
-	return &positionService{config: cfg, positionRepo: positionRepo, departmentRepo: departmentRepo}
+func NewPositionService(cfg config.Config, positionRepo ports.PositionRepository, departmentRepo ports.DepartmentRepository, userRepo ports.UserRepository) ports.PositionService {
+	return &positionService{config: cfg, positionRepo: positionRepo, departmentRepo: departmentRepo, userRepo: userRepo}
 }
 
 func (s *positionService) CreatePosition(ctx context.Context, createPosition dto.CreatePositionDTO, claims *dto.JWTClaims) error {
@@ -168,7 +169,10 @@ func (s *positionService) GetPositionList(ctx context.Context, claims *dto.JWTCl
 		manager, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.DepartmentID, "deleted_at": nil}, bson.M{})
 
 		if manager != nil {
-			managerName = manager.DepartmentName
+			user, _ := s.userRepo.GetByID(ctx, manager.ManagerID)
+			if user != nil {
+				managerName = user.TitleTH + user.FirstNameTH + " " + user.LastNameTH
+			}
 		}
 
 		list = append(list, dto.PositionDTO{
