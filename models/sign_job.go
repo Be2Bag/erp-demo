@@ -34,6 +34,7 @@ type SignJob struct {
 
 	// ---------- Payment ----------
 	PaymentMethod string `bson:"payment_method" json:"payment_method"` // deposit|cash|transfer|credit
+	IsDeposit     bool   `bson:"is_deposit" json:"is_deposit"`         // ใช้เงินมัดจำหรือไม่
 
 	// ---------- Production / Timeline ----------
 	ProductionTime string    `bson:"production_time" json:"production_time"` // เช่น "5 วัน"

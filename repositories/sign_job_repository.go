@@ -46,6 +46,7 @@ func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, up
 		"content":            update.Content,
 		"main_color":         update.MainColor,
 		"payment_method":     update.PaymentMethod,
+		"is_deposit":         update.IsDeposit,
 		"production_time":    update.ProductionTime,
 		"design_option":      update.DesignOption,
 		"install_option":     update.InstallOption,

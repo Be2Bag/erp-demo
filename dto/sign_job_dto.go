@@ -27,7 +27,8 @@ type CreateSignJobDTO struct { // DTO สำหรับสร้างงาน
 	MainColor         string  `json:"main_color"`         // สีหลัก
 
 	// ---------- การชำระเงิน ----------
-	PaymentMethod string `json:"payment_method"` // วิธีชำระเงิน: deposit|cash|transfer|credit
+	PaymentMethod string `json:"payment_method"` // วิธีชำระเงิน: cash|transfer|credit
+	IsDeposit     bool   `json:"is_deposit"`     // ใช้เงินมัดจำหรือไม่
 
 	// ---------- การผลิต / ไทม์ไลน์ ----------
 	ProductionTime string `json:"production_time"` // ระยะเวลาผลิต เช่น "5 วัน"
@@ -70,6 +71,7 @@ type UpdateSignJobDTO struct { // DTO สำหรับสร้างงาน
 
 	// ---------- การชำระเงิน ----------
 	PaymentMethod string `json:"payment_method"` // วิธีชำระเงิน: deposit|cash|transfer|credit
+	IsDeposit     bool   `json:"is_deposit"`     // ใช้เงินมัดจำหรือไม่
 
 	// ---------- การผลิต / ไทม์ไลน์ ----------
 	ProductionTime string `json:"production_time"` // ระยะเวลาผลิต เช่น "5 วัน"
@@ -125,7 +127,7 @@ type SignJobDTO struct { // DTO สำหรับส่งกลับให้
 
 	// ---------- การชำระเงิน ----------
 	PaymentMethod string `json:"payment_method"` // วิธีชำระเงิน
-
+	IsDeposit     bool   `json:"is_deposit"`     // ใช้เงินมัดจำหรือไม่
 	// ---------- การผลิต / ไทม์ไลน์ ----------
 	ProductionTime string    `json:"production_time"` // ระยะเวลาผลิต
 	DueDate        time.Time `json:"due_date"`        // กำหนดส่ง

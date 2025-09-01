@@ -61,6 +61,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 		MainColor:         signJob.MainColor,
 
 		PaymentMethod:  signJob.PaymentMethod,
+		IsDeposit:      signJob.IsDeposit,
 		ProductionTime: signJob.ProductionTime,
 		DueDate:        due,
 
@@ -177,6 +178,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 			Content:           m.Content,
 			MainColor:         m.MainColor,
 			PaymentMethod:     m.PaymentMethod,
+			IsDeposit:         m.IsDeposit,
 			ProductionTime:    m.ProductionTime,
 			DueDate:           m.DueDate,
 			DesignOption:      m.DesignOption,
@@ -255,6 +257,7 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 		MainColor:         m.MainColor,
 		// ---------- การชำระเงิน ----------
 		PaymentMethod: m.PaymentMethod,
+		IsDeposit:     m.IsDeposit,
 		// ---------- การผลิต / ไทม์ไลน์ ----------
 		ProductionTime: m.ProductionTime,
 		DueDate:        m.DueDate,
@@ -363,6 +366,10 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	}
 	if update.OutstandingAmount > 0 {
 		existing.OutstandingAmount = update.OutstandingAmount
+	}
+
+	if update.IsDeposit {
+		existing.IsDeposit = update.IsDeposit
 	}
 
 	// update status only when a new status is provided (was previously checking existing.Status)
