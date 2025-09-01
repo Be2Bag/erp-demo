@@ -27,6 +27,7 @@ type RequestListPosition struct {
 // ---------- Response DTO ----------
 type PositionDTO struct {
 	PositionID   string    `json:"position_id"`   // รหัสตำแหน่งงาน (ไม่ซ้ำกัน)
+	ManagerName  string    `json:"manager_name"`  // ชื่อผู้จัดการ
 	DepartmentID string    `json:"department_id"` // รหัสแผนก (FK ไปยัง Department)
 	PositionName string    `json:"position_name"` // ชื่อตำแหน่งงาน
 	Level        string    `json:"level"`         // ระดับของตำแหน่งงาน

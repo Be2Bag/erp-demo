@@ -333,6 +333,11 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 			}
 		}
 
+		note := ""
+		if u.Note != nil {
+			note = *u.Note
+		}
+
 		dtoUsers = append(dtoUsers, &dto.ResponseGetUserAll{
 			UserID:         u.UserID,
 			TitleTH:        u.TitleTH,
@@ -353,6 +358,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 			KPIScore:       tasksKPIScore,
 			TasksCompleted: tasksCompleted,
 			TasksTotal:     tasksTotal,
+			Note:           note,
 			CreatedAt:      u.CreatedAt,
 			UpdatedAt:      u.UpdatedAt,
 			DeletedAt:      u.DeletedAt,

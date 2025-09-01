@@ -75,7 +75,7 @@ func main() {
 	signJobSvc := services.NewSignJobService(*cfg, signJobRepo, dropDownRepo)
 	projectSvc := services.NewProjectService(*cfg, projectRepo, userRepo)
 	departmentSvc := services.NewDepartmentService(*cfg, departmentRepo, userRepo)
-	positionSvc := services.NewPositionService(*cfg, positionRepo)
+	positionSvc := services.NewPositionService(*cfg, positionRepo, departmentRepo)
 	kpiEvaluationSvc := services.NewKPIEvaluationService(*cfg, kpiRepo, userRepo, kpiEvaluationRepo, taskRepo, departmentRepo, projectRepo, signJobRepo)
 	categorySvc := services.NewCategoryService(*cfg, categoryRepo)
 	signTypeSvc := services.NewSignTypeService(*cfg, signTypeRepo, userRepo)

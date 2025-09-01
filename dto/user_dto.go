@@ -157,6 +157,7 @@ type ResponseGetUserAll struct {
 	DepartmentID   string     `json:"department_id"  example:" "`                             // รหัสแผนก (FK ไปยัง Departments)
 	DepartmentName string     `json:"department_name" example:"DEP001"`                       // รหัสแผนก (FK ไปยัง Departments)
 	Role           string     `json:"role" example:"admin"`                                   // บทบาทหรือสิทธิ์ของผู้ใช้ในระบบ (เช่น admin, user)
+	Note           string     `json:"note" example:"พนักงานดีเด่นประจำเดือน"`                 // หมายเหตุเกี่ยวกับผู้ใช้ (ถ้ามี)
 	CreatedAt      time.Time  `json:"created_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่สร้างข้อมูลนี้
 	UpdatedAt      time.Time  `json:"updated_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่แก้ไขข้อมูลล่าสุด
 	DeletedAt      *time.Time `json:"deleted_at" example:"null"`                              // วันที่ลบข้อมูล (soft delete)

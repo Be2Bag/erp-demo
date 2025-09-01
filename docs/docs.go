@@ -5438,6 +5438,10 @@ const docTemplate = `{
                     "description": "ระดับของตำแหน่งงาน",
                     "type": "string"
                 },
+                "manager_name": {
+                    "description": "ชื่อผู้จัดการ",
+                    "type": "string"
+                },
                 "position_id": {
                     "description": "รหัสตำแหน่งงาน (ไม่ซ้ำกัน)",
                     "type": "string"

@@ -18,12 +18,13 @@ import (
 )
 
 type positionService struct {
-	config       config.Config
-	positionRepo ports.PositionRepository
+	config         config.Config
+	positionRepo   ports.PositionRepository
+	departmentRepo ports.DepartmentRepository
 }
 
-func NewPositionService(cfg config.Config, positionRepo ports.PositionRepository) ports.PositionService {
-	return &positionService{config: cfg, positionRepo: positionRepo}
+func NewPositionService(cfg config.Config, positionRepo ports.PositionRepository, departmentRepo ports.DepartmentRepository) ports.PositionService {
+	return &positionService{config: cfg, positionRepo: positionRepo, departmentRepo: departmentRepo}
 }
 
 func (s *positionService) CreatePosition(ctx context.Context, createPosition dto.CreatePositionDTO, claims *dto.JWTClaims) error {
@@ -162,8 +163,17 @@ func (s *positionService) GetPositionList(ctx context.Context, claims *dto.JWTCl
 
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
+
+		managerName := ""
+		manager, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.DepartmentID, "deleted_at": nil}, bson.M{})
+
+		if manager != nil {
+			managerName = manager.DepartmentName
+		}
+
 		list = append(list, dto.PositionDTO{
 			PositionID:   m.PositionID,
+			ManagerName:  managerName,
 			DepartmentID: m.DepartmentID,
 			PositionName: m.PositionName,
 			Level:        m.Level,
