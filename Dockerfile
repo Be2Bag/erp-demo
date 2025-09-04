@@ -16,5 +16,5 @@ RUN addgroup -S app && adduser -S app -G app \
 USER app
 WORKDIR /home/app
 COPY --from=builder /bin/app /home/app/app
-EXPOSE 5000
+EXPOSE 3000
 ENTRYPOINT ["/home/app/app"]
