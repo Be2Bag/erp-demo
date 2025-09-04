@@ -130,5 +130,5 @@ func main() {
 	}))
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
-	log.Fatal(app.Listen(":5000"))
+	log.Fatal(app.Listen(":3000"))
 }
