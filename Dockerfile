@@ -1,5 +1,5 @@
 # ---------- Build stage ----------
-FROM golang:1.22-bookworm AS builder
+FROM golang:1.23-bookworm AS builder
 WORKDIR /app
 ENV CGO_ENABLED=0 GO111MODULE=on
 COPY go.mod go.sum ./
