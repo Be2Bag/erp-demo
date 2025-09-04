@@ -4931,6 +4931,10 @@ const docTemplate = `{
                     "description": "ตัวเลือกติดตั้ง: none|self|shop",
                     "type": "string"
                 },
+                "is_deposit": {
+                    "description": "ใช้เงินมัดจำหรือไม่",
+                    "type": "boolean"
+                },
                 "job_name": {
                     "description": "ชื่องาน (จำเป็น)",
                     "type": "string"
@@ -6014,6 +6018,10 @@ const docTemplate = `{
                     "description": "ตัวเลือกติดตั้ง",
                     "type": "string"
                 },
+                "is_deposit": {
+                    "description": "ใช้เงินมัดจำหรือไม่",
+                    "type": "boolean"
+                },
                 "job_id": {
                     "description": "---------- คีย์ ----------",
                     "type": "string"
@@ -6271,6 +6279,10 @@ const docTemplate = `{
                     "description": "ตัวเลือกติดตั้ง: none|self|shop",
                     "type": "string"
                 },
+                "is_deposit": {
+                    "description": "ใช้เงินมัดจำหรือไม่",
+                    "type": "boolean"
+                },
                 "job_name": {
                     "description": "ชื่องาน (จำเป็น)",
                     "type": "string"
@@ -6510,7 +6522,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "api.rkp-media.com",
+	Host:             "api.dev.rkp-media.com",
 	BasePath:         "/service/api",
 	Schemes:          []string{},
 	Title:            "ERP Demo API",

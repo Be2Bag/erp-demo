@@ -281,6 +281,9 @@ definitions:
       install_option:
         description: 'ตัวเลือกติดตั้ง: none|self|shop'
         type: string
+      is_deposit:
+        description: ใช้เงินมัดจำหรือไม่
+        type: boolean
       job_name:
         description: ชื่องาน (จำเป็น)
         type: string
@@ -1039,6 +1042,9 @@ definitions:
       install_option:
         description: ตัวเลือกติดตั้ง
         type: string
+      is_deposit:
+        description: ใช้เงินมัดจำหรือไม่
+        type: boolean
       job_id:
         description: '---------- คีย์ ----------'
         type: string
@@ -1222,6 +1228,9 @@ definitions:
       install_option:
         description: 'ตัวเลือกติดตั้ง: none|self|shop'
         type: string
+      is_deposit:
+        description: ใช้เงินมัดจำหรือไม่
+        type: boolean
       job_name:
         description: ชื่องาน (จำเป็น)
         type: string
@@ -1383,7 +1392,7 @@ definitions:
         description: ชื่อ Template
         type: string
     type: object
-host: api.rkp-media.com
+host: api.dev.rkp-media.com
 info:
   contact: {}
   description: This is an ERP API demo.
