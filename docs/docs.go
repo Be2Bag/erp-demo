@@ -3398,6 +3398,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "สถานะ (todo|done|in_progress) (ค่าเริ่มต้น: todo, in_progress)",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "เรียงตาม created_at updated_at project_name job_name  (ค่าเริ่มต้น: created_at)",
                         "name": "sort_by",
                         "in": "query"
