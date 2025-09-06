@@ -297,6 +297,19 @@ func (s *taskService) CreateTask(ctx context.Context, createTask dto.CreateTaskR
 		curStepName = steps[len(steps)-1].StepName
 	}
 
+	assigneeName := "ไม่พบชื่อผู้รับผิดชอบ"
+	assigneeNickName := "ไม่พบชื่อเล่น"
+
+	getUsers, err := s.userRepo.GetByID(ctx, createTask.Assignee)
+	if err != nil {
+		return err
+	}
+
+	if getUsers != nil {
+		assigneeName = fmt.Sprintf("%s %s %s", getUsers.TitleTH, getUsers.FirstNameTH, getUsers.LastNameTH)
+		assigneeNickName = getUsers.NickName
+	}
+
 	model := models.Tasks{
 		TaskID:      uuid.New().String(),
 		ProjectID:   createTask.ProjectID,
@@ -307,8 +320,8 @@ func (s *taskService) CreateTask(ctx context.Context, createTask dto.CreateTaskR
 
 		Department:       createTask.Department,
 		Assignee:         createTask.Assignee,
-		AssigneeName:     createTask.AssigneeName,
-		AssigneeNickName: createTask.AssigneeNickName,
+		AssigneeName:     assigneeName,
+		AssigneeNickName: assigneeNickName,
 		Importance:       createTask.Importance,
 		StartDate:        start,
 		EndDate:          end,
