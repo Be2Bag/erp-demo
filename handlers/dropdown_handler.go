@@ -24,6 +24,7 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 
 	dropdown.Get("/department", h.GetDepartment)
 	dropdown.Get("/project", h.mdw.AuthCookieMiddleware(), h.GetProject)
+	dropdown.Get("/user", h.mdw.AuthCookieMiddleware(), h.GetUserAll)
 	dropdown.Get("/user/:id", h.mdw.AuthCookieMiddleware(), h.GetUser)
 	dropdown.Get("/province", h.GetProvince)
 	dropdown.Get("/sign-type", h.GetSignType)
@@ -606,5 +607,46 @@ func (h *DropDownHandler) GetCategory(c *fiber.Ctx) error {
 		MessageTH:  "ดึงข้อมูล Workflow สำเร็จ",
 		Status:     "success",
 		Data:       categorys,
+	})
+}
+
+// @Summary Get all users
+// @Description ใช้สำหรับดึงข้อมูลผู้ใช้ทั้งหมด
+// @Tags Dropdown
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetUsers}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/user [get]
+func (h *DropDownHandler) GetUserAll(c *fiber.Ctx) error {
+
+	users, errOnGetUsers := h.svc.GetUserListAll(c.Context())
+	if errOnGetUsers != nil {
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  fiber.ErrBadGateway.Message,
+			MessageTH:  "ไม่สามารถดึงข้อมูลผู้ใช้ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	if len(users) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No users found",
+			MessageTH:  "ไม่พบข้อมูลผู้ใช้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get users successfully",
+		MessageTH:  "ดึงข้อมูลผู้ใช้สำเร็จ",
+		Status:     "success",
+		Data:       users,
 	})
 }

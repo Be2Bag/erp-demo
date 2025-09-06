@@ -2345,6 +2345,36 @@ paths:
       summary: Get all sub-districts by district ID
       tags:
       - Dropdown
+  /v1/dropdown/user:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลผู้ใช้ทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetUsers'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all users
+      tags:
+      - Dropdown
   /v1/dropdown/user/{id}:
     get:
       consumes:

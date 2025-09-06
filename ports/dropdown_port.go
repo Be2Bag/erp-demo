@@ -21,6 +21,7 @@ type DropDownService interface {
 	GetKPI(ctx context.Context, departmentID string) ([]dto.ResponseGetKPI, error)
 	GetWorkflows(ctx context.Context, departmentID string) ([]dto.ResponseGetWorkflows, error)
 	GetCategorys(ctx context.Context) ([]dto.ResponseGetCategorys, error)
+	GetUserListAll(ctx context.Context) ([]dto.ResponseGetUsers, error)
 }
 
 type DropDownRepository interface {

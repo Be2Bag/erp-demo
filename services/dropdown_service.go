@@ -349,3 +349,33 @@ func (s *dropDownService) GetCategorys(ctx context.Context) ([]dto.ResponseGetCa
 
 	return response, nil
 }
+
+func (s *dropDownService) GetUserListAll(ctx context.Context) ([]dto.ResponseGetUsers, error) {
+	filter := bson.M{"deleted_at": nil}
+	projection := bson.M{
+		"user_id":       1,
+		"title_th":      1,
+		"first_name_th": 1,
+		"last_name_th":  1,
+		"full_name_th":  1,
+	}
+
+	users, errOnGetUsers := s.dropDownRepo.GetUsersList(ctx, filter, projection)
+	if errOnGetUsers != nil {
+		return nil, errOnGetUsers
+	}
+
+	if len(users) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetUsers
+	for _, user := range users {
+		response = append(response, dto.ResponseGetUsers{
+			UserID:     user.UserID,
+			FullNameTH: fmt.Sprintf("%s %s %s", user.TitleTH, user.FirstNameTH, user.LastNameTH),
+		})
+	}
+
+	return response, nil
+}
