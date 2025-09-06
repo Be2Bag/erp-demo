@@ -424,7 +424,7 @@ func (s *signJobService) VerifySignJob(ctx context.Context, jobID string, claims
 	if len(task) > 0 {
 		for _, t := range task {
 			if t.Status != "done" {
-				return fmt.Errorf("ไม่สามารถยืนยันงานได้ เนื่องจากมีงานที่กำลังดำเนินการอยู่ในระบบ")
+				return fmt.Errorf("can not verify")
 			}
 		}
 
@@ -445,7 +445,7 @@ func (s *signJobService) VerifySignJob(ctx context.Context, jobID string, claims
 			return mongo.ErrNoDocuments
 		}
 	} else {
-		return fmt.Errorf("ไม่พบงานใดๆ ที่จัดการงานของใบงานนี้")
+		return fmt.Errorf("no tasks found for this job")
 	}
 
 	return nil

@@ -333,10 +333,29 @@ func (h *SignJobHandler) VerifySignJob(c *fiber.Ctx) error {
 	jobID := c.Params("id")
 	err = h.svc.VerifySignJob(c.Context(), jobID, claims)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to verify" + err.Error(),
-			MessageTH:  "ไม่สามารถตรวจสอบได้",
+
+		statusCode := fiber.StatusOK
+		MsgEN := "Failed to verify"
+		MsgTH := "ส่งงานไม่สำเร็จ"
+
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			statusCode = fiber.StatusNotFound
+			MsgEN = "Sign job not found"
+			MsgTH = "ไม่ใบพบงาน"
+		} else if err.Error() == "can not verify " {
+			statusCode = fiber.StatusBadRequest
+			MsgEN = err.Error()
+			MsgTH = "ไม่สามารถยืนยันงานได้ เนื่องจากมีงานที่กำลังดำเนินการอยู่ในระบบ"
+		} else if err.Error() == "no tasks found for this job" {
+			statusCode = fiber.StatusBadRequest
+			MsgEN = err.Error()
+			MsgTH = "ไม่พบงานใดๆ ที่จัดการงานของใบงานนี้"
+		}
+
+		return c.Status(statusCode).JSON(dto.BaseResponse{
+			StatusCode: statusCode,
+			MessageEN:  MsgEN,
+			MessageTH:  MsgTH,
 			Status:     "error",
 			Data:       nil,
 		})
