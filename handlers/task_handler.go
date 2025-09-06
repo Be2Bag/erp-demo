@@ -68,7 +68,7 @@ func (h *TaskHandler) GetListTasks(c *fiber.Ctx) error {
 		})
 	}
 
-	var req dto.RequestListWorkflow
+	var req dto.RequestListTask
 	if err := c.QueryParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
@@ -86,7 +86,7 @@ func (h *TaskHandler) GetListTasks(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	tasks, errOnGetTasks := h.svc.GetListTasks(c.Context(), claims, req.Page, req.Limit, req.Search, req.Department, req.SortBy, req.SortOrder)
+	tasks, errOnGetTasks := h.svc.GetListTasks(c.Context(), claims, req.Page, req.Limit, req.Search, req.Department, req.SortBy, req.SortOrder, req.Status)
 	if errOnGetTasks != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,

@@ -35,7 +35,7 @@ func NewTaskService(cfg config.Config, taskRepo ports.TaskRepository, userRepo p
 	return &taskService{config: cfg, taskRepo: taskRepo, userRepo: userRepo, workflowRepo: workflowRepo, departmentRepo: departmentRepo, kpiEvaluationRepo: kpiEvaluationRepo, kpiRepo: kpiRepo, signJobRepo: signJobRepo}
 }
 
-func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error) {
+func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string, status string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
@@ -46,6 +46,13 @@ func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, p
 	department = strings.TrimSpace(department)
 	if department != "" {
 		filter["department_id"] = department
+	}
+
+	status = strings.TrimSpace(status)
+	if status != "" {
+		filter["status"] = status
+	} else {
+		filter["status"] = bson.M{"$in": []string{"todo", "in_progress"}}
 	}
 
 	search = strings.TrimSpace(search)
