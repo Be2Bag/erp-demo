@@ -92,6 +92,16 @@ func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, p
 
 		departmentsName := "ไม่พบแผนก"
 		createdByName := "ไม่พบผู้สร้าง"
+		width := 0.0
+		height := 0.0
+		quantity := 0
+
+		signJob, _ := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": m.JobID, "deleted_at": nil}, bson.M{"_id": 0, "width": 1, "height": 1, "quantity": 1})
+		if signJob != nil {
+			width = signJob.Width
+			height = signJob.Height
+			quantity = signJob.Quantity
+		}
 
 		createdBy, _ := s.userRepo.GetByID(ctx, m.CreatedBy)
 
@@ -127,6 +137,10 @@ func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, p
 			JobID:       m.JobID,
 			JobName:     m.JobName,
 			Description: m.Description,
+
+			Width:    width,
+			Height:   height,
+			Quantity: quantity,
 
 			Department:       m.Department,
 			DepartmentName:   departmentsName,
@@ -398,7 +412,7 @@ func (s *taskService) GetTaskByID(ctx context.Context, taskID string) (*dto.Task
 
 	departments, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.Department, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1})
 
-	signJob, _ := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": m.JobID, "deleted_at": nil}, nil)
+	signJob, _ := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": m.JobID, "deleted_at": nil}, bson.M{"_id": 0, "width": 1, "height": 1, "quantity": 1})
 	if signJob != nil {
 		width = signJob.Width
 		height = signJob.Height

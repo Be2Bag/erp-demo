@@ -5012,6 +5012,14 @@ const docTemplate = `{
                 "assignee": {
                     "type": "string"
                 },
+                "assignee_name": {
+                    "description": "ชื่อผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)",
+                    "type": "string"
+                },
+                "assignee_nickname": {
+                    "description": "ชื่อเล่นผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)",
+                    "type": "string"
+                },
                 "department_id": {
                     "type": "string"
                 },
@@ -5698,6 +5706,10 @@ const docTemplate = `{
                 },
                 "last_name_th": {
                     "description": "นามสกุลของพนักงาน",
+                    "type": "string"
+                },
+                "nickname": {
+                    "description": "ชื่อเล่นของพนักงาน",
                     "type": "string"
                 },
                 "phone": {
