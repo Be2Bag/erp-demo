@@ -70,7 +70,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 		InstallOption: signJob.InstallOption,
 		Notes:         signJob.Notes,
 
-		Status:    "DPT001",
+		Status:    "in_progress",
 		CreatedBy: claims.UserID,
 		CreatedAt: now,
 		UpdatedAt: now,
