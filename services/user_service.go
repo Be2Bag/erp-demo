@@ -387,6 +387,9 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 }
 
 func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.RequestUpdateUser) (*models.User, error) {
+
+	isEditName := false
+
 	user, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
@@ -435,15 +438,18 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 	}
 	if req.TitleTH != "" {
 		user.TitleTH = req.TitleTH
+		isEditName = true
 	}
 	if req.TitleEN != "" {
 		user.TitleEN = req.TitleEN
 	}
 	if req.FirstNameTH != "" {
 		user.FirstNameTH = req.FirstNameTH
+		isEditName = true
 	}
 	if req.LastNameTH != "" {
 		user.LastNameTH = req.LastNameTH
+		isEditName = true
 	}
 	if req.FirstNameEN != "" {
 		user.FirstNameEN = req.FirstNameEN
@@ -453,6 +459,7 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 	}
 	if req.NickName != "" {
 		user.NickName = req.NickName
+		isEditName = true
 	}
 	if req.IDCard != "" {
 		user.IDCard = req.IDCard
@@ -519,6 +526,16 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 			return nil, mongo.ErrNoDocuments
 		}
 		return nil, errOnUpdateUserByID
+	}
+
+	if isEditName {
+		filterTask := bson.M{"assignee": user.UserID}
+		partialTaskUpdate := bson.M{"assignee_name": user.TitleTH + " " + user.FirstNameTH + " " + user.LastNameTH, "assignee_nickname": user.NickName}
+
+		_, errOnUpdateTask := s.taskRepo.UpdateManyTaskFields(ctx, filterTask, partialTaskUpdate)
+		if errOnUpdateTask != nil {
+			return nil, errOnUpdateTask
+		}
 	}
 
 	return updateUser, nil
