@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "api.dev.rkp-media.com",
+    "host": "api.rkp-media.com",
     "basePath": "/service/api",
     "paths": {
         "/v1/admin/update-position-user": {
