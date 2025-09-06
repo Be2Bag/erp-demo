@@ -3398,7 +3398,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "สถานะ (todo|done|in_progress) (ค่าเริ่มต้น: todo, in_progress)",
+                        "description": "สถานะ (todo|in_progress|done) (ค่าเริ่มต้น: todo, in_progress)",
                         "name": "status",
                         "in": "query"
                     },
