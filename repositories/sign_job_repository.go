@@ -144,3 +144,11 @@ func (r *signJobRepo) GetListSignJobsByFilter(ctx context.Context, filter interf
 
 	return results, total, nil
 }
+
+func (r *signJobRepo) UpdateManySignJobByFilter(ctx context.Context, filter interface{}, update models.SignJob) (int64, error) {
+	result, err := r.coll.UpdateMany(ctx, filter, bson.M{"$set": update})
+	if err != nil {
+		return 0, err
+	}
+	return result.ModifiedCount, nil
+}

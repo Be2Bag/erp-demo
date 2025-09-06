@@ -15,6 +15,7 @@ type SignJobRepository interface {
 	GetAllSignJobByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.SignJob, error)
 	GetOneSignJobByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.SignJob, error)
 	GetListSignJobsByFilter(ctx context.Context, filter interface{}, projection interface{}, sort bson.D, skip, limit int64) ([]models.SignJob, int64, error)
+	UpdateManySignJobByFilter(ctx context.Context, filter interface{}, update models.SignJob) (int64, error)
 }
 
 type SignJobService interface {

@@ -21,10 +21,12 @@ type projectService struct {
 	config      config.Config
 	projectRepo ports.ProjectRepository
 	userRepo    ports.UserRepository
+	signJobRepo ports.SignJobRepository
+	taskRepo    ports.TaskRepository
 }
 
-func NewProjectService(cfg config.Config, projectRepo ports.ProjectRepository, userRepo ports.UserRepository) ports.ProjectService {
-	return &projectService{config: cfg, projectRepo: projectRepo, userRepo: userRepo}
+func NewProjectService(cfg config.Config, projectRepo ports.ProjectRepository, userRepo ports.UserRepository, signJobRepo ports.SignJobRepository, taskRepo ports.TaskRepository) ports.ProjectService {
+	return &projectService{config: cfg, projectRepo: projectRepo, userRepo: userRepo, signJobRepo: signJobRepo, taskRepo: taskRepo}
 }
 
 func (s *projectService) CreateProject(ctx context.Context, createProject dto.CreateProjectDTO, claims *dto.JWTClaims) error {
@@ -182,6 +184,29 @@ func (s *projectService) UpdateProjectByID(ctx context.Context, projectID string
 	if updated == nil {
 		return mongo.ErrNoDocuments
 	}
+
+	signJob := models.SignJob{
+		ProjectName: existing.ProjectName,
+		UpdatedAt:   time.Now(),
+	}
+
+	filterSignJob := bson.M{"project_id": existing.ProjectID, "deleted_at": nil}
+	_, errOnUpdateSignJob := s.signJobRepo.UpdateManySignJobByFilter(ctx, filterSignJob, signJob)
+	if errOnUpdateSignJob != nil {
+		return errOnUpdateSignJob
+	}
+
+	Task := models.Tasks{
+		ProjectName: existing.ProjectName,
+		UpdatedAt:   time.Now(),
+	}
+
+	filterTask := bson.M{"project_id": existing.ProjectID, "deleted_at": nil}
+	_, errOnUpdateTask := s.taskRepo.UpdateManyTaskByFilter(ctx, filterTask, Task)
+	if errOnUpdateTask != nil {
+		return errOnUpdateTask
+	}
+
 	return nil
 }
 
