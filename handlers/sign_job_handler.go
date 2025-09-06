@@ -342,7 +342,7 @@ func (h *SignJobHandler) VerifySignJob(c *fiber.Ctx) error {
 			statusCode = fiber.StatusNotFound
 			MsgEN = "Sign job not found"
 			MsgTH = "ไม่ใบพบงาน"
-		} else if err.Error() == "can not verify " {
+		} else if err.Error() == "can not verify" {
 			statusCode = fiber.StatusBadRequest
 			MsgEN = err.Error()
 			MsgTH = "ไม่สามารถยืนยันงานได้ เนื่องจากมีงานที่กำลังดำเนินการอยู่ในระบบ"
