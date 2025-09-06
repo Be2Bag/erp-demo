@@ -245,8 +245,8 @@ func (s *dropDownService) GetProjectList(ctx context.Context) ([]dto.ResponseGet
 	return response, nil
 }
 
-func (s *dropDownService) GetUserList(ctx context.Context, usersID string) ([]dto.ResponseGetUsers, error) {
-	filter := bson.M{"user_id": usersID, "deleted_at": nil}
+func (s *dropDownService) GetUserList(ctx context.Context, departmentID string) ([]dto.ResponseGetUsers, error) {
+	filter := bson.M{"department_id": departmentID, "deleted_at": nil}
 	projection := bson.M{
 		"user_id":       1,
 		"title_th":      1,
