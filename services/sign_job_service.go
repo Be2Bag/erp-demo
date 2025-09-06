@@ -21,10 +21,11 @@ type signJobService struct {
 	config       config.Config
 	signJobRepo  ports.SignJobRepository
 	dropDownRepo ports.DropDownRepository
+	taskRepo     ports.TaskRepository
 }
 
-func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository, dropDownRepo ports.DropDownRepository) ports.SignJobService {
-	return &signJobService{config: cfg, signJobRepo: signJobRepo, dropDownRepo: dropDownRepo}
+func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository, dropDownRepo ports.DropDownRepository, taskRepo ports.TaskRepository) ports.SignJobService {
+	return &signJobService{config: cfg, signJobRepo: signJobRepo, dropDownRepo: dropDownRepo, taskRepo: taskRepo}
 }
 
 func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSignJobDTO, claims *dto.JWTClaims) error {
@@ -278,6 +279,8 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 
 func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string, update dto.UpdateSignJobDTO, claims *dto.JWTClaims) error {
 	// ดึงข้อมูลเดิม
+	IsEditJobName := false
+
 	filter := bson.M{"job_id": jobID, "deleted_at": nil}
 	existing, err := s.signJobRepo.GetOneSignJobByFilter(ctx, filter, bson.M{})
 	if err != nil {
@@ -314,6 +317,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	}
 	if update.JobName != "" {
 		existing.JobName = update.JobName
+		IsEditJobName = true
 	}
 	if update.SignTypeID != "" {
 		existing.SignTypeID = update.SignTypeID
@@ -384,6 +388,17 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	if updated == nil {
 		return mongo.ErrNoDocuments
 	}
+
+	if IsEditJobName {
+		filterTask := bson.M{"job_id": existing.JobID}
+		partialTaskUpdate := bson.M{"job_name": existing.JobName}
+
+		_, errOnUpdateTask := s.taskRepo.UpdateManyTaskFields(ctx, filterTask, partialTaskUpdate)
+		if errOnUpdateTask != nil {
+			return errOnUpdateTask
+		}
+	}
+
 	return nil
 }
 
