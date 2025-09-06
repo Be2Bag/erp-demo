@@ -37,5 +37,5 @@ type TaskRepository interface {
 	UpsertUserTaskStats(ctx context.Context, stats *models.UserTaskStats) error
 
 	ReplaceTaskByID(ctx context.Context, taskID string, doc *models.Tasks) (*models.Tasks, error)
-	UpdateManyTaskByFilter(ctx context.Context, filter interface{}, update models.Tasks) (int64, error)
+	UpdateManyTaskFields(ctx context.Context, filter interface{}, update bson.M) (int64, error)
 }

@@ -152,3 +152,15 @@ func (r *signJobRepo) UpdateManySignJobByFilter(ctx context.Context, filter inte
 	}
 	return result.ModifiedCount, nil
 }
+
+func (r *signJobRepo) UpdateManySignJobFields(ctx context.Context, filter interface{}, update bson.M) (int64, error) {
+	if len(update) == 0 {
+		return 0, nil
+	}
+	update["updated_at"] = time.Now()
+	result, err := r.coll.UpdateMany(ctx, filter, bson.M{"$set": update})
+	if err != nil {
+		return 0, err
+	}
+	return result.ModifiedCount, nil
+}

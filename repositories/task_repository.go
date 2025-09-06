@@ -331,7 +331,11 @@ func (r *taskRepo) ReplaceTaskByID(ctx context.Context, taskID string, doc *mode
 	return &out, nil
 }
 
-func (r *taskRepo) UpdateManyTaskByFilter(ctx context.Context, filter interface{}, update models.Tasks) (int64, error) {
+func (r *taskRepo) UpdateManyTaskFields(ctx context.Context, filter interface{}, update bson.M) (int64, error) {
+	if len(update) == 0 {
+		return 0, nil
+	}
+	update["updated_at"] = time.Now()
 	result, err := r.coll.UpdateMany(ctx, filter, bson.M{"$set": update})
 	if err != nil {
 		return 0, err

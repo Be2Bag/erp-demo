@@ -185,24 +185,17 @@ func (s *projectService) UpdateProjectByID(ctx context.Context, projectID string
 		return mongo.ErrNoDocuments
 	}
 
-	signJob := models.SignJob{
-		ProjectName: existing.ProjectName,
-		UpdatedAt:   time.Now(),
-	}
-
-	filterSignJob := bson.M{"project_id": existing.ProjectID, "deleted_at": nil}
-	_, errOnUpdateSignJob := s.signJobRepo.UpdateManySignJobByFilter(ctx, filterSignJob, signJob)
+	filterSignJob := bson.M{"project_id": existing.ProjectID}
+	partialSignJobUpdate := bson.M{"project_name": existing.ProjectName}
+	_, errOnUpdateSignJob := s.signJobRepo.UpdateManySignJobFields(ctx, filterSignJob, partialSignJobUpdate)
 	if errOnUpdateSignJob != nil {
 		return errOnUpdateSignJob
 	}
 
-	Task := models.Tasks{
-		ProjectName: existing.ProjectName,
-		UpdatedAt:   time.Now(),
-	}
+	filterTask := bson.M{"project_id": existing.ProjectID}
+	partialTaskUpdate := bson.M{"project_name": existing.ProjectName}
 
-	filterTask := bson.M{"project_id": existing.ProjectID, "deleted_at": nil}
-	_, errOnUpdateTask := s.taskRepo.UpdateManyTaskByFilter(ctx, filterTask, Task)
+	_, errOnUpdateTask := s.taskRepo.UpdateManyTaskFields(ctx, filterTask, partialTaskUpdate)
 	if errOnUpdateTask != nil {
 		return errOnUpdateTask
 	}
