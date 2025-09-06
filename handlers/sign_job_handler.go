@@ -96,7 +96,7 @@ func (h *SignJobHandler) CreateSignJob(c *fiber.Ctx) error {
 // @Param page query int false "Page number (default 1)"
 // @Param limit query int false "Page limit (default 10)"
 // @Param search query string false "ค้นหาด้วย ชื่อโปรเจกต์, ชื่องาน,ชื่อบริษัท,ชื่อผู้ติดต่อ "
-// @Param status query string false "สถานะงาน (in_progress, done"
+// @Param status query string false "สถานะงาน in_progress, done"
 // @Param sort_by query string false "เรียงตาม created_at updated_at due_date job_name project_name company_name status price_thb quantity"
 // @Param sort_order query string false "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))"
 // @Success 200 {object} dto.BaseResponse{data=dto.Pagination}

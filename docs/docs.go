@@ -2819,7 +2819,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "สถานะงาน (in_progress, done",
+                        "description": "สถานะงาน in_progress, done",
                         "name": "status",
                         "in": "query"
                     },

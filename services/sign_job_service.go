@@ -94,7 +94,7 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 	if status != "" {
 		filter["status"] = status
 	} else {
-		filter["status"] = bson.M{"status": "in_progress"}
+		filter["status"] = "in_progress"
 	}
 
 	search = strings.TrimSpace(search)

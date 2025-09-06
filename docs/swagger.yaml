@@ -3294,7 +3294,7 @@ paths:
         in: query
         name: search
         type: string
-      - description: สถานะงาน (in_progress, done
+      - description: สถานะงาน in_progress, done
         in: query
         name: status
         type: string
