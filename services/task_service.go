@@ -28,10 +28,11 @@ type taskService struct {
 	departmentRepo    ports.DepartmentRepository
 	kpiEvaluationRepo ports.KPIEvaluationRepository
 	kpiRepo           ports.KPIRepository
+	signJobRepo       ports.SignJobRepository
 }
 
-func NewTaskService(cfg config.Config, taskRepo ports.TaskRepository, userRepo ports.UserRepository, workflowRepo ports.WorkFlowRepository, departmentRepo ports.DepartmentRepository, kpiEvaluationRepo ports.KPIEvaluationRepository, kpiRepo ports.KPIRepository) ports.TaskService {
-	return &taskService{config: cfg, taskRepo: taskRepo, userRepo: userRepo, workflowRepo: workflowRepo, departmentRepo: departmentRepo, kpiEvaluationRepo: kpiEvaluationRepo, kpiRepo: kpiRepo}
+func NewTaskService(cfg config.Config, taskRepo ports.TaskRepository, userRepo ports.UserRepository, workflowRepo ports.WorkFlowRepository, departmentRepo ports.DepartmentRepository, kpiEvaluationRepo ports.KPIEvaluationRepository, kpiRepo ports.KPIRepository, signJobRepo ports.SignJobRepository) ports.TaskService {
+	return &taskService{config: cfg, taskRepo: taskRepo, userRepo: userRepo, workflowRepo: workflowRepo, departmentRepo: departmentRepo, kpiEvaluationRepo: kpiEvaluationRepo, kpiRepo: kpiRepo, signJobRepo: signJobRepo}
 }
 
 func (s *taskService) GetListTasks(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, department string, sortBy string, sortOrder string) (dto.Pagination, error) {
@@ -389,10 +390,20 @@ func (s *taskService) GetTaskByID(ctx context.Context, taskID string) (*dto.Task
 
 	departmentsName := "ไม่พบแผนก"
 	createdByName := "ไม่พบผู้สร้าง"
+	width := 0.0
+	height := 0.0
+	quantity := 0
 
 	createdBy, _ := s.userRepo.GetByID(ctx, m.CreatedBy)
 
 	departments, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.Department, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1})
+
+	signJob, _ := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": m.JobID, "deleted_at": nil}, bson.M{"_id": 0, "width": 1, "height": 1, "quantity": 1})
+	if signJob != nil {
+		width = signJob.Width
+		height = signJob.Height
+		quantity = signJob.Quantity
+	}
 
 	if departments != nil {
 		departmentsName = departments.DepartmentName
@@ -425,6 +436,10 @@ func (s *taskService) GetTaskByID(ctx context.Context, taskID string) (*dto.Task
 		JobID:       m.JobID,
 		JobName:     m.JobName,
 		Description: m.Description,
+
+		Width:    width,
+		Height:   height,
+		Quantity: quantity,
 
 		DepartmentName:   departmentsName,
 		Department:       m.Department,

@@ -88,6 +88,10 @@ type TaskDTO struct {
 	JobName     string `json:"job_name"`    // ชื่องาน
 	Description string `json:"description"` // รายละเอียดงาน
 
+	Width    float64 `json:"width"`    // ความกว้าง (ซม.)
+	Height   float64 `json:"height"`   // ความสูง (ซม.)
+	Quantity int     `json:"quantity"` // จำนวน
+
 	Department       string `json:"department_id"`     // แผนกที่เกี่ยวข้อง
 	DepartmentName   string `json:"department_name"`   // ชื่อแผนก (อาจจะไม่ต้องมีถ้าไม่ใช้)
 	Assignee         string `json:"assignee"`          // ผู้รับผิดชอบหลัก
