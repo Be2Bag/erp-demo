@@ -196,7 +196,7 @@ func (h *dropDownService) GetCustomerTypes(ctx context.Context) ([]dto.ResponseG
 }
 
 func (s *dropDownService) GetSignJobList(ctx context.Context, projectID string) ([]dto.ResponseGetSignList, error) {
-	filter := bson.M{"project_id": projectID, "deleted_at": nil}
+	filter := bson.M{"project_id": projectID, "status": "in_progress", "deleted_at": nil}
 	projection := bson.M{}
 
 	signJobs, errOnGetSignJobs := s.dropDownRepo.GetSignJobsList(ctx, filter, projection)
