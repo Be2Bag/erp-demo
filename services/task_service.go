@@ -398,7 +398,7 @@ func (s *taskService) GetTaskByID(ctx context.Context, taskID string) (*dto.Task
 
 	departments, _ := s.departmentRepo.GetOneDepartmentByFilter(ctx, bson.M{"department_id": m.Department, "deleted_at": nil}, bson.M{"_id": 0, "department_name": 1})
 
-	signJob, _ := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": m.JobID, "deleted_at": nil}, bson.M{"_id": 0, "width": 1, "height": 1, "quantity": 1})
+	signJob, _ := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": m.JobID, "deleted_at": nil}, nil)
 	if signJob != nil {
 		width = signJob.Width
 		height = signJob.Height
