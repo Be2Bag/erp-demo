@@ -26,4 +26,5 @@ type SignJobService interface {
 	GetSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) (*dto.SignJobDTO, error)
 	UpdateSignJobByJobID(ctx context.Context, jobID string, update dto.UpdateSignJobDTO, claims *dto.JWTClaims) error
 	DeleteSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) error
+	VerifySignJob(ctx context.Context, jobID string, claims *dto.JWTClaims) error
 }

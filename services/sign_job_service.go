@@ -93,6 +93,8 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 	status = strings.TrimSpace(status)
 	if status != "" {
 		filter["status"] = status
+	} else {
+		filter["status"] = bson.M{"status": "in_progress"}
 	}
 
 	search = strings.TrimSpace(search)
@@ -408,4 +410,44 @@ func (s *signJobService) DeleteSignJobByJobID(ctx context.Context, jobID string,
 		return nil
 	}
 	return err
+}
+
+func (s *signJobService) VerifySignJob(ctx context.Context, jobID string, claims *dto.JWTClaims) error {
+
+	filter := bson.M{"job_id": jobID, "deleted_at": nil}
+	project := bson.M{"_id": 0, "status": 1, "job_name": 1}
+	task, errOnGetTask := s.taskRepo.GetAllTaskByFilter(ctx, filter, project)
+	if errOnGetTask != nil && errOnGetTask != mongo.ErrNoDocuments {
+		return errOnGetTask
+	}
+
+	if len(task) > 0 {
+		for _, t := range task {
+			if t.Status != "done" {
+				return fmt.Errorf("ไม่สามารถยืนยันงานได้ เนื่องจากมีงานที่กำลังดำเนินการอยู่ในระบบ")
+			}
+		}
+
+		filter := bson.M{"job_id": jobID, "deleted_at": nil}
+		existing, err := s.signJobRepo.GetOneSignJobByFilter(ctx, filter, bson.M{})
+		if err != nil {
+			return err
+		}
+		if existing == nil {
+			return mongo.ErrNoDocuments
+		}
+		existing.Status = "done"
+		updated, err := s.signJobRepo.UpdateSignJobByJobID(ctx, jobID, *existing)
+		if err != nil {
+			return err
+		}
+		if updated == nil {
+			return mongo.ErrNoDocuments
+		}
+	} else {
+		return fmt.Errorf("ไม่พบงานใดๆ ที่จัดการงานของใบงานนี้")
+	}
+
+	return nil
+
 }

@@ -26,6 +26,7 @@ func (h *SignJobHandler) SignJobRoutes(router fiber.Router) {
 
 	signJob.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateSignJob)
 	signJob.Get("/list", h.mdw.AuthCookieMiddleware(), h.ListSignJobs)
+	signJob.Put("/verify/:id", h.mdw.AuthCookieMiddleware(), h.VerifySignJob)
 	signJob.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetSignJobByID)
 	signJob.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateSignJobByID)
 	signJob.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteSignJobByID)
@@ -95,7 +96,7 @@ func (h *SignJobHandler) CreateSignJob(c *fiber.Ctx) error {
 // @Param page query int false "Page number (default 1)"
 // @Param limit query int false "Page limit (default 10)"
 // @Param search query string false "ค้นหาด้วย ชื่อโปรเจกต์, ชื่องาน,ชื่อบริษัท,ชื่อผู้ติดต่อ "
-// @Param status query string false "Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003: แผนกติดตั้ง, DPT004: แผนกบัญชี"
+// @Param status query string false "สถานะงาน (in_progress, done"
 // @Param sort_by query string false "เรียงตาม created_at updated_at due_date job_name project_name company_name status price_thb quantity"
 // @Param sort_order query string false "เรียงลำดับ (asc เก่า→ใหม่ | desc ใหม่→เก่า (ค่าเริ่มต้น))"
 // @Success 200 {object} dto.BaseResponse{data=dto.Pagination}
@@ -302,6 +303,48 @@ func (h *SignJobHandler) DeleteSignJobByID(c *fiber.Ctx) error {
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Deleted",
 		MessageTH:  "ลบแล้ว",
+		Status:     "success",
+		Data:       nil,
+	})
+}
+
+// @Summary Verify Sign Job
+// @Description Verify a sign job by its ID
+// @Tags SignJob
+// @Accept json
+// @Produce json
+// @Param id path string true "Sign Job ID"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 401 {object} dto.BaseResponse
+// @Failure 404 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/sign-job/verify/{id} [put]
+func (h *SignJobHandler) VerifySignJob(c *fiber.Ctx) error {
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	jobID := c.Params("id")
+	err = h.svc.VerifySignJob(c.Context(), jobID, claims)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to verify" + err.Error(),
+			MessageTH:  "ไม่สามารถตรวจสอบได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	return c.JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Verified",
+		MessageTH:  "ตรวจสอบแล้ว",
 		Status:     "success",
 		Data:       nil,
 	})

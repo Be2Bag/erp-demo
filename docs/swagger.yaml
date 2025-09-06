@@ -3264,8 +3264,7 @@ paths:
         in: query
         name: search
         type: string
-      - description: 'Dropdown แผนก DPT001: แผนกออกแบบกราฟิก, DPT002: แผนกผลิต, DPT003:
-          แผนกติดตั้ง, DPT004: แผนกบัญชี'
+      - description: สถานะงาน (in_progress, done
         in: query
         name: status
         type: string
@@ -3299,6 +3298,39 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: List Sign Jobs
+      tags:
+      - SignJob
+  /v1/sign-job/verify/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Verify a sign job by its ID
+      parameters:
+      - description: Sign Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Verify Sign Job
       tags:
       - SignJob
   /v1/sign-type/{id}:
