@@ -1494,7 +1494,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/dropdown/user": {
+        "/v1/dropdown/user/{id}": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลผู้ใช้ทั้งหมด",
                 "consumes": [
@@ -1507,6 +1507,15 @@ const docTemplate = `{
                     "Dropdown"
                 ],
                 "summary": "Get all users",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Department ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",

@@ -17,7 +17,7 @@ type DropDownService interface {
 	GetCustomerTypes(ctx context.Context) ([]dto.ResponseGetCustomerTypes, error)
 	GetSignJobList(ctx context.Context, projectID string) ([]dto.ResponseGetSignList, error)
 	GetProjectList(ctx context.Context) ([]dto.ResponseGetProjects, error)
-	GetUserList(ctx context.Context) ([]dto.ResponseGetUsers, error)
+	GetUserList(ctx context.Context, usersID string) ([]dto.ResponseGetUsers, error)
 	GetKPI(ctx context.Context, departmentID string) ([]dto.ResponseGetKPI, error)
 	GetWorkflows(ctx context.Context, departmentID string) ([]dto.ResponseGetWorkflows, error)
 	GetCategorys(ctx context.Context) ([]dto.ResponseGetCategorys, error)

@@ -24,7 +24,7 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 
 	dropdown.Get("/department", h.GetDepartment)
 	dropdown.Get("/project", h.mdw.AuthCookieMiddleware(), h.GetProject)
-	dropdown.Get("/user", h.mdw.AuthCookieMiddleware(), h.GetUser)
+	dropdown.Get("/user/:id", h.mdw.AuthCookieMiddleware(), h.GetUser)
 	dropdown.Get("/province", h.GetProvince)
 	dropdown.Get("/sign-type", h.GetSignType)
 	dropdown.Get("/sign-job-list/:id", h.mdw.AuthCookieMiddleware(), h.GetSignJobList)
@@ -409,12 +409,15 @@ func (h *DropDownHandler) GetProject(c *fiber.Ctx) error {
 // @Tags Dropdown
 // @Accept json
 // @Produce json
+// @Param id path string true "Department ID"
 // @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetUsers}
 // @Failure 502 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/dropdown/user [get]
+// @Router /v1/dropdown/user/{id} [get]
 func (h *DropDownHandler) GetUser(c *fiber.Ctx) error {
-	users, errOnGetUsers := h.svc.GetUserList(c.Context())
+
+	departmentID := c.Params("id")
+	users, errOnGetUsers := h.svc.GetUserList(c.Context(), departmentID)
 	if errOnGetUsers != nil {
 		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
 			StatusCode: fiber.ErrBadGateway.Code,
