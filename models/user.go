@@ -15,6 +15,7 @@ type User struct {
 	LastNameTH        string              `bson:"last_name_th" json:"last_name_th"`             // นามสกุลของพนักงาน
 	FirstNameEN       string              `bson:"first_name_en" json:"first_name_en"`           // ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
 	LastNameEN        string              `bson:"last_name_en" json:"last_name_en"`             // นามสกุลของพนักงาน (ภาษาอังกฤษ)
+	NickName          string              `bson:"nickname" json:"nickname"`                     // ชื่อเล่นของพนักงาน
 	IDCard            string              `bson:"id_card" json:"id_card"`                       // หมายเลขบัตรประชาชน (อาจเข้ารหัสก่อนจัดเก็บ)
 	Role              string              `bson:"role" json:"role"`                             // บทบาทหรือสิทธิ์ของผู้ใช้ในระบบ (เช่น admin, user)
 	Avatar            string              `bson:"avatar" json:"avatar"`                         // ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้

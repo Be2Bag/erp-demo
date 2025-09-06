@@ -13,6 +13,7 @@ type RequestCreateUser struct {
 	LastNameTH     string    `json:"last_name_th" validate:"required"`  // นามสกุลของพนักงาน (ภาษาไทย)
 	FirstNameEN    string    `json:"first_name_en"`                     // ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
 	LastNameEN     string    `json:"last_name_en"`                      // นามสกุลของพนักงาน (ภาษาอังกฤษ)
+	NickName       string    `json:"nickname"`                          // ชื่อเล่นของพนักงาน
 	IDCard         string    `json:"id_card" validate:"required"`       // หมายเลขบัตรประชาชน (อาจเข้ารหัสก่อนจัดเก็บ)
 	Avatar         string    `json:"avatar"`                            // ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
 	Phone          string    `json:"phone"`                             // เบอร์โทรศัพท์ของพนักงาน
@@ -70,6 +71,7 @@ type RequestUpdateUser struct {
 	LastNameTH        string              `json:"last_name_th"`       // นามสกุลของพนักงาน
 	FirstNameEN       string              `json:"first_name_en"`      // ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
 	LastNameEN        string              `json:"last_name_en"`       // นามสกุลของพนักงาน (ภาษาอังกฤษ)
+	NickName          string              `json:"nickname"`           // ชื่อเล่นของพนักงาน
 	IDCard            string              `json:"id_card"`            // หมายเลขบัตรประชาชน (อาจเข้ารหัสก่อนจัดเก็บ)
 	Phone             string              `json:"phone"`              // เบอร์โทรศัพท์ของพนักงาน
 	EmployeeCode      string              `json:"employee_code"`      // รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
@@ -103,6 +105,7 @@ type ResponseGetUserByID struct {
 	LastNameTH        string              `json:"last_name_th"`       // นามสกุลของพนักงาน
 	FirstNameEN       string              `json:"first_name_en"`      // ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
 	LastNameEN        string              `json:"last_name_en"`       // นามสกุลของพนักงาน (ภาษาอังกฤษ)
+	NickName          string              `json:"nickname"`           // ชื่อเล่นของพนักงาน
 	IDCard            string              `json:"id_card"`            // หมายเลขบัตรประชาชน (อาจเข้ารหัสก่อนจัดเก็บ)
 	Role              string              `json:"role"`               // บทบาทหรือสิทธิ์ของผู้ใช้ในระบบ (เช่น admin, user)
 	Avatar            string              `json:"avatar"`             // ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
@@ -145,6 +148,7 @@ type ResponseGetUserAll struct {
 	TitleEN        string     `json:"title_en" example:"Miss"`                                // คำนำหน้าชื่อ (ภาษาอังกฤษ)
 	FirstNameEN    string     `json:"first_name_en" example:"Kittiya"`                        // ชื่อจริงของพนักงาน (ภาษาอังกฤษ)
 	LastNameEN     string     `json:"last_name_en" example:"Chanthasakul"`                    // นามสกุลของพนักงาน (ภาษาอังกฤษ)
+	NickName       string     `json:"nickname" example:"กิ๊ฟ"`                                // ชื่อเล่นของพนักงาน
 	Avatar         string     `json:"avatar" example:"https://example.com/avatar.jpg"`        // ลิงก์หรือที่อยู่รูปประจำตัวผู้ใช้
 	Email          string     `json:"email" example:"จันทรสกุล"`                              // อีเมลของผู้ใช้
 	Phone          string     `json:"phone" example:"094-222-7788"`                           // เบอร์โทรศัพท์ของพนักงาน

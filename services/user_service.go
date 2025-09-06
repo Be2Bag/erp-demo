@@ -46,6 +46,7 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 		LastNameTH:        req.LastNameTH,
 		FirstNameEN:       req.FirstNameEN,
 		LastNameEN:        req.LastNameEN,
+		NickName:          req.NickName,
 		IDCard:            req.IDCard,
 		Role:              "user",
 		Avatar:            req.Avatar,
@@ -213,6 +214,7 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 		LastNameTH:        user.LastNameTH,
 		FirstNameEN:       user.FirstNameEN,
 		LastNameEN:        user.LastNameEN,
+		NickName:          user.NickName,
 		Phone:             user.Phone,
 		Role:              user.Role,
 		Avatar:            user.Avatar,
@@ -346,6 +348,7 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 			TitleEN:        u.TitleEN,
 			FirstNameEN:    u.FirstNameEN,
 			LastNameEN:     u.LastNameEN,
+			NickName:       u.NickName,
 			Avatar:         u.Avatar,
 			Email:          u.Email,
 			Phone:          u.Phone,
@@ -447,6 +450,9 @@ func (s *userService) UpdateUserByID(ctx context.Context, id string, req dto.Req
 	}
 	if req.LastNameEN != "" {
 		user.LastNameEN = req.LastNameEN
+	}
+	if req.NickName != "" {
+		user.NickName = req.NickName
 	}
 	if req.IDCard != "" {
 		user.IDCard = req.IDCard

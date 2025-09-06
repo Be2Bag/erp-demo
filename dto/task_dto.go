@@ -4,20 +4,22 @@ import "time"
 
 // ===== Task Create Request =====
 type CreateTaskRequest struct {
-	ProjectID   string             `json:"project_id"`
-	ProjectName string             `json:"project_name"`
-	JobID       string             `json:"job_id"`
-	JobName     string             `json:"job_name"`
-	Description string             `json:"description,omitempty"`
-	Department  string             `json:"department_id"`
-	Assignee    string             `json:"assignee"`
-	Importance  string             `json:"importance"`
-	StartDate   string             `json:"start_date"`
-	EndDate     string             `json:"end_date"`
-	KPIID       string             `json:"kpi_id"`
-	WorkflowID  string             `json:"workflow_id"`
-	IsEdit      bool               `json:"is_edit"`
-	ExtraSteps  []ExtraStepRequest `json:"extra_steps,omitempty"`
+	ProjectID        string             `json:"project_id"`
+	ProjectName      string             `json:"project_name"`
+	JobID            string             `json:"job_id"`
+	JobName          string             `json:"job_name"`
+	Description      string             `json:"description,omitempty"`
+	Department       string             `json:"department_id"`
+	Assignee         string             `json:"assignee"`
+	AssigneeName     string             `json:"assignee_name"`     // ชื่อผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)
+	AssigneeNickName string             `json:"assignee_nickname"` // ชื่อเล่นผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)
+	Importance       string             `json:"importance"`
+	StartDate        string             `json:"start_date"`
+	EndDate          string             `json:"end_date"`
+	KPIID            string             `json:"kpi_id"`
+	WorkflowID       string             `json:"workflow_id"`
+	IsEdit           bool               `json:"is_edit"`
+	ExtraSteps       []ExtraStepRequest `json:"extra_steps,omitempty"`
 }
 
 type ExtraStepRequest struct {
@@ -28,18 +30,20 @@ type ExtraStepRequest struct {
 
 type UpdateTaskRequest struct {
 	// ฟิลด์ระดับงาน (อัปเดตเฉพาะที่ส่งมา)
-	ProjectID   *string `json:"project_id,omitempty"`
-	ProjectName *string `json:"project_name,omitempty"`
-	JobID       *string `json:"job_id,omitempty"`
-	JobName     *string `json:"job_name,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Department  *string `json:"department_id,omitempty"`
-	Assignee    *string `json:"assignee,omitempty"`
-	Importance  *string `json:"importance,omitempty"` // low|medium|high
-	StartDate   *string `json:"start_date,omitempty"` // "YYYY-MM-DD"
-	EndDate     *string `json:"end_date,omitempty"`   // "YYYY-MM-DD"
-	KPIID       *string `json:"kpi_id,omitempty"`
-	WorkflowID  *string `json:"workflow_id,omitempty"` // ถ้าเปลี่ยน workflow ควรรีเพลส steps
+	ProjectID        *string `json:"project_id,omitempty"`
+	ProjectName      *string `json:"project_name,omitempty"`
+	JobID            *string `json:"job_id,omitempty"`
+	JobName          *string `json:"job_name,omitempty"`
+	Description      *string `json:"description,omitempty"`
+	Department       *string `json:"department_id,omitempty"`
+	Assignee         *string `json:"assignee,omitempty"`
+	AssigneeName     string  `json:"assignee_name"`        // ชื่อผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)
+	AssigneeNickName string  `json:"assignee_nickname"`    // ชื่อเล่นผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)
+	Importance       *string `json:"importance,omitempty"` // low|medium|high
+	StartDate        *string `json:"start_date,omitempty"` // "YYYY-MM-DD"
+	EndDate          *string `json:"end_date,omitempty"`   // "YYYY-MM-DD"
+	KPIID            *string `json:"kpi_id,omitempty"`
+	WorkflowID       *string `json:"workflow_id,omitempty"` // ถ้าเปลี่ยน workflow ควรรีเพลส steps
 
 	Status *string `json:"status,omitempty"` // todo|in_progress|skip|done
 
@@ -84,11 +88,12 @@ type TaskDTO struct {
 	JobName     string `json:"job_name"`    // ชื่องาน
 	Description string `json:"description"` // รายละเอียดงาน
 
-	Department     string `json:"department_id"`   // แผนกที่เกี่ยวข้อง
-	DepartmentName string `json:"department_name"` // ชื่อแผนก (อาจจะไม่ต้องมีถ้าไม่ใช้)
-	Assignee       string `json:"assignee"`        // ผู้รับผิดชอบหลัก
-	AssigneeName   string `json:"assignee_name"`   // ชื่อผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)
-	Importance     string `json:"importance"`      // ความสำคัญ (low|medium|high)
+	Department       string `json:"department_id"`     // แผนกที่เกี่ยวข้อง
+	DepartmentName   string `json:"department_name"`   // ชื่อแผนก (อาจจะไม่ต้องมีถ้าไม่ใช้)
+	Assignee         string `json:"assignee"`          // ผู้รับผิดชอบหลัก
+	AssigneeName     string `json:"assignee_name"`     // ชื่อผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)
+	AssigneeNickName string `json:"assignee_nickname"` // ชื่อเล่นผู้รับผิดชอบ (อาจจะไม่ต้องมีถ้าไม่ใช้)
+	Importance       string `json:"importance"`        // ความสำคัญ (low|medium|high)
 
 	StartDate time.Time `json:"start_date"` // วันที่เริ่มงาน
 	EndDate   time.Time `json:"end_date"`   // วันที่สิ้นสุดงาน

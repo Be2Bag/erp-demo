@@ -14,9 +14,11 @@ type Tasks struct {
 	JobName     string `bson:"job_name" json:"job_name"`         // ชื่องาน
 	Description string `bson:"description" json:"description"`   // รายละเอียดงาน
 
-	Department string `bson:"department_id" json:"department_id"` // แผนกที่เกี่ยวข้อง
-	Assignee   string `bson:"assignee" json:"assignee"`           // ผู้รับผิดชอบหลัก
-	Importance string `bson:"importance" json:"importance"`       // ความสำคัญ (low|medium|high)
+	Department       string `bson:"department_id" json:"department_id"`         // แผนกที่เกี่ยวข้อง
+	Assignee         string `bson:"assignee" json:"assignee"`                   // ผู้รับผิดชอบหลัก
+	AssigneeName     string `bson:"assignee_name" json:"assignee_name"`         // ชื่อผู้รับผิดชอบหลัก
+	AssigneeNickName string `bson:"assignee_nickname" json:"assignee_nickname"` // ชื่อเล่นผู้รับผิดชอบหลัก
+	Importance       string `bson:"importance" json:"importance"`               // ความสำคัญ (low|medium|high)
 
 	StartDate time.Time `bson:"start_date" json:"start_date"` // วันที่เริ่มงาน
 	EndDate   time.Time `bson:"end_date" json:"end_date"`     // วันที่สิ้นสุดงาน
