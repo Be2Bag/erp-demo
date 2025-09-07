@@ -333,7 +333,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	if update.Quantity > 0 {
 		existing.Quantity = update.Quantity
 	}
-	if update.PriceTHB > 0 {
+	if update.PriceTHB >= 0 {
 		existing.PriceTHB = update.PriceTHB
 	}
 	if update.Content != "" {
@@ -367,10 +367,10 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		existing.Notes = update.Notes
 	}
 
-	if update.DepositAmount > 0 {
+	if update.DepositAmount >= 0 {
 		existing.DepositAmount = update.DepositAmount
 	}
-	if update.OutstandingAmount > 0 {
+	if update.OutstandingAmount >= 0 {
 		existing.OutstandingAmount = update.OutstandingAmount
 	}
 
