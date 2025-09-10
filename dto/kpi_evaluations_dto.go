@@ -40,6 +40,7 @@ type KPIEvaluationResponse struct {
 	ProjectID      string             `json:"project_id"`
 	ProjectName    string             `json:"project_name"`
 	TaskID         string             `json:"task_id,omitempty"`
+	Description    string             `json:"description,omitempty"`
 	KPIID          string             `json:"kpi_id"`
 	KPIName        string             `json:"kpi_name"`
 	Version        int                `json:"version"`

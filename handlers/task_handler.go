@@ -361,18 +361,31 @@ func (h *TaskHandler) UpdateStepStatusNote(c *fiber.Ctx) error {
 
 	errOnUpdate := h.svc.UpdateStepStatus(c.Context(), taskID, stepID, req, claims)
 	if errOnUpdate != nil {
-		if errors.Is(errOnUpdate, mongo.ErrNoDocuments) {
-			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
-				StatusCode: fiber.StatusNotFound,
-				MessageEN:  "Task or step not found",
-				MessageTH:  "ไม่พบนงานหรือขั้นตอน",
-				Status:     "error",
-			})
+		var (
+			statusCode int
+			messageEN  string
+			messageTH  string
+		)
+
+		switch {
+		case errors.Is(errOnUpdate, mongo.ErrNoDocuments):
+			statusCode = fiber.StatusNotFound
+			messageEN = "Task or step not found"
+			messageTH = "ไม่พบนงานหรือขั้นตอน"
+		case strings.Contains(errOnUpdate.Error(), "user is not the assignee"):
+			statusCode = fiber.StatusForbidden
+			messageEN = errOnUpdate.Error()
+			messageTH = "ผู้ใช้ไม่ได้เป็นผู้รับผิดชอบงานนี้"
+		default:
+			statusCode = fiber.StatusInternalServerError
+			messageEN = "Failed to update step: " + errOnUpdate.Error()
+			messageTH = "อัปเดตขั้นตอนไม่สำเร็จ"
 		}
-		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to update step: " + errOnUpdate.Error(),
-			MessageTH:  "อัปเดตขั้นตอนไม่สำเร็จ",
+
+		return c.Status(statusCode).JSON(dto.BaseResponse{
+			StatusCode: statusCode,
+			MessageEN:  messageEN,
+			MessageTH:  messageTH,
 			Status:     "error",
 		})
 	}
@@ -422,13 +435,35 @@ func (h *TaskHandler) PutTaskV2(c *fiber.Ctx) error {
 	}
 
 	if err := h.svc.ReplaceTask(c.Context(), id, req, claims.UserID); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  err.Error(),
-			MessageTH:  "ไม่สามารถอัปเดต Task (PUT) ได้",
+
+		var (
+			statusCode int
+			messageEN  string
+			messageTH  string
+		)
+
+		switch {
+		case errors.Is(err, mongo.ErrNoDocuments):
+			statusCode = fiber.StatusNotFound
+			messageEN = "Task or step not found"
+			messageTH = "ไม่พบนงานหรือขั้นตอน"
+		case strings.Contains(err.Error(), "user is not the assignee"):
+			statusCode = fiber.StatusForbidden
+			messageEN = err.Error()
+			messageTH = "ผู้ใช้ไม่ได้เป็นผู้รับผิดชอบงานนี้"
+		default:
+			statusCode = fiber.StatusInternalServerError
+			messageEN = err.Error()
+			messageTH = "ไม่สามารถอัปเดต Task (PUT) ได้"
+		}
+
+		return c.Status(statusCode).JSON(dto.BaseResponse{
+			StatusCode: statusCode,
+			MessageEN:  messageEN,
+			MessageTH:  messageTH,
 			Status:     "error",
-			Data:       nil,
 		})
+
 	}
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
