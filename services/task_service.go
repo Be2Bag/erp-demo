@@ -589,7 +589,7 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 	var prevStatus, assignee, department string
 	if prevTask != nil {
 		if prevTask.Assignee != claims.UserID {
-			return fmt.Errorf("user %s ไม่ใช่ผู้รับผิดชอบงานนี้ (%s) ไม่สามารถแก้ไขสถานะได้", claims.UserID, prevTask.Assignee)
+			return fmt.Errorf("user is not the assignee of this task")
 		}
 
 		prevStatus = prevTask.Status
@@ -1102,7 +1102,7 @@ func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.Up
 	}
 
 	if updatedBy != existing.Assignee {
-		return fmt.Errorf("user %s ไม่ใช่ผู้รับผิดชอบงานนี้ (%s) ไม่สามารถแก้ไขได้", updatedBy, existing.Assignee)
+		return fmt.Errorf("user is not the assignee of this task")
 	}
 
 	oldAssignee := existing.Assignee
