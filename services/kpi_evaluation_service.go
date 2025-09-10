@@ -272,6 +272,7 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 		projectName := "ไม่พบโครงการ"
 		evaluatorName := "ไม่พบผู้ประเมิน"
 		kpiName := "ไม่พบ KPI"
+		Description := "ไม่พบรายละเอียดงาน"
 
 		if kpi, _ := s.kpiRepo.GetOneKPIByFilter(ctx, bson.M{"kpi_id": m.KPIID, "deleted_at": nil}, bson.M{"_id": 0, "kpi_name": 1}); kpi != nil {
 			kpiName = kpi.KPIName
@@ -292,6 +293,10 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 			if project, _ := s.projectRepo.GetOneProjectByFilter(ctx, bson.M{"project_id": job.ProjectID, "deleted_at": nil}, bson.M{"_id": 0, "project_name": 1}); project != nil {
 				projectName = project.ProjectName
 			}
+		}
+
+		if description, _ := s.taskRepo.GetOneTasksByFilter(ctx, bson.M{"task_id": m.TaskID, "deleted_at": nil}, bson.M{"_id": 0, "description": 1}); description != nil {
+			Description = description.Description
 		}
 
 		scores := make([]dto.KPIScoreResponse, 0, len(m.Scores))
@@ -315,6 +320,7 @@ func (s *kpiEvaluationRepoService) ListKPIEvaluation(ctx context.Context, claims
 			ProjectID:      m.ProjectID,
 			ProjectName:    projectName,
 			TaskID:         m.TaskID,
+			Description:    Description,
 			KPIID:          m.KPIID,
 			KPIName:        kpiName,
 			Version:        1,
