@@ -5351,6 +5351,9 @@ const docTemplate = `{
                 "department_name": {
                     "type": "string"
                 },
+                "description": {
+                    "type": "string"
+                },
                 "evaluatee_id": {
                     "type": "string"
                 },
