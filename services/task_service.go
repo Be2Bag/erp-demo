@@ -588,6 +588,10 @@ func (s *taskService) UpdateStepStatus(ctx context.Context, taskID, stepID strin
 	)
 	var prevStatus, assignee, department string
 	if prevTask != nil {
+		if prevTask.Assignee != claims.UserID {
+			return fmt.Errorf("user %s ไม่ใช่ผู้รับผิดชอบงานนี้ (%s) ไม่สามารถแก้ไขสถานะได้", claims.UserID, prevTask.Assignee)
+		}
+
 		prevStatus = prevTask.Status
 		assignee = prevTask.Assignee
 		department = prevTask.Department
@@ -1096,6 +1100,11 @@ func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.Up
 	if existing == nil {
 		return mongo.ErrNoDocuments
 	}
+
+	if updatedBy != existing.Assignee {
+		return fmt.Errorf("user %s ไม่ใช่ผู้รับผิดชอบงานนี้ (%s) ไม่สามารถแก้ไขได้", updatedBy, existing.Assignee)
+	}
+
 	oldAssignee := existing.Assignee
 	oldStatus := existing.Status
 	oldCreatedAt := existing.CreatedAt

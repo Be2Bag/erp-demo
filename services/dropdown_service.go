@@ -213,7 +213,7 @@ func (s *dropDownService) GetSignJobList(ctx context.Context, projectID string) 
 		response = append(response, dto.ResponseGetSignList{
 			JobID:       signJob.JobID,
 			ProjectName: signJob.ProjectName,
-			JobName:     signJob.JobName,
+			JobName:     signJob.JobName + " (" + signJob.CompanyName + ")",
 			Content:     signJob.Content,
 		})
 	}
