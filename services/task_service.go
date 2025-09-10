@@ -1113,8 +1113,8 @@ func (s *taskService) ReplaceTask(ctx context.Context, taskID string, req dto.Up
 
 	// 2) validate ขั้นพื้นฐาน
 	imp := strings.ToLower(strings.TrimSpace(req.Importance))
-	if imp != "low" && imp != "medium" && imp != "high" {
-		return fmt.Errorf("importance must be one of: low|medium|high")
+	if imp != "low" && imp != "mid" && imp != "high" {
+		return fmt.Errorf("importance must be one of: low|mid|high")
 	}
 
 	start, err := helpers.DateToISO(strings.TrimSpace(req.StartDate))
