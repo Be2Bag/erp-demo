@@ -350,6 +350,10 @@ func (h *SignJobHandler) VerifySignJob(c *fiber.Ctx) error {
 			statusCode = fiber.StatusBadRequest
 			MsgEN = err.Error()
 			MsgTH = "ไม่พบงานใดๆ ที่จัดการงานของใบงานนี้"
+		} else if err.Error() == "only admin can verify" {
+			statusCode = fiber.StatusForbidden
+			MsgEN = err.Error()
+			MsgTH = "มีเพียงแอดมินเท่านั้นที่สามารถยืนยันได้"
 		}
 
 		return c.Status(statusCode).JSON(dto.BaseResponse{
