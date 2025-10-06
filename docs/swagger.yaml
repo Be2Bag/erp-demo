@@ -1330,6 +1330,31 @@ definitions:
       note:
         type: string
     type: object
+  dto.UpdateExpenseDTO:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      note:
+        type: string
+      payment_method:
+        type: string
+      reference_no:
+        type: string
+      txn_date:
+        type: string
+    required:
+    - amount
+    - category_id
+    - currency
+    - description
+    - txn_date
+    type: object
   dto.UpdateIncomeDTO:
     properties:
       amount:
@@ -2845,6 +2870,102 @@ paths:
       summary: Get all workflows
       tags:
       - Dropdown
+  /v1/expense/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Soft delete an expense by its ID
+      parameters:
+      - description: Expense ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete Expense by ID
+      tags:
+      - Expense
+    get:
+      consumes:
+      - application/json
+      description: Get a single expense by its ID
+      parameters:
+      - description: Expense ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ExpenseDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get Expense by ID
+      tags:
+      - Expense
+    put:
+      consumes:
+      - application/json
+      description: Update an existing expense by its ID
+      parameters:
+      - description: Expense ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Expense
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateExpenseDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update Expense by ID
+      tags:
+      - Expense
   /v1/expense/create:
     post:
       consumes:
@@ -2880,6 +3001,59 @@ paths:
       summary: Create Expense
       tags:
       - Expense
+  /v1/expense/list:
+    get:
+      consumes:
+      - application/json
+      description: List all expenses with pagination and optional search
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        maximum: 100
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - default: '"created_at"'
+        description: Field to sort by
+        in: query
+        name: sortBy
+        type: string
+      - default: '"desc"'
+        description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.Pagination'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List Expenses
+      tags:
+      - Expense
   /v1/in-come/{id}:
     delete:
       consumes:
@@ -2907,6 +3081,34 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Delete Income by ID
+      tags:
+      - Income
+    get:
+      consumes:
+      - application/json
+      description: Get a single income by its ID
+      parameters:
+      - description: Income ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get Income by ID
       tags:
       - Income
     put:
@@ -2971,6 +3173,59 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Create In Come
+      tags:
+      - Income
+  /v1/in-come/list:
+    get:
+      consumes:
+      - application/json
+      description: List all incomes with pagination and optional search
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        maximum: 100
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - default: '"created_at"'
+        description: Field to sort by
+        in: query
+        name: sortBy
+        type: string
+      - default: '"desc"'
+        description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sortOrder
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.Pagination'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List In Comes
       tags:
       - Income
   /v1/kpi-evaluations/{id}:

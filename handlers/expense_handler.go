@@ -99,7 +99,6 @@ func (h *ExpenseHandler) CreateExpense(c *fiber.Ctx) error {
 // @Success 200 {object} dto.BaseResponse{data=dto.Pagination}
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/expense/list [get]
-
 func (h *ExpenseHandler) ListExpenses(c *fiber.Ctx) error {
 
 	claims, err := middleware.GetClaims(c)
@@ -160,7 +159,6 @@ func (h *ExpenseHandler) ListExpenses(c *fiber.Ctx) error {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/expense/{id} [get]
-
 func (h *ExpenseHandler) GetExpenseByID(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
@@ -212,7 +210,6 @@ func (h *ExpenseHandler) GetExpenseByID(c *fiber.Ctx) error {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/expense/{id} [put]
-
 func (h *ExpenseHandler) UpdateExpenseByID(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
@@ -273,7 +270,6 @@ func (h *ExpenseHandler) UpdateExpenseByID(c *fiber.Ctx) error {
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/expense/{id} [delete]
-
 func (h *ExpenseHandler) DeleteExpenseByID(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
