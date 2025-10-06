@@ -24,6 +24,33 @@ definitions:
         description: ตำบล
         type: string
     type: object
+  dto.BankAccountsDTO:
+    properties:
+      account_name:
+        description: ชื่อบัญชี
+        type: string
+      account_no:
+        description: เลขที่บัญชี
+        type: string
+      bank_id:
+        description: รหัสบัญชีธนาคาร
+        type: string
+      bank_name:
+        description: ชื่อธนาคาร
+        type: string
+      created_at:
+        description: เวลาสร้าง
+        type: string
+      created_by:
+        description: ผู้สร้าง
+        type: string
+      deleted_at:
+        description: เวลาเมื่อถูกลบ (soft delete)
+        type: string
+      updated_at:
+        description: เวลาอัปเดตล่าสุด
+        type: string
+    type: object
   dto.BankInfo:
     properties:
       account_name:
@@ -166,6 +193,18 @@ definitions:
         description: วันเวลาที่แก้ไขล่าสุด
         type: string
     type: object
+  dto.CreateBankAccountsDTO:
+    properties:
+      account_name:
+        description: ชื่อบัญชี
+        type: string
+      account_no:
+        description: เลขที่บัญชี
+        type: string
+      bank_name:
+        description: ชื่อธนาคาร
+        type: string
+    type: object
   dto.CreateCategoryDTO:
     properties:
       category_name_en:
@@ -194,6 +233,56 @@ definitions:
       manager_id:
         description: รหัสผู้จัดการแผนก (FK ไปยัง User)
         type: string
+    type: object
+  dto.CreateExpenseDTO:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      note:
+        type: string
+      payment_method:
+        type: string
+      reference_no:
+        type: string
+      txn_date:
+        type: string
+    required:
+    - amount
+    - category_id
+    - currency
+    - description
+    - txn_date
+    type: object
+  dto.CreateIncomeDTO:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      note:
+        type: string
+      payment_method:
+        type: string
+      reference_no:
+        type: string
+      txn_date:
+        type: string
+    required:
+    - amount
+    - category_id
+    - currency
+    - description
+    - txn_date
     type: object
   dto.CreateKPITemplateDTO:
     properties:
@@ -375,6 +464,22 @@ definitions:
       workflow_id:
         type: string
     type: object
+  dto.CreateTransactionCategoryDTO:
+    properties:
+      description:
+        description: รายละเอียด
+        type: string
+      transaction_category_name_th:
+        description: ชื่อหมวดหมู่ภาษาไทย
+        type: string
+      type:
+        description: ประเภทหมวดหมู่ (เช่น รายรับ, รายจ่าย)
+        type: string
+    required:
+    - description
+    - transaction_category_name_th
+    - type
+    type: object
   dto.CreateWorkflowStepDTO:
     properties:
       description:
@@ -478,6 +583,35 @@ definitions:
         type: string
       user_id:
         description: รหัสผู้ใช้ที่เกี่ยวข้อง
+        type: string
+    type: object
+  dto.ExpenseDTO:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      currency:
+        type: string
+      deleted_at:
+        type: string
+      description:
+        type: string
+      expense_id:
+        type: string
+      note:
+        type: string
+      payment_method:
+        type: string
+      reference_no:
+        type: string
+      txn_date:
+        type: string
+      updated_at:
         type: string
     type: object
   dto.ExtraStepRequest:
@@ -1125,6 +1259,48 @@ definitions:
       updated_at:
         type: string
     type: object
+  dto.TransactionCategoryDTO:
+    properties:
+      created_at:
+        description: วันเวลาที่สร้าง
+        type: string
+      created_by:
+        description: ผู้สร้าง
+        type: string
+      deleted_at:
+        description: วันเวลาที่ลบ (ถ้ามี)
+        type: string
+      description:
+        description: รายละเอียด
+        type: string
+      note:
+        description: หมายเหตุเพิ่มเติม
+        type: string
+      transaction_category_id:
+        description: UUID
+        type: string
+      transaction_category_name_th:
+        description: ชื่อหมวดหมู่ภาษาไทย
+        type: string
+      type:
+        description: ประเภทหมวดหมู่
+        type: string
+      updated_at:
+        description: วันเวลาที่แก้ไขล่าสุด
+        type: string
+    type: object
+  dto.UpdateBankAccountsDTO:
+    properties:
+      account_name:
+        description: ชื่อบัญชี
+        type: string
+      account_no:
+        description: เลขที่บัญชี
+        type: string
+      bank_name:
+        description: ชื่อธนาคาร
+        type: string
+    type: object
   dto.UpdateCategoryDTO:
     properties:
       category_name_en:
@@ -1153,6 +1329,31 @@ definitions:
         type: string
       note:
         type: string
+    type: object
+  dto.UpdateIncomeDTO:
+    properties:
+      amount:
+        type: number
+      category_id:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      note:
+        type: string
+      payment_method:
+        type: string
+      reference_no:
+        type: string
+      txn_date:
+        type: string
+    required:
+    - amount
+    - category_id
+    - currency
+    - description
+    - txn_date
     type: object
   dto.UpdateKPIEvaluationRequest:
     properties:
@@ -1341,6 +1542,21 @@ definitions:
         description: สถานะระดับงาน (ถ้าส่งมาเราจะคำนวณจาก steps ทับให้อยู่ดี)
         type: string
       workflow_id:
+        type: string
+    type: object
+  dto.UpdateTransactionCategoryDTO:
+    properties:
+      description:
+        description: รายละเอียด
+        type: string
+      note:
+        description: หมายเหตุเพิ่มเติม
+        type: string
+      transaction_category_name_th:
+        description: ชื่อหมวดหมู่ภาษาไทย
+        type: string
+      type:
+        description: ประเภทหมวดหมู่
         type: string
     type: object
   dto.UpdateWorkflowTemplateDTO:
@@ -1607,6 +1823,186 @@ paths:
       summary: Get user sessions
       tags:
       - Auth
+  /v1/bank-accounts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Soft delete a bank account by its ID
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete Bank Account by ID
+      tags:
+      - BankAccounts
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a bank account by its ID
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.BankAccountsDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get Bank Account by ID
+      tags:
+      - BankAccounts
+    put:
+      consumes:
+      - application/json
+      description: Update a bank account's details by its ID
+      parameters:
+      - description: Bank Account ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Bank Account Update Payload
+        in: body
+        name: bankAccount
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateBankAccountsDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update Bank Account by ID
+      tags:
+      - BankAccounts
+  /v1/bank-accounts/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new bank account
+      parameters:
+      - description: Bank Account Payload
+        in: body
+        name: bankAccount
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBankAccountsDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create Bank Account
+      tags:
+      - BankAccounts
+  /v1/bank-accounts/list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of bank accounts with optional search
+        and sorting
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search term to filter bank accounts
+        in: query
+        name: search
+        type: string
+      - default: '"created_at"'
+        description: Field to sort by
+        in: query
+        name: sort_by
+        type: string
+      - default: '"desc"'
+        description: Sort order (asc or desc)
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.Pagination'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List Bank Accounts
+      tags:
+      - BankAccounts
   /v1/category/{id}:
     delete:
       consumes:
@@ -2449,6 +2845,134 @@ paths:
       summary: Get all workflows
       tags:
       - Dropdown
+  /v1/expense/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new expense
+      parameters:
+      - description: Create Expense
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateExpenseDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ExpenseDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create Expense
+      tags:
+      - Expense
+  /v1/in-come/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Soft delete an income by its ID
+      parameters:
+      - description: Income ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete Income by ID
+      tags:
+      - Income
+    put:
+      consumes:
+      - application/json
+      description: Update an existing income by its ID
+      parameters:
+      - description: Income ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update Income
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateIncomeDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update Income by ID
+      tags:
+      - Income
+  /v1/in-come/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new income
+      parameters:
+      - description: Create Income
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateIncomeDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create In Come
+      tags:
+      - Income
   /v1/kpi-evaluations/{id}:
     get:
       consumes:
@@ -3804,6 +4328,195 @@ paths:
       summary: Get list of tasks
       tags:
       - Tasks
+  /v1/transaction-category/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: ลบหมวดหมู่รายการ (Transaction Category) โดยใช้ ID
+      parameters:
+      - description: Transaction Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete Transaction Category
+      tags:
+      - Transaction Category
+    get:
+      consumes:
+      - application/json
+      description: ดึงข้อมูลหมวดหมู่รายการ (Transaction Category) โดยใช้ ID
+      parameters:
+      - description: Transaction Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.TransactionCategoryDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get Transaction Category by ID
+      tags:
+      - Transaction Category
+    put:
+      consumes:
+      - application/json
+      description: อัปเดตข้อมูลหมวดหมู่รายการ (Transaction Category) โดยใช้ ID
+      parameters:
+      - description: Transaction Category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated Transaction Category data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTransactionCategoryDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update Transaction Category
+      tags:
+      - Transaction Category
+  /v1/transaction-category/create:
+    post:
+      consumes:
+      - application/json
+      description: สร้างหมวดหมู่รายการ (Transaction Category) ใหม่
+      parameters:
+      - description: Transaction Category data
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTransactionCategoryDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create Transaction Category
+      tags:
+      - Transaction Category
+  /v1/transaction-category/list:
+    get:
+      consumes:
+      - application/json
+      description: ดึงรายการหมวดหมู่รายการ (Transaction Category) ทั้งหมด
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - default: created_at
+        description: Sort by field
+        enum:
+        - transaction_category_name_th
+        - created_at
+        in: query
+        name: sort_by
+        type: string
+      - default: desc
+        description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.Pagination'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get Transaction Category List
+      tags:
+      - Transaction Category
   /v1/upload/download:
     post:
       consumes:

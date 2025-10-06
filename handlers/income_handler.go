@@ -37,8 +37,8 @@ func (h *InComeHandler) InComeRoutes(router fiber.Router) {
 // @Tags Income
 // @Accept json
 // @Produce json
-// @Param request body dto.CreateInComeDTO true "Create In Come"
-// @Success 201 {object} dto.BaseResponse{data=dto.InComeDTO}
+// @Param request body dto.CreateIncomeDTO true "Create Income"
+// @Success 201 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/in-come/create [post]
@@ -156,7 +156,7 @@ func (h *InComeHandler) ListInComes(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param id path string true "Income ID"
-// @Success 200 {object} dto.BaseResponse{data=dto.IncomeDTO}
+// @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/in-come/{id} [get]

@@ -309,6 +309,284 @@
                 }
             }
         },
+        "/v1/bank-accounts/create": {
+            "post": {
+                "description": "Create a new bank account",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankAccounts"
+                ],
+                "summary": "Create Bank Account",
+                "parameters": [
+                    {
+                        "description": "Bank Account Payload",
+                        "name": "bankAccount",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateBankAccountsDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bank-accounts/list": {
+            "get": {
+                "description": "Retrieve a paginated list of bank accounts with optional search and sorting",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankAccounts"
+                ],
+                "summary": "List Bank Accounts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term to filter bank accounts",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "\"created_at\"",
+                        "description": "Field to sort by",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "\"desc\"",
+                        "description": "Sort order (asc or desc)",
+                        "name": "sort_order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.Pagination"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/bank-accounts/{id}": {
+            "get": {
+                "description": "Retrieve a bank account by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankAccounts"
+                ],
+                "summary": "Get Bank Account by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank Account ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.BankAccountsDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a bank account's details by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankAccounts"
+                ],
+                "summary": "Update Bank Account by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank Account ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Bank Account Update Payload",
+                        "name": "bankAccount",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateBankAccountsDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Soft delete a bank account by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "BankAccounts"
+                ],
+                "summary": "Delete Bank Account by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank Account ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/category/create": {
             "post": {
                 "description": "Create a new category",
@@ -1649,6 +1927,205 @@
                     },
                     "502": {
                         "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/expense/create": {
+            "post": {
+                "description": "Create a new expense",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Expense"
+                ],
+                "summary": "Create Expense",
+                "parameters": [
+                    {
+                        "description": "Create Expense",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateExpenseDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ExpenseDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/in-come/create": {
+            "post": {
+                "description": "Create a new income",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Income"
+                ],
+                "summary": "Create In Come",
+                "parameters": [
+                    {
+                        "description": "Create Income",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateIncomeDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/in-come/{id}": {
+            "put": {
+                "description": "Update an existing income by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Income"
+                ],
+                "summary": "Update Income by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Income ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update Income",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateIncomeDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Soft delete an income by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Income"
+                ],
+                "summary": "Delete Income by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Income ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
                         }
@@ -3755,6 +4232,298 @@
                 }
             }
         },
+        "/v1/transaction-category/create": {
+            "post": {
+                "description": "สร้างหมวดหมู่รายการ (Transaction Category) ใหม่",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction Category"
+                ],
+                "summary": "Create Transaction Category",
+                "parameters": [
+                    {
+                        "description": "Transaction Category data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateTransactionCategoryDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/transaction-category/list": {
+            "get": {
+                "description": "ดึงรายการหมวดหมู่รายการ (Transaction Category) ทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction Category"
+                ],
+                "summary": "Get Transaction Category List",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "transaction_category_name_th",
+                            "created_at"
+                        ],
+                        "type": "string",
+                        "default": "created_at",
+                        "description": "Sort by field",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Sort order",
+                        "name": "sort_order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.Pagination"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/transaction-category/{id}": {
+            "get": {
+                "description": "ดึงข้อมูลหมวดหมู่รายการ (Transaction Category) โดยใช้ ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction Category"
+                ],
+                "summary": "Get Transaction Category by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Transaction Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.TransactionCategoryDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "อัปเดตข้อมูลหมวดหมู่รายการ (Transaction Category) โดยใช้ ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction Category"
+                ],
+                "summary": "Update Transaction Category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Transaction Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated Transaction Category data",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateTransactionCategoryDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "ลบหมวดหมู่รายการ (Transaction Category) โดยใช้ ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transaction Category"
+                ],
+                "summary": "Delete Transaction Category",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Transaction Category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/upload/download": {
             "post": {
                 "description": "Download a file",
@@ -4684,6 +5453,43 @@
                 }
             }
         },
+        "dto.BankAccountsDTO": {
+            "type": "object",
+            "properties": {
+                "account_name": {
+                    "description": "ชื่อบัญชี",
+                    "type": "string"
+                },
+                "account_no": {
+                    "description": "เลขที่บัญชี",
+                    "type": "string"
+                },
+                "bank_id": {
+                    "description": "รหัสบัญชีธนาคาร",
+                    "type": "string"
+                },
+                "bank_name": {
+                    "description": "ชื่อธนาคาร",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "เวลาสร้าง",
+                    "type": "string"
+                },
+                "created_by": {
+                    "description": "ผู้สร้าง",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "เวลาเมื่อถูกลบ (soft delete)",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "เวลาอัปเดตล่าสุด",
+                    "type": "string"
+                }
+            }
+        },
         "dto.BankInfo": {
             "type": "object",
             "properties": {
@@ -4880,6 +5686,23 @@
                 }
             }
         },
+        "dto.CreateBankAccountsDTO": {
+            "type": "object",
+            "properties": {
+                "account_name": {
+                    "description": "ชื่อบัญชี",
+                    "type": "string"
+                },
+                "account_no": {
+                    "description": "เลขที่บัญชี",
+                    "type": "string"
+                },
+                "bank_name": {
+                    "description": "ชื่อธนาคาร",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateCategoryDTO": {
             "type": "object",
             "required": [
@@ -4916,6 +5739,78 @@
                 },
                 "manager_id": {
                     "description": "รหัสผู้จัดการแผนก (FK ไปยัง User)",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateExpenseDTO": {
+            "type": "object",
+            "required": [
+                "amount",
+                "category_id",
+                "currency",
+                "description",
+                "txn_date"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "reference_no": {
+                    "type": "string"
+                },
+                "txn_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.CreateIncomeDTO": {
+            "type": "object",
+            "required": [
+                "amount",
+                "category_id",
+                "currency",
+                "description",
+                "txn_date"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "reference_no": {
+                    "type": "string"
+                },
+                "txn_date": {
                     "type": "string"
                 }
             }
@@ -5173,6 +6068,28 @@
                 }
             }
         },
+        "dto.CreateTransactionCategoryDTO": {
+            "type": "object",
+            "required": [
+                "description",
+                "transaction_category_name_th",
+                "type"
+            ],
+            "properties": {
+                "description": {
+                    "description": "รายละเอียด",
+                    "type": "string"
+                },
+                "transaction_category_name_th": {
+                    "description": "ชื่อหมวดหมู่ภาษาไทย",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "ประเภทหมวดหมู่ (เช่น รายรับ, รายจ่าย)",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateWorkflowStepDTO": {
             "type": "object",
             "properties": {
@@ -5315,6 +6232,50 @@
                 },
                 "user_id": {
                     "description": "รหัสผู้ใช้ที่เกี่ยวข้อง",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.ExpenseDTO": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "expense_id": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "reference_no": {
+                    "type": "string"
+                },
+                "txn_date": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -6242,6 +7203,64 @@
                 }
             }
         },
+        "dto.TransactionCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "description": "วันเวลาที่สร้าง",
+                    "type": "string"
+                },
+                "created_by": {
+                    "description": "ผู้สร้าง",
+                    "type": "string"
+                },
+                "deleted_at": {
+                    "description": "วันเวลาที่ลบ (ถ้ามี)",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "รายละเอียด",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุเพิ่มเติม",
+                    "type": "string"
+                },
+                "transaction_category_id": {
+                    "description": "UUID",
+                    "type": "string"
+                },
+                "transaction_category_name_th": {
+                    "description": "ชื่อหมวดหมู่ภาษาไทย",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "ประเภทหมวดหมู่",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "วันเวลาที่แก้ไขล่าสุด",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateBankAccountsDTO": {
+            "type": "object",
+            "properties": {
+                "account_name": {
+                    "description": "ชื่อบัญชี",
+                    "type": "string"
+                },
+                "account_no": {
+                    "description": "เลขที่บัญชี",
+                    "type": "string"
+                },
+                "bank_name": {
+                    "description": "ชื่อธนาคาร",
+                    "type": "string"
+                }
+            }
+        },
         "dto.UpdateCategoryDTO": {
             "type": "object",
             "properties": {
@@ -6279,6 +7298,42 @@
                     "type": "string"
                 },
                 "note": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateIncomeDTO": {
+            "type": "object",
+            "required": [
+                "amount",
+                "category_id",
+                "currency",
+                "description",
+                "txn_date"
+            ],
+            "properties": {
+                "amount": {
+                    "type": "number"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "currency": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "type": "string"
+                },
+                "reference_no": {
+                    "type": "string"
+                },
+                "txn_date": {
                     "type": "string"
                 }
             }
@@ -6546,6 +7601,27 @@
                     "type": "string"
                 },
                 "workflow_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.UpdateTransactionCategoryDTO": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "รายละเอียด",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุเพิ่มเติม",
+                    "type": "string"
+                },
+                "transaction_category_name_th": {
+                    "description": "ชื่อหมวดหมู่ภาษาไทย",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "ประเภทหมวดหมู่",
                     "type": "string"
                 }
             }
