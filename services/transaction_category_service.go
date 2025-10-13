@@ -121,15 +121,16 @@ func (s *transactionCategoryService) ListTransactionCategory(ctx context.Context
 	}, nil
 }
 
-func (s *transactionCategoryService) GetTransactionCategoryByID(ctx context.Context, categoryID string, claims *dto.JWTClaims) (*dto.TransactionCategoryDTO, error) {
+func (s *transactionCategoryService) GetTransactionCategoryByID(ctx context.Context, TransactionCategoryID string, claims *dto.JWTClaims) (*dto.TransactionCategoryDTO, error) {
 
-	filter := bson.M{"transaction_category_id": categoryID}
+	filter := bson.M{"transaction_category_id": TransactionCategoryID, "deleted_at": nil}
 	projection := bson.M{}
 
 	m, err := s.transactionCategoryRepo.GetOneTransactionCategoryByFilter(ctx, filter, projection)
 	if err != nil {
 		return nil, err
 	}
+
 	if m == nil {
 		return nil, nil
 	}

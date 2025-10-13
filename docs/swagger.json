@@ -6102,16 +6102,17 @@
             "type": "object",
             "required": [
                 "amount",
-                "category_id",
+                "bank_id",
                 "currency",
                 "description",
+                "transaction_category_id",
                 "txn_date"
             ],
             "properties": {
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "currency": {
@@ -6127,6 +6128,9 @@
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {
@@ -6138,16 +6142,17 @@
             "type": "object",
             "required": [
                 "amount",
-                "category_id",
+                "bank_id",
                 "currency",
                 "description",
+                "transaction_category_id",
                 "txn_date"
             ],
             "properties": {
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "currency": {
@@ -6163,6 +6168,9 @@
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {
@@ -6597,7 +6605,7 @@
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "created_at": {
@@ -6625,6 +6633,9 @@
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {
@@ -7661,16 +7672,17 @@
             "type": "object",
             "required": [
                 "amount",
-                "category_id",
+                "bank_id",
                 "currency",
                 "description",
+                "transaction_category_id",
                 "txn_date"
             ],
             "properties": {
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "currency": {
@@ -7686,6 +7698,9 @@
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {
@@ -7697,16 +7712,17 @@
             "type": "object",
             "required": [
                 "amount",
-                "category_id",
+                "bank_id",
                 "currency",
                 "description",
+                "transaction_category_id",
                 "txn_date"
             ],
             "properties": {
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "currency": {
@@ -7722,6 +7738,9 @@
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {

@@ -26,7 +26,7 @@ func (r *BankAccountsRepo) CreateBankAccount(ctx context.Context, bankAccount mo
 }
 
 func (r *BankAccountsRepo) UpdateBankAccountByID(ctx context.Context, id string, update models.BankAccount) (*models.BankAccount, error) {
-	filter := bson.M{"id": id}
+	filter := bson.M{"bank_id": id}
 	set := bson.M{
 		"bank_name":    update.BankName,
 		"account_no":   update.AccountNo,
@@ -46,7 +46,7 @@ func (r *BankAccountsRepo) UpdateBankAccountByID(ctx context.Context, id string,
 }
 
 func (r *BankAccountsRepo) SoftDeleteBankAccountByID(ctx context.Context, id string) error {
-	_, err := r.coll.UpdateOne(ctx, bson.M{"id": id}, bson.M{"$set": bson.M{"deleted_at": time.Now()}})
+	_, err := r.coll.UpdateOne(ctx, bson.M{"bank_id": id}, bson.M{"$set": bson.M{"deleted_at": time.Now()}})
 	return err
 }
 

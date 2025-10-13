@@ -28,15 +28,16 @@ func (r *expenseRepo) CreateExpense(ctx context.Context, expense models.Expense)
 func (r *expenseRepo) UpdateExpenseByID(ctx context.Context, expenseID string, update models.Expense) (*models.Expense, error) {
 	filter := bson.M{"expense_id": expenseID}
 	set := bson.M{
-		"category_id":    update.CategoryID,
-		"description":    update.Description,
-		"amount":         update.Amount,
-		"currency":       update.Currency,
-		"txn_date":       update.TxnDate,
-		"payment_method": update.PaymentMethod,
-		"reference_no":   update.ReferenceNo,
-		"note":           update.Note,
-		"updated_at":     time.Now(),
+		"transaction_category_id": update.TransactionCategoryID,
+		"bank_id":                 update.BankID,
+		"description":             update.Description,
+		"amount":                  update.Amount,
+		"currency":                update.Currency,
+		"txn_date":                update.TxnDate,
+		"payment_method":          update.PaymentMethod,
+		"reference_no":            update.ReferenceNo,
+		"note":                    update.Note,
+		"updated_at":              time.Now(),
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var updated models.Expense

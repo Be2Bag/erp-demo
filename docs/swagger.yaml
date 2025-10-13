@@ -238,7 +238,7 @@ definitions:
     properties:
       amount:
         type: number
-      category_id:
+      bank_id:
         type: string
       currency:
         type: string
@@ -250,20 +250,23 @@ definitions:
         type: string
       reference_no:
         type: string
+      transaction_category_id:
+        type: string
       txn_date:
         type: string
     required:
     - amount
-    - category_id
+    - bank_id
     - currency
     - description
+    - transaction_category_id
     - txn_date
     type: object
   dto.CreateIncomeDTO:
     properties:
       amount:
         type: number
-      category_id:
+      bank_id:
         type: string
       currency:
         type: string
@@ -275,13 +278,16 @@ definitions:
         type: string
       reference_no:
         type: string
+      transaction_category_id:
+        type: string
       txn_date:
         type: string
     required:
     - amount
-    - category_id
+    - bank_id
     - currency
     - description
+    - transaction_category_id
     - txn_date
     type: object
   dto.CreateKPITemplateDTO:
@@ -589,7 +595,7 @@ definitions:
     properties:
       amount:
         type: number
-      category_id:
+      bank_id:
         type: string
       created_at:
         type: string
@@ -608,6 +614,8 @@ definitions:
       payment_method:
         type: string
       reference_no:
+        type: string
+      transaction_category_id:
         type: string
       txn_date:
         type: string
@@ -1334,7 +1342,7 @@ definitions:
     properties:
       amount:
         type: number
-      category_id:
+      bank_id:
         type: string
       currency:
         type: string
@@ -1346,20 +1354,23 @@ definitions:
         type: string
       reference_no:
         type: string
+      transaction_category_id:
+        type: string
       txn_date:
         type: string
     required:
     - amount
-    - category_id
+    - bank_id
     - currency
     - description
+    - transaction_category_id
     - txn_date
     type: object
   dto.UpdateIncomeDTO:
     properties:
       amount:
         type: number
-      category_id:
+      bank_id:
         type: string
       currency:
         type: string
@@ -1371,13 +1382,16 @@ definitions:
         type: string
       reference_no:
         type: string
+      transaction_category_id:
+        type: string
       txn_date:
         type: string
     required:
     - amount
-    - category_id
+    - bank_id
     - currency
     - description
+    - transaction_category_id
     - txn_date
     type: object
   dto.UpdateKPIEvaluationRequest:

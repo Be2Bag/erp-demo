@@ -191,6 +191,16 @@ func (h *TransactionCategoryHandler) GetTransactionCategoryByID(c *fiber.Ctx) er
 		})
 	}
 
+	if category == nil {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "Category not found",
+			MessageTH:  "ไม่พบหมวดหมู่",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Category retrieved successfully",

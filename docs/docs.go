@@ -6108,16 +6108,17 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "amount",
-                "category_id",
+                "bank_id",
                 "currency",
                 "description",
+                "transaction_category_id",
                 "txn_date"
             ],
             "properties": {
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "currency": {
@@ -6133,6 +6134,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {
@@ -6144,16 +6148,17 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "amount",
-                "category_id",
+                "bank_id",
                 "currency",
                 "description",
+                "transaction_category_id",
                 "txn_date"
             ],
             "properties": {
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "currency": {
@@ -6169,6 +6174,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {
@@ -6603,7 +6611,7 @@ const docTemplate = `{
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "created_at": {
@@ -6631,6 +6639,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {
@@ -7667,16 +7678,17 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "amount",
-                "category_id",
+                "bank_id",
                 "currency",
                 "description",
+                "transaction_category_id",
                 "txn_date"
             ],
             "properties": {
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "currency": {
@@ -7692,6 +7704,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {
@@ -7703,16 +7718,17 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "amount",
-                "category_id",
+                "bank_id",
                 "currency",
                 "description",
+                "transaction_category_id",
                 "txn_date"
             ],
             "properties": {
                 "amount": {
                     "type": "number"
                 },
-                "category_id": {
+                "bank_id": {
                     "type": "string"
                 },
                 "currency": {
@@ -7728,6 +7744,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "reference_no": {
+                    "type": "string"
+                },
+                "transaction_category_id": {
                     "type": "string"
                 },
                 "txn_date": {

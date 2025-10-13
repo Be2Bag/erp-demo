@@ -63,6 +63,10 @@ func main() {
 	kpiEvaluationRepo := repositories.NewKPIEvaluationRepository(database)
 	categoryRepo := repositories.NewCategoryRepository(database)
 	signTypeRepo := repositories.NewSignTypeRepository(database)
+	bankAccountsRepo := repositories.NewBankAccountsRepository(database)
+	transactionCategoryRepo := repositories.NewTransactionCategoryRepository(database)
+	inComeRepo := repositories.NewInComeRepository(database)
+	expenseRepo := repositories.NewExpenseRepository(database)
 
 	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage, taskRepo)
 	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
@@ -79,6 +83,10 @@ func main() {
 	kpiEvaluationSvc := services.NewKPIEvaluationService(*cfg, kpiRepo, userRepo, kpiEvaluationRepo, taskRepo, departmentRepo, projectRepo, signJobRepo)
 	categorySvc := services.NewCategoryService(*cfg, categoryRepo)
 	signTypeSvc := services.NewSignTypeService(*cfg, signTypeRepo, userRepo)
+	bankAccountsSvc := services.NewBankAccountService(*cfg, bankAccountsRepo)
+	transactionCategorySvc := services.NewTransactionCategoryService(*cfg, transactionCategoryRepo)
+	inComeSvc := services.NewInComeService(*cfg, inComeRepo)
+	expenseSvc := services.NewExpenseService(*cfg, expenseRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
@@ -95,6 +103,10 @@ func main() {
 	kpiEvaluationHdl := handlers.NewKPIEvaluationHandler(kpiEvaluationSvc, authCookieMiddleware)
 	categoryHdl := handlers.NewCategoryHandler(categorySvc, authCookieMiddleware)
 	signTypeHdl := handlers.NewSignTypeHandler(signTypeSvc, authCookieMiddleware)
+	bankAccountsHdl := handlers.NewBankAccountsHandler(bankAccountsSvc, authCookieMiddleware)
+	transactionCategoryHdl := handlers.NewTransactionCategoryHandler(transactionCategorySvc, authCookieMiddleware)
+	inComeHdl := handlers.NewInComeHandler(inComeSvc, authCookieMiddleware)
+	expenseHdl := handlers.NewExpenseHandler(expenseSvc, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -122,6 +134,10 @@ func main() {
 	kpiEvaluationHdl.KPIEvaluationRoutes(apiGroup)
 	categoryHdl.CategoryRoutes(apiGroup)
 	signTypeHdl.SignTypeRoutes(apiGroup)
+	bankAccountsHdl.BankAccountsRoutes(apiGroup)
+	transactionCategoryHdl.TransactionCategoryRoutes(apiGroup)
+	inComeHdl.InComeRoutes(apiGroup)
+	expenseHdl.ExpenseRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{

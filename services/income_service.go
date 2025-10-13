@@ -38,18 +38,19 @@ func (s *inComeService) CreateInCome(ctx context.Context, inCome dto.CreateIncom
 	}
 
 	model := models.Income{
-		IncomeID:      uuid.NewString(),
-		CategoryID:    inCome.CategoryID,
-		Description:   inCome.Description,
-		Amount:        inCome.Amount,
-		Currency:      inCome.Currency,
-		TxnDate:       due,
-		PaymentMethod: inCome.PaymentMethod,
-		ReferenceNo:   inCome.ReferenceNo,
-		Note:          inCome.Note,
-		CreatedBy:     claims.UserID,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		IncomeID:              uuid.NewString(),
+		BankID:                inCome.BankID,
+		TransactionCategoryID: inCome.TransactionCategoryID,
+		Description:           inCome.Description,
+		Amount:                inCome.Amount,
+		Currency:              inCome.Currency,
+		TxnDate:               due,
+		PaymentMethod:         inCome.PaymentMethod,
+		ReferenceNo:           inCome.ReferenceNo,
+		Note:                  inCome.Note,
+		CreatedBy:             claims.UserID,
+		CreatedAt:             now,
+		UpdatedAt:             now,
 	}
 
 	if err := s.inComeRepo.CreateInCome(ctx, model); err != nil {
@@ -105,19 +106,20 @@ func (s *inComeService) ListInComes(ctx context.Context, claims *dto.JWTClaims, 
 	for _, m := range items {
 
 		list = append(list, dto.IncomeDTO{
-			IncomeID:      m.IncomeID,
-			CategoryID:    m.CategoryID,
-			Description:   m.Description,
-			Amount:        m.Amount,
-			Currency:      m.Currency,
-			TxnDate:       m.TxnDate,
-			PaymentMethod: m.PaymentMethod,
-			ReferenceNo:   m.ReferenceNo,
-			Note:          m.Note,
-			CreatedBy:     m.CreatedBy,
-			CreatedAt:     m.CreatedAt,
-			UpdatedAt:     m.UpdatedAt,
-			DeletedAt:     m.DeletedAt,
+			IncomeID:              m.IncomeID,
+			BankID:                m.BankID,
+			TransactionCategoryID: m.TransactionCategoryID,
+			Description:           m.Description,
+			Amount:                m.Amount,
+			Currency:              m.Currency,
+			TxnDate:               m.TxnDate,
+			PaymentMethod:         m.PaymentMethod,
+			ReferenceNo:           m.ReferenceNo,
+			Note:                  m.Note,
+			CreatedBy:             m.CreatedBy,
+			CreatedAt:             m.CreatedAt,
+			UpdatedAt:             m.UpdatedAt,
+			DeletedAt:             m.DeletedAt,
 		})
 	}
 
@@ -150,19 +152,20 @@ func (s *inComeService) GetIncomeByID(ctx context.Context, incomeID string, clai
 
 	dtoObj := &dto.IncomeDTO{
 		// ---------- รายละเอียดรายได้ ----------
-		IncomeID:      m.IncomeID,
-		CategoryID:    m.CategoryID,
-		Description:   m.Description,
-		Amount:        m.Amount,
-		Currency:      m.Currency,
-		TxnDate:       m.TxnDate,
-		PaymentMethod: m.PaymentMethod,
-		ReferenceNo:   m.ReferenceNo,
-		Note:          m.Note,
-		CreatedBy:     m.CreatedBy,
-		CreatedAt:     m.CreatedAt,
-		UpdatedAt:     m.UpdatedAt,
-		DeletedAt:     m.DeletedAt,
+		IncomeID:              m.IncomeID,
+		BankID:                m.BankID,
+		TransactionCategoryID: m.TransactionCategoryID,
+		Description:           m.Description,
+		Amount:                m.Amount,
+		Currency:              m.Currency,
+		TxnDate:               m.TxnDate,
+		PaymentMethod:         m.PaymentMethod,
+		ReferenceNo:           m.ReferenceNo,
+		Note:                  m.Note,
+		CreatedBy:             m.CreatedBy,
+		CreatedAt:             m.CreatedAt,
+		UpdatedAt:             m.UpdatedAt,
+		DeletedAt:             m.DeletedAt,
 	}
 	return dtoObj, nil
 }
@@ -178,8 +181,8 @@ func (s *inComeService) UpdateInComeByID(ctx context.Context, incomeID string, u
 		return mongo.ErrNoDocuments
 	}
 
-	if update.CategoryID != "" {
-		existing.CategoryID = update.CategoryID
+	if update.TransactionCategoryID != "" {
+		existing.TransactionCategoryID = update.TransactionCategoryID
 	}
 	if update.Description != "" {
 		existing.Description = update.Description

@@ -38,18 +38,19 @@ func (s *expenseService) CreateExpense(ctx context.Context, expense dto.CreateEx
 	}
 
 	model := models.Expense{
-		ExpenseID:     uuid.NewString(),
-		CategoryID:    expense.CategoryID,
-		Description:   expense.Description,
-		Amount:        expense.Amount,
-		Currency:      expense.Currency,
-		TxnDate:       due,
-		PaymentMethod: expense.PaymentMethod,
-		ReferenceNo:   expense.ReferenceNo,
-		Note:          expense.Note,
-		CreatedBy:     claims.UserID,
-		CreatedAt:     now,
-		UpdatedAt:     now,
+		ExpenseID:             uuid.NewString(),
+		TransactionCategoryID: expense.TransactionCategoryID,
+		BankID:                expense.BankID,
+		Description:           expense.Description,
+		Amount:                expense.Amount,
+		Currency:              expense.Currency,
+		TxnDate:               due,
+		PaymentMethod:         expense.PaymentMethod,
+		ReferenceNo:           expense.ReferenceNo,
+		Note:                  expense.Note,
+		CreatedBy:             claims.UserID,
+		CreatedAt:             now,
+		UpdatedAt:             now,
 	}
 
 	if err := s.expenseRepo.CreateExpense(ctx, model); err != nil {
@@ -105,19 +106,20 @@ func (s *expenseService) ListExpenses(ctx context.Context, claims *dto.JWTClaims
 	for _, m := range items {
 
 		list = append(list, dto.ExpenseDTO{
-			ExpenseID:     m.ExpenseID,
-			CategoryID:    m.CategoryID,
-			Description:   m.Description,
-			Amount:        m.Amount,
-			Currency:      m.Currency,
-			TxnDate:       m.TxnDate,
-			PaymentMethod: m.PaymentMethod,
-			ReferenceNo:   m.ReferenceNo,
-			Note:          m.Note,
-			CreatedBy:     m.CreatedBy,
-			CreatedAt:     m.CreatedAt,
-			UpdatedAt:     m.UpdatedAt,
-			DeletedAt:     m.DeletedAt,
+			ExpenseID:             m.ExpenseID,
+			TransactionCategoryID: m.TransactionCategoryID,
+			BankID:                m.BankID,
+			Description:           m.Description,
+			Amount:                m.Amount,
+			Currency:              m.Currency,
+			TxnDate:               m.TxnDate,
+			PaymentMethod:         m.PaymentMethod,
+			ReferenceNo:           m.ReferenceNo,
+			Note:                  m.Note,
+			CreatedBy:             m.CreatedBy,
+			CreatedAt:             m.CreatedAt,
+			UpdatedAt:             m.UpdatedAt,
+			DeletedAt:             m.DeletedAt,
 		})
 	}
 
@@ -150,19 +152,20 @@ func (s *expenseService) GetExpenseByID(ctx context.Context, expenseID string, c
 
 	dtoObj := &dto.ExpenseDTO{
 		// ---------- รายละเอียดรายจ่าย ----------
-		ExpenseID:     m.ExpenseID,
-		CategoryID:    m.CategoryID,
-		Description:   m.Description,
-		Amount:        m.Amount,
-		Currency:      m.Currency,
-		TxnDate:       m.TxnDate,
-		PaymentMethod: m.PaymentMethod,
-		ReferenceNo:   m.ReferenceNo,
-		Note:          m.Note,
-		CreatedBy:     m.CreatedBy,
-		CreatedAt:     m.CreatedAt,
-		UpdatedAt:     m.UpdatedAt,
-		DeletedAt:     m.DeletedAt,
+		ExpenseID:             m.ExpenseID,
+		TransactionCategoryID: m.TransactionCategoryID,
+		BankID:                m.BankID,
+		Description:           m.Description,
+		Amount:                m.Amount,
+		Currency:              m.Currency,
+		TxnDate:               m.TxnDate,
+		PaymentMethod:         m.PaymentMethod,
+		ReferenceNo:           m.ReferenceNo,
+		Note:                  m.Note,
+		CreatedBy:             m.CreatedBy,
+		CreatedAt:             m.CreatedAt,
+		UpdatedAt:             m.UpdatedAt,
+		DeletedAt:             m.DeletedAt,
 	}
 	return dtoObj, nil
 }
@@ -178,9 +181,14 @@ func (s *expenseService) UpdateExpenseByID(ctx context.Context, expenseID string
 		return mongo.ErrNoDocuments
 	}
 
-	if update.CategoryID != "" {
-		existing.CategoryID = update.CategoryID
+	if update.TransactionCategoryID != "" {
+		existing.TransactionCategoryID = update.TransactionCategoryID
 	}
+
+	if update.BankID != "" {
+		existing.BankID = update.BankID
+	}
+
 	if update.Description != "" {
 		existing.Description = update.Description
 	}
