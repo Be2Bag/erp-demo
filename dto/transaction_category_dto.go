@@ -26,6 +26,7 @@ type RequestListTransactionCategory struct {
 	Search    string `query:"search"`     // คำค้นหาสำหรับกรองข้อมูล
 	SortBy    string `query:"sort_by"`    // คอลัมน์ที่ต้องการเรียงลำดับ
 	SortOrder string `query:"sort_order"` // ทิศทางการเรียงลำดับ (asc หรือ desc)
+	Type      string `query:"type"`       // ประเภทหมวดหมู่ (เช่น รายรับ, รายจ่าย)
 }
 
 // ---------- Response DTO ----------

@@ -71,3 +71,11 @@ type ResponseGetCategorys struct {
 	CategoryNameEN string `json:"category_name_en"` // ชื่อหมวดหมู่ (ภาษาอังกฤษ)
 	Description    string `json:"description"`
 }
+
+type ResponseGetTransactionCategorys struct {
+	TransactionCategoryID     string  `json:"transaction_category_id"`      // UUID
+	Type                      string  `json:"type"`                         // ประเภทหมวดหมู่
+	TransactionCategoryNameTH string  `json:"transaction_category_name_th"` // ชื่อหมวดหมู่ภาษาไทย
+	Description               string  `json:"description"`                  // รายละเอียด
+	Note                      *string `json:"note,omitempty"`               // หมายเหตุเพิ่มเติม
+}

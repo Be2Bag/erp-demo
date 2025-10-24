@@ -90,10 +90,12 @@ func (h *TransactionCategoryHandler) CreateTransactionCategory(c *fiber.Ctx) err
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
 // @Param search query string false "Search term"
-// @Param sort_by query string false "Sort by field" Enums(transaction_category_name_th, created_at) default(created_at)
+// @Param sort_by query string false "Sort by field" default("created_at")
 // @Param sort_order query string false "Sort order" Enums(asc, desc) default(desc)
+// @Param type query string false "Type filter Enums(income, expense) default(income)"
 // @Success 200 {object} dto.BaseResponse{data=dto.Pagination}
 // @Failure 400 {object} dto.BaseResponse
+// @Failure 401 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/transaction-category/list [get]
 func (h *TransactionCategoryHandler) GetTransactionCategoryList(c *fiber.Ctx) error {
@@ -126,7 +128,7 @@ func (h *TransactionCategoryHandler) GetTransactionCategoryList(c *fiber.Ctx) er
 		req.Page = 1
 	}
 
-	categories, err := h.svc.ListTransactionCategory(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder)
+	categories, err := h.svc.ListTransactionCategory(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Type)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

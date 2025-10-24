@@ -341,6 +341,21 @@ definitions:
       project_name:
         type: string
     type: object
+  dto.CreateReceivableDTO:
+    properties:
+      amount:
+        type: number
+      balance:
+        type: number
+      customer:
+        type: string
+      due_date:
+        type: string
+      invoice_no:
+        type: string
+      issue_date:
+        type: string
+    type: object
   dto.CreateSignJobDTO:
     properties:
       address:
@@ -1133,6 +1148,24 @@ definitions:
         description: รหัสไปรษณีย์
         type: string
     type: object
+  dto.ResponseGetTransactionCategorys:
+    properties:
+      description:
+        description: รายละเอียด
+        type: string
+      note:
+        description: หมายเหตุเพิ่มเติม
+        type: string
+      transaction_category_id:
+        description: UUID
+        type: string
+      transaction_category_name_th:
+        description: ชื่อหมวดหมู่ภาษาไทย
+        type: string
+      type:
+        description: ประเภทหมวดหมู่
+        type: string
+    type: object
   dto.ResponseGetUsers:
     properties:
       full_name_th:
@@ -1444,6 +1477,23 @@ definitions:
       project_name:
         type: string
     type: object
+  dto.UpdateReceivableDTO:
+    properties:
+      amount:
+        type: number
+      balance:
+        type: number
+      customer:
+        type: string
+      due_date:
+        type: string
+      invoice_no:
+        type: string
+      issue_date:
+        type: string
+      status:
+        type: string
+    type: object
   dto.UpdateSignJobDTO:
     properties:
       address:
@@ -1658,7 +1708,7 @@ definitions:
         description: ชื่อ Template
         type: string
     type: object
-host: api.dev.rkp-media.com
+host: localhost:3000
 info:
   contact: {}
   description: This is an ERP API demo.
@@ -2782,6 +2832,42 @@ paths:
       summary: Get all sub-districts by district ID
       tags:
       - Dropdown
+  /v1/dropdown/transaction-category/{types}:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลหมวดหมู่รายการเคลื่อนไหวทั้งหมด
+      parameters:
+      - description: Types
+        in: path
+        name: types
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetTransactionCategorys'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all transaction categories
+      tags:
+      - Dropdown
   /v1/dropdown/user:
     get:
       consumes:
@@ -3068,6 +3154,29 @@ paths:
       summary: List Expenses
       tags:
       - Expense
+  /v1/expense/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get summary of expense for today, this month, and all time
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Expense Summary by Filter
+      tags:
+      - Expense
   /v1/in-come/{id}:
     delete:
       consumes:
@@ -3201,7 +3310,7 @@ paths:
         name: page
         type: integer
       - default: 10
-        description: Number of items per page
+        description: Items per page
         in: query
         maximum: 100
         name: limit
@@ -3210,12 +3319,15 @@ paths:
         in: query
         name: search
         type: string
-      - default: '"created_at"'
-        description: Field to sort by
+      - default: created_at
+        description: Sort by field
+        enum:
+        - created_at
+        - updated_at
         in: query
         name: sortBy
         type: string
-      - default: '"desc"'
+      - default: desc
         description: Sort order
         enum:
         - asc
@@ -3229,17 +3341,39 @@ paths:
         "200":
           description: OK
           schema:
-            allOf:
-            - $ref: '#/definitions/dto.BaseResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/dto.Pagination'
-              type: object
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: List In Comes
+      tags:
+      - Income
+  /v1/in-come/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get summary of income for today, this month, and all time
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Income Summary by Filter
       tags:
       - Income
   /v1/kpi-evaluations/{id}:
@@ -3924,6 +4058,235 @@ paths:
       summary: Get a list of projects
       tags:
       - Projects
+  /v1/receivable:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of receivables
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - default: created_at
+        description: Sort by field
+        enum:
+        - created_at
+        - updated_at
+        in: query
+        name: sortBy
+        type: string
+      - default: desc
+        description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sortOrder
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List receivables
+      tags:
+      - Receivables
+    post:
+      consumes:
+      - application/json
+      description: Create a new receivable record
+      parameters:
+      - description: Receivable data
+        in: body
+        name: receivable
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateReceivableDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new receivable
+      tags:
+      - Receivables
+  /v1/receivable/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a receivable record by its ID
+      parameters:
+      - description: Receivable ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete receivable by ID
+      tags:
+      - Receivables
+    get:
+      consumes:
+      - application/json
+      description: Get a receivable record by its ID
+      parameters:
+      - description: Receivable ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get receivable by ID
+      tags:
+      - Receivables
+    put:
+      consumes:
+      - application/json
+      description: Update a receivable record by its ID
+      parameters:
+      - description: Receivable ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Receivable data to update
+        in: body
+        name: receivable
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateReceivableDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update receivable by ID
+      tags:
+      - Receivables
+  /v1/receivable/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get summary of receivables
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Summary receivables
+      tags:
+      - Receivables
   /v1/sign-job/{id}:
     delete:
       consumes:
@@ -4747,11 +5110,8 @@ paths:
         in: query
         name: search
         type: string
-      - default: created_at
+      - default: '"created_at"'
         description: Sort by field
-        enum:
-        - transaction_category_name_th
-        - created_at
         in: query
         name: sort_by
         type: string
@@ -4762,6 +5122,14 @@ paths:
         - desc
         in: query
         name: sort_order
+        type: string
+      - default: income
+        description: Type filter Enums(income, expense) default(income)
+        enum:
+        - income
+        - expense
+        in: query
+        name: type
         type: string
       produces:
       - application/json
@@ -4777,6 +5145,10 @@ paths:
               type: object
         "400":
           description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
           schema:
             $ref: '#/definitions/dto.BaseResponse'
         "500":

@@ -228,3 +228,64 @@ func (s *inComeService) DeleteInComeByInComeID(ctx context.Context, incomeID str
 	}
 	return err
 }
+
+func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.JWTClaims) (dto.IncomeSummaryDTO, error) {
+	now := time.Now()
+
+	// Today
+	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	endToday := startToday.Add(24 * time.Hour)
+	filterToday := bson.M{
+		"deleted_at": nil,
+		"txn_date": bson.M{
+			"$gte": startToday,
+			"$lt":  endToday,
+		},
+	}
+	incomesToday, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterToday, nil)
+	if err != nil {
+		return dto.IncomeSummaryDTO{}, err
+	}
+	var totalToday float64
+	for _, income := range incomesToday {
+		totalToday += income.Amount
+	}
+
+	// This Month
+	startMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	endMonth := startMonth.AddDate(0, 1, 0)
+	filterMonth := bson.M{
+		"deleted_at": nil,
+		"txn_date": bson.M{
+			"$gte": startMonth,
+			"$lt":  endMonth,
+		},
+	}
+	incomesMonth, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterMonth, nil)
+	if err != nil {
+		return dto.IncomeSummaryDTO{}, err
+	}
+	var totalThisMonth float64
+	for _, income := range incomesMonth {
+		totalThisMonth += income.Amount
+	}
+
+	// All
+	filterAll := bson.M{
+		"deleted_at": nil,
+	}
+	incomesAll, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterAll, nil)
+	if err != nil {
+		return dto.IncomeSummaryDTO{}, err
+	}
+	var totalAll float64
+	for _, income := range incomesAll {
+		totalAll += income.Amount
+	}
+
+	return dto.IncomeSummaryDTO{
+		TotalToday:     totalToday,
+		TotalThisMonth: totalThisMonth,
+		TotalAll:       totalAll,
+	}, nil
+}

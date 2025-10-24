@@ -26,6 +26,7 @@ func (h *ExpenseHandler) ExpenseRoutes(router fiber.Router) {
 
 	expense.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateExpense)
 	expense.Get("/list", h.mdw.AuthCookieMiddleware(), h.ListExpenses)
+	expense.Get("/summary", h.mdw.AuthCookieMiddleware(), h.SummaryExpenseByFilter)
 	expense.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetExpenseByID)
 	expense.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateExpenseByID)
 	expense.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteExpenseByID)
@@ -298,5 +299,44 @@ func (h *ExpenseHandler) DeleteExpenseByID(c *fiber.Ctx) error {
 		MessageTH:  "ลบแล้ว",
 		Status:     "success",
 		Data:       nil,
+	})
+}
+
+// @Summary Expense Summary by Filter
+// @Description Get summary of expense for today, this month, and all time
+// @Tags Expense
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.BaseResponse
+// @Failure 401 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/expense/summary [get]
+func (h *ExpenseHandler) SummaryExpenseByFilter(c *fiber.Ctx) error {
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	summary, err := h.svc.SummaryExpenseByFilter(c.Context(), claims)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to get expense summary",
+			MessageTH:  "ไม่สามารถดึงข้อมูลสรุปรายจ่าย",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	return c.JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Success",
+		MessageTH:  "สำเร็จ",
+		Status:     "success",
+		Data:       summary,
 	})
 }

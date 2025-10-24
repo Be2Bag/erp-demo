@@ -10,36 +10,38 @@ import (
 )
 
 type dropDownRepo struct {
-	departmentsColl   *mongo.Collection
-	positionsColl     *mongo.Collection
-	provincesColl     *mongo.Collection
-	districtsColl     *mongo.Collection
-	subDistrictsColl  *mongo.Collection
-	signTypesColl     *mongo.Collection
-	customerTypesColl *mongo.Collection
-	signJobsColl      *mongo.Collection
-	projectsColl      *mongo.Collection
-	usersColl         *mongo.Collection
-	kpiColl           *mongo.Collection
-	workflowsColl     *mongo.Collection
-	categorysColl     *mongo.Collection
+	departmentsColl          *mongo.Collection
+	positionsColl            *mongo.Collection
+	provincesColl            *mongo.Collection
+	districtsColl            *mongo.Collection
+	subDistrictsColl         *mongo.Collection
+	signTypesColl            *mongo.Collection
+	customerTypesColl        *mongo.Collection
+	signJobsColl             *mongo.Collection
+	projectsColl             *mongo.Collection
+	usersColl                *mongo.Collection
+	kpiColl                  *mongo.Collection
+	workflowsColl            *mongo.Collection
+	categorysColl            *mongo.Collection
+	transactionCategorysColl *mongo.Collection
 }
 
 func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
 	return &dropDownRepo{
-		departmentsColl:   db.Collection(models.CollectionDepartments),
-		positionsColl:     db.Collection(models.CollectionPositions),
-		provincesColl:     db.Collection(models.CollectionProvinces),
-		districtsColl:     db.Collection(models.CollectionDistricts),
-		subDistrictsColl:  db.Collection(models.CollectionSubDistricts),
-		signTypesColl:     db.Collection(models.CollectionSignTypes),
-		customerTypesColl: db.Collection(models.CollectionCustomerTypes),
-		signJobsColl:      db.Collection(models.CollectionSignJobs),
-		projectsColl:      db.Collection(models.CollectionSProject),
-		usersColl:         db.Collection(models.CollectionUsers),
-		kpiColl:           db.Collection(models.CollectionKPITemplates),
-		workflowsColl:     db.Collection(models.CollectionWorkflowTemplates),
-		categorysColl:     db.Collection(models.CollectionCategory),
+		departmentsColl:          db.Collection(models.CollectionDepartments),
+		positionsColl:            db.Collection(models.CollectionPositions),
+		provincesColl:            db.Collection(models.CollectionProvinces),
+		districtsColl:            db.Collection(models.CollectionDistricts),
+		subDistrictsColl:         db.Collection(models.CollectionSubDistricts),
+		signTypesColl:            db.Collection(models.CollectionSignTypes),
+		customerTypesColl:        db.Collection(models.CollectionCustomerTypes),
+		signJobsColl:             db.Collection(models.CollectionSignJobs),
+		projectsColl:             db.Collection(models.CollectionSProject),
+		usersColl:                db.Collection(models.CollectionUsers),
+		kpiColl:                  db.Collection(models.CollectionKPITemplates),
+		workflowsColl:            db.Collection(models.CollectionWorkflowTemplates),
+		categorysColl:            db.Collection(models.CollectionCategory),
+		transactionCategorysColl: db.Collection(models.CollectionTransactionCategory),
 	}
 }
 func (r *dropDownRepo) GetPositions(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Position, error) {
@@ -342,4 +344,28 @@ func (r *dropDownRepo) GetCategorysList(ctx context.Context, filter interface{},
 	}
 
 	return categorys, nil
+}
+
+func (r *dropDownRepo) GetTransactionCategorysList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.TransactionCategory, error) {
+	var transactionCategorys []*models.TransactionCategory
+
+	cursor, err := r.transactionCategorysColl.Find(ctx, filter, options.Find().SetProjection(projection))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var transactionCategory models.TransactionCategory
+		if err := cursor.Decode(&transactionCategory); err != nil {
+			return nil, err
+		}
+		transactionCategorys = append(transactionCategorys, &transactionCategory)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return transactionCategorys, nil
 }

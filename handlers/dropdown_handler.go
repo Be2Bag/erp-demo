@@ -36,6 +36,7 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 	dropdown.Get("/kpi/:id", h.mdw.AuthCookieMiddleware(), h.GetKPI)
 	dropdown.Get("/workflow/:id", h.mdw.AuthCookieMiddleware(), h.GetWorkflow)
 	dropdown.Get("/category", h.mdw.AuthCookieMiddleware(), h.GetCategory)
+	dropdown.Get("/transaction-category/:types", h.mdw.AuthCookieMiddleware(), h.GetTransactionCategory)
 }
 
 // @Summary Get all positions
@@ -648,5 +649,60 @@ func (h *DropDownHandler) GetUserAll(c *fiber.Ctx) error {
 		MessageTH:  "ดึงข้อมูลผู้ใช้สำเร็จ",
 		Status:     "success",
 		Data:       users,
+	})
+}
+
+// @Summary Get all transaction categories
+// @Description ใช้สำหรับดึงข้อมูลหมวดหมู่รายการเคลื่อนไหวทั้งหมด
+// @Tags Dropdown
+// @Accept json
+// @Produce json
+// @Param types path string true "Types"
+// @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetTransactionCategorys}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/transaction-category/{types} [get]
+func (h *DropDownHandler) GetTransactionCategory(c *fiber.Ctx) error {
+
+	types := c.Params("types")
+
+	transactionCategorys, errOnGetTransactionCategorys := h.svc.GetTransactionCategory(c.Context(), types)
+	if errOnGetTransactionCategorys != nil {
+
+		if errOnGetTransactionCategorys == mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "No transaction categories found",
+				MessageTH:  "ไม่สามารถดึงข้อมูลหมวดหมู่ได้",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  errOnGetTransactionCategorys.Error(),
+			MessageTH:  "ไม่สามารถดึงข้อมูลหมวดหมู่ได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	if len(transactionCategorys) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No transaction categories found",
+			MessageTH:  "ไม่พบข้อมูลหมวดหมู่",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get workflows successfully",
+		MessageTH:  "ดึงข้อมูล Workflow สำเร็จ",
+		Status:     "success",
+		Data:       transactionCategorys,
 	})
 }

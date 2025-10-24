@@ -10,40 +10,41 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type InComeHandler struct {
-	svc ports.InComeService
+type ReceivableHandler struct {
+	svc ports.ReceivableService
 	mdw *middleware.Middleware
 }
 
-func NewInComeHandler(s ports.InComeService, mdw *middleware.Middleware) *InComeHandler {
-	return &InComeHandler{svc: s, mdw: mdw}
+func NewReceivableHandler(s ports.ReceivableService, mdw *middleware.Middleware) *ReceivableHandler {
+	return &ReceivableHandler{svc: s, mdw: mdw}
 }
 
-func (h *InComeHandler) InComeRoutes(router fiber.Router) {
+func (h *ReceivableHandler) ReceivableRoutes(router fiber.Router) {
 
 	versionOne := router.Group("v1")
-	inCome := versionOne.Group("in-come")
+	receivable := versionOne.Group("receivable")
 
-	inCome.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateInCome)
-	inCome.Get("/list", h.mdw.AuthCookieMiddleware(), h.ListInComes)
-	inCome.Get("/summary", h.mdw.AuthCookieMiddleware(), h.SummaryInComeByFilter)
-	inCome.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetInComeByID)
-	inCome.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateInComeByID)
-	inCome.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteInComeByID)
+	receivable.Post("", h.mdw.AuthCookieMiddleware(), h.CreateReceivable)
+	receivable.Get("", h.mdw.AuthCookieMiddleware(), h.ListReceivables)
+	receivable.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetReceivableByID)
+	receivable.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateReceivableByID)
+	receivable.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteReceivableByID)
+	receivable.Get("/summary", h.mdw.AuthCookieMiddleware(), h.SummaryReceivableByFilter)
 
 }
 
-// @Summary Create In Come
-// @Description Create a new income
-// @Tags Income
-// @Accept json
-// @Produce json
-// @Param request body dto.CreateIncomeDTO true "Create Income"
-// @Success 201 {object} dto.BaseResponse
-// @Failure 400 {object} dto.BaseResponse
-// @Failure 500 {object} dto.BaseResponse
-// @Router /v1/in-come/create [post]
-func (h *InComeHandler) CreateInCome(c *fiber.Ctx) error {
+// @Summary      Create a new receivable
+// @Description  Create a new receivable record
+// @Tags         Receivables
+// @Accept       json
+// @Produce      json
+// @Param        receivable  body      dto.CreateReceivableDTO  true  "Receivable data"
+// @Success      201  {object}  dto.BaseResponse
+// @Failure      400  {object}  dto.BaseResponse
+// @Failure      401  {object}  dto.BaseResponse
+// @Failure      500  {object}  dto.BaseResponse
+// @Router       /v1/receivable [post]
+func (h *ReceivableHandler) CreateReceivable(c *fiber.Ctx) error {
 
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
@@ -56,7 +57,7 @@ func (h *InComeHandler) CreateInCome(c *fiber.Ctx) error {
 		})
 	}
 
-	var inCome dto.CreateIncomeDTO
+	var inCome dto.CreateReceivableDTO
 	if err := c.BodyParser(&inCome); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
@@ -67,12 +68,12 @@ func (h *InComeHandler) CreateInCome(c *fiber.Ctx) error {
 		})
 	}
 
-	err = h.svc.CreateInCome(c.Context(), inCome, claims)
+	err = h.svc.CreateReceivable(c.Context(), inCome, claims)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create income" + err.Error(),
-			MessageTH:  "สร้างรายได้ไม่สำเร็จ",
+			MessageEN:  "Failed to create receivable" + err.Error(),
+			MessageTH:  "สร้างลูกหนี้ไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -80,28 +81,29 @@ func (h *InComeHandler) CreateInCome(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusCreated,
-		MessageEN:  "Income created successfully",
-		MessageTH:  "สร้างรายได้เรียบร้อยแล้ว",
+		MessageEN:  "Receivable created successfully",
+		MessageTH:  "สร้างลูกหนี้เรียบร้อยแล้ว",
 		Status:     "success",
 		Data:       nil,
 	})
 }
 
-// @Summary List In Comes
-// @Description List all incomes with pagination and optional search
-// @Tags Income
-// @Accept json
-// @Produce json
+// @Summary      List receivables
+// @Description  Get a paginated list of receivables
+// @Tags         Receivables
+// @Accept       json
+// @Produce      json
 // @Param page query int false "Page number" default(1)
-// @Param limit query int false "Items per page" default(10) maximum(100)
+// @Param limit query int false "Items per page" default(10)
 // @Param search query string false "Search term"
 // @Param sortBy query string false "Sort by field" Enums(created_at, updated_at) default(created_at)
 // @Param sortOrder query string false "Sort order" Enums(asc, desc) default(desc)
+// @Param status query string false "Filter by status"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/in-come/list [get]
-func (h *InComeHandler) ListInComes(c *fiber.Ctx) error {
+// @Router /v1/receivable [get]
+func (h *ReceivableHandler) ListReceivables(c *fiber.Ctx) error {
 
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
@@ -114,7 +116,7 @@ func (h *InComeHandler) ListInComes(c *fiber.Ctx) error {
 		})
 	}
 
-	var req dto.RequestListIncome
+	var req dto.RequestListReceivable
 	if err := c.QueryParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
@@ -132,12 +134,12 @@ func (h *InComeHandler) ListInComes(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	list, err := h.svc.ListInComes(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder)
+	list, err := h.svc.ListReceivables(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Status)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list income" + err.Error(),
-			MessageTH:  "ไม่สามารถดึงรายการรายได้",
+			MessageEN:  "Failed to list receivables" + err.Error(),
+			MessageTH:  "ไม่สามารถดึงรายการลูกหนี้",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -151,17 +153,19 @@ func (h *InComeHandler) ListInComes(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Get Income by ID
-// @Description Get a single income by its ID
-// @Tags Income
-// @Accept json
-// @Produce json
-// @Param id path string true "Income ID"
-// @Success 200 {object} dto.BaseResponse
-// @Failure 400 {object} dto.BaseResponse
-// @Failure 500 {object} dto.BaseResponse
-// @Router /v1/in-come/{id} [get]
-func (h *InComeHandler) GetInComeByID(c *fiber.Ctx) error {
+// @Summary      Get receivable by ID
+// @Description  Get a receivable record by its ID
+// @Tags         Receivables
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Receivable ID"
+// @Success      200  {object}  dto.BaseResponse
+// @Failure      400  {object}  dto.BaseResponse
+// @Failure      401  {object}  dto.BaseResponse
+// @Failure      404  {object}  dto.BaseResponse
+// @Failure      500  {object}  dto.BaseResponse
+// @Router       /v1/receivable/{id} [get]
+func (h *ReceivableHandler) GetReceivableByID(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
@@ -172,13 +176,13 @@ func (h *InComeHandler) GetInComeByID(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	inComeID := c.Params("id")
-	item, err := h.svc.GetIncomeByID(c.Context(), inComeID, claims)
+	receivableID := c.Params("id")
+	item, err := h.svc.GetReceivableByID(c.Context(), receivableID, claims)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to get income",
-			MessageTH:  "ไม่สามารถดึงรายได้",
+			MessageEN:  "Failed to get receivable",
+			MessageTH:  "ไม่สามารถดึงลูกหนี้",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -201,18 +205,20 @@ func (h *InComeHandler) GetInComeByID(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Update Income by ID
-// @Description Update an existing income by its ID
-// @Tags Income
-// @Accept json
-// @Produce json
-// @Param id path string true "Income ID"
-// @Param request body dto.UpdateIncomeDTO true "Update Income"
-// @Success 200 {object} dto.BaseResponse
-// @Failure 400 {object} dto.BaseResponse
-// @Failure 500 {object} dto.BaseResponse
-// @Router /v1/in-come/{id} [put]
-func (h *InComeHandler) UpdateInComeByID(c *fiber.Ctx) error {
+// @Summary      Update receivable by ID
+// @Description  Update a receivable record by its ID
+// @Tags         Receivables
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Receivable ID"
+// @Param        receivable  body      dto.UpdateReceivableDTO  true  "Receivable data to update"
+// @Success      200  {object}  dto.BaseResponse
+// @Failure      400  {object}  dto.BaseResponse
+// @Failure      401  {object}  dto.BaseResponse
+// @Failure      404  {object}  dto.BaseResponse
+// @Failure      500  {object}  dto.BaseResponse
+// @Router       /v1/receivable/{id} [put]
+func (h *ReceivableHandler) UpdateReceivableByID(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
@@ -223,8 +229,8 @@ func (h *InComeHandler) UpdateInComeByID(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	inComeID := c.Params("id")
-	var body dto.UpdateIncomeDTO
+	receivableID := c.Params("id")
+	var body dto.UpdateReceivableDTO
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
@@ -234,7 +240,7 @@ func (h *InComeHandler) UpdateInComeByID(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	errOnUpdate := h.svc.UpdateInComeByID(c.Context(), inComeID, body, claims)
+	errOnUpdate := h.svc.UpdateReceivableByID(c.Context(), receivableID, body, claims)
 	statusCode := fiber.StatusOK
 	MsgEN := "Updated"
 	MsgTH := "อัปเดตแล้ว"
@@ -243,12 +249,12 @@ func (h *InComeHandler) UpdateInComeByID(c *fiber.Ctx) error {
 
 		if errors.Is(errOnUpdate, mongo.ErrNoDocuments) {
 			statusCode = fiber.StatusNotFound
-			MsgEN = "Income not found"
-			MsgTH = "ไม่พบรายได้"
+			MsgEN = "Receivable not found"
+			MsgTH = "ไม่พบลูกหนี้"
 		}
 
 		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update income" + errOnUpdate.Error()
+		MsgEN = "Failed to update receivable" + errOnUpdate.Error()
 		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 
@@ -262,17 +268,18 @@ func (h *InComeHandler) UpdateInComeByID(c *fiber.Ctx) error {
 
 }
 
-// @Summary Delete Income by ID
-// @Description Soft delete an income by its ID
-// @Tags Income
-// @Accept json
-// @Produce json
-// @Param id path string true "Income ID"
-// @Success 200 {object} dto.BaseResponse
-// @Failure 400 {object} dto.BaseResponse
-// @Failure 500 {object} dto.BaseResponse
-// @Router /v1/in-come/{id} [delete]
-func (h *InComeHandler) DeleteInComeByID(c *fiber.Ctx) error {
+// @Summary      Delete receivable by ID
+// @Description  Delete a receivable record by its ID
+// @Tags         Receivables
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Receivable ID"
+// @Success      200  {object}  dto.BaseResponse
+// @Failure      400  {object}  dto.BaseResponse
+// @Failure      401  {object}  dto.BaseResponse
+// @Failure      500  {object}  dto.BaseResponse
+// @Router       /v1/receivable/{id} [delete]
+func (h *ReceivableHandler) DeleteReceivableByID(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
@@ -283,12 +290,12 @@ func (h *InComeHandler) DeleteInComeByID(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	inComeID := c.Params("id")
-	err = h.svc.DeleteInComeByInComeID(c.Context(), inComeID, claims)
+	receivableID := c.Params("id")
+	err = h.svc.DeleteReceivableByID(c.Context(), receivableID, claims)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to delete income",
+			MessageEN:  "Failed to delete receivable",
 			MessageTH:  "ลบไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -303,16 +310,17 @@ func (h *InComeHandler) DeleteInComeByID(c *fiber.Ctx) error {
 	})
 }
 
-// @Summary Income Summary by Filter
-// @Description Get summary of income for today, this month, and all time
-// @Tags Income
-// @Accept json
-// @Produce json
-// @Success 200 {object} dto.BaseResponse
-// @Failure 401 {object} dto.BaseResponse
-// @Failure 500 {object} dto.BaseResponse
-// @Router /v1/in-come/summary [get]
-func (h *InComeHandler) SummaryInComeByFilter(c *fiber.Ctx) error {
+// @Summary      Summary receivables
+// @Description  Get summary of receivables
+// @Tags         Receivables
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  dto.BaseResponse
+// @Failure      400  {object}  dto.BaseResponse
+// @Failure      401  {object}  dto.BaseResponse
+// @Failure      500  {object}  dto.BaseResponse
+// @Router       /v1/receivable/summary [get]
+func (h *ReceivableHandler) SummaryReceivableByFilter(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
@@ -323,12 +331,12 @@ func (h *InComeHandler) SummaryInComeByFilter(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	summary, err := h.svc.SummaryInComeByFilter(c.Context(), claims)
+	summary, err := h.svc.SummaryReceivableByFilter(c.Context(), claims)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to get income summary",
-			MessageTH:  "ไม่สามารถดึงข้อมูลสรุปรายได้",
+			MessageEN:  "Failed to get receivable summary",
+			MessageTH:  "ไม่สามารถดึงข้อมูลสรุปลูกหนี้",
 			Status:     "error",
 			Data:       nil,
 		})

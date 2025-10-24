@@ -379,3 +379,30 @@ func (s *dropDownService) GetUserListAll(ctx context.Context) ([]dto.ResponseGet
 
 	return response, nil
 }
+
+func (s *dropDownService) GetTransactionCategory(ctx context.Context, types string) ([]dto.ResponseGetTransactionCategorys, error) {
+	filter := bson.M{"type": types}
+	projection := bson.M{}
+
+	transactionCategorys, errOnGetTransactionCategorys := s.dropDownRepo.GetTransactionCategorysList(ctx, filter, projection)
+	if errOnGetTransactionCategorys != nil {
+		return nil, errOnGetTransactionCategorys
+	}
+
+	if len(transactionCategorys) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetTransactionCategorys
+	for _, category := range transactionCategorys {
+		response = append(response, dto.ResponseGetTransactionCategorys{
+			TransactionCategoryID:     category.TransactionCategoryID,
+			Type:                      category.Type,
+			TransactionCategoryNameTH: category.TransactionCategoryNameTH,
+			Description:               category.Description,
+			Note:                      category.Note,
+		})
+	}
+
+	return response, nil
+}

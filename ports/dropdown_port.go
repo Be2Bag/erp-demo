@@ -22,6 +22,7 @@ type DropDownService interface {
 	GetWorkflows(ctx context.Context, departmentID string) ([]dto.ResponseGetWorkflows, error)
 	GetCategorys(ctx context.Context) ([]dto.ResponseGetCategorys, error)
 	GetUserListAll(ctx context.Context) ([]dto.ResponseGetUsers, error)
+	GetTransactionCategory(ctx context.Context, types string) ([]dto.ResponseGetTransactionCategorys, error)
 }
 
 type DropDownRepository interface {
@@ -38,4 +39,5 @@ type DropDownRepository interface {
 	GetKPIList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.KPITemplate, error)
 	GetWorkflowsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.WorkFlowTemplate, error)
 	GetCategorysList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Category, error)
+	GetTransactionCategorysList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.TransactionCategory, error)
 }

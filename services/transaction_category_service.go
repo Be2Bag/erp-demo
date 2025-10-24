@@ -47,11 +47,12 @@ func (s *transactionCategoryService) CreateTransactionCategory(ctx context.Conte
 
 }
 
-func (s *transactionCategoryService) ListTransactionCategory(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string) (dto.Pagination, error) {
+func (s *transactionCategoryService) ListTransactionCategory(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, types string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
 	filter := bson.M{
+		"type":       types,
 		"deleted_at": nil,
 	}
 

@@ -52,3 +52,9 @@ type IncomeDTO struct {
 	UpdatedAt             time.Time  `json:"updated_at"`
 	DeletedAt             *time.Time `json:"deleted_at,omitempty"`
 }
+
+type IncomeSummaryDTO struct {
+	TotalToday     float64 `json:"total_today"`
+	TotalThisMonth float64 `json:"total_this_month"`
+	TotalAll       float64 `json:"total_all"`
+}

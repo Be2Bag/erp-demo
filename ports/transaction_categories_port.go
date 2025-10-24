@@ -10,7 +10,7 @@ import (
 
 type TransactionCategoryService interface {
 	CreateTransactionCategory(ctx context.Context, createCategoryTransaction dto.CreateTransactionCategoryDTO, claims *dto.JWTClaims) error
-	ListTransactionCategory(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string) (dto.Pagination, error)
+	ListTransactionCategory(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, types string) (dto.Pagination, error)
 	GetTransactionCategoryByID(ctx context.Context, categoryID string, claims *dto.JWTClaims) (*dto.TransactionCategoryDTO, error)
 	UpdateTransactionCategoryByID(ctx context.Context, transactionCategoryID string, update dto.UpdateTransactionCategoryDTO, claims *dto.JWTClaims) error
 	DeleteTransactionCategoryByID(ctx context.Context, categoryID string, claims *dto.JWTClaims) error
