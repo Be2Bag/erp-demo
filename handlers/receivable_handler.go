@@ -24,12 +24,13 @@ func (h *ReceivableHandler) ReceivableRoutes(router fiber.Router) {
 	versionOne := router.Group("v1")
 	receivable := versionOne.Group("receivable")
 
-	receivable.Post("", h.mdw.AuthCookieMiddleware(), h.CreateReceivable)
-	receivable.Get("", h.mdw.AuthCookieMiddleware(), h.ListReceivables)
+	receivable.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateReceivable)
+	receivable.Post("/record-receipt", h.mdw.AuthCookieMiddleware(), h.RecordReceipt)
+	receivable.Get("/list", h.mdw.AuthCookieMiddleware(), h.ListReceivables)
+	receivable.Get("/summary", h.mdw.AuthCookieMiddleware(), h.SummaryReceivableByFilter)
 	receivable.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetReceivableByID)
 	receivable.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateReceivableByID)
 	receivable.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteReceivableByID)
-	receivable.Get("/summary", h.mdw.AuthCookieMiddleware(), h.SummaryReceivableByFilter)
 
 }
 
@@ -43,7 +44,7 @@ func (h *ReceivableHandler) ReceivableRoutes(router fiber.Router) {
 // @Failure      400  {object}  dto.BaseResponse
 // @Failure      401  {object}  dto.BaseResponse
 // @Failure      500  {object}  dto.BaseResponse
-// @Router       /v1/receivable [post]
+// @Router       /v1/receivable/create [post]
 func (h *ReceivableHandler) CreateReceivable(c *fiber.Ctx) error {
 
 	claims, err := middleware.GetClaims(c)
@@ -102,7 +103,7 @@ func (h *ReceivableHandler) CreateReceivable(c *fiber.Ctx) error {
 // @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
-// @Router /v1/receivable [get]
+// @Router /v1/receivable/list [get]
 func (h *ReceivableHandler) ListReceivables(c *fiber.Ctx) error {
 
 	claims, err := middleware.GetClaims(c)
@@ -315,6 +316,8 @@ func (h *ReceivableHandler) DeleteReceivableByID(c *fiber.Ctx) error {
 // @Tags         Receivables
 // @Accept       json
 // @Produce      json
+// @Param bank_id query string false "Bank ID"
+// @Param report query string true "Report type" Enums(day, month, all)
 // @Success      200  {object}  dto.BaseResponse
 // @Failure      400  {object}  dto.BaseResponse
 // @Failure      401  {object}  dto.BaseResponse
@@ -331,7 +334,18 @@ func (h *ReceivableHandler) SummaryReceivableByFilter(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	summary, err := h.svc.SummaryReceivableByFilter(c.Context(), claims)
+	var req dto.RequestSummaryReceivable
+	if err := c.QueryParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid query parameters",
+			MessageTH:  "พารามิเตอร์ไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	summary, err := h.svc.SummaryReceivableByFilter(c.Context(), claims, req)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
@@ -347,5 +361,56 @@ func (h *ReceivableHandler) SummaryReceivableByFilter(c *fiber.Ctx) error {
 		MessageTH:  "สำเร็จ",
 		Status:     "success",
 		Data:       summary,
+	})
+}
+
+// @Summary      Record receipt
+// @Description  Record a receipt for a receivable
+// @Tags         Receivables
+// @Accept       json
+// @Produce      json
+// @Param        receipt  body      dto.RecordReceiptDTO  true  "Receipt data"
+// @Success      201  {object}  dto.BaseResponse
+// @Failure      400  {object}  dto.BaseResponse
+// @Failure      401  {object}  dto.BaseResponse
+// @Failure      500  {object}  dto.BaseResponse
+// @Router       /v1/receivable/record-receipt [post]
+func (h *ReceivableHandler) RecordReceipt(c *fiber.Ctx) error {
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	var inCome dto.RecordReceiptDTO
+	if err := c.BodyParser(&inCome); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request payload",
+			MessageTH:  "ข้อมูลที่ส่งมาไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	err = h.svc.RecordReceipt(c.Context(), inCome, claims)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to record receipt" + err.Error(),
+			MessageTH:  "บันทึกรายรับไม่สำเร็จ",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	return c.Status(fiber.StatusCreated).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusCreated,
+		MessageEN:  "Receipt recorded successfully",
+		MessageTH:  "บันทึกรายรับเรียบร้อยแล้ว",
+		Status:     "success",
+		Data:       nil,
 	})
 }

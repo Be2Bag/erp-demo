@@ -5,7 +5,8 @@ import "time"
 const CollectionReceivable = "receivables" // เราเป็นลูกหนี้ (ต้องจ่ายเงิน)
 
 type Receivable struct {
-	IDReceivable string     `json:"id_receivable" bson:"_id,omitempty"`               // รหัสเอกสาร
+	IDReceivable string     `json:"id_receivable" bson:"id_receivable"`               // รหัสเอกสาร
+	BankID       string     `json:"bank_id" bson:"bank_id"`                           // รหัสบัญชีธนาคารที่เกี่ยวข้อง
 	Customer     string     `json:"customer" bson:"customer"`                         // ลูกค้า
 	InvoiceNo    string     `json:"invoice_no" bson:"invoice_no"`                     // เลขที่ใบแจ้งหนี้
 	IssueDate    time.Time  `json:"issue_date" bson:"issue_date"`                     // วันที่ออกใบแจ้งหนี้

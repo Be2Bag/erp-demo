@@ -14,7 +14,8 @@ type ReceivableService interface {
 	GetReceivableByID(ctx context.Context, receivableID string, claims *dto.JWTClaims) (*dto.ReceivableDTO, error)
 	UpdateReceivableByID(ctx context.Context, receivableID string, update dto.UpdateReceivableDTO, claims *dto.JWTClaims) error
 	DeleteReceivableByID(ctx context.Context, receivableID string, claims *dto.JWTClaims) error
-	SummaryReceivableByFilter(ctx context.Context, claims *dto.JWTClaims) (dto.ReceivableSummaryDTO, error)
+	SummaryReceivableByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestSummaryReceivable) (dto.ReceivableSummaryDTO, error)
+	RecordReceipt(ctx context.Context, input dto.RecordReceiptDTO, claims *dto.JWTClaims) error
 }
 
 type ReceivableRepository interface {
@@ -24,4 +25,5 @@ type ReceivableRepository interface {
 	GetAllReceivablesByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Receivable, error)
 	GetOneReceivableByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.Receivable, error)
 	GetListReceivablesByFilter(ctx context.Context, filter interface{}, projection interface{}, sort bson.D, skip, limit int64) ([]models.Receivable, int64, error)
+	CreatePaymentTransaction(ctx context.Context, tx models.PaymentTransaction) error
 }

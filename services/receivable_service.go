@@ -48,6 +48,7 @@ func (s *receivableService) CreateReceivable(ctx context.Context, receivable dto
 
 	model := models.Receivable{
 		IDReceivable: uuid.NewString(),
+		BankID:       receivable.BankID,
 		Customer:     receivable.Customer,
 		InvoiceNo:    receivable.InvoiceNo,
 		IssueDate:    issue,
@@ -118,6 +119,7 @@ func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWT
 
 		list = append(list, dto.ReceivableDTO{
 			IDReceivable: m.IDReceivable,
+			BankID:       m.BankID,
 			Customer:     m.Customer,
 			InvoiceNo:    m.InvoiceNo,
 			IssueDate:    m.IssueDate,
@@ -148,7 +150,7 @@ func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWT
 
 func (s *receivableService) GetReceivableByID(ctx context.Context, receivableID string, claims *dto.JWTClaims) (*dto.ReceivableDTO, error) {
 
-	filter := bson.M{"_id": receivableID, "deleted_at": nil}
+	filter := bson.M{"id_receivable": receivableID, "deleted_at": nil}
 	projection := bson.M{}
 
 	m, err := s.receivableRepo.GetOneReceivableByFilter(ctx, filter, projection)
@@ -162,6 +164,7 @@ func (s *receivableService) GetReceivableByID(ctx context.Context, receivableID 
 	dtoObj := &dto.ReceivableDTO{
 		// ---------- รายละเอียดรายได้ ----------
 		IDReceivable: m.IDReceivable,
+		BankID:       m.BankID,
 		Customer:     m.Customer,
 		InvoiceNo:    m.InvoiceNo,
 		IssueDate:    m.IssueDate,
@@ -190,6 +193,9 @@ func (s *receivableService) UpdateReceivableByID(ctx context.Context, receivable
 
 	if strings.TrimSpace(update.Customer) != "" {
 		existing.Customer = update.Customer
+	}
+	if strings.TrimSpace(update.BankID) != "" {
+		existing.BankID = update.BankID
 	}
 	if strings.TrimSpace(update.InvoiceNo) != "" {
 		existing.InvoiceNo = update.InvoiceNo
@@ -239,63 +245,142 @@ func (s *receivableService) DeleteReceivableByID(ctx context.Context, receivable
 	return err
 }
 
-func (s *receivableService) SummaryReceivableByFilter(ctx context.Context, claims *dto.JWTClaims) (dto.ReceivableSummaryDTO, error) {
+func (s *receivableService) SummaryReceivableByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestSummaryReceivable) (dto.ReceivableSummaryDTO, error) {
 	now := time.Now()
 
-	// Today
-	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	endToday := startToday.Add(24 * time.Hour)
-	filterToday := bson.M{
+	// base filter
+	filter := bson.M{
 		"deleted_at": nil,
-		"txn_date": bson.M{
-			"$gte": startToday,
-			"$lt":  endToday,
-		},
 	}
-	receivableToday, err := s.receivableRepo.GetAllReceivablesByFilter(ctx, filterToday, nil)
+	if strings.TrimSpace(report.BankID) != "" {
+		filter["bank_id"] = strings.TrimSpace(report.BankID)
+	}
+
+	// date range by report type: day | month | all
+	switch strings.ToLower(strings.TrimSpace(report.Report)) {
+	case "day":
+		start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		end := start.Add(24 * time.Hour)
+		filter["issue_date"] = bson.M{"$gte": start, "$lt": end}
+	case "month":
+		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		end := start.AddDate(0, 1, 0)
+		filter["issue_date"] = bson.M{"$gte": start, "$lt": end}
+	case "all", "":
+		// no date filter
+	default:
+		// unknown report type -> treat as all
+	}
+
+	receivables, err := s.receivableRepo.GetAllReceivablesByFilter(ctx, filter, nil)
 	if err != nil {
 		return dto.ReceivableSummaryDTO{}, err
 	}
-	var totalToday float64
-	for _, receivable := range receivableToday {
-		totalToday += receivable.Amount
-	}
 
-	// This Month
-	startMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-	endMonth := startMonth.AddDate(0, 1, 0)
-	filterMonth := bson.M{
-		"deleted_at": nil,
-		"txn_date": bson.M{
-			"$gte": startMonth,
-			"$lt":  endMonth,
-		},
-	}
-	receivableMonth, err := s.receivableRepo.GetAllReceivablesByFilter(ctx, filterMonth, nil)
-	if err != nil {
-		return dto.ReceivableSummaryDTO{}, err
-	}
-	var totalThisMonth float64
-	for _, receivable := range receivableMonth {
-		totalThisMonth += receivable.Amount
-	}
+	var totalAmount float64
+	var totalDue float64
+	overdueCount := 0
 
-	// All
-	filterAll := bson.M{
-		"deleted_at": nil,
-	}
-	receivableAll, err := s.receivableRepo.GetAllReceivablesByFilter(ctx, filterAll, nil)
-	if err != nil {
-		return dto.ReceivableSummaryDTO{}, err
-	}
-	var totalAll float64
-	for _, receivable := range receivableAll {
-		totalAll += receivable.Amount
-	}
+	for _, p := range receivables {
+		totalAmount += p.Amount
 
+		// outstanding amount
+		if p.Balance > 0 {
+			totalDue += p.Balance
+
+			// overdue: due date passed and still has balance
+			if !p.DueDate.IsZero() && p.DueDate.Before(now) {
+				overdueCount++
+			} else if strings.EqualFold(p.Status, "overdue") {
+				// fallback if due date not set but status flagged
+				overdueCount++
+			}
+		}
+	}
 	return dto.ReceivableSummaryDTO{
-		TotalAmount: totalAll,
-		TotalPaid:   totalThisMonth,
-		TotalDue:    totalToday,
+		TotalAmount:  totalAmount,
+		TotalDue:     totalDue,
+		OverdueCount: overdueCount,
 	}, nil
+}
+
+func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordReceiptDTO, claims *dto.JWTClaims) error { // บันทึกรายการรับชำระของลูกหนี้
+	// 1) fetch receivable
+	filter := bson.M{"id_receivable": strings.TrimSpace(input.ReceivableID), "deleted_at": nil} // เงื่อนไขค้นหาลูกหนี้ที่ยังไม่ถูกลบตาม ID
+	rec, err := s.receivableRepo.GetOneReceivableByFilter(ctx, filter, bson.M{})                // ดึงข้อมูลลูกหนี้จากแหล่งข้อมูล
+	if err != nil {
+		return fmt.Errorf("get receivable: %w", err) // หากดึงข้อมูลผิดพลาด ส่งต่อ error ออกไป
+	}
+	if rec == nil {
+		return mongo.ErrNoDocuments // ไม่พบข้อมูลลูกหนี้
+	}
+
+	// 2) validate amount
+	amt := input.Amount // จำนวนเงินที่รับชำระ
+	if amt <= 0 {       // ต้องเป็นจำนวนที่มากกว่า 0
+		return fmt.Errorf("amount must be greater than 0") // แจ้งเตือนจำนวนไม่ถูกต้อง
+	}
+	if rec.Balance <= 0 { // หากยอดคงเหลือเป็น 0 หรือ น้อยกว่า
+		return fmt.Errorf("receivable is already fully paid") // ถือว่าชำระครบแล้ว ไม่สามารถรับเพิ่ม
+	}
+	if amt > rec.Balance { // ไม่ให้ชำระเกินยอดคงเหลือ
+		return fmt.Errorf("amount %.2f exceeds remaining balance %.2f", amt, rec.Balance) // แจ้งว่าเกินยอด
+	}
+
+	// 3) parse date
+	now := time.Now()                               // เวลา ณ ปัจจุบัน
+	payDate := now                                  // กำหนดวันที่รับชำระเริ่มต้นเป็นปัจจุบัน
+	if strings.TrimSpace(input.PaymentDate) != "" { // หากมีระบุวันที่รับชำระมา
+		t, err := time.Parse("2006-01-02", input.PaymentDate) // แปลงรูปแบบวันที่เป็น YYYY-MM-DD
+		if err != nil {
+			return fmt.Errorf("invalid payment_date, want YYYY-MM-DD: %w", err) // รูปแบบวันที่ไม่ถูกต้อง
+		}
+		payDate = t // ใช้วันที่ที่ผู้ใช้ระบุ
+	}
+
+	// 4) build transaction (incoming for receivable)
+	refInvoice := rec.InvoiceNo              // อ้างอิงเลขที่ใบแจ้งหนี้
+	if strings.TrimSpace(refInvoice) == "" { // หากไม่มีเลขที่ใบแจ้งหนี้
+		refInvoice = rec.IDReceivable // ใช้รหัสลูกหนี้แทน
+	}
+	tx := models.PaymentTransaction{
+		IDTransaction:   uuid.NewString(),                       // รหัสธุรกรรมใหม่แบบ UUID
+		BankID:          rec.BankID,                             // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+		RefInvoiceNo:    refInvoice,                             // อ้างอิงเอกสาร
+		TransactionType: "receivable",                           // ประเภทธุรกรรมเป็นลูกหนี้
+		PaymentDate:     payDate,                                // วันที่ชำระเงิน
+		Amount:          amt,                                    // จำนวนเงินที่รับ
+		PaymentMethod:   strings.TrimSpace(input.PaymentMethod), // วิธีการชำระ (เช่น โอน/เงินสด)
+		PaymentRef:      strings.TrimSpace(input.PaymentRef),    // เลขอ้างอิงการชำระ (เช่น เลขที่ธุรกรรม)
+		Note:            strings.TrimSpace(input.Note),          // หมายเหตุ
+		CreatedBy:       claims.UserID,                          // ผู้ทำรายการ
+		CreatedAt:       now,                                    // เวลาสร้าง
+		UpdatedAt:       now,                                    // เวลาอัปเดตล่าสุด
+	}
+
+	// 5) insert transaction first
+	if err := s.receivableRepo.CreatePaymentTransaction(ctx, tx); err != nil { // บันทึกธุรกรรมการรับชำระก่อนเพื่อเก็บประวัติ
+		return fmt.Errorf("insert payment tx: %w", err) // หากผิดพลาดให้คืน error
+	}
+
+	// 6) update receivable balance and status
+	rec.Balance -= amt   // หักยอดคงเหลือด้วยจำนวนที่รับชำระ
+	if rec.Balance < 0 { // ป้องกันค่าติดลบ
+		rec.Balance = 0 // เซ็ตเป็นศูนย์หากต่ำกว่า 0
+	}
+
+	if rec.Balance == 0 { // หากชำระครบ
+		rec.Status = "paid" // สถานะเป็นจ่ายครบ
+	} else if !rec.DueDate.IsZero() && rec.DueDate.Before(now) { // ยังเหลือและเกินกำหนด
+		rec.Status = "overdue" // สถานะค้างชำระเกินกำหนด
+	} else {
+		rec.Status = "partial" // ยังเหลือยอด -> จ่ายบางส่วน
+	}
+	rec.UpdatedAt = now // อัปเดตเวลาแก้ไขล่าสุด
+
+	if _, err := s.receivableRepo.UpdateReceivableByID(ctx, rec.IDReceivable, *rec); err != nil { // บันทึกอัปเดตข้อมูลลูกหนี้
+		return fmt.Errorf("update receivable: %w", err) // หากบันทึกไม่สำเร็จ ส่ง error ออกไป
+	}
+
+	return nil // สำเร็จ
 }

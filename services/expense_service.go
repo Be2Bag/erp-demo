@@ -234,8 +234,16 @@ func (s *expenseService) DeleteExpenseByID(ctx context.Context, expenseID string
 	return err
 }
 
-func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto.JWTClaims) (dto.ExpenseSummaryDTO, error) {
+func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestExpenseSummary) (dto.ExpenseSummaryDTO, error) {
 	now := time.Now()
+
+	filter := bson.M{
+		"deleted_at": nil,
+	}
+
+	if report.BankID != "" {
+		filter["bank_id"] = report.BankID
+	}
 
 	// Today
 	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())

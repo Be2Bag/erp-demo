@@ -24,6 +24,11 @@ type RequestListPosition struct {
 	SortOrder  string `query:"sort_order"`    // ทิศทางการเรียงลำดับ (asc หรือ desc)
 }
 
+type RequestSummaryReceivable struct {
+	BankID string `query:"bank_id"` // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+	Report string `query:"report"`  // รายงานประเภท day | month | all
+}
+
 // ---------- Response DTO ----------
 type PositionDTO struct {
 	PositionID   string    `json:"position_id"`   // รหัสตำแหน่งงาน (ไม่ซ้ำกัน)

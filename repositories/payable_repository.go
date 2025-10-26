@@ -13,20 +13,24 @@ import (
 )
 
 type payableRepo struct {
-	coll *mongo.Collection
+	collPayables   *mongo.Collection
+	collPaymentsTx *mongo.Collection
 }
 
 func NewPayableRepository(db *mongo.Database) ports.PayableRepository {
-	return &payableRepo{coll: db.Collection(models.CollectionPayable)}
+	return &payableRepo{
+		collPayables:   db.Collection(models.CollectionPayable),
+		collPaymentsTx: db.Collection(models.CollectionPaymentTransaction),
+	}
 }
 
 func (r *payableRepo) CreatePayable(ctx context.Context, payable models.Payable) error {
-	_, err := r.coll.InsertOne(ctx, payable)
+	_, err := r.collPayables.InsertOne(ctx, payable)
 	return err
 }
 
 func (r *payableRepo) UpdatePayableByID(ctx context.Context, payableID string, update models.Payable) (*models.Payable, error) {
-	filter := bson.M{"_id": payableID}
+	filter := bson.M{"id_payable": payableID}
 	set := bson.M{
 		"supplier":    update.Supplier,
 		"purchase_no": update.PurchaseNo,
@@ -42,7 +46,7 @@ func (r *payableRepo) UpdatePayableByID(ctx context.Context, payableID string, u
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var updated models.Payable
-	if err := r.coll.FindOneAndUpdate(ctx, filter, bson.M{"$set": set}, opts).Decode(&updated); err != nil {
+	if err := r.collPayables.FindOneAndUpdate(ctx, filter, bson.M{"$set": set}, opts).Decode(&updated); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
@@ -52,7 +56,7 @@ func (r *payableRepo) UpdatePayableByID(ctx context.Context, payableID string, u
 }
 
 func (r *payableRepo) SoftDeletePayableByID(ctx context.Context, payableID string) error {
-	_, err := r.coll.UpdateOne(ctx, bson.M{"_id": payableID}, bson.M{"$set": bson.M{"deleted_at": time.Now(), "updated_at": time.Now()}})
+	_, err := r.collPayables.UpdateOne(ctx, bson.M{"id_payable": payableID}, bson.M{"$set": bson.M{"deleted_at": time.Now(), "updated_at": time.Now()}})
 	return err
 }
 
@@ -61,7 +65,7 @@ func (r *payableRepo) GetAllPayablesByFilter(ctx context.Context, filter interfa
 	if projection != nil {
 		opts.SetProjection(projection)
 	}
-	cursor, err := r.coll.Find(ctx, filter, opts)
+	cursor, err := r.collPayables.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +93,7 @@ func (r *payableRepo) GetOnePayableByFilter(ctx context.Context, filter interfac
 		opts.SetProjection(projection)
 	}
 	var payable models.Payable
-	if err := r.coll.FindOne(ctx, filter, opts).Decode(&payable); err != nil {
+	if err := r.collPayables.FindOne(ctx, filter, opts).Decode(&payable); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
@@ -109,7 +113,7 @@ func (r *payableRepo) GetListPayablesByFilter(ctx context.Context, filter interf
 		findOpts.SetProjection(projection)
 	}
 
-	cur, err := r.coll.Find(ctx, filter, findOpts)
+	cur, err := r.collPayables.Find(ctx, filter, findOpts)
 	if err != nil {
 		return nil, 0, fmt.Errorf("find: %w", err)
 	}
@@ -120,10 +124,15 @@ func (r *payableRepo) GetListPayablesByFilter(ctx context.Context, filter interf
 		return nil, 0, fmt.Errorf("decode: %w", err)
 	}
 
-	total, err := r.coll.CountDocuments(ctx, filter)
+	total, err := r.collPayables.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, 0, fmt.Errorf("count: %w", err)
 	}
 
 	return results, total, nil
+}
+
+func (r *payableRepo) CreatePaymentTransaction(ctx context.Context, tx models.PaymentTransaction) error {
+	_, err := r.collPaymentsTx.InsertOne(ctx, tx)
+	return err
 }

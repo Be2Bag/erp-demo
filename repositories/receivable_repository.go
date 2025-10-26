@@ -13,15 +13,19 @@ import (
 )
 
 type receivableRepo struct {
-	coll *mongo.Collection
+	collReceivables *mongo.Collection
+	collPaymentsTx  *mongo.Collection
 }
 
 func NewReceivableRepository(db *mongo.Database) ports.ReceivableRepository {
-	return &receivableRepo{coll: db.Collection(models.CollectionReceivable)}
+	return &receivableRepo{
+		collReceivables: db.Collection(models.CollectionReceivable),
+		collPaymentsTx:  db.Collection(models.CollectionPaymentTransaction),
+	}
 }
 
 func (r *receivableRepo) CreateReceivable(ctx context.Context, receivable models.Receivable) error {
-	_, err := r.coll.InsertOne(ctx, receivable)
+	_, err := r.collReceivables.InsertOne(ctx, receivable)
 	return err
 }
 
@@ -39,7 +43,7 @@ func (r *receivableRepo) UpdateReceivableByID(ctx context.Context, receivableID 
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var updated models.Receivable
-	if err := r.coll.FindOneAndUpdate(ctx, filter, bson.M{"$set": set}, opts).Decode(&updated); err != nil {
+	if err := r.collReceivables.FindOneAndUpdate(ctx, filter, bson.M{"$set": set}, opts).Decode(&updated); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
@@ -49,7 +53,7 @@ func (r *receivableRepo) UpdateReceivableByID(ctx context.Context, receivableID 
 }
 
 func (r *receivableRepo) SoftDeleteReceivableByID(ctx context.Context, receivableID string) error {
-	_, err := r.coll.UpdateOne(ctx, bson.M{"id_receivable": receivableID}, bson.M{"$set": bson.M{"deleted_at": time.Now(), "updated_at": time.Now()}})
+	_, err := r.collReceivables.UpdateOne(ctx, bson.M{"id_receivable": receivableID}, bson.M{"$set": bson.M{"deleted_at": time.Now(), "updated_at": time.Now()}})
 	return err
 }
 
@@ -58,7 +62,7 @@ func (r *receivableRepo) GetAllReceivablesByFilter(ctx context.Context, filter i
 	if projection != nil {
 		opts.SetProjection(projection)
 	}
-	cursor, err := r.coll.Find(ctx, filter, opts)
+	cursor, err := r.collReceivables.Find(ctx, filter, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -86,7 +90,7 @@ func (r *receivableRepo) GetOneReceivableByFilter(ctx context.Context, filter in
 		opts.SetProjection(projection)
 	}
 	var receivable models.Receivable
-	if err := r.coll.FindOne(ctx, filter, opts).Decode(&receivable); err != nil {
+	if err := r.collReceivables.FindOne(ctx, filter, opts).Decode(&receivable); err != nil {
 		if err == mongo.ErrNoDocuments {
 			return nil, nil
 		}
@@ -106,7 +110,7 @@ func (r *receivableRepo) GetListReceivablesByFilter(ctx context.Context, filter 
 		findOpts.SetProjection(projection)
 	}
 
-	cur, err := r.coll.Find(ctx, filter, findOpts)
+	cur, err := r.collReceivables.Find(ctx, filter, findOpts)
 	if err != nil {
 		return nil, 0, fmt.Errorf("find: %w", err)
 	}
@@ -117,10 +121,15 @@ func (r *receivableRepo) GetListReceivablesByFilter(ctx context.Context, filter 
 		return nil, 0, fmt.Errorf("decode: %w", err)
 	}
 
-	total, err := r.coll.CountDocuments(ctx, filter)
+	total, err := r.collReceivables.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, 0, fmt.Errorf("count: %w", err)
 	}
 
 	return results, total, nil
+}
+
+func (r *receivableRepo) CreatePaymentTransaction(ctx context.Context, tx models.PaymentTransaction) error {
+	_, err := r.collPaymentsTx.InsertOne(ctx, tx)
+	return err
 }

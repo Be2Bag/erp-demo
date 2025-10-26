@@ -181,6 +181,9 @@ func (s *inComeService) UpdateInComeByID(ctx context.Context, incomeID string, u
 		return mongo.ErrNoDocuments
 	}
 
+	if update.BankID != "" {
+		existing.BankID = update.BankID
+	}
 	if update.TransactionCategoryID != "" {
 		existing.TransactionCategoryID = update.TransactionCategoryID
 	}
@@ -229,8 +232,15 @@ func (s *inComeService) DeleteInComeByInComeID(ctx context.Context, incomeID str
 	return err
 }
 
-func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.JWTClaims) (dto.IncomeSummaryDTO, error) {
+func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestIncomeSummary) (dto.IncomeSummaryDTO, error) {
 	now := time.Now()
+
+	filter := bson.M{
+		"deleted_at": nil,
+	}
+	if strings.TrimSpace(report.BankID) != "" {
+		filter["bank_id"] = strings.TrimSpace(report.BankID)
+	}
 
 	// Today
 	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())

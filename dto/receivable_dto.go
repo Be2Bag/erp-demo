@@ -6,6 +6,7 @@ import "time"
 
 type CreateReceivableDTO struct {
 	Customer  string  `json:"customer"`
+	BankID    string  `json:"bank_id"`
 	InvoiceNo string  `json:"invoice_no"`
 	IssueDate string  `json:"issue_date"`
 	DueDate   string  `json:"due_date"`
@@ -15,6 +16,7 @@ type CreateReceivableDTO struct {
 
 type UpdateReceivableDTO struct {
 	Customer  string  `json:"customer,omitempty"`
+	BankID    string  `json:"bank_id,omitempty"`
 	InvoiceNo string  `json:"invoice_no,omitempty"`
 	IssueDate string  `json:"issue_date,omitempty"`
 	DueDate   string  `json:"due_date,omitempty"`
@@ -36,6 +38,7 @@ type RequestListReceivable struct {
 
 type ReceivableDTO struct {
 	IDReceivable string     `json:"id_receivable"`
+	BankID       string     `json:"bank_id"`
 	Customer     string     `json:"customer"`
 	InvoiceNo    string     `json:"invoice_no"`
 	IssueDate    time.Time  `json:"issue_date"`
@@ -50,7 +53,7 @@ type ReceivableDTO struct {
 }
 
 type ReceivableSummaryDTO struct {
-	TotalAmount float64 `json:"total_amount"`
-	TotalPaid   float64 `json:"total_paid"`
-	TotalDue    float64 `json:"total_due"`
+	TotalAmount  float64 `json:"total_amount"`  // ยอดรวมทั้งหมด
+	TotalDue     float64 `json:"total_due"`     // ยอดคงค้าง
+	OverdueCount int     `json:"overdue_count"` // จำนวนรายการเกินกำหนด
 }

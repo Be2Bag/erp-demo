@@ -35,6 +35,10 @@ type RequestListExpense struct {
 	SortOrder string `query:"sort_order"`
 }
 
+type RequestExpenseSummary struct {
+	BankID string `query:"bank_id"` // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+}
+
 // ---------- Response DTO ----------
 type ExpenseDTO struct {
 	ExpenseID             string     `json:"expense_id"`

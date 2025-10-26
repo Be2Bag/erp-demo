@@ -52,6 +52,7 @@ func (s *payablesService) CreatePayable(ctx context.Context, payable dto.CreateP
 
 	model := models.Payable{
 		IDPayable:  uuid.NewString(),
+		BankID:     strings.TrimSpace(payable.BankID),
 		Supplier:   strings.TrimSpace(payable.Supplier),
 		PurchaseNo: strings.TrimSpace(payable.PurchaseNo),
 		InvoiceNo:  strings.TrimSpace(payable.InvoiceNo),
@@ -125,6 +126,7 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 
 		list = append(list, dto.PayableDTO{
 			IDPayable: m.IDPayable,
+			BankID:    m.BankID,
 			Supplier:  m.Supplier,
 			InvoiceNo: m.InvoiceNo,
 			IssueDate: m.IssueDate,
@@ -150,7 +152,7 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 
 func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, claims *dto.JWTClaims) (*dto.PayableDTO, error) {
 
-	filter := bson.M{"_id": payableID, "deleted_at": nil}
+	filter := bson.M{"id_payable": payableID, "deleted_at": nil}
 	projection := bson.M{}
 
 	m, err := s.payablesRepo.GetOnePayableByFilter(ctx, filter, projection)
@@ -164,6 +166,7 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 	dtoObj := &dto.PayableDTO{
 		// ---------- รายละเอียดเจ้าหนี้ ----------
 		IDPayable: m.IDPayable,
+		BankID:    m.BankID,
 		Supplier:  m.Supplier,
 		InvoiceNo: m.InvoiceNo,
 		IssueDate: m.IssueDate,
@@ -187,6 +190,9 @@ func (s *payablesService) UpdatePayableByID(ctx context.Context, payableID strin
 
 	if strings.TrimSpace(update.Supplier) != "" {
 		existing.Supplier = update.Supplier
+	}
+	if strings.TrimSpace(update.BankID) != "" {
+		existing.BankID = update.BankID
 	}
 	if strings.TrimSpace(update.InvoiceNo) != "" {
 		existing.InvoiceNo = update.InvoiceNo
@@ -236,63 +242,145 @@ func (s *payablesService) DeletePayableByID(ctx context.Context, payableID strin
 	return err
 }
 
-func (s *payablesService) SummaryPayableByFilter(ctx context.Context, claims *dto.JWTClaims) (dto.PayableSummaryDTO, error) {
+func (s *payablesService) SummaryPayableByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestSummaryPayable) (dto.PayableSummaryDTO, error) {
 	now := time.Now()
 
-	// Today
-	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	endToday := startToday.Add(24 * time.Hour)
-	filterToday := bson.M{
+	// base filter
+	filter := bson.M{
 		"deleted_at": nil,
-		"issue_date": bson.M{
-			"$gte": startToday,
-			"$lt":  endToday,
-		},
 	}
-	payableToday, err := s.payablesRepo.GetAllPayablesByFilter(ctx, filterToday, nil)
-	if err != nil {
-		return dto.PayableSummaryDTO{}, err
-	}
-	var totalToday float64
-	for _, payable := range payableToday {
-		totalToday += payable.Amount
+	if strings.TrimSpace(report.BankID) != "" {
+		filter["bank_id"] = strings.TrimSpace(report.BankID)
 	}
 
-	// This Month
-	startMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-	endMonth := startMonth.AddDate(0, 1, 0)
-	filterMonth := bson.M{
-		"deleted_at": nil,
-		"issue_date": bson.M{
-			"$gte": startMonth,
-			"$lt":  endMonth,
-		},
-	}
-	payableMonth, err := s.payablesRepo.GetAllPayablesByFilter(ctx, filterMonth, nil)
-	if err != nil {
-		return dto.PayableSummaryDTO{}, err
-	}
-	var totalThisMonth float64
-	for _, payable := range payableMonth {
-		totalThisMonth += payable.Amount
+	// date range by report type: day | month | all
+	switch strings.ToLower(strings.TrimSpace(report.Report)) {
+	case "day":
+		start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		end := start.Add(24 * time.Hour)
+		filter["issue_date"] = bson.M{"$gte": start, "$lt": end}
+	case "month":
+		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+		end := start.AddDate(0, 1, 0)
+		filter["issue_date"] = bson.M{"$gte": start, "$lt": end}
+	case "all", "":
+		// no date filter
+	default:
+		// unknown report type -> treat as all
 	}
 
-	// All
-	filterAll := bson.M{
-		"deleted_at": nil,
-	}
-	payableAll, err := s.payablesRepo.GetAllPayablesByFilter(ctx, filterAll, nil)
+	payables, err := s.payablesRepo.GetAllPayablesByFilter(ctx, filter, nil)
 	if err != nil {
 		return dto.PayableSummaryDTO{}, err
 	}
-	var totalAll float64
-	for _, payable := range payableAll {
-		totalAll += payable.Amount
+
+	var totalAmount float64
+	var totalDue float64
+	overdueCount := 0
+
+	for _, p := range payables {
+		totalAmount += p.Amount
+
+		// outstanding amount
+		if p.Balance > 0 {
+			totalDue += p.Balance
+
+			// overdue: due date passed and still has balance
+			if !p.DueDate.IsZero() && p.DueDate.Before(now) {
+				overdueCount++
+			} else if strings.EqualFold(p.Status, "overdue") {
+				// fallback if due date not set but status flagged
+				overdueCount++
+			}
+		}
 	}
 
 	return dto.PayableSummaryDTO{
-		TotalAmount: totalAll,
-		TotalPaid:   totalThisMonth,
-		TotalDue:    totalToday,
+		TotalAmount:  totalAmount,
+		TotalDue:     totalDue,
+		OverdueCount: overdueCount,
 	}, nil
+}
+
+func (s *payablesService) RecordPayment(ctx context.Context, input dto.RecordPaymentDTO, claims *dto.JWTClaims) error {
+	// 1) fetch payable
+	filter := bson.M{"id_payable": strings.TrimSpace(input.PayableID), "deleted_at": nil}
+	payable, err := s.payablesRepo.GetOnePayableByFilter(ctx, filter, bson.M{})
+	if err != nil {
+		return fmt.Errorf("get payable: %w", err)
+	}
+	if payable == nil {
+		return mongo.ErrNoDocuments
+	}
+
+	// 2) validate amount
+	amt := input.Amount
+	if amt <= 0 {
+		return fmt.Errorf("amount must be greater than 0")
+	}
+	if payable.Balance <= 0 {
+		return fmt.Errorf("payable is already fully paid")
+	}
+	if amt > payable.Balance {
+		return fmt.Errorf("amount %.2f exceeds remaining balance %.2f", amt, payable.Balance)
+	}
+
+	// 3) parse date
+	now := time.Now()
+	payDate := now
+	if strings.TrimSpace(input.PaymentDate) != "" {
+		t, err := time.Parse("2006-01-02", input.PaymentDate)
+		if err != nil {
+			return fmt.Errorf("invalid payment_date, want YYYY-MM-DD: %w", err)
+		}
+		payDate = t
+	}
+
+	// 4) build transaction
+	refInvoice := payable.InvoiceNo
+	if strings.TrimSpace(refInvoice) == "" {
+		refInvoice = payable.IDPayable
+	}
+	tx := models.PaymentTransaction{
+		IDTransaction:   uuid.NewString(),
+		BankID:          strings.TrimSpace(input.BankID),
+		RefInvoiceNo:    refInvoice,
+		TransactionType: "payable",
+		PaymentDate:     payDate,
+		Amount:          amt,
+		PaymentMethod:   strings.TrimSpace(input.PaymentMethod),
+		PaymentRef:      strings.TrimSpace(input.PaymentRef),
+		Note:            strings.TrimSpace(input.Note),
+		CreatedBy:       claims.UserID,
+		CreatedAt:       now,
+		UpdatedAt:       now,
+	}
+
+	// 5) insert transaction first
+	if err := s.payablesRepo.CreatePaymentTransaction(ctx, tx); err != nil {
+		return fmt.Errorf("insert payment tx: %w", err)
+	}
+
+	// 6) update payable balance and status
+	newBalance := payable.Balance - amt
+	if newBalance < 0 {
+		newBalance = 0
+	}
+	payable.Balance = newBalance
+
+	// compute status
+	if payable.Balance == 0 {
+		payable.Status = "paid"
+	} else if !payable.DueDate.IsZero() && payable.DueDate.Before(now) {
+		payable.Status = "overdue"
+	} else {
+		payable.Status = "partial"
+	}
+	payable.UpdatedAt = now
+
+	if _, err := s.payablesRepo.UpdatePayableByID(ctx, payable.IDPayable, *payable); err != nil {
+		return fmt.Errorf("update payable: %w", err)
+	}
+
+	return nil
 }

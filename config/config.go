@@ -142,7 +142,7 @@ func LoadConfig() (*Config, error) {
 		cfg.Supabase.Bucket = viper.GetString("supabase.bucket")
 		cfg.Supabase.Region = viper.GetString("supabase.region")
 		cfg.Supabase.Endpoint = viper.GetString("supabase.endpoint")
-		cfg.Supabase.PublicBase = viper.GetString("supabase.publicbase")
+		cfg.Supabase.PublicBase = viper.GetString("supabase.public_base")
 		cfg.Cloudflare.AccessKey = viper.GetString("cloudflare.access_key")
 		cfg.Cloudflare.SecretKey = viper.GetString("cloudflare.secret_key")
 		cfg.Cloudflare.Bucket = viper.GetString("cloudflare.bucket")

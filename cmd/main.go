@@ -3,7 +3,7 @@ package main
 // @title        ERP Demo API
 // @version      1.0
 // @description  This is an ERP API demo.
-// @host         localhost:3000
+// @host         api.dev.rkp-media.com
 // @BasePath     /service/api
 
 import (
@@ -67,6 +67,8 @@ func main() {
 	transactionCategoryRepo := repositories.NewTransactionCategoryRepository(database)
 	inComeRepo := repositories.NewInComeRepository(database)
 	expenseRepo := repositories.NewExpenseRepository(database)
+	payableRepo := repositories.NewPayableRepository(database)
+	receivableRepo := repositories.NewReceivableRepository(database)
 
 	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage, taskRepo)
 	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
@@ -87,6 +89,8 @@ func main() {
 	transactionCategorySvc := services.NewTransactionCategoryService(*cfg, transactionCategoryRepo)
 	inComeSvc := services.NewInComeService(*cfg, inComeRepo)
 	expenseSvc := services.NewExpenseService(*cfg, expenseRepo)
+	payableSvc := services.NewPayablesService(*cfg, payableRepo)
+	receivableSvc := services.NewReceivableService(*cfg, receivableRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
@@ -107,6 +111,8 @@ func main() {
 	transactionCategoryHdl := handlers.NewTransactionCategoryHandler(transactionCategorySvc, authCookieMiddleware)
 	inComeHdl := handlers.NewInComeHandler(inComeSvc, authCookieMiddleware)
 	expenseHdl := handlers.NewExpenseHandler(expenseSvc, authCookieMiddleware)
+	payableHdl := handlers.NewPayableHandler(payableSvc, authCookieMiddleware)
+	receivableHdl := handlers.NewReceivableHandler(receivableSvc, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -138,6 +144,8 @@ func main() {
 	transactionCategoryHdl.TransactionCategoryRoutes(apiGroup)
 	inComeHdl.InComeRoutes(apiGroup)
 	expenseHdl.ExpenseRoutes(apiGroup)
+	payableHdl.PayableRoutes(apiGroup)
+	receivableHdl.ReceivableRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{

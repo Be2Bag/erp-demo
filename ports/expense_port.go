@@ -14,7 +14,7 @@ type ExpenseService interface {
 	GetExpenseByID(ctx context.Context, expenseID string, claims *dto.JWTClaims) (*dto.ExpenseDTO, error)
 	UpdateExpenseByID(ctx context.Context, expenseID string, update dto.UpdateExpenseDTO, claims *dto.JWTClaims) error
 	DeleteExpenseByID(ctx context.Context, expenseID string, claims *dto.JWTClaims) error
-	SummaryExpenseByFilter(ctx context.Context, claims *dto.JWTClaims) (dto.ExpenseSummaryDTO, error)
+	SummaryExpenseByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestExpenseSummary) (dto.ExpenseSummaryDTO, error)
 }
 
 type ExpenseRepository interface {

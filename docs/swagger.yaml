@@ -324,6 +324,39 @@ definitions:
         description: น้ำหนัก %
         type: integer
     type: object
+  dto.CreatePayableDTO:
+    properties:
+      amount:
+        description: จำนวนเงิน
+        type: number
+      balance:
+        description: ยอดคงเหลือ
+        type: number
+      bank_id:
+        description: รหัสบัญชีธนาคารที่เกี่ยวข้อง
+        type: string
+      due_date:
+        description: วันที่ครบกำหนดชำระ
+        type: string
+      invoice_no:
+        description: เลขที่ใบแจ้งหนี้
+        type: string
+      issue_date:
+        description: วันที่ออกใบแจ้งหนี้
+        type: string
+      note:
+        description: หมายเหตุ
+        type: string
+      payment_ref:
+        description: เลขที่อ้างอิงการชำระเงิน
+        type: string
+      purchase_no:
+        description: เลขที่ใบสั่งซื้อ
+        type: string
+      supplier:
+        description: ชื่อผู้จำหน่าย
+        type: string
+    type: object
   dto.CreatePositionDTO:
     properties:
       department_id:
@@ -347,6 +380,8 @@ definitions:
         type: number
       balance:
         type: number
+      bank_id:
+        type: string
       customer:
         type: string
       due_date:
@@ -637,6 +672,15 @@ definitions:
       updated_at:
         type: string
     type: object
+  dto.ExpenseSummaryDTO:
+    properties:
+      total_all:
+        type: number
+      total_this_month:
+        type: number
+      total_today:
+        type: number
+    type: object
   dto.ExtraStepRequest:
     properties:
       description:
@@ -645,6 +689,15 @@ definitions:
         type: number
       step_name:
         type: string
+    type: object
+  dto.IncomeSummaryDTO:
+    properties:
+      total_all:
+        type: number
+      total_this_month:
+        type: number
+      total_today:
+        type: number
     type: object
   dto.KPIEvaluationResponse:
     properties:
@@ -790,6 +843,48 @@ definitions:
         example: 10
         type: integer
     type: object
+  dto.PayableDTO:
+    properties:
+      amount:
+        description: จำนวนเงิน
+        type: number
+      balance:
+        description: ยอดคงเหลือ
+        type: number
+      bank_id:
+        description: รหัสบัญชีธนาคารที่เกี่ยวข้อง
+        type: string
+      due_date:
+        description: วันที่ครบกำหนดชำระ
+        type: string
+      id_payable:
+        description: รหัสเจ้าหนี้
+        type: string
+      invoice_no:
+        description: เลขที่ใบแจ้งหนี้
+        type: string
+      issue_date:
+        description: วันที่ออกใบแจ้งหนี้
+        type: string
+      purchase_no:
+        description: เลขที่ใบสั่งซื้อ
+        type: string
+      supplier:
+        description: ชื่อผู้จำหน่าย
+        type: string
+    type: object
+  dto.PayableSummaryDTO:
+    properties:
+      overdue_count:
+        description: จำนวนรายการเกินกำหนด
+        type: integer
+      total_amount:
+        description: ยอดรวมทั้งหมด
+        type: number
+      total_due:
+        description: ยอดคงค้าง
+        type: number
+    type: object
   dto.PositionDTO:
     properties:
       created_at:
@@ -873,6 +968,54 @@ definitions:
         description: ถ้าต้องการเก็บ id เดิม ส่งมาเลย
         type: string
       step_name:
+        type: string
+    type: object
+  dto.RecordPaymentDTO:
+    properties:
+      amount:
+        description: จำนวนเงินที่ชำระ
+        type: number
+      bank_id:
+        description: รหัสบัญชีธนาคารที่รับชำระ
+        type: string
+      note:
+        description: หมายเหตุเพิ่มเติม
+        type: string
+      payable_id:
+        description: ไอดีของเจ้าหนี้/รายการที่ต้องชำระ
+        type: string
+      payment_date:
+        description: วันที่ชำระเงิน (เช่น 2025-10-26)
+        type: string
+      payment_method:
+        description: วิธีการชำระเงิน (เช่น โอนเงิน/เงินสด/เช็ค)
+        type: string
+      payment_ref:
+        description: เลขอ้างอิงการชำระเงิน/หลักฐาน
+        type: string
+    type: object
+  dto.RecordReceiptDTO:
+    properties:
+      amount:
+        description: จำนวนเงินที่รับชำระ
+        type: number
+      bank_id:
+        description: รหัสบัญชีธนาคารที่รับชำระ
+        type: string
+      note:
+        description: หมายเหตุเพิ่มเติม
+        type: string
+      payment_date:
+        description: วันที่รับชำระ (รูปแบบ YYYY-MM-DD)
+        type: string
+      payment_method:
+        description: วิธีชำระเงิน เช่น เงินสด โอน บัตร
+        type: string
+      payment_ref:
+        description: เลขอ้างอิงการชำระ เช่น สลิป/เลขที่ธุรกรรม
+        type: string
+      receivable_id:
+        description: รหัสรายการลูกหนี้ที่รับชำระ
         type: string
     type: object
   dto.RequestConfirmResetPassword:
@@ -1456,6 +1599,42 @@ definitions:
         description: น้ำหนักรวม (ต้อง = 100)
         type: integer
     type: object
+  dto.UpdatePayableDTO:
+    properties:
+      amount:
+        description: จำนวนเงิน
+        type: number
+      balance:
+        description: ยอดคงเหลือ
+        type: number
+      bank_id:
+        description: รหัสบัญชีธนาคารที่เกี่ยวข้อง
+        type: string
+      due_date:
+        description: วันที่ครบกำหนดชำระ
+        type: string
+      invoice_no:
+        description: เลขที่ใบแจ้งหนี้
+        type: string
+      issue_date:
+        description: วันที่ออกใบแจ้งหนี้
+        type: string
+      note:
+        description: หมายเหตุ
+        type: string
+      payment_ref:
+        description: เลขที่อ้างอิงการชำระเงิน
+        type: string
+      purchase_no:
+        description: เลขที่ใบสั่งซื้อ
+        type: string
+      status:
+        description: สถานะ
+        type: string
+      supplier:
+        description: ชื่อผู้จำหน่าย
+        type: string
+    type: object
   dto.UpdatePositionDTO:
     properties:
       department_id:
@@ -1483,6 +1662,8 @@ definitions:
         type: number
       balance:
         type: number
+      bank_id:
+        type: string
       customer:
         type: string
       due_date:
@@ -1708,7 +1889,7 @@ definitions:
         description: ชื่อ Template
         type: string
     type: object
-host: localhost:3000
+host: api.dev.rkp-media.com
 info:
   contact: {}
   description: This is an ERP API demo.
@@ -3159,15 +3340,25 @@ paths:
       consumes:
       - application/json
       description: Get summary of expense for today, this month, and all time
+      parameters:
+      - description: Bank ID to filter expenses
+        in: query
+        name: bank_id
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "401":
-          description: Unauthorized
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.ExpenseSummaryDTO'
+              type: object
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/dto.BaseResponse'
         "500":
@@ -3358,15 +3549,25 @@ paths:
       consumes:
       - application/json
       description: Get summary of income for today, this month, and all time
+      parameters:
+      - description: Bank ID to filter incomes
+        in: query
+        name: bank_id
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "401":
-          description: Unauthorized
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.IncomeSummaryDTO'
+              type: object
+        "400":
+          description: Bad Request
           schema:
             $ref: '#/definitions/dto.BaseResponse'
         "500":
@@ -3660,6 +3861,305 @@ paths:
       summary: Get KPI Templates
       tags:
       - KPI
+  /v1/payable/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Soft delete a payable record by its ID
+      parameters:
+      - description: Payable ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete payable by ID
+      tags:
+      - Payables
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a payable record by its ID
+      parameters:
+      - description: Payable ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.PayableDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get payable by ID
+      tags:
+      - Payables
+    put:
+      consumes:
+      - application/json
+      description: Update a payable record by its ID
+      parameters:
+      - description: Payable ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Payable data to update
+        in: body
+        name: payable
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePayableDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Update payable by ID
+      tags:
+      - Payables
+  /v1/payable/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new payable record
+      parameters:
+      - description: Payable to create
+        in: body
+        name: payable
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePayableDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new payable
+      tags:
+      - Payables
+  /v1/payable/list:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of payables with optional search and
+        filtering
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Number of items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - default: created_at
+        description: Field to sort by
+        enum:
+        - created_at
+        - updated_at
+        in: query
+        name: sort_by
+        type: string
+      - default: desc
+        description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort_order
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.Pagination'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List payables with pagination and filtering
+      tags:
+      - Payables
+  /v1/payable/record-payment:
+    post:
+      consumes:
+      - application/json
+      description: Record a payment transaction and update the payable balance/status
+        accordingly
+      parameters:
+      - description: Payment details
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RecordPaymentDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Record a payment for a payable
+      tags:
+      - Payables
+  /v1/payable/summary:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a summary of payables based on filters
+      parameters:
+      - description: Bank ID
+        in: query
+        name: bank_id
+        type: string
+      - description: Report type
+        enum:
+        - day
+        - month
+        - all
+        in: query
+        name: report
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.PayableSummaryDTO'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get payable summary by filter
+      tags:
+      - Payables
   /v1/position/{id}:
     delete:
       consumes:
@@ -4058,97 +4558,6 @@ paths:
       summary: Get a list of projects
       tags:
       - Projects
-  /v1/receivable:
-    get:
-      consumes:
-      - application/json
-      description: Get a paginated list of receivables
-      parameters:
-      - default: 1
-        description: Page number
-        in: query
-        name: page
-        type: integer
-      - default: 10
-        description: Items per page
-        in: query
-        name: limit
-        type: integer
-      - description: Search term
-        in: query
-        name: search
-        type: string
-      - default: created_at
-        description: Sort by field
-        enum:
-        - created_at
-        - updated_at
-        in: query
-        name: sortBy
-        type: string
-      - default: desc
-        description: Sort order
-        enum:
-        - asc
-        - desc
-        in: query
-        name: sortOrder
-        type: string
-      - description: Filter by status
-        in: query
-        name: status
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-      summary: List receivables
-      tags:
-      - Receivables
-    post:
-      consumes:
-      - application/json
-      description: Create a new receivable record
-      parameters:
-      - description: Receivable data
-        in: body
-        name: receivable
-        required: true
-        schema:
-          $ref: '#/definitions/dto.CreateReceivableDTO'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/dto.BaseResponse'
-      summary: Create a new receivable
-      tags:
-      - Receivables
   /v1/receivable/{id}:
     delete:
       consumes:
@@ -4260,11 +4669,151 @@ paths:
       summary: Update receivable by ID
       tags:
       - Receivables
+  /v1/receivable/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new receivable record
+      parameters:
+      - description: Receivable data
+        in: body
+        name: receivable
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateReceivableDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new receivable
+      tags:
+      - Receivables
+  /v1/receivable/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of receivables
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - default: created_at
+        description: Sort by field
+        enum:
+        - created_at
+        - updated_at
+        in: query
+        name: sortBy
+        type: string
+      - default: desc
+        description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sortOrder
+        type: string
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List receivables
+      tags:
+      - Receivables
+  /v1/receivable/record-receipt:
+    post:
+      consumes:
+      - application/json
+      description: Record a receipt for a receivable
+      parameters:
+      - description: Receipt data
+        in: body
+        name: receipt
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RecordReceiptDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Record receipt
+      tags:
+      - Receivables
   /v1/receivable/summary:
     get:
       consumes:
       - application/json
       description: Get summary of receivables
+      parameters:
+      - description: Bank ID
+        in: query
+        name: bank_id
+        type: string
+      - description: Report type
+        enum:
+        - day
+        - month
+        - all
+        in: query
+        name: report
+        required: true
+        type: string
       produces:
       - application/json
       responses:

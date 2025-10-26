@@ -14,7 +14,7 @@ type InComeService interface {
 	GetIncomeByID(ctx context.Context, incomeID string, claims *dto.JWTClaims) (*dto.IncomeDTO, error)
 	UpdateInComeByID(ctx context.Context, incomeID string, update dto.UpdateIncomeDTO, claims *dto.JWTClaims) error
 	DeleteInComeByInComeID(ctx context.Context, incomeID string, claims *dto.JWTClaims) error
-	SummaryInComeByFilter(ctx context.Context, claims *dto.JWTClaims) (dto.IncomeSummaryDTO, error)
+	SummaryInComeByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestIncomeSummary) (dto.IncomeSummaryDTO, error)
 }
 
 type InComeRepository interface {

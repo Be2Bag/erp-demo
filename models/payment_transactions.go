@@ -5,14 +5,17 @@ import "time"
 const CollectionPaymentTransaction = "payment_transactions"
 
 type PaymentTransaction struct {
-	ID            string    `json:"id" bson:"_id,omitempty"`                                // รหัสเอกสาร
-	PayableID     string    `json:"payable_id,omitempty" bson:"payable_id,omitempty"`       // ลิงก์ไปที่ Payable (ใช้เมื่อเป็นการจ่ายเงิน)
-	ReceivableID  string    `json:"receivable_id,omitempty" bson:"receivable_id,omitempty"` // ลิงก์ไปที่ Receivable (ใช้เมื่อเป็นการรับเงิน)
-	PaymentDate   time.Time `json:"payment_date" bson:"payment_date"`                       // วันที่ชำระเงิน
-	AmountPaid    float64   `json:"amount_paid" bson:"amount_paid"`                         // จำนวนเงินที่ชำระในครั้งนี้
-	PaymentMethod string    `json:"payment_method" bson:"payment_method"`                   // ช่องทางการชำระ: cash, bank_transfer, cheque, etc.
-	Reference     string    `json:"reference" bson:"reference"`                             // เลขอ้างอิง เช่น เลขเช็ค / รหัสโอน
-	Note          string    `json:"note,omitempty" bson:"note,omitempty"`                   // หมายเหตุเพิ่มเติม
-	CreatedBy     string    `json:"created_by" bson:"created_by"`                           // ผู้บันทึกธุรกรรม
-	CreatedAt     time.Time `json:"created_at" bson:"created_at"`                           // วันที่บันทึก
+	IDTransaction   string     `json:"id_transaction" bson:"id_transaction"`             // รหัสเอกสาร (เช่น PAY-2024-001-001)
+	BankID          string     `json:"bank_id" bson:"bank_id"`                           // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+	RefInvoiceNo    string     `json:"ref_invoice_no" bson:"ref_invoice_no"`             // อ้างอิงใบแจ้งหนี้ (InvoiceNo)
+	TransactionType string     `json:"transaction_type" bson:"transaction_type"`         // ประเภท: receivable (ลูกหนี้) หรือ payable (เจ้าหนี้)
+	PaymentDate     time.Time  `json:"payment_date" bson:"payment_date"`                 // วันที่รับ/จ่ายเงิน
+	Amount          float64    `json:"amount" bson:"amount"`                             // จำนวนเงินที่จ่าย/รับในครั้งนี้
+	PaymentMethod   string     `json:"payment_method" bson:"payment_method"`             // วิธีการชำระเงิน (cash, transfer, cheque)
+	PaymentRef      string     `json:"payment_ref" bson:"payment_ref"`                   // หมายเลขอ้างอิง (เลขสลิป, เช็ค, ใบเสร็จ)
+	Note            string     `json:"note" bson:"note"`                                 // หมายเหตุเพิ่มเติม
+	CreatedBy       string     `json:"created_by" bson:"created_by"`                     // ผู้บันทึก
+	CreatedAt       time.Time  `json:"created_at" bson:"created_at"`                     // วันที่บันทึก
+	UpdatedAt       time.Time  `json:"updated_at" bson:"updated_at"`                     // วันที่แก้ไขล่าสุด
+	DeletedAt       *time.Time `json:"deleted_at,omitempty" bson:"deleted_at,omitempty"` // วันที่ลบข้อมูล (ถ้ามี)
 }

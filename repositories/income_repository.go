@@ -28,6 +28,7 @@ func (r *inComeRepo) CreateInCome(ctx context.Context, inCome models.Income) err
 func (r *inComeRepo) UpdateInComeByID(ctx context.Context, incomeID string, update models.Income) (*models.Income, error) {
 	filter := bson.M{"income_id": incomeID}
 	set := bson.M{
+		"bank_id":                 update.BankID,
 		"transaction_category_id": update.TransactionCategoryID,
 		"description":             update.Description,
 		"amount":                  update.Amount,

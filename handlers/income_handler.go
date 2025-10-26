@@ -308,8 +308,9 @@ func (h *InComeHandler) DeleteInComeByID(c *fiber.Ctx) error {
 // @Tags Income
 // @Accept json
 // @Produce json
-// @Success 200 {object} dto.BaseResponse
-// @Failure 401 {object} dto.BaseResponse
+// @Param bank_id query string false "Bank ID to filter incomes"
+// @Success 200 {object} dto.BaseResponse{data=dto.IncomeSummaryDTO}
+// @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/in-come/summary [get]
 func (h *InComeHandler) SummaryInComeByFilter(c *fiber.Ctx) error {
@@ -323,7 +324,19 @@ func (h *InComeHandler) SummaryInComeByFilter(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
-	summary, err := h.svc.SummaryInComeByFilter(c.Context(), claims)
+
+	var req dto.RequestIncomeSummary
+	if err := c.QueryParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid query parameters",
+			MessageTH:  "พารามิเตอร์ไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	summary, err := h.svc.SummaryInComeByFilter(c.Context(), claims, req)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

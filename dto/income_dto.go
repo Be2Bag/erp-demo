@@ -35,6 +35,10 @@ type RequestListIncome struct {
 	SortOrder string `query:"sort_order"`
 }
 
+type RequestIncomeSummary struct {
+	BankID string `query:"bank_id"` // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+}
+
 // ---------- Response DTO ----------
 type IncomeDTO struct {
 	IncomeID              string     `json:"income_id"`

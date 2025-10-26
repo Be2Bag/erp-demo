@@ -2152,15 +2152,35 @@ const docTemplate = `{
                     "Expense"
                 ],
                 "summary": "Expense Summary by Filter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank ID to filter expenses",
+                        "name": "bank_id",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.ExpenseSummaryDTO"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
                         }
@@ -2462,15 +2482,35 @@ const docTemplate = `{
                     "Income"
                 ],
                 "summary": "Income Summary by Filter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank ID to filter incomes",
+                        "name": "bank_id",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.BaseResponse"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.IncomeSummaryDTO"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/dto.BaseResponse"
                         }
@@ -3021,6 +3061,465 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "KPI Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/payable/create": {
+            "post": {
+                "description": "Create a new payable record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payables"
+                ],
+                "summary": "Create a new payable",
+                "parameters": [
+                    {
+                        "description": "Payable to create",
+                        "name": "payable",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreatePayableDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/payable/list": {
+            "get": {
+                "description": "Retrieve a paginated list of payables with optional search and filtering",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payables"
+                ],
+                "summary": "List payables with pagination and filtering",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Number of items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "created_at",
+                            "updated_at"
+                        ],
+                        "type": "string",
+                        "default": "created_at",
+                        "description": "Field to sort by",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Sort order",
+                        "name": "sort_order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.Pagination"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/payable/record-payment": {
+            "post": {
+                "description": "Record a payment transaction and update the payable balance/status accordingly",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payables"
+                ],
+                "summary": "Record a payment for a payable",
+                "parameters": [
+                    {
+                        "description": "Payment details",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RecordPaymentDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/payable/summary": {
+            "get": {
+                "description": "Retrieve a summary of payables based on filters",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payables"
+                ],
+                "summary": "Get payable summary by filter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank ID",
+                        "name": "bank_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "day",
+                            "month",
+                            "all"
+                        ],
+                        "type": "string",
+                        "description": "Report type",
+                        "name": "report",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.PayableSummaryDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/payable/{id}": {
+            "get": {
+                "description": "Retrieve a payable record by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payables"
+                ],
+                "summary": "Get payable by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payable ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/dto.PayableDTO"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a payable record by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payables"
+                ],
+                "summary": "Update payable by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payable ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Payable data to update",
+                        "name": "payable",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePayableDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Soft delete a payable record by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Payables"
+                ],
+                "summary": "Delete payable by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payable ID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -3680,7 +4179,59 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/receivable": {
+        "/v1/receivable/create": {
+            "post": {
+                "description": "Create a new receivable record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Receivables"
+                ],
+                "summary": "Create a new receivable",
+                "parameters": [
+                    {
+                        "description": "Receivable data",
+                        "name": "receivable",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateReceivableDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/receivable/list": {
             "get": {
                 "description": "Get a paginated list of receivables",
                 "consumes": [
@@ -3763,9 +4314,11 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/v1/receivable/record-receipt": {
             "post": {
-                "description": "Create a new receivable record",
+                "description": "Record a receipt for a receivable",
                 "consumes": [
                     "application/json"
                 ],
@@ -3775,15 +4328,15 @@ const docTemplate = `{
                 "tags": [
                     "Receivables"
                 ],
-                "summary": "Create a new receivable",
+                "summary": "Record receipt",
                 "parameters": [
                     {
-                        "description": "Receivable data",
-                        "name": "receivable",
+                        "description": "Receipt data",
+                        "name": "receipt",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreateReceivableDTO"
+                            "$ref": "#/definitions/dto.RecordReceiptDTO"
                         }
                     }
                 ],
@@ -3828,6 +4381,26 @@ const docTemplate = `{
                     "Receivables"
                 ],
                 "summary": "Summary receivables",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bank ID",
+                        "name": "bank_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "day",
+                            "month",
+                            "all"
+                        ],
+                        "type": "string",
+                        "description": "Report type",
+                        "name": "report",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -6715,6 +7288,51 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreatePayableDTO": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "จำนวนเงิน",
+                    "type": "number"
+                },
+                "balance": {
+                    "description": "ยอดคงเหลือ",
+                    "type": "number"
+                },
+                "bank_id": {
+                    "description": "รหัสบัญชีธนาคารที่เกี่ยวข้อง",
+                    "type": "string"
+                },
+                "due_date": {
+                    "description": "วันที่ครบกำหนดชำระ",
+                    "type": "string"
+                },
+                "invoice_no": {
+                    "description": "เลขที่ใบแจ้งหนี้",
+                    "type": "string"
+                },
+                "issue_date": {
+                    "description": "วันที่ออกใบแจ้งหนี้",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุ",
+                    "type": "string"
+                },
+                "payment_ref": {
+                    "description": "เลขที่อ้างอิงการชำระเงิน",
+                    "type": "string"
+                },
+                "purchase_no": {
+                    "description": "เลขที่ใบสั่งซื้อ",
+                    "type": "string"
+                },
+                "supplier": {
+                    "description": "ชื่อผู้จำหน่าย",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreatePositionDTO": {
             "type": "object",
             "properties": {
@@ -6748,6 +7366,9 @@ const docTemplate = `{
                 },
                 "balance": {
                     "type": "number"
+                },
+                "bank_id": {
+                    "type": "string"
                 },
                 "customer": {
                     "type": "string"
@@ -7158,6 +7779,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.ExpenseSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "total_all": {
+                    "type": "number"
+                },
+                "total_this_month": {
+                    "type": "number"
+                },
+                "total_today": {
+                    "type": "number"
+                }
+            }
+        },
         "dto.ExtraStepRequest": {
             "type": "object",
             "properties": {
@@ -7169,6 +7804,20 @@ const docTemplate = `{
                 },
                 "step_name": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.IncomeSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "total_all": {
+                    "type": "number"
+                },
+                "total_this_month": {
+                    "type": "number"
+                },
+                "total_today": {
+                    "type": "number"
                 }
             }
         },
@@ -7386,6 +8035,64 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.PayableDTO": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "จำนวนเงิน",
+                    "type": "number"
+                },
+                "balance": {
+                    "description": "ยอดคงเหลือ",
+                    "type": "number"
+                },
+                "bank_id": {
+                    "description": "รหัสบัญชีธนาคารที่เกี่ยวข้อง",
+                    "type": "string"
+                },
+                "due_date": {
+                    "description": "วันที่ครบกำหนดชำระ",
+                    "type": "string"
+                },
+                "id_payable": {
+                    "description": "รหัสเจ้าหนี้",
+                    "type": "string"
+                },
+                "invoice_no": {
+                    "description": "เลขที่ใบแจ้งหนี้",
+                    "type": "string"
+                },
+                "issue_date": {
+                    "description": "วันที่ออกใบแจ้งหนี้",
+                    "type": "string"
+                },
+                "purchase_no": {
+                    "description": "เลขที่ใบสั่งซื้อ",
+                    "type": "string"
+                },
+                "supplier": {
+                    "description": "ชื่อผู้จำหน่าย",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.PayableSummaryDTO": {
+            "type": "object",
+            "properties": {
+                "overdue_count": {
+                    "description": "จำนวนรายการเกินกำหนด",
+                    "type": "integer"
+                },
+                "total_amount": {
+                    "description": "ยอดรวมทั้งหมด",
+                    "type": "number"
+                },
+                "total_due": {
+                    "description": "ยอดคงค้าง",
+                    "type": "number"
+                }
+            }
+        },
         "dto.PositionDTO": {
             "type": "object",
             "properties": {
@@ -7503,6 +8210,72 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "step_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RecordPaymentDTO": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "จำนวนเงินที่ชำระ",
+                    "type": "number"
+                },
+                "bank_id": {
+                    "description": "รหัสบัญชีธนาคารที่รับชำระ",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุเพิ่มเติม",
+                    "type": "string"
+                },
+                "payable_id": {
+                    "description": "ไอดีของเจ้าหนี้/รายการที่ต้องชำระ",
+                    "type": "string"
+                },
+                "payment_date": {
+                    "description": "วันที่ชำระเงิน (เช่น 2025-10-26)",
+                    "type": "string"
+                },
+                "payment_method": {
+                    "description": "วิธีการชำระเงิน (เช่น โอนเงิน/เงินสด/เช็ค)",
+                    "type": "string"
+                },
+                "payment_ref": {
+                    "description": "เลขอ้างอิงการชำระเงิน/หลักฐาน",
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RecordReceiptDTO": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "จำนวนเงินที่รับชำระ",
+                    "type": "number"
+                },
+                "bank_id": {
+                    "description": "รหัสบัญชีธนาคารที่รับชำระ",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุเพิ่มเติม",
+                    "type": "string"
+                },
+                "payment_date": {
+                    "description": "วันที่รับชำระ (รูปแบบ YYYY-MM-DD)",
+                    "type": "string"
+                },
+                "payment_method": {
+                    "description": "วิธีชำระเงิน เช่น เงินสด โอน บัตร",
+                    "type": "string"
+                },
+                "payment_ref": {
+                    "description": "เลขอ้างอิงการชำระ เช่น สลิป/เลขที่ธุรกรรม",
+                    "type": "string"
+                },
+                "receivable_id": {
+                    "description": "รหัสรายการลูกหนี้ที่รับชำระ",
                     "type": "string"
                 }
             }
@@ -8327,6 +9100,55 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdatePayableDTO": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "จำนวนเงิน",
+                    "type": "number"
+                },
+                "balance": {
+                    "description": "ยอดคงเหลือ",
+                    "type": "number"
+                },
+                "bank_id": {
+                    "description": "รหัสบัญชีธนาคารที่เกี่ยวข้อง",
+                    "type": "string"
+                },
+                "due_date": {
+                    "description": "วันที่ครบกำหนดชำระ",
+                    "type": "string"
+                },
+                "invoice_no": {
+                    "description": "เลขที่ใบแจ้งหนี้",
+                    "type": "string"
+                },
+                "issue_date": {
+                    "description": "วันที่ออกใบแจ้งหนี้",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุ",
+                    "type": "string"
+                },
+                "payment_ref": {
+                    "description": "เลขที่อ้างอิงการชำระเงิน",
+                    "type": "string"
+                },
+                "purchase_no": {
+                    "description": "เลขที่ใบสั่งซื้อ",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "สถานะ",
+                    "type": "string"
+                },
+                "supplier": {
+                    "description": "ชื่อผู้จำหน่าย",
+                    "type": "string"
+                }
+            }
+        },
         "dto.UpdatePositionDTO": {
             "type": "object",
             "properties": {
@@ -8366,6 +9188,9 @@ const docTemplate = `{
                 },
                 "balance": {
                     "type": "number"
+                },
+                "bank_id": {
+                    "type": "string"
                 },
                 "customer": {
                     "type": "string"
@@ -8695,7 +9520,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:3000",
+	Host:             "api.dev.rkp-media.com",
 	BasePath:         "/service/api",
 	Schemes:          []string{},
 	Title:            "ERP Demo API",
