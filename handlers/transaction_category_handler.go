@@ -75,8 +75,8 @@ func (h *TransactionCategoryHandler) CreateTransactionCategory(c *fiber.Ctx) err
 
 	return c.Status(fiber.StatusCreated).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusCreated,
-		MessageEN:  "Project created successfully",
-		MessageTH:  "สร้างโปรเจกต์เรียบร้อยแล้ว",
+		MessageEN:  "Category created successfully",
+		MessageTH:  "สร้างหมวดหมู่เรียบร้อยแล้ว",
 		Status:     "success",
 		Data:       nil,
 	})
