@@ -37,6 +37,7 @@ func (h *DropDownHandler) DropDownRoutes(router fiber.Router) {
 	dropdown.Get("/workflow/:id", h.mdw.AuthCookieMiddleware(), h.GetWorkflow)
 	dropdown.Get("/category", h.mdw.AuthCookieMiddleware(), h.GetCategory)
 	dropdown.Get("/transaction-category/:types", h.mdw.AuthCookieMiddleware(), h.GetTransactionCategory)
+	dropdown.Get("/bank-accounts", h.mdw.AuthCookieMiddleware(), h.GetBankAccountsCategory)
 }
 
 // @Summary Get all positions
@@ -704,5 +705,57 @@ func (h *DropDownHandler) GetTransactionCategory(c *fiber.Ctx) error {
 		MessageTH:  "ดึงข้อมูล Workflow สำเร็จ",
 		Status:     "success",
 		Data:       transactionCategorys,
+	})
+}
+
+// @Summary Get all bank accounts
+// @Description ใช้สำหรับดึงข้อมูลบัญชีธนาคารทั้งหมด
+// @Tags Dropdown
+// @Accept json
+// @Produce json
+// @Success 200 {object} dto.BaseResponse{data=[]dto.ResponseGetBankAccounts}
+// @Failure 502 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/dropdown/bank-accounts [get]
+func (h *DropDownHandler) GetBankAccountsCategory(c *fiber.Ctx) error {
+
+	bankAccountsCategorys, errOnGetBankAccountsCategorys := h.svc.GetBankAccountsList(c.Context())
+	if errOnGetBankAccountsCategorys != nil {
+
+		if errOnGetBankAccountsCategorys == mongo.ErrNoDocuments {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "No bank accounts found",
+				MessageTH:  "ไม่สามารถดึงข้อมูลบัญชีธนาคารได้",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+
+		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
+			StatusCode: fiber.ErrBadGateway.Code,
+			MessageEN:  errOnGetBankAccountsCategorys.Error(),
+			MessageTH:  "ไม่สามารถดึงข้อมูลบัญชีธนาคารได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	if len(bankAccountsCategorys) == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
+			MessageEN:  "No bank accounts categories found",
+			MessageTH:  "ไม่พบข้อมูลหมวดหมู่บัญชีธนาคาร",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Get bank accounts categories successfully",
+		MessageTH:  "ดึงข้อมูลหมวดหมู่บัญชีธนาคารสำเร็จ",
+		Status:     "success",
+		Data:       bankAccountsCategorys,
 	})
 }

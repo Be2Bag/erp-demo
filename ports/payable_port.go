@@ -15,7 +15,6 @@ type PayableService interface {
 	UpdatePayableByID(ctx context.Context, payableID string, update dto.UpdatePayableDTO, claims *dto.JWTClaims) error
 	DeletePayableByID(ctx context.Context, payableID string, claims *dto.JWTClaims) error
 	SummaryPayableByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestSummaryPayable) (dto.PayableSummaryDTO, error)
-	// RecordPayment inserts a payment transaction and updates the payable balance/status accordingly
 	RecordPayment(ctx context.Context, input dto.RecordPaymentDTO, claims *dto.JWTClaims) error
 }
 
@@ -26,6 +25,6 @@ type PayableRepository interface {
 	GetAllPayablesByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Payable, error)
 	GetOnePayableByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.Payable, error)
 	GetListPayablesByFilter(ctx context.Context, filter interface{}, projection interface{}, sort bson.D, skip, limit int64) ([]models.Payable, int64, error)
-	// CreatePaymentTransaction inserts a payment transaction document
 	CreatePaymentTransaction(ctx context.Context, tx models.PaymentTransaction) error
+	GetAllPaymentTransactionByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.PaymentTransaction, error)
 }

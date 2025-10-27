@@ -130,7 +130,6 @@ func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWT
 			CreatedBy:    m.CreatedBy,
 			CreatedAt:    m.CreatedAt,
 			UpdatedAt:    m.UpdatedAt,
-			DeletedAt:    m.DeletedAt,
 		})
 	}
 
@@ -161,6 +160,31 @@ func (s *receivableService) GetReceivableByID(ctx context.Context, receivableID 
 		return nil, nil
 	}
 
+	filterPaymentTransaction := bson.M{"ref_invoice_no": m.InvoiceNo, "transaction_type": "receivable", "deleted_at": nil}
+
+	paymentTransaction, errPaymentTransaction := s.receivableRepo.GetAllPaymentTransactionsByFilter(ctx, filterPaymentTransaction, bson.M{})
+	if errPaymentTransaction != nil {
+		return nil, errPaymentTransaction
+	}
+
+	var transactions = make([]dto.PaymentTransactionDTO, 0, len(paymentTransaction))
+	for _, pt := range paymentTransaction {
+		transactions = append(transactions, dto.PaymentTransactionDTO{
+			IDTransaction:   pt.IDTransaction,
+			BankID:          pt.BankID,
+			RefInvoiceNo:    pt.RefInvoiceNo,
+			TransactionType: pt.TransactionType,
+			PaymentDate:     pt.PaymentDate,
+			Amount:          pt.Amount,
+			PaymentMethod:   pt.PaymentMethod,
+			PaymentRef:      pt.PaymentRef,
+			Note:            pt.Note,
+			CreatedBy:       pt.CreatedBy,
+			CreatedAt:       pt.CreatedAt,
+			UpdatedAt:       pt.UpdatedAt,
+		})
+	}
+
 	dtoObj := &dto.ReceivableDTO{
 		// ---------- รายละเอียดรายได้ ----------
 		IDReceivable: m.IDReceivable,
@@ -175,7 +199,7 @@ func (s *receivableService) GetReceivableByID(ctx context.Context, receivableID 
 		CreatedBy:    m.CreatedBy,
 		CreatedAt:    m.CreatedAt,
 		UpdatedAt:    m.UpdatedAt,
-		DeletedAt:    m.DeletedAt,
+		Transactions: transactions,
 	}
 	return dtoObj, nil
 }

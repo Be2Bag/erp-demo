@@ -79,3 +79,10 @@ type ResponseGetTransactionCategorys struct {
 	Description               string  `json:"description"`                  // รายละเอียด
 	Note                      *string `json:"note,omitempty"`               // หมายเหตุเพิ่มเติม
 }
+
+type ResponseGetBankAccounts struct {
+	BankID      string `json:"bank_id"`
+	BankName    string `json:"bank_name"`
+	AccountNo   string `json:"account_no"`
+	AccountName string `json:"account_name"`
+}

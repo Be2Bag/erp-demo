@@ -406,3 +406,27 @@ func (s *dropDownService) GetTransactionCategory(ctx context.Context, types stri
 
 	return response, nil
 }
+
+func (s *dropDownService) GetBankAccountsList(ctx context.Context) ([]dto.ResponseGetBankAccounts, error) {
+
+	bankAccounts, errOnGetBankAccounts := s.dropDownRepo.GetBankAccountsList(ctx, bson.M{"deleted_at": nil}, bson.M{})
+	if errOnGetBankAccounts != nil {
+		return nil, errOnGetBankAccounts
+	}
+
+	if len(bankAccounts) == 0 {
+		return nil, mongo.ErrNoDocuments
+	}
+
+	var response []dto.ResponseGetBankAccounts
+	for _, account := range bankAccounts {
+		response = append(response, dto.ResponseGetBankAccounts{
+			BankID:      account.BankID,
+			BankName:    account.BankName,
+			AccountNo:   account.AccountNo,
+			AccountName: account.AccountName,
+		})
+	}
+
+	return response, nil
+}

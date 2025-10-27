@@ -872,6 +872,11 @@ definitions:
       supplier:
         description: ชื่อผู้จำหน่าย
         type: string
+      transactions:
+        description: รายการชำระเงิน
+        items:
+          $ref: '#/definitions/dto.PaymentTransactionDTO'
+        type: array
     type: object
   dto.PayableSummaryDTO:
     properties:
@@ -884,6 +889,45 @@ definitions:
       total_due:
         description: ยอดคงค้าง
         type: number
+    type: object
+  dto.PaymentTransactionDTO:
+    properties:
+      amount:
+        description: จำนวนเงินที่จ่าย/รับในครั้งนี้
+        type: number
+      bank_id:
+        description: รหัสบัญชีธนาคารที่เกี่ยวข้อง
+        type: string
+      created_at:
+        description: วันที่บันทึก
+        type: string
+      created_by:
+        description: ผู้บันทึก
+        type: string
+      id_transaction:
+        description: รหัสเอกสาร (เช่น PAY-2024-001-001)
+        type: string
+      note:
+        description: หมายเหตุเพิ่มเติม
+        type: string
+      payment_date:
+        description: วันที่รับ/จ่ายเงิน
+        type: string
+      payment_method:
+        description: วิธีการชำระเงิน (cash, transfer, cheque)
+        type: string
+      payment_ref:
+        description: หมายเลขอ้างอิง (เลขสลิป, เช็ค, ใบเสร็จ)
+        type: string
+      ref_invoice_no:
+        description: อ้างอิงใบแจ้งหนี้ (InvoiceNo)
+        type: string
+      transaction_type:
+        description: 'ประเภท: receivable (ลูกหนี้) หรือ payable (เจ้าหนี้)'
+        type: string
+      updated_at:
+        description: วันที่แก้ไขล่าสุด
+        type: string
     type: object
   dto.PositionDTO:
     properties:
@@ -1179,6 +1223,17 @@ definitions:
     required:
     - status
     - user_id
+    type: object
+  dto.ResponseGetBankAccounts:
+    properties:
+      account_name:
+        type: string
+      account_no:
+        type: string
+      bank_id:
+        type: string
+      bank_name:
+        type: string
     type: object
   dto.ResponseGetCountUsers:
     properties:
@@ -2657,6 +2712,36 @@ paths:
       summary: Get a list of departments
       tags:
       - Departments
+  /v1/dropdown/bank-accounts:
+    get:
+      consumes:
+      - application/json
+      description: ใช้สำหรับดึงข้อมูลบัญชีธนาคารทั้งหมด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/dto.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.ResponseGetBankAccounts'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get all bank accounts
+      tags:
+      - Dropdown
   /v1/dropdown/category:
     get:
       consumes:

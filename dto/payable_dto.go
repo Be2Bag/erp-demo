@@ -49,15 +49,31 @@ type RequestSummaryPayable struct {
 // ---------- Response DTO ----------
 
 type PayableDTO struct {
-	IDPayable  string    `json:"id_payable"`  // รหัสเจ้าหนี้
-	BankID     string    `json:"bank_id"`     // รหัสบัญชีธนาคารที่เกี่ยวข้อง
-	Supplier   string    `json:"supplier"`    // ชื่อผู้จำหน่าย
-	PurchaseNo string    `json:"purchase_no"` // เลขที่ใบสั่งซื้อ
-	InvoiceNo  string    `json:"invoice_no"`  // เลขที่ใบแจ้งหนี้
-	IssueDate  time.Time `json:"issue_date"`  // วันที่ออกใบแจ้งหนี้
-	DueDate    time.Time `json:"due_date"`    // วันที่ครบกำหนดชำระ
-	Amount     float64   `json:"amount"`      // จำนวนเงิน
-	Balance    float64   `json:"balance"`     // ยอดคงเหลือ
+	IDPayable    string                  `json:"id_payable"`   // รหัสเจ้าหนี้
+	BankID       string                  `json:"bank_id"`      // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+	Supplier     string                  `json:"supplier"`     // ชื่อผู้จำหน่าย
+	PurchaseNo   string                  `json:"purchase_no"`  // เลขที่ใบสั่งซื้อ
+	InvoiceNo    string                  `json:"invoice_no"`   // เลขที่ใบแจ้งหนี้
+	IssueDate    time.Time               `json:"issue_date"`   // วันที่ออกใบแจ้งหนี้
+	DueDate      time.Time               `json:"due_date"`     // วันที่ครบกำหนดชำระ
+	Amount       float64                 `json:"amount"`       // จำนวนเงิน
+	Balance      float64                 `json:"balance"`      // ยอดคงเหลือ
+	Transactions []PaymentTransactionDTO `json:"transactions"` // รายการชำระเงิน
+}
+
+type PaymentTransactionDTO struct {
+	IDTransaction   string    `json:"id_transaction"`   // รหัสเอกสาร (เช่น PAY-2024-001-001)
+	BankID          string    `json:"bank_id"`          // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+	RefInvoiceNo    string    `json:"ref_invoice_no"`   // อ้างอิงใบแจ้งหนี้ (InvoiceNo)
+	TransactionType string    `json:"transaction_type"` // ประเภท: receivable (ลูกหนี้) หรือ payable (เจ้าหนี้)
+	PaymentDate     time.Time `json:"payment_date"`     // วันที่รับ/จ่ายเงิน
+	Amount          float64   `json:"amount"`           // จำนวนเงินที่จ่าย/รับในครั้งนี้
+	PaymentMethod   string    `json:"payment_method"`   // วิธีการชำระเงิน (cash, transfer, cheque)
+	PaymentRef      string    `json:"payment_ref"`      // หมายเลขอ้างอิง (เลขสลิป, เช็ค, ใบเสร็จ)
+	Note            string    `json:"note"`             // หมายเหตุเพิ่มเติม
+	CreatedBy       string    `json:"created_by"`       // ผู้บันทึก
+	CreatedAt       time.Time `json:"created_at"`       // วันที่บันทึก
+	UpdatedAt       time.Time `json:"updated_at"`       // วันที่แก้ไขล่าสุด
 }
 
 type PayableSummaryDTO struct {

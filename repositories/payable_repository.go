@@ -136,3 +136,30 @@ func (r *payableRepo) CreatePaymentTransaction(ctx context.Context, tx models.Pa
 	_, err := r.collPaymentsTx.InsertOne(ctx, tx)
 	return err
 }
+
+func (r *payableRepo) GetAllPaymentTransactionByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.PaymentTransaction, error) {
+	opts := options.Find()
+	if projection != nil {
+		opts.SetProjection(projection)
+	}
+	cursor, err := r.collPaymentsTx.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var transactions []*models.PaymentTransaction
+	for cursor.Next(ctx) {
+		var transaction models.PaymentTransaction
+		if err := cursor.Decode(&transaction); err != nil {
+			return nil, err
+		}
+		transactions = append(transactions, &transaction)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
+}

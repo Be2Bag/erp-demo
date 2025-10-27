@@ -23,6 +23,7 @@ type DropDownService interface {
 	GetCategorys(ctx context.Context) ([]dto.ResponseGetCategorys, error)
 	GetUserListAll(ctx context.Context) ([]dto.ResponseGetUsers, error)
 	GetTransactionCategory(ctx context.Context, types string) ([]dto.ResponseGetTransactionCategorys, error)
+	GetBankAccountsList(ctx context.Context) ([]dto.ResponseGetBankAccounts, error)
 }
 
 type DropDownRepository interface {
@@ -40,4 +41,5 @@ type DropDownRepository interface {
 	GetWorkflowsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.WorkFlowTemplate, error)
 	GetCategorysList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Category, error)
 	GetTransactionCategorysList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.TransactionCategory, error)
+	GetBankAccountsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.BankAccount, error)
 }

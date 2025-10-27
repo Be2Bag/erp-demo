@@ -24,6 +24,7 @@ type dropDownRepo struct {
 	workflowsColl            *mongo.Collection
 	categorysColl            *mongo.Collection
 	transactionCategorysColl *mongo.Collection
+	bankAccountsColl         *mongo.Collection
 }
 
 func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
@@ -42,6 +43,7 @@ func NewDropDownRepository(db *mongo.Database) ports.DropDownRepository {
 		workflowsColl:            db.Collection(models.CollectionWorkflowTemplates),
 		categorysColl:            db.Collection(models.CollectionCategory),
 		transactionCategorysColl: db.Collection(models.CollectionTransactionCategory),
+		bankAccountsColl:         db.Collection(models.CollectionSBankAccounts),
 	}
 }
 func (r *dropDownRepo) GetPositions(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Position, error) {
@@ -368,4 +370,28 @@ func (r *dropDownRepo) GetTransactionCategorysList(ctx context.Context, filter i
 	}
 
 	return transactionCategorys, nil
+}
+
+func (r *dropDownRepo) GetBankAccountsList(ctx context.Context, filter interface{}, projection interface{}) ([]*models.BankAccount, error) {
+	var bankAccounts []*models.BankAccount
+
+	cursor, err := r.bankAccountsColl.Find(ctx, filter, options.Find().SetProjection(projection))
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	for cursor.Next(ctx) {
+		var bankAccount models.BankAccount
+		if err := cursor.Decode(&bankAccount); err != nil {
+			return nil, err
+		}
+		bankAccounts = append(bankAccounts, &bankAccount)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return bankAccounts, nil
 }

@@ -37,19 +37,19 @@ type RequestListReceivable struct {
 // ---------- Response DTO ----------
 
 type ReceivableDTO struct {
-	IDReceivable string     `json:"id_receivable"`
-	BankID       string     `json:"bank_id"`
-	Customer     string     `json:"customer"`
-	InvoiceNo    string     `json:"invoice_no"`
-	IssueDate    time.Time  `json:"issue_date"`
-	DueDate      time.Time  `json:"due_date"`
-	Amount       float64    `json:"amount"`
-	Balance      float64    `json:"balance"`
-	Status       string     `json:"status"`
-	CreatedBy    string     `json:"created_by"`
-	CreatedAt    time.Time  `json:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at"`
-	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
+	IDReceivable string                  `json:"id_receivable"`
+	BankID       string                  `json:"bank_id"`
+	Customer     string                  `json:"customer"`
+	InvoiceNo    string                  `json:"invoice_no"`
+	IssueDate    time.Time               `json:"issue_date"`
+	DueDate      time.Time               `json:"due_date"`
+	Amount       float64                 `json:"amount"`
+	Balance      float64                 `json:"balance"`
+	Status       string                  `json:"status"`
+	CreatedBy    string                  `json:"created_by"`
+	CreatedAt    time.Time               `json:"created_at"`
+	UpdatedAt    time.Time               `json:"updated_at"`
+	Transactions []PaymentTransactionDTO `json:"transactions"` // รายการชำระเงิน
 }
 
 type ReceivableSummaryDTO struct {

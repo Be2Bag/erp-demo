@@ -163,16 +163,45 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 		return nil, nil
 	}
 
+	filterPaymentTransaction := bson.M{"ref_invoice_no": m.InvoiceNo, "transaction_type": "payable", "deleted_at": nil}
+
+	paymentTransaction, errPaymentTransaction := s.payablesRepo.GetAllPaymentTransactionByFilter(ctx, filterPaymentTransaction, bson.M{})
+	if errPaymentTransaction != nil {
+		return nil, errPaymentTransaction
+	}
+
+	PaymentTransactions := make([]dto.PaymentTransactionDTO, 0, len(paymentTransaction))
+	if len(paymentTransaction) > 0 {
+
+		for _, pt := range paymentTransaction {
+			PaymentTransactions = append(PaymentTransactions, dto.PaymentTransactionDTO{
+				IDTransaction:   pt.IDTransaction,
+				BankID:          pt.BankID,
+				RefInvoiceNo:    pt.RefInvoiceNo,
+				TransactionType: pt.TransactionType,
+				PaymentDate:     pt.PaymentDate,
+				Amount:          pt.Amount,
+				PaymentMethod:   pt.PaymentMethod,
+				PaymentRef:      pt.PaymentRef,
+				Note:            pt.Note,
+				CreatedBy:       pt.CreatedBy,
+				CreatedAt:       pt.CreatedAt,
+				UpdatedAt:       pt.UpdatedAt,
+			})
+		}
+	}
+
 	dtoObj := &dto.PayableDTO{
 		// ---------- รายละเอียดเจ้าหนี้ ----------
-		IDPayable: m.IDPayable,
-		BankID:    m.BankID,
-		Supplier:  m.Supplier,
-		InvoiceNo: m.InvoiceNo,
-		IssueDate: m.IssueDate,
-		DueDate:   m.DueDate,
-		Amount:    m.Amount,
-		Balance:   m.Balance,
+		IDPayable:    m.IDPayable,
+		BankID:       m.BankID,
+		Supplier:     m.Supplier,
+		InvoiceNo:    m.InvoiceNo,
+		IssueDate:    m.IssueDate,
+		DueDate:      m.DueDate,
+		Amount:       m.Amount,
+		Balance:      m.Balance,
+		Transactions: PaymentTransactions,
 	}
 	return dtoObj, nil
 }

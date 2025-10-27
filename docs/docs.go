@@ -1183,6 +1183,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/dropdown/bank-accounts": {
+            "get": {
+                "description": "ใช้สำหรับดึงข้อมูลบัญชีธนาคารทั้งหมด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Dropdown"
+                ],
+                "summary": "Get all bank accounts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/dto.BaseResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/dto.ResponseGetBankAccounts"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "502": {
+                        "description": "Bad Gateway",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/dropdown/category": {
             "get": {
                 "description": "ใช้สำหรับดึงข้อมูลหมวดหมู่ทั้งหมด",
@@ -8073,6 +8123,13 @@ const docTemplate = `{
                 "supplier": {
                     "description": "ชื่อผู้จำหน่าย",
                     "type": "string"
+                },
+                "transactions": {
+                    "description": "รายการชำระเงิน",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.PaymentTransactionDTO"
+                    }
                 }
             }
         },
@@ -8090,6 +8147,59 @@ const docTemplate = `{
                 "total_due": {
                     "description": "ยอดคงค้าง",
                     "type": "number"
+                }
+            }
+        },
+        "dto.PaymentTransactionDTO": {
+            "type": "object",
+            "properties": {
+                "amount": {
+                    "description": "จำนวนเงินที่จ่าย/รับในครั้งนี้",
+                    "type": "number"
+                },
+                "bank_id": {
+                    "description": "รหัสบัญชีธนาคารที่เกี่ยวข้อง",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "วันที่บันทึก",
+                    "type": "string"
+                },
+                "created_by": {
+                    "description": "ผู้บันทึก",
+                    "type": "string"
+                },
+                "id_transaction": {
+                    "description": "รหัสเอกสาร (เช่น PAY-2024-001-001)",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุเพิ่มเติม",
+                    "type": "string"
+                },
+                "payment_date": {
+                    "description": "วันที่รับ/จ่ายเงิน",
+                    "type": "string"
+                },
+                "payment_method": {
+                    "description": "วิธีการชำระเงิน (cash, transfer, cheque)",
+                    "type": "string"
+                },
+                "payment_ref": {
+                    "description": "หมายเลขอ้างอิง (เลขสลิป, เช็ค, ใบเสร็จ)",
+                    "type": "string"
+                },
+                "ref_invoice_no": {
+                    "description": "อ้างอิงใบแจ้งหนี้ (InvoiceNo)",
+                    "type": "string"
+                },
+                "transaction_type": {
+                    "description": "ประเภท: receivable (ลูกหนี้) หรือ payable (เจ้าหนี้)",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "วันที่แก้ไขล่าสุด",
+                    "type": "string"
                 }
             }
         },
@@ -8508,6 +8618,23 @@ const docTemplate = `{
                 "user_id": {
                     "type": "string",
                     "example": "50f7a957-8c2c-4a76-88ed-7c247471f28f"
+                }
+            }
+        },
+        "dto.ResponseGetBankAccounts": {
+            "type": "object",
+            "properties": {
+                "account_name": {
+                    "type": "string"
+                },
+                "account_no": {
+                    "type": "string"
+                },
+                "bank_id": {
+                    "type": "string"
+                },
+                "bank_name": {
+                    "type": "string"
                 }
             }
         },
