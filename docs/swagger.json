@@ -2153,6 +2153,12 @@
                         "description": "Sort order",
                         "name": "sortOrder",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Transaction Category ID",
+                        "name": "transactionCategoryID",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2488,6 +2494,12 @@
                         "default": "desc",
                         "description": "Sort order",
                         "name": "sortOrder",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Transaction Category ID",
+                        "name": "transactionCategoryID",
                         "in": "query"
                     }
                 ],
@@ -9054,6 +9066,10 @@
                 },
                 "bank_name": {
                     "description": "ชื่อธนาคาร",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุ",
                     "type": "string"
                 }
             }

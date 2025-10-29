@@ -28,11 +28,12 @@ type UpdateExpenseDTO struct {
 }
 
 type RequestListExpense struct {
-	Page      int    `query:"page"`
-	Limit     int    `query:"limit"`
-	Search    string `query:"search"`
-	SortBy    string `query:"sort_by"`
-	SortOrder string `query:"sort_order"`
+	Page                  int    `query:"page"`
+	Limit                 int    `query:"limit"`
+	Search                string `query:"search"`
+	SortBy                string `query:"sort_by"`
+	SortOrder             string `query:"sort_order"`
+	TransactionCategoryID string `query:"transaction_category_id"`
 }
 
 type RequestExpenseSummary struct {

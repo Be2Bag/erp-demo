@@ -97,6 +97,7 @@ func (h *InComeHandler) CreateInCome(c *fiber.Ctx) error {
 // @Param search query string false "Search term"
 // @Param sortBy query string false "Sort by field" Enums(created_at, updated_at) default(created_at)
 // @Param sortOrder query string false "Sort order" Enums(asc, desc) default(desc)
+// @Param transactionCategoryID query string false "Transaction Category ID"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
@@ -132,7 +133,7 @@ func (h *InComeHandler) ListInComes(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	list, err := h.svc.ListInComes(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder)
+	list, err := h.svc.ListInComes(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.TransactionCategoryID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

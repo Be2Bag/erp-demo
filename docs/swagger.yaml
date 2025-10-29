@@ -1539,6 +1539,9 @@ definitions:
       bank_name:
         description: ชื่อธนาคาร
         type: string
+      note:
+        description: หมายเหตุ
+        type: string
     type: object
   dto.UpdateCategoryDTO:
     properties:
@@ -3401,6 +3404,10 @@ paths:
         in: query
         name: sortOrder
         type: string
+      - description: Transaction Category ID
+        in: query
+        name: transactionCategoryID
+        type: string
       produces:
       - application/json
       responses:
@@ -3610,6 +3617,10 @@ paths:
         - desc
         in: query
         name: sortOrder
+        type: string
+      - description: Transaction Category ID
+        in: query
+        name: transactionCategoryID
         type: string
       produces:
       - application/json

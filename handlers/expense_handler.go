@@ -97,6 +97,7 @@ func (h *ExpenseHandler) CreateExpense(c *fiber.Ctx) error {
 // @Param search query string false "Search term"
 // @Param sortBy query string false "Field to sort by" default("created_at")
 // @Param sortOrder query string false "Sort order" Enums(asc, desc) default("desc")
+// @Param transactionCategoryID query string false "Transaction Category ID"
 // @Success 200 {object} dto.BaseResponse{data=dto.Pagination}
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/expense/list [get]
@@ -131,7 +132,7 @@ func (h *ExpenseHandler) ListExpenses(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	list, err := h.svc.ListExpenses(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder)
+	list, err := h.svc.ListExpenses(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.TransactionCategoryID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

@@ -13,6 +13,7 @@ type UpdateBankAccountsDTO = struct {
 	BankName    string `json:"bank_name"`    // ชื่อธนาคาร
 	AccountNo   string `json:"account_no"`   // เลขที่บัญชี
 	AccountName string `json:"account_name"` // ชื่อบัญชี
+	Note        string `json:"note"`         // หมายเหตุ
 }
 
 type RequestListBankAccounts struct {

@@ -10,7 +10,7 @@ import (
 
 type ExpenseService interface {
 	CreateExpense(ctx context.Context, expense dto.CreateExpenseDTO, claims *dto.JWTClaims) error
-	ListExpenses(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string) (dto.Pagination, error)
+	ListExpenses(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, transactionCategoryID string) (dto.Pagination, error)
 	GetExpenseByID(ctx context.Context, expenseID string, claims *dto.JWTClaims) (*dto.ExpenseDTO, error)
 	UpdateExpenseByID(ctx context.Context, expenseID string, update dto.UpdateExpenseDTO, claims *dto.JWTClaims) error
 	DeleteExpenseByID(ctx context.Context, expenseID string, claims *dto.JWTClaims) error

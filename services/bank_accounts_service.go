@@ -65,7 +65,9 @@ func (s *bankAccountService) UpdateBankAccountID(ctx context.Context, BankID str
 	if update.AccountName != "" {
 		existing.AccountName = update.AccountName
 	}
-
+	if update.Note != "" {
+		existing.Note = update.Note
+	}
 	existing.UpdatedAt = time.Now()
 
 	updated, err := s.bankAccountRepo.UpdateBankAccountByID(ctx, BankID, *existing)

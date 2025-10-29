@@ -2159,6 +2159,12 @@ const docTemplate = `{
                         "description": "Sort order",
                         "name": "sortOrder",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Transaction Category ID",
+                        "name": "transactionCategoryID",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2494,6 +2500,12 @@ const docTemplate = `{
                         "default": "desc",
                         "description": "Sort order",
                         "name": "sortOrder",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Transaction Category ID",
+                        "name": "transactionCategoryID",
                         "in": "query"
                     }
                 ],
@@ -9060,6 +9072,10 @@ const docTemplate = `{
                 },
                 "bank_name": {
                     "description": "ชื่อธนาคาร",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุ",
                     "type": "string"
                 }
             }
