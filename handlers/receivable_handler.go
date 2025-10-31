@@ -97,9 +97,11 @@ func (h *ReceivableHandler) CreateReceivable(c *fiber.Ctx) error {
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
 // @Param search query string false "Search term"
-// @Param sortBy query string false "Sort by field" Enums(created_at, updated_at) default(created_at)
-// @Param sortOrder query string false "Sort order" Enums(asc, desc) default(desc)
+// @Param sort_by query string false "Sort by field" Enums(created_at, updated_at) default(created_at)
+// @Param sort_order query string false "Sort order" Enums(asc, desc) default(desc)
 // @Param status query string false "Filter by status"
+// @Param start_date query string false "Start date (YYYY-MM-DD)"
+// @Param end_date query string false "End date (YYYY-MM-DD)"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
@@ -135,7 +137,7 @@ func (h *ReceivableHandler) ListReceivables(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	list, err := h.svc.ListReceivables(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Status)
+	list, err := h.svc.ListReceivables(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Status, req.StartDate, req.EndDate)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

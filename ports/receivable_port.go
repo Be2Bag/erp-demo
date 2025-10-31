@@ -10,7 +10,7 @@ import (
 
 type ReceivableService interface {
 	CreateReceivable(ctx context.Context, receivable dto.CreateReceivableDTO, claims *dto.JWTClaims) error
-	ListReceivables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, Status string) (dto.Pagination, error)
+	ListReceivables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, Status string, startDate string, endDate string) (dto.Pagination, error)
 	GetReceivableByID(ctx context.Context, receivableID string, claims *dto.JWTClaims) (*dto.ReceivableDTO, error)
 	UpdateReceivableByID(ctx context.Context, receivableID string, update dto.UpdateReceivableDTO, claims *dto.JWTClaims) error
 	DeleteReceivableByID(ctx context.Context, receivableID string, claims *dto.JWTClaims) error

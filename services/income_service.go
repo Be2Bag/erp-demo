@@ -60,7 +60,7 @@ func (s *inComeService) CreateInCome(ctx context.Context, inCome dto.CreateIncom
 	return nil
 }
 
-func (s *inComeService) ListInComes(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, transactionCategoryID string) (dto.Pagination, error) {
+func (s *inComeService) ListInComes(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, transactionCategoryID string, startDate string, endDate string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
@@ -70,6 +70,30 @@ func (s *inComeService) ListInComes(ctx context.Context, claims *dto.JWTClaims, 
 
 	if transactionCategoryID != "" {
 		filter["transaction_category_id"] = transactionCategoryID
+	}
+
+	// กรอง startDate และ endDate
+	if startDate != "" || endDate != "" {
+		txnDateFilter := bson.M{}
+
+		if startDate != "" {
+			parsedStartDate, err := time.Parse("2006-01-02", startDate)
+			if err != nil {
+				return dto.Pagination{}, fmt.Errorf("invalid startDate format: %w", err)
+			}
+			txnDateFilter["$gte"] = parsedStartDate
+		}
+
+		if endDate != "" {
+			parsedEndDate, err := time.Parse("2006-01-02", endDate)
+			if err != nil {
+				return dto.Pagination{}, fmt.Errorf("invalid endDate format: %w", err)
+			}
+			// เพิ่ม 1 วันเพื่อให้ครบ 23:59:59 ของวันที่ endDate
+			txnDateFilter["$lt"] = parsedEndDate.Add(24 * time.Hour)
+		}
+
+		filter["txn_date"] = txnDateFilter
 	}
 
 	search = strings.TrimSpace(search)

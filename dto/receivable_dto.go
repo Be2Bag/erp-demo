@@ -32,6 +32,8 @@ type RequestListReceivable struct {
 	SortBy    string `query:"sort_by"`
 	SortOrder string `query:"sort_order"`
 	Status    string `query:"status"`
+	StartDate string `query:"start_date"`
+	EndDate   string `query:"end_date"`
 }
 
 // ---------- Response DTO ----------

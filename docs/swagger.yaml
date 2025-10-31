@@ -667,6 +667,8 @@ definitions:
         type: string
       transaction_category_id:
         type: string
+      transaction_category_name_th:
+        type: string
       txn_date:
         type: string
       updated_at:
@@ -3394,7 +3396,7 @@ paths:
       - default: '"created_at"'
         description: Field to sort by
         in: query
-        name: sortBy
+        name: sort_by
         type: string
       - default: '"desc"'
         description: Sort order
@@ -3402,11 +3404,19 @@ paths:
         - asc
         - desc
         in: query
-        name: sortOrder
+        name: sort_order
         type: string
       - description: Transaction Category ID
         in: query
-        name: transactionCategoryID
+        name: transaction_category_id
+        type: string
+      - description: Start date filter (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date filter (YYYY-MM-DD)
+        in: query
+        name: end_date
         type: string
       produces:
       - application/json
@@ -3593,7 +3603,7 @@ paths:
         name: page
         type: integer
       - default: 10
-        description: Items per page
+        description: Number of items per page
         in: query
         maximum: 100
         name: limit
@@ -3602,25 +3612,30 @@ paths:
         in: query
         name: search
         type: string
-      - default: created_at
-        description: Sort by field
-        enum:
-        - created_at
-        - updated_at
+      - default: '"created_at"'
+        description: Field to sort by
         in: query
-        name: sortBy
+        name: sort_by
         type: string
-      - default: desc
+      - default: '"desc"'
         description: Sort order
         enum:
         - asc
         - desc
         in: query
-        name: sortOrder
+        name: sort_order
         type: string
       - description: Transaction Category ID
         in: query
-        name: transactionCategoryID
+        name: transaction_category_id
+        type: string
+      - description: Start date filter (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date filter (YYYY-MM-DD)
+        in: query
+        name: end_date
         type: string
       produces:
       - application/json
@@ -4120,7 +4135,7 @@ paths:
         name: page
         type: integer
       - default: 10
-        description: Number of items per page
+        description: Items per page
         in: query
         name: limit
         type: integer
@@ -4129,7 +4144,7 @@ paths:
         name: search
         type: string
       - default: created_at
-        description: Field to sort by
+        description: Sort by field
         enum:
         - created_at
         - updated_at
@@ -4147,6 +4162,14 @@ paths:
       - description: Filter by status
         in: query
         name: status
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end_date
         type: string
       produces:
       - application/json
@@ -4825,7 +4848,7 @@ paths:
         - created_at
         - updated_at
         in: query
-        name: sortBy
+        name: sort_by
         type: string
       - default: desc
         description: Sort order
@@ -4833,11 +4856,19 @@ paths:
         - asc
         - desc
         in: query
-        name: sortOrder
+        name: sort_order
         type: string
       - description: Filter by status
         in: query
         name: status
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end_date
         type: string
       produces:
       - application/json

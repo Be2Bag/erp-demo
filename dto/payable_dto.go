@@ -39,6 +39,8 @@ type RequestListPayable struct {
 	SortOrder string `query:"sort_order"` // ลำดับการเรียง
 	Status    string `query:"status"`     // สถานะ
 	Supplier  string `query:"supplier"`   // ผู้จำหน่าย
+	StartDate string `query:"start_date"`
+	EndDate   string `query:"end_date"`
 }
 
 type RequestSummaryPayable struct {

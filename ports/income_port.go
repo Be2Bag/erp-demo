@@ -10,7 +10,7 @@ import (
 
 type InComeService interface {
 	CreateInCome(ctx context.Context, inCome dto.CreateIncomeDTO, claims *dto.JWTClaims) error
-	ListInComes(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, transactionCategoryID string) (dto.Pagination, error)
+	ListInComes(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, transactionCategoryID string, startDate string, endDate string) (dto.Pagination, error)
 	GetIncomeByID(ctx context.Context, incomeID string, claims *dto.JWTClaims) (*dto.IncomeDTO, error)
 	UpdateInComeByID(ctx context.Context, incomeID string, update dto.UpdateIncomeDTO, claims *dto.JWTClaims) error
 	DeleteInComeByInComeID(ctx context.Context, incomeID string, claims *dto.JWTClaims) error

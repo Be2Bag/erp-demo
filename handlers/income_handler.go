@@ -93,11 +93,13 @@ func (h *InComeHandler) CreateInCome(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param page query int false "Page number" default(1)
-// @Param limit query int false "Items per page" default(10) maximum(100)
+// @Param limit query int false "Number of items per page" default(10) maximum(100)
 // @Param search query string false "Search term"
-// @Param sortBy query string false "Sort by field" Enums(created_at, updated_at) default(created_at)
-// @Param sortOrder query string false "Sort order" Enums(asc, desc) default(desc)
-// @Param transactionCategoryID query string false "Transaction Category ID"
+// @Param sort_by query string false "Field to sort by" default("created_at")
+// @Param sort_order query string false "Sort order" Enums(asc, desc) default("desc")
+// @Param transaction_category_id query string false "Transaction Category ID"
+// @Param start_date query string false "Start date filter (YYYY-MM-DD)"
+// @Param end_date query string false "End date filter (YYYY-MM-DD)"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
@@ -133,7 +135,7 @@ func (h *InComeHandler) ListInComes(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	list, err := h.svc.ListInComes(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.TransactionCategoryID)
+	list, err := h.svc.ListInComes(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.TransactionCategoryID, req.StartDate, req.EndDate)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

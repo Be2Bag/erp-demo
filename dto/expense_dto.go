@@ -34,6 +34,8 @@ type RequestListExpense struct {
 	SortBy                string `query:"sort_by"`
 	SortOrder             string `query:"sort_order"`
 	TransactionCategoryID string `query:"transaction_category_id"`
+	StartDate             string `query:"start_date"`
+	EndDate               string `query:"end_date"`
 }
 
 type RequestExpenseSummary struct {

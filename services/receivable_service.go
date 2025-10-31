@@ -67,12 +67,36 @@ func (s *receivableService) CreateReceivable(ctx context.Context, receivable dto
 	return nil
 }
 
-func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, Status string) (dto.Pagination, error) {
+func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, Status string, startDate string, endDate string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
 	filter := bson.M{
 		"deleted_at": nil,
+	}
+
+	// กรอง startDate และ endDate
+	if startDate != "" || endDate != "" {
+		txnDateFilter := bson.M{}
+
+		if startDate != "" {
+			parsedStartDate, err := time.ParseInLocation("2006-01-02", startDate, time.UTC)
+			if err != nil {
+				return dto.Pagination{}, fmt.Errorf("invalid startDate format: %w", err)
+			}
+			txnDateFilter["$gte"] = parsedStartDate
+		}
+
+		if endDate != "" {
+			parsedEndDate, err := time.ParseInLocation("2006-01-02", endDate, time.UTC)
+			if err != nil {
+				return dto.Pagination{}, fmt.Errorf("invalid endDate format: %w", err)
+			}
+			// เพิ่ม 1 วันเพื่อให้ครบ 23:59:59 ของวันที่ endDate
+			txnDateFilter["$lt"] = parsedEndDate.Add(24 * time.Hour)
+		}
+
+		filter["issue_date"] = txnDateFilter
 	}
 
 	search = strings.TrimSpace(search)

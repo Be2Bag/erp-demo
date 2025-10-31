@@ -2146,7 +2146,7 @@ const docTemplate = `{
                         "type": "string",
                         "default": "\"created_at\"",
                         "description": "Field to sort by",
-                        "name": "sortBy",
+                        "name": "sort_by",
                         "in": "query"
                     },
                     {
@@ -2157,13 +2157,25 @@ const docTemplate = `{
                         "type": "string",
                         "default": "\"desc\"",
                         "description": "Sort order",
-                        "name": "sortOrder",
+                        "name": "sort_order",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Transaction Category ID",
-                        "name": "transactionCategoryID",
+                        "name": "transaction_category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date filter (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date filter (YYYY-MM-DD)",
+                        "name": "end_date",
                         "in": "query"
                     }
                 ],
@@ -2470,7 +2482,7 @@ const docTemplate = `{
                         "maximum": 100,
                         "type": "integer",
                         "default": 10,
-                        "description": "Items per page",
+                        "description": "Number of items per page",
                         "name": "limit",
                         "in": "query"
                     },
@@ -2481,14 +2493,10 @@ const docTemplate = `{
                         "in": "query"
                     },
                     {
-                        "enum": [
-                            "created_at",
-                            "updated_at"
-                        ],
                         "type": "string",
-                        "default": "created_at",
-                        "description": "Sort by field",
-                        "name": "sortBy",
+                        "default": "\"created_at\"",
+                        "description": "Field to sort by",
+                        "name": "sort_by",
                         "in": "query"
                     },
                     {
@@ -2497,15 +2505,27 @@ const docTemplate = `{
                             "desc"
                         ],
                         "type": "string",
-                        "default": "desc",
+                        "default": "\"desc\"",
                         "description": "Sort order",
-                        "name": "sortOrder",
+                        "name": "sort_order",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Transaction Category ID",
-                        "name": "transactionCategoryID",
+                        "name": "transaction_category_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date filter (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date filter (YYYY-MM-DD)",
+                        "name": "end_date",
                         "in": "query"
                     }
                 ],
@@ -3232,7 +3252,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "default": 10,
-                        "description": "Number of items per page",
+                        "description": "Items per page",
                         "name": "limit",
                         "in": "query"
                     },
@@ -3249,7 +3269,7 @@ const docTemplate = `{
                         ],
                         "type": "string",
                         "default": "created_at",
-                        "description": "Field to sort by",
+                        "description": "Sort by field",
                         "name": "sort_by",
                         "in": "query"
                     },
@@ -3268,6 +3288,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Filter by status",
                         "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "end_date",
                         "in": "query"
                     }
                 ],
@@ -4335,7 +4367,7 @@ const docTemplate = `{
                         "type": "string",
                         "default": "created_at",
                         "description": "Sort by field",
-                        "name": "sortBy",
+                        "name": "sort_by",
                         "in": "query"
                     },
                     {
@@ -4346,13 +4378,25 @@ const docTemplate = `{
                         "type": "string",
                         "default": "desc",
                         "description": "Sort order",
-                        "name": "sortOrder",
+                        "name": "sort_order",
                         "in": "query"
                     },
                     {
                         "type": "string",
                         "description": "Filter by status",
                         "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "end_date",
                         "in": "query"
                     }
                 ],
@@ -7831,6 +7875,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "transaction_category_id": {
+                    "type": "string"
+                },
+                "transaction_category_name_th": {
                     "type": "string"
                 },
                 "txn_date": {
