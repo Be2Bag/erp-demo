@@ -60,12 +60,16 @@ func (s *inComeService) CreateInCome(ctx context.Context, inCome dto.CreateIncom
 	return nil
 }
 
-func (s *inComeService) ListInComes(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, transactionCategoryID string, startDate string, endDate string) (dto.Pagination, error) {
+func (s *inComeService) ListInComes(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, transactionCategoryID string, startDate string, endDate string, bankID string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
 	filter := bson.M{
 		"deleted_at": nil,
+	}
+
+	if bankID != "" {
+		filter["bank_id"] = bankID
 	}
 
 	if transactionCategoryID != "" {

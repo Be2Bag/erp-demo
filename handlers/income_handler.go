@@ -100,6 +100,7 @@ func (h *InComeHandler) CreateInCome(c *fiber.Ctx) error {
 // @Param transaction_category_id query string false "Transaction Category ID"
 // @Param start_date query string false "Start date filter (YYYY-MM-DD)"
 // @Param end_date query string false "End date filter (YYYY-MM-DD)"
+// @Param bank_id query string false "Bank ID"
 // @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
@@ -135,7 +136,7 @@ func (h *InComeHandler) ListInComes(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	list, err := h.svc.ListInComes(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.TransactionCategoryID, req.StartDate, req.EndDate)
+	list, err := h.svc.ListInComes(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.TransactionCategoryID, req.StartDate, req.EndDate, req.BankID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

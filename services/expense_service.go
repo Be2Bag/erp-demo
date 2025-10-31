@@ -60,7 +60,7 @@ func (s *expenseService) CreateExpense(ctx context.Context, expense dto.CreateEx
 	return nil
 }
 
-func (s *expenseService) ListExpenses(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, transactionCategoryID string, startDate string, endDate string) (dto.Pagination, error) {
+func (s *expenseService) ListExpenses(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, transactionCategoryID string, startDate string, endDate string, bankID string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
@@ -69,6 +69,9 @@ func (s *expenseService) ListExpenses(ctx context.Context, claims *dto.JWTClaims
 	}
 	if transactionCategoryID != "" {
 		filter["transaction_category_id"] = transactionCategoryID
+	}
+	if bankID != "" {
+		filter["bank_id"] = bankID
 	}
 
 	// กรอง startDate และ endDate

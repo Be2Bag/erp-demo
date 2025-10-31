@@ -36,6 +36,7 @@ type RequestListIncome struct {
 	TransactionCategoryID string `query:"transaction_category_id"`
 	StartDate             string `query:"start_date"`
 	EndDate               string `query:"end_date"`
+	BankID                string `query:"bank_id"`
 }
 
 type RequestIncomeSummary struct {

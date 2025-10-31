@@ -2177,6 +2177,12 @@ const docTemplate = `{
                         "description": "End date filter (YYYY-MM-DD)",
                         "name": "end_date",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bank ID",
+                        "name": "bank_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2526,6 +2532,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "End date filter (YYYY-MM-DD)",
                         "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bank ID",
+                        "name": "bank_id",
                         "in": "query"
                     }
                 ],
