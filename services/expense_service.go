@@ -179,11 +179,16 @@ func (s *expenseService) GetExpenseByID(ctx context.Context, expenseID string, c
 		return nil, fmt.Errorf("get expense by id: %w", errOnGetTransactionCategory)
 	}
 
+	transactionCategoryNameTH := ""
+	if len(transactionCategory) > 0 {
+		transactionCategoryNameTH = transactionCategory[0].TransactionCategoryNameTH
+	}
+
 	dtoObj := &dto.ExpenseDTO{
 		// ---------- รายละเอียดรายจ่าย ----------
 		ExpenseID:                 m.ExpenseID,
 		TransactionCategoryID:     m.TransactionCategoryID,
-		TransactionCategoryNameTH: transactionCategory[0].TransactionCategoryNameTH,
+		TransactionCategoryNameTH: transactionCategoryNameTH,
 		BankID:                    m.BankID,
 		Description:               m.Description,
 		Amount:                    m.Amount,

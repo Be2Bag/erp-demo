@@ -181,12 +181,17 @@ func (s *inComeService) GetIncomeByID(ctx context.Context, incomeID string, clai
 		return nil, fmt.Errorf("get income by id: %w", errOnGetTransactionCategory)
 	}
 
+	transactionCategoryNameTH := ""
+	if len(transactionCategory) > 0 {
+		transactionCategoryNameTH = transactionCategory[0].TransactionCategoryNameTH
+	}
+
 	dtoObj := &dto.IncomeDTO{
 		// ---------- รายละเอียดรายได้ ----------
 		IncomeID:                  m.IncomeID,
 		BankID:                    m.BankID,
 		TransactionCategoryID:     m.TransactionCategoryID,
-		TransactionCategoryNameTH: transactionCategory[0].TransactionCategoryNameTH,
+		TransactionCategoryNameTH: transactionCategoryNameTH,
 		Description:               m.Description,
 		Amount:                    m.Amount,
 		Currency:                  m.Currency,
