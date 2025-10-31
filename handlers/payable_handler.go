@@ -102,6 +102,7 @@ func (h *PayableHandler) CreatePayable(c *fiber.Ctx) error {
 // @Param status query string false "Filter by status"
 // @Param start_date query string false "Start date (YYYY-MM-DD)"
 // @Param end_date query string false "End date (YYYY-MM-DD)"
+// @Param bank_id query string false "Bank ID"
 // @Success 200 {object} dto.BaseResponse{data=dto.Pagination}
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 401 {object} dto.BaseResponse
@@ -138,7 +139,7 @@ func (h *PayableHandler) ListPayables(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	list, err := h.svc.ListPayables(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Status, req.StartDate, req.EndDate)
+	list, err := h.svc.ListPayables(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Status, req.StartDate, req.EndDate, req.BankID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

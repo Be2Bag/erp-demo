@@ -3313,6 +3313,12 @@ const docTemplate = `{
                         "description": "End date (YYYY-MM-DD)",
                         "name": "end_date",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bank ID",
+                        "name": "bank_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -4409,6 +4415,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "End date (YYYY-MM-DD)",
                         "name": "end_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Bank ID",
+                        "name": "bank_id",
                         "in": "query"
                     }
                 ],

@@ -41,6 +41,7 @@ type RequestListPayable struct {
 	Supplier  string `query:"supplier"`   // ผู้จำหน่าย
 	StartDate string `query:"start_date"`
 	EndDate   string `query:"end_date"`
+	BankID    string `query:"bank_id"` // รหัสบัญชีธนาคารที่เกี่ยวข้อง
 }
 
 type RequestSummaryPayable struct {

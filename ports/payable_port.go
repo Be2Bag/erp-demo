@@ -10,7 +10,7 @@ import (
 
 type PayableService interface {
 	CreatePayable(ctx context.Context, payable dto.CreatePayableDTO, claims *dto.JWTClaims) error
-	ListPayables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, status string, startDate string, endDate string) (dto.Pagination, error)
+	ListPayables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, status string, startDate string, endDate string, bankID string) (dto.Pagination, error)
 	GetPayableByID(ctx context.Context, payableID string, claims *dto.JWTClaims) (*dto.PayableDTO, error)
 	UpdatePayableByID(ctx context.Context, payableID string, update dto.UpdatePayableDTO, claims *dto.JWTClaims) error
 	DeletePayableByID(ctx context.Context, payableID string, claims *dto.JWTClaims) error

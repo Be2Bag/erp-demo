@@ -4179,6 +4179,10 @@ paths:
         in: query
         name: end_date
         type: string
+      - description: Bank ID
+        in: query
+        name: bank_id
+        type: string
       produces:
       - application/json
       responses:
@@ -4877,6 +4881,10 @@ paths:
       - description: End date (YYYY-MM-DD)
         in: query
         name: end_date
+        type: string
+      - description: Bank ID
+        in: query
+        name: bank_id
         type: string
       produces:
       - application/json

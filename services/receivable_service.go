@@ -67,12 +67,15 @@ func (s *receivableService) CreateReceivable(ctx context.Context, receivable dto
 	return nil
 }
 
-func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, Status string, startDate string, endDate string) (dto.Pagination, error) {
+func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, Status string, startDate string, endDate string, bankID string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
 	filter := bson.M{
 		"deleted_at": nil,
+	}
+	if bankID != "" {
+		filter["bank_id"] = bankID
 	}
 
 	// กรอง startDate และ endDate

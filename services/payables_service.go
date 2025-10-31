@@ -74,12 +74,15 @@ func (s *payablesService) CreatePayable(ctx context.Context, payable dto.CreateP
 	return nil
 }
 
-func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, status string, startDate string, endDate string) (dto.Pagination, error) {
+func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaims, page, size int, search string, sortBy string, sortOrder string, status string, startDate string, endDate string, bankID string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
 	filter := bson.M{
 		"deleted_at": nil,
+	}
+	if bankID != "" {
+		filter["bank_id"] = bankID
 	}
 
 	// กรอง startDate และ endDate

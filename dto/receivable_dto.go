@@ -34,6 +34,7 @@ type RequestListReceivable struct {
 	Status    string `query:"status"`
 	StartDate string `query:"start_date"`
 	EndDate   string `query:"end_date"`
+	BankID    string `query:"bank_id"`
 }
 
 // ---------- Response DTO ----------
