@@ -87,8 +87,8 @@ func main() {
 	signTypeSvc := services.NewSignTypeService(*cfg, signTypeRepo, userRepo)
 	bankAccountsSvc := services.NewBankAccountService(*cfg, bankAccountsRepo)
 	transactionCategorySvc := services.NewTransactionCategoryService(*cfg, transactionCategoryRepo)
-	inComeSvc := services.NewInComeService(*cfg, inComeRepo)
-	expenseSvc := services.NewExpenseService(*cfg, expenseRepo)
+	inComeSvc := services.NewInComeService(*cfg, inComeRepo, transactionCategoryRepo)
+	expenseSvc := services.NewExpenseService(*cfg, expenseRepo, transactionCategoryRepo)
 	payableSvc := services.NewPayablesService(*cfg, payableRepo)
 	receivableSvc := services.NewReceivableService(*cfg, receivableRepo)
 

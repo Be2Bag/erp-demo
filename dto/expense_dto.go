@@ -42,20 +42,21 @@ type RequestExpenseSummary struct {
 
 // ---------- Response DTO ----------
 type ExpenseDTO struct {
-	ExpenseID             string     `json:"expense_id"`
-	BankID                string     `json:"bank_id"`
-	TransactionCategoryID string     `json:"transaction_category_id"`
-	Description           string     `json:"description"`
-	Amount                float64    `json:"amount"`
-	Currency              string     `json:"currency"`
-	TxnDate               time.Time  `json:"txn_date"`
-	PaymentMethod         string     `json:"payment_method,omitempty"`
-	ReferenceNo           string     `json:"reference_no,omitempty"`
-	Note                  *string    `json:"note,omitempty"`
-	CreatedBy             string     `json:"created_by"`
-	CreatedAt             time.Time  `json:"created_at"`
-	UpdatedAt             time.Time  `json:"updated_at"`
-	DeletedAt             *time.Time `json:"deleted_at,omitempty"`
+	ExpenseID                 string     `json:"expense_id"`
+	BankID                    string     `json:"bank_id"`
+	TransactionCategoryID     string     `json:"transaction_category_id"`
+	TransactionCategoryNameTH string     `json:"transaction_category_name_th"`
+	Description               string     `json:"description"`
+	Amount                    float64    `json:"amount"`
+	Currency                  string     `json:"currency"`
+	TxnDate                   time.Time  `json:"txn_date"`
+	PaymentMethod             string     `json:"payment_method,omitempty"`
+	ReferenceNo               string     `json:"reference_no,omitempty"`
+	Note                      *string    `json:"note,omitempty"`
+	CreatedBy                 string     `json:"created_by"`
+	CreatedAt                 time.Time  `json:"created_at"`
+	UpdatedAt                 time.Time  `json:"updated_at"`
+	DeletedAt                 *time.Time `json:"deleted_at,omitempty"`
 }
 
 type ExpenseSummaryDTO struct {

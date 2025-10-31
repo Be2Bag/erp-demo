@@ -18,12 +18,13 @@ import (
 )
 
 type expenseService struct {
-	config      config.Config
-	expenseRepo ports.ExpenseRepository
+	config                  config.Config
+	expenseRepo             ports.ExpenseRepository
+	transactionCategoryRepo ports.TransactionCategoryRepository
 }
 
-func NewExpenseService(cfg config.Config, expenseRepo ports.ExpenseRepository) ports.ExpenseService {
-	return &expenseService{config: cfg, expenseRepo: expenseRepo}
+func NewExpenseService(cfg config.Config, expenseRepo ports.ExpenseRepository, transactionCategoryRepo ports.TransactionCategoryRepository) ports.ExpenseService {
+	return &expenseService{config: cfg, expenseRepo: expenseRepo, transactionCategoryRepo: transactionCategoryRepo}
 }
 
 func (s *expenseService) CreateExpense(ctx context.Context, expense dto.CreateExpenseDTO, claims *dto.JWTClaims) error {
@@ -100,6 +101,21 @@ func (s *expenseService) ListExpenses(ctx context.Context, claims *dto.JWTClaims
 		{Key: "_id", Value: -1},
 	}
 
+	filterTransactionCategory := bson.M{
+		"type":       "expense",
+		"deleted_at": nil,
+	}
+	transactionCategory, errOnGetTransactionCategory := s.transactionCategoryRepo.GetAllTransactionCategoryByFilter(ctx, filterTransactionCategory, nil)
+	if errOnGetTransactionCategory != nil {
+		return dto.Pagination{}, fmt.Errorf("list expenses: %w", errOnGetTransactionCategory)
+	}
+
+	// สร้าง map สำหรับ mapping TransactionCategoryID กับ TransactionCategoryNameTH
+	categoryMap := make(map[string]string)
+	for _, cat := range transactionCategory {
+		categoryMap[cat.TransactionCategoryID] = cat.TransactionCategoryNameTH
+	}
+
 	items, total, err := s.expenseRepo.GetListExpensesByFilter(ctx, filter, projection, sort, skip, limit)
 	if err != nil {
 		return dto.Pagination{}, fmt.Errorf("list expenses: %w", err)
@@ -107,22 +123,22 @@ func (s *expenseService) ListExpenses(ctx context.Context, claims *dto.JWTClaims
 
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
-
 		list = append(list, dto.ExpenseDTO{
-			ExpenseID:             m.ExpenseID,
-			TransactionCategoryID: m.TransactionCategoryID,
-			BankID:                m.BankID,
-			Description:           m.Description,
-			Amount:                m.Amount,
-			Currency:              m.Currency,
-			TxnDate:               m.TxnDate,
-			PaymentMethod:         m.PaymentMethod,
-			ReferenceNo:           m.ReferenceNo,
-			Note:                  m.Note,
-			CreatedBy:             m.CreatedBy,
-			CreatedAt:             m.CreatedAt,
-			UpdatedAt:             m.UpdatedAt,
-			DeletedAt:             m.DeletedAt,
+			ExpenseID:                 m.ExpenseID,
+			TransactionCategoryID:     m.TransactionCategoryID,
+			TransactionCategoryNameTH: categoryMap[m.TransactionCategoryID],
+			BankID:                    m.BankID,
+			Description:               m.Description,
+			Amount:                    m.Amount,
+			Currency:                  m.Currency,
+			TxnDate:                   m.TxnDate,
+			PaymentMethod:             m.PaymentMethod,
+			ReferenceNo:               m.ReferenceNo,
+			Note:                      m.Note,
+			CreatedBy:                 m.CreatedBy,
+			CreatedAt:                 m.CreatedAt,
+			UpdatedAt:                 m.UpdatedAt,
+			DeletedAt:                 m.DeletedAt,
 		})
 	}
 
@@ -153,22 +169,33 @@ func (s *expenseService) GetExpenseByID(ctx context.Context, expenseID string, c
 		return nil, nil
 	}
 
+	filterTransactionCategory := bson.M{
+		"transaction_category_id": m.TransactionCategoryID,
+		"type":                    "expense",
+		"deleted_at":              nil,
+	}
+	transactionCategory, errOnGetTransactionCategory := s.transactionCategoryRepo.GetAllTransactionCategoryByFilter(ctx, filterTransactionCategory, nil)
+	if errOnGetTransactionCategory != nil {
+		return nil, fmt.Errorf("get expense by id: %w", errOnGetTransactionCategory)
+	}
+
 	dtoObj := &dto.ExpenseDTO{
 		// ---------- รายละเอียดรายจ่าย ----------
-		ExpenseID:             m.ExpenseID,
-		TransactionCategoryID: m.TransactionCategoryID,
-		BankID:                m.BankID,
-		Description:           m.Description,
-		Amount:                m.Amount,
-		Currency:              m.Currency,
-		TxnDate:               m.TxnDate,
-		PaymentMethod:         m.PaymentMethod,
-		ReferenceNo:           m.ReferenceNo,
-		Note:                  m.Note,
-		CreatedBy:             m.CreatedBy,
-		CreatedAt:             m.CreatedAt,
-		UpdatedAt:             m.UpdatedAt,
-		DeletedAt:             m.DeletedAt,
+		ExpenseID:                 m.ExpenseID,
+		TransactionCategoryID:     m.TransactionCategoryID,
+		TransactionCategoryNameTH: transactionCategory[0].TransactionCategoryNameTH,
+		BankID:                    m.BankID,
+		Description:               m.Description,
+		Amount:                    m.Amount,
+		Currency:                  m.Currency,
+		TxnDate:                   m.TxnDate,
+		PaymentMethod:             m.PaymentMethod,
+		ReferenceNo:               m.ReferenceNo,
+		Note:                      m.Note,
+		CreatedBy:                 m.CreatedBy,
+		CreatedAt:                 m.CreatedAt,
+		UpdatedAt:                 m.UpdatedAt,
+		DeletedAt:                 m.DeletedAt,
 	}
 	return dtoObj, nil
 }

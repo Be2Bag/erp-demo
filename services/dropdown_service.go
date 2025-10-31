@@ -381,7 +381,7 @@ func (s *dropDownService) GetUserListAll(ctx context.Context) ([]dto.ResponseGet
 }
 
 func (s *dropDownService) GetTransactionCategory(ctx context.Context, types string) ([]dto.ResponseGetTransactionCategorys, error) {
-	filter := bson.M{"type": types}
+	filter := bson.M{"type": types, "deleted_at": nil}
 	projection := bson.M{}
 
 	transactionCategorys, errOnGetTransactionCategorys := s.dropDownRepo.GetTransactionCategorysList(ctx, filter, projection)
