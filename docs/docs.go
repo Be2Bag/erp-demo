@@ -8199,8 +8199,20 @@ const docTemplate = `{
                     "description": "วันที่ออกใบแจ้งหนี้",
                     "type": "string"
                 },
+                "note": {
+                    "description": "หมายเหตุ",
+                    "type": "string"
+                },
+                "payment_ref": {
+                    "description": "เลขที่อ้างอิงการชำระเงิน",
+                    "type": "string"
+                },
                 "purchase_no": {
                     "description": "เลขที่ใบสั่งซื้อ",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "สถานะ",
                     "type": "string"
                 },
                 "supplier": {
@@ -9416,6 +9428,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "issue_date": {
+                    "type": "string"
+                },
+                "note": {
                     "type": "string"
                 },
                 "status": {

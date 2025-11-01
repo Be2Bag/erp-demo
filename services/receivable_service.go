@@ -157,6 +157,7 @@ func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWT
 			CreatedBy:    m.CreatedBy,
 			CreatedAt:    m.CreatedAt,
 			UpdatedAt:    m.UpdatedAt,
+			Note:         m.Note,
 		})
 	}
 
@@ -227,6 +228,7 @@ func (s *receivableService) GetReceivableByID(ctx context.Context, receivableID 
 		CreatedAt:    m.CreatedAt,
 		UpdatedAt:    m.UpdatedAt,
 		Transactions: transactions,
+		Note:         m.Note,
 	}
 	return dtoObj, nil
 }
@@ -280,6 +282,9 @@ func (s *receivableService) UpdateReceivableByID(ctx context.Context, receivable
 		}
 	}
 
+	if strings.TrimSpace(update.Note) != "" {
+		existing.Note = update.Note
+	}
 	existing.UpdatedAt = time.Now()
 
 	if _, err := s.receivableRepo.UpdateReceivableByID(ctx, receivableID, *existing); err != nil {

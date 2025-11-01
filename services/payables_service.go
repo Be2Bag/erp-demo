@@ -152,15 +152,18 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 	for _, m := range items {
 
 		list = append(list, dto.PayableDTO{
-			IDPayable: m.IDPayable,
-			BankID:    m.BankID,
-			Supplier:  m.Supplier,
-			InvoiceNo: m.InvoiceNo,
-			IssueDate: m.IssueDate,
-			DueDate:   m.DueDate,
-			Amount:    m.Amount,
-			Balance:   m.Balance,
-			Status:    m.Status,
+			IDPayable:  m.IDPayable,
+			BankID:     m.BankID,
+			Supplier:   m.Supplier,
+			InvoiceNo:  m.InvoiceNo,
+			PurchaseNo: m.PurchaseNo,
+			IssueDate:  m.IssueDate,
+			DueDate:    m.DueDate,
+			Amount:     m.Amount,
+			Balance:    m.Balance,
+			Status:     m.Status,
+			PaymentRef: m.PaymentRef,
+			Note:       m.Note,
 		})
 	}
 
@@ -230,6 +233,8 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 		Amount:       m.Amount,
 		Balance:      m.Balance,
 		Status:       m.Status,
+		PaymentRef:   m.PaymentRef,
+		Note:         m.Note,
 		Transactions: PaymentTransactions,
 	}
 	return dtoObj, nil

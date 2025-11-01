@@ -62,6 +62,8 @@ type PayableDTO struct {
 	Amount       float64                 `json:"amount"`       // จำนวนเงิน
 	Balance      float64                 `json:"balance"`      // ยอดคงเหลือ
 	Status       string                  `json:"status"`       // สถานะ
+	PaymentRef   string                  `json:"payment_ref"`  // เลขที่อ้างอิงการชำระเงิน
+	Note         string                  `json:"note"`         // หมายเหตุ
 	Transactions []PaymentTransactionDTO `json:"transactions"` // รายการชำระเงิน
 }
 

@@ -23,6 +23,7 @@ type UpdateReceivableDTO struct {
 	Amount    float64 `json:"amount,omitempty"`
 	Balance   float64 `json:"balance,omitempty"`
 	Status    string  `json:"status,omitempty"`
+	Note      string  `json:"note,omitempty"`
 }
 
 type RequestListReceivable struct {
@@ -53,6 +54,7 @@ type ReceivableDTO struct {
 	CreatedAt    time.Time               `json:"created_at"`
 	UpdatedAt    time.Time               `json:"updated_at"`
 	Transactions []PaymentTransactionDTO `json:"transactions"` // รายการชำระเงิน
+	Note         string                  `json:"note"`
 }
 
 type ReceivableSummaryDTO struct {
