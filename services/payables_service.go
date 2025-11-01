@@ -18,12 +18,13 @@ import (
 )
 
 type payablesService struct {
-	config       config.Config
-	payablesRepo ports.PayableRepository
+	config           config.Config
+	payablesRepo     ports.PayableRepository
+	bankAccountsRepo ports.BankAccountsRepository
 }
 
-func NewPayablesService(cfg config.Config, payablesRepo ports.PayableRepository) ports.PayableService {
-	return &payablesService{config: cfg, payablesRepo: payablesRepo}
+func NewPayablesService(cfg config.Config, payablesRepo ports.PayableRepository, bankAccountsRepo ports.BankAccountsRepository) ports.PayableService {
+	return &payablesService{config: cfg, payablesRepo: payablesRepo, bankAccountsRepo: bankAccountsRepo}
 }
 
 func (s *payablesService) CreatePayable(ctx context.Context, payable dto.CreatePayableDTO, claims *dto.JWTClaims) error {
@@ -148,12 +149,25 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 		return dto.Pagination{}, fmt.Errorf("list payables: %w", err)
 	}
 
+	filterBankAccounts := bson.M{"deleted_at": nil}
+	bankAccounts, errOnGetBankAccounts := s.bankAccountsRepo.GetAllBankAccountsByFilter(ctx, filterBankAccounts, nil)
+	if errOnGetBankAccounts != nil {
+		return dto.Pagination{}, fmt.Errorf("list bank accounts: %w", errOnGetBankAccounts)
+	}
+
+	// สร้าง map สำหรับ mapping BankID กับ BankName
+	bankMap := make(map[string]string)
+	for _, bank := range bankAccounts {
+		bankMap[bank.BankID] = bank.BankName
+	}
+
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
 
 		list = append(list, dto.PayableDTO{
 			IDPayable:  m.IDPayable,
 			BankID:     m.BankID,
+			BankName:   bankMap[m.BankID],
 			Supplier:   m.Supplier,
 			InvoiceNo:  m.InvoiceNo,
 			PurchaseNo: m.PurchaseNo,
@@ -201,6 +215,18 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 		return nil, errPaymentTransaction
 	}
 
+	filterBankAccounts := bson.M{"deleted_at": nil}
+	bankAccounts, errOnGetBankAccounts := s.bankAccountsRepo.GetAllBankAccountsByFilter(ctx, filterBankAccounts, nil)
+	if errOnGetBankAccounts != nil {
+		return nil, errOnGetBankAccounts
+	}
+
+	// สร้าง map สำหรับ mapping BankID กับ BankName
+	bankMap := make(map[string]string)
+	for _, bank := range bankAccounts {
+		bankMap[bank.BankID] = bank.BankName
+	}
+
 	PaymentTransactions := make([]dto.PaymentTransactionDTO, 0, len(paymentTransaction))
 	if len(paymentTransaction) > 0 {
 
@@ -226,6 +252,7 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 		// ---------- รายละเอียดเจ้าหนี้ ----------
 		IDPayable:    m.IDPayable,
 		BankID:       m.BankID,
+		BankName:     bankMap[m.BankID],
 		Supplier:     m.Supplier,
 		InvoiceNo:    m.InvoiceNo,
 		IssueDate:    m.IssueDate,

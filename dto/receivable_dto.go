@@ -43,6 +43,7 @@ type RequestListReceivable struct {
 type ReceivableDTO struct {
 	IDReceivable string                  `json:"id_receivable"`
 	BankID       string                  `json:"bank_id"`
+	BankName     string                  `json:"bank_name"`
 	Customer     string                  `json:"customer"`
 	InvoiceNo    string                  `json:"invoice_no"`
 	IssueDate    time.Time               `json:"issue_date"`

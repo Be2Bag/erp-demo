@@ -8183,6 +8183,10 @@ const docTemplate = `{
                     "description": "รหัสบัญชีธนาคารที่เกี่ยวข้อง",
                     "type": "string"
                 },
+                "bank_name": {
+                    "description": "ชื่อบัญชีธนาคาร",
+                    "type": "string"
+                },
                 "due_date": {
                     "description": "วันที่ครบกำหนดชำระ",
                     "type": "string"

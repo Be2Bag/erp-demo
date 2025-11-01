@@ -54,6 +54,7 @@ type RequestSummaryPayable struct {
 type PayableDTO struct {
 	IDPayable    string                  `json:"id_payable"`   // รหัสเจ้าหนี้
 	BankID       string                  `json:"bank_id"`      // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+	BankName     string                  `json:"bank_name"`    // ชื่อบัญชีธนาคาร
 	Supplier     string                  `json:"supplier"`     // ชื่อผู้จำหน่าย
 	PurchaseNo   string                  `json:"purchase_no"`  // เลขที่ใบสั่งซื้อ
 	InvoiceNo    string                  `json:"invoice_no"`   // เลขที่ใบแจ้งหนี้

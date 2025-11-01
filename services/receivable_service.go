@@ -18,12 +18,13 @@ import (
 )
 
 type receivableService struct {
-	config         config.Config
-	receivableRepo ports.ReceivableRepository
+	config           config.Config
+	receivableRepo   ports.ReceivableRepository
+	bankAccountsRepo ports.BankAccountsRepository
 }
 
-func NewReceivableService(cfg config.Config, receivableRepo ports.ReceivableRepository) ports.ReceivableService {
-	return &receivableService{config: cfg, receivableRepo: receivableRepo}
+func NewReceivableService(cfg config.Config, receivableRepo ports.ReceivableRepository, bankAccountsRepo ports.BankAccountsRepository) ports.ReceivableService {
+	return &receivableService{config: cfg, receivableRepo: receivableRepo, bankAccountsRepo: bankAccountsRepo}
 }
 
 func (s *receivableService) CreateReceivable(ctx context.Context, receivable dto.CreateReceivableDTO, claims *dto.JWTClaims) error {
@@ -141,12 +142,25 @@ func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWT
 		return dto.Pagination{}, fmt.Errorf("list receivables: %w", err)
 	}
 
+	filterBankAccounts := bson.M{"deleted_at": nil}
+	bankAccounts, errOnGetBankAccounts := s.bankAccountsRepo.GetAllBankAccountsByFilter(ctx, filterBankAccounts, nil)
+	if errOnGetBankAccounts != nil {
+		return dto.Pagination{}, fmt.Errorf("list bank accounts: %w", errOnGetBankAccounts)
+	}
+
+	// สร้าง map สำหรับ mapping BankID กับ BankName
+	bankMap := make(map[string]string)
+	for _, bank := range bankAccounts {
+		bankMap[bank.BankID] = bank.BankName
+	}
+
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
 
 		list = append(list, dto.ReceivableDTO{
 			IDReceivable: m.IDReceivable,
 			BankID:       m.BankID,
+			BankName:     bankMap[m.BankID],
 			Customer:     m.Customer,
 			InvoiceNo:    m.InvoiceNo,
 			IssueDate:    m.IssueDate,
@@ -195,6 +209,18 @@ func (s *receivableService) GetReceivableByID(ctx context.Context, receivableID 
 		return nil, errPaymentTransaction
 	}
 
+	filterBankAccounts := bson.M{"deleted_at": nil}
+	bankAccounts, errOnGetBankAccounts := s.bankAccountsRepo.GetAllBankAccountsByFilter(ctx, filterBankAccounts, nil)
+	if errOnGetBankAccounts != nil {
+		return nil, fmt.Errorf("list bank accounts: %w", errOnGetBankAccounts)
+	}
+
+	// สร้าง map สำหรับ mapping BankID กับ BankName
+	bankMap := make(map[string]string)
+	for _, bank := range bankAccounts {
+		bankMap[bank.BankID] = bank.BankName
+	}
+
 	var transactions = make([]dto.PaymentTransactionDTO, 0, len(paymentTransaction))
 	for _, pt := range paymentTransaction {
 		transactions = append(transactions, dto.PaymentTransactionDTO{
@@ -217,6 +243,7 @@ func (s *receivableService) GetReceivableByID(ctx context.Context, receivableID 
 		// ---------- รายละเอียดรายได้ ----------
 		IDReceivable: m.IDReceivable,
 		BankID:       m.BankID,
+		BankName:     bankMap[m.BankID],
 		Customer:     m.Customer,
 		InvoiceNo:    m.InvoiceNo,
 		IssueDate:    m.IssueDate,

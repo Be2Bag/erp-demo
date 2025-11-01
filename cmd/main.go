@@ -89,8 +89,8 @@ func main() {
 	transactionCategorySvc := services.NewTransactionCategoryService(*cfg, transactionCategoryRepo)
 	inComeSvc := services.NewInComeService(*cfg, inComeRepo, transactionCategoryRepo)
 	expenseSvc := services.NewExpenseService(*cfg, expenseRepo, transactionCategoryRepo)
-	payableSvc := services.NewPayablesService(*cfg, payableRepo)
-	receivableSvc := services.NewReceivableService(*cfg, receivableRepo)
+	payableSvc := services.NewPayablesService(*cfg, payableRepo, bankAccountsRepo)
+	receivableSvc := services.NewReceivableService(*cfg, receivableRepo, bankAccountsRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
