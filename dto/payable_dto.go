@@ -61,6 +61,7 @@ type PayableDTO struct {
 	DueDate      time.Time               `json:"due_date"`     // วันที่ครบกำหนดชำระ
 	Amount       float64                 `json:"amount"`       // จำนวนเงิน
 	Balance      float64                 `json:"balance"`      // ยอดคงเหลือ
+	Status       string                  `json:"status"`       // สถานะ
 	Transactions []PaymentTransactionDTO `json:"transactions"` // รายการชำระเงิน
 }
 

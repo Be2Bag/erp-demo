@@ -160,6 +160,7 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 			DueDate:   m.DueDate,
 			Amount:    m.Amount,
 			Balance:   m.Balance,
+			Status:    m.Status,
 		})
 	}
 
@@ -228,6 +229,7 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 		DueDate:      m.DueDate,
 		Amount:       m.Amount,
 		Balance:      m.Balance,
+		Status:       m.Status,
 		Transactions: PaymentTransactions,
 	}
 	return dtoObj, nil
