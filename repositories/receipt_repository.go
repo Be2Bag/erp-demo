@@ -101,3 +101,23 @@ func (r *receiptRepo) GetAllReceiptsByFilter(ctx context.Context, filter interfa
 
 	return receipts, nil
 }
+
+func (r *receiptRepo) GetMaxReceiptNumber(ctx context.Context, prefix string) (string, error) {
+	filter := bson.M{
+		"receipt_number": bson.M{"$regex": fmt.Sprintf("^%s", prefix)},
+		"deleted_at":     nil,
+	}
+	opts := options.FindOne().
+		SetSort(bson.D{{Key: "receipt_number", Value: -1}}).
+		SetProjection(bson.M{"receipt_number": 1})
+
+	var result models.Receipt
+	err := r.coll.FindOne(ctx, filter, opts).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return "", nil
+		}
+		return "", fmt.Errorf("find max receipt number: %w", err)
+	}
+	return result.ReceiptNumber, nil
+}

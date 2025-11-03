@@ -115,9 +115,27 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		receivedBy = claims.UserID
 	}
 
+	// IV-DD-MM-YY
+	prefix := fmt.Sprintf("IV-%02d-%02d-%02d", now.Day(), int(now.Month()), now.Year()%100)
+
+	maxNumber, err := s.receiptRepo.GetMaxReceiptNumber(ctx, prefix)
+	if err != nil {
+		return fmt.Errorf("failed to generate receipt number: %w", err)
+	}
+
+	sequence := 0
+	if maxNumber != "" {
+		parts := strings.Split(maxNumber, "-")
+		if len(parts) == 5 {
+			_, _ = fmt.Sscanf(parts[4], "%d", &sequence)
+		}
+	}
+
+	receiptNumber := fmt.Sprintf("%s-%03d", prefix, sequence+1)
+
 	model := models.Receipt{
 		IDReceipt:     uuid.NewString(),
-		ReceiptNumber: in.ReceiptNumber,
+		ReceiptNumber: receiptNumber,
 		ReceiptDate:   receiptDate,
 		Customer:      customer,
 		Issuer:        issuer,

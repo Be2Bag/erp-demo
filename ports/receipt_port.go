@@ -22,4 +22,5 @@ type ReceiptRepository interface {
 	GetOneReceiptsByFilter(ctx context.Context, filter interface{}, projection interface{}) (*models.Receipt, error)
 	SoftDeleteReceiptByID(ctx context.Context, receiptID string) error
 	GetAllReceiptsByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Receipt, error)
+	GetMaxReceiptNumber(ctx context.Context, prefix string) (string, error)
 }

@@ -7849,10 +7849,6 @@ const docTemplate = `{
                     "description": "YYYY-MM-DD รูปแบบวันที่ปี-เดือน-วัน (ไม่ส่งมาก็ได้)",
                     "type": "string"
                 },
-                "receipt_number": {
-                    "description": "เลขที่ใบเสร็จ (ไม่ส่งมาก็ได้)",
-                    "type": "string"
-                },
                 "received_by": {
                     "description": "ผู้รับเงิน/ผู้รับเอกสาร (ไม่ส่งมาก็ได้)",
                     "type": "string"
