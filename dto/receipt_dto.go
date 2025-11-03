@@ -1,0 +1,112 @@
+package dto // ประกาศแพ็กเกจ dto สำหรับชุดโครงสร้างข้อมูล (DTO)
+
+import "time" // นำเข้าแพ็กเกจ time สำหรับชนิดข้อมูลเวลา
+
+// ---------- Request DTOs ---------- // ส่วนของโครงสร้างสำหรับรับคำขอจากผู้ใช้ (Request)
+type CreateReceiptDTO struct { // โครงสร้างข้อมูลสำหรับสร้างใบเสร็จ
+	ReceiptNumber string           `json:"receipt_number,omitempty"`          // เลขที่ใบเสร็จ (ไม่ส่งมาก็ได้)
+	ReceiptDate   string           `json:"receipt_date,omitempty"`            // YYYY-MM-DD รูปแบบวันที่ปี-เดือน-วัน (ไม่ส่งมาก็ได้)
+	Customer      CustomerInfoDTO  `json:"customer" binding:"required"`       // ข้อมูลลูกค้า (จำเป็นต้องส่ง)
+	Issuer        IssuerInfoDTO    `json:"issuer" binding:"required"`         // ข้อมูลผู้ออกเอกสาร (จำเป็นต้องส่ง)
+	Items         []ReceiptItemDTO `json:"items" binding:"required"`          // รายการสินค้า/บริการ (จำเป็นต้องส่ง)
+	Remark        string           `json:"remark,omitempty"`                  // หมายเหตุ (ไม่ส่งมาก็ได้)
+	PaymentDetail PaymentInfoDTO   `json:"payment_detail" binding:"required"` // รายละเอียดการชำระเงิน (จำเป็นต้องส่ง)
+	Status        string           `json:"status,omitempty"`                  // สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)
+	ApprovedBy    string           `json:"approved_by,omitempty"`             // ผู้อนุมัติ (ไม่ส่งมาก็ได้)
+	ReceivedBy    string           `json:"received_by,omitempty"`             // ผู้รับเงิน/ผู้รับเอกสาร (ไม่ส่งมาก็ได้)
+} // จบโครงสร้าง CreateReceiptDTO
+
+type UpdateReceiptDTO struct { // โครงสร้างข้อมูลสำหรับอัปเดตใบเสร็จ (ส่งเฉพาะฟิลด์ที่ต้องการแก้)
+	ReceiptNumber string           `json:"receipt_number,omitempty"` // เลขที่ใบเสร็จ (ไม่ส่งมาก็ได้)
+	ReceiptDate   string           `json:"receipt_date,omitempty"`   // YYYY-MM-DD รูปแบบวันที่ปี-เดือน-วัน (ไม่ส่งมาก็ได้)
+	Customer      *CustomerInfoDTO `json:"customer,omitempty"`       // ข้อมูลลูกค้า (อาจไม่ส่ง)
+	Issuer        *IssuerInfoDTO   `json:"issuer,omitempty"`         // ข้อมูลผู้ออกเอกสาร (อาจไม่ส่ง)
+	Items         []ReceiptItemDTO `json:"items,omitempty"`          // รายการสินค้า/บริการ (อาจไม่ส่ง)
+	Remark        *string          `json:"remark,omitempty"`         // หมายเหตุ (อาจไม่ส่ง)
+	PaymentDetail *PaymentInfoDTO  `json:"payment_detail,omitempty"` // รายละเอียดการชำระเงิน (อาจไม่ส่ง)
+	Status        *string          `json:"status,omitempty"`         // สถานะใบเสร็จ (อาจไม่ส่ง)
+	ApprovedBy    *string          `json:"approved_by,omitempty"`    // ผู้อนุมัติ (อาจไม่ส่ง)
+	ReceivedBy    *string          `json:"received_by,omitempty"`    // ผู้รับเงิน/ผู้รับเอกสาร (อาจไม่ส่ง)
+} // จบโครงสร้าง UpdateReceiptDTO
+
+type CustomerInfoDTO struct { // โครงสร้างข้อมูลลูกค้า
+	Name    string `json:"name" binding:"required"`    // ชื่อลูกค้า (จำเป็น)
+	Address string `json:"address" binding:"required"` // ที่อยู่ลูกค้า (จำเป็น)
+	Contact string `json:"contact" binding:"required"` // ช่องทางติดต่อ (จำเป็น)
+} // จบโครงสร้าง CustomerInfoDTO
+
+type IssuerInfoDTO struct { // โครงสร้างข้อมูลผู้ออกเอกสาร
+	Name       string `json:"name" binding:"required"`    // ชื่อผู้ออกเอกสาร (จำเป็น)
+	Address    string `json:"address" binding:"required"` // ที่อยู่ผู้ออกเอกสาร (จำเป็น)
+	Contact    string `json:"contact" binding:"required"` // ช่องทางติดต่อ (จำเป็น)
+	Email      string `json:"email,omitempty"`            // อีเมล (ไม่ส่งมาก็ได้)
+	PreparedBy string `json:"prepared_by,omitempty"`      // ผู้จัดเตรียมเอกสาร (ไม่ส่งมาก็ได้)
+} // จบโครงสร้าง IssuerInfoDTO
+
+type ReceiptItemDTO struct { // โครงสร้างรายการในใบเสร็จ
+	Description string  `json:"description" binding:"required"`      // รายละเอียดรายการ (จำเป็น)
+	Quantity    int     `json:"quantity" binding:"required,gt=0"`    // จำนวน (ต้องมากกว่า 0)
+	UnitPrice   float64 `json:"unit_price" binding:"required,gte=0"` // ราคาต่อหน่วย (ต้องมากกว่าหรือเท่ากับ 0)
+	Other       float64 `json:"other,omitempty"`                     // ค่าใช้จ่ายอื่นๆ ต่อรายการ (ไม่ส่งมาก็ได้)
+	Total       float64 `json:"total,omitempty"`                     // ถ้าเป็น 0 ระบบจะคำนวณให้: จำนวน x ราคาต่อหน่วย + ค่าอื่นๆ
+} // จบโครงสร้าง ReceiptItemDTO
+
+type PaymentInfoDTO struct { // โครงสร้างรายละเอียดการชำระเงิน (Request)
+	Method        string  `json:"method" binding:"required"`            // วิธีชำระเงิน (จำเป็น)
+	BankName      string  `json:"bank_name,omitempty"`                  // ชื่อธนาคาร (ไม่ส่งมาก็ได้)
+	AccountName   string  `json:"account_name,omitempty"`               // ชื่อบัญชี (ไม่ส่งมาก็ได้)
+	AccountNumber string  `json:"account_number,omitempty"`             // เลขที่บัญชี (ไม่ส่งมาก็ได้)
+	AmountPaid    float64 `json:"amount_paid" binding:"required,gte=0"` // จำนวนเงินที่ชำระ (ต้องมากกว่าหรือเท่ากับ 0 และจำเป็น)
+	PaidDate      string  `json:"paid_date,omitempty"`                  // YYYY-MM-DD วันที่ชำระเงิน (ไม่ส่งมาก็ได้)
+	Note          string  `json:"note,omitempty"`                       // หมายเหตุการชำระเงิน (ไม่ส่งมาก็ได้)
+} // จบโครงสร้าง PaymentInfoDTO
+
+// ---------- Query DTO ---------- // ส่วนของโครงสร้างสำหรับพารามิเตอร์การค้นหา/แบ่งหน้า
+type RequestListReceipt struct { // โครงสร้างคำขอรายการใบเสร็จ
+	Page      int    `query:"page"`       // หน้าที่ต้องการ
+	Limit     int    `query:"limit"`      // จำนวนรายการต่อหน้า
+	Search    string `query:"search"`     // คำค้นหา (เช่น เลขที่ใบเสร็จ/ชื่อลูกค้า)
+	SortBy    string `query:"sort_by"`    // ฟิลด์ที่ใช้เรียงลำดับ
+	SortOrder string `query:"sort_order"` // asc | desc
+	Status    string `query:"status"`     // สถานะใบเสร็จสำหรับกรอง
+	StartDate string `query:"start_date"` // YYYY-MM-DD วันที่เริ่มต้นช่วงค้นหา
+	EndDate   string `query:"end_date"`   // YYYY-MM-DD วันที่สิ้นสุดช่วงค้นหา
+} // จบโครงสร้าง RequestListReceipt
+
+// ---------- Response DTOs ---------- // ส่วนของโครงสร้างสำหรับส่งข้อมูลตอบกลับ (Response)
+type ReceiptDTO struct { // โครงสร้างข้อมูลใบเสร็จที่ส่งกลับ
+	IDReceipt     string             `json:"id_receipt"`            // รหัสใบเสร็จ (ไอดีภายในระบบ)
+	ReceiptNumber string             `json:"receipt_number"`        // เลขที่ใบเสร็จ
+	ReceiptDate   time.Time          `json:"receipt_date"`          // วันที่ใบเสร็จ (ชนิดเวลา)
+	Customer      CustomerInfoDTO    `json:"customer"`              // ข้อมูลลูกค้า
+	Issuer        IssuerInfoDTO      `json:"issuer"`                // ข้อมูลผู้ออกเอกสาร
+	Items         []ReceiptItemDTO   `json:"items"`                 // รายการสินค้า/บริการ
+	TotalAmount   float64            `json:"total_amount"`          // ยอดรวมทั้งใบเสร็จ
+	Remark        string             `json:"remark,omitempty"`      // หมายเหตุ (อาจว่าง)
+	PaymentDetail PaymentInfoRespDTO `json:"payment_detail"`        // รายละเอียดการชำระเงิน (สำหรับตอบกลับ)
+	Status        string             `json:"status"`                // สถานะใบเสร็จ
+	ApprovedBy    string             `json:"approved_by,omitempty"` // ผู้อนุมัติ (อาจว่าง)
+	ReceivedBy    string             `json:"received_by,omitempty"` // ผู้รับเงิน/ผู้รับเอกสาร (อาจว่าง)
+	CreatedAt     time.Time          `json:"created_at"`            // วันที่สร้างข้อมูล
+	UpdatedAt     time.Time          `json:"updated_at"`            // วันที่แก้ไขล่าสุด
+} // จบโครงสร้าง ReceiptDTO
+
+type PaymentInfoRespDTO struct { // โครงสร้างรายละเอียดการชำระเงิน (Response)
+	Method        string    `json:"method"`                   // วิธีชำระเงิน
+	BankName      string    `json:"bank_name,omitempty"`      // ชื่อธนาคาร (อาจว่าง)
+	AccountName   string    `json:"account_name,omitempty"`   // ชื่อบัญชี (อาจว่าง)
+	AccountNumber string    `json:"account_number,omitempty"` // เลขที่บัญชี (อาจว่าง)
+	AmountPaid    float64   `json:"amount_paid"`              // จำนวนเงินที่ชำระ
+	PaidDate      time.Time `json:"paid_date"`                // วันที่ชำระเงิน (ชนิดเวลา)
+	Note          string    `json:"note,omitempty"`           // หมายเหตุการชำระเงิน (อาจว่าง)
+} // จบโครงสร้าง PaymentInfoRespDTO
+
+type ReceiptSummaryDTO struct { // โครงสร้างสรุปข้อมูลใบเสร็จ
+	TotalAmount  float64 `json:"total_amount"`  // ยอดรวมทั้งหมดของใบเสร็จที่ค้นหา
+	TotalPaid    float64 `json:"total_paid"`    // ยอดรวมที่ชำระแล้วของใบเสร็จที่ค้นหา
+	PendingCount int     `json:"pending_count"` // จำนวนใบเสร็จที่ยังค้างชำระ
+} // จบโครงสร้าง ReceiptSummaryDTO
+
+type RequestSummaryReceipt struct {
+	Report string `query:"report"` // รายงานประเภท day | month | all
+}

@@ -4291,6 +4291,319 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/receipt/create": {
+            "post": {
+                "description": "Create a new receipt record",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Receipts"
+                ],
+                "summary": "Create a new receipt",
+                "parameters": [
+                    {
+                        "description": "Receipt data",
+                        "name": "receipt",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateReceiptDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/receipt/list": {
+            "get": {
+                "description": "Get a paginated list of receipts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Receipts"
+                ],
+                "summary": "List receipts",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search term",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "created_at",
+                            "updated_at"
+                        ],
+                        "type": "string",
+                        "default": "created_at",
+                        "description": "Sort by field",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Sort order",
+                        "name": "sort_order",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "paid",
+                            "pending"
+                        ],
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/receipt/summary": {
+            "get": {
+                "description": "Get summary of receipts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Receipts"
+                ],
+                "summary": "Summary receipts",
+                "parameters": [
+                    {
+                        "enum": [
+                            "day",
+                            "month",
+                            "all"
+                        ],
+                        "type": "string",
+                        "default": "all",
+                        "description": "Report type",
+                        "name": "report",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/receipt/{id}": {
+            "get": {
+                "description": "Get a receipt record by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Receipts"
+                ],
+                "summary": "Get receipts by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Receipt ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a receipt record by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Receipts"
+                ],
+                "summary": "Delete receipt by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Receipt ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/receivable/create": {
             "post": {
                 "description": "Create a new receivable record",
@@ -7488,6 +7801,72 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CreateReceiptDTO": {
+            "type": "object",
+            "required": [
+                "customer",
+                "issuer",
+                "items",
+                "payment_detail"
+            ],
+            "properties": {
+                "approved_by": {
+                    "description": "ผู้อนุมัติ (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "customer": {
+                    "description": "ข้อมูลลูกค้า (จำเป็นต้องส่ง)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/dto.CustomerInfoDTO"
+                        }
+                    ]
+                },
+                "issuer": {
+                    "description": "ข้อมูลผู้ออกเอกสาร (จำเป็นต้องส่ง)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/dto.IssuerInfoDTO"
+                        }
+                    ]
+                },
+                "items": {
+                    "description": "รายการสินค้า/บริการ (จำเป็นต้องส่ง)",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ReceiptItemDTO"
+                    }
+                },
+                "payment_detail": {
+                    "description": "รายละเอียดการชำระเงิน (จำเป็นต้องส่ง)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/dto.PaymentInfoDTO"
+                        }
+                    ]
+                },
+                "receipt_date": {
+                    "description": "YYYY-MM-DD รูปแบบวันที่ปี-เดือน-วัน (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "receipt_number": {
+                    "description": "เลขที่ใบเสร็จ (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "received_by": {
+                    "description": "ผู้รับเงิน/ผู้รับเอกสาร (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "remark": {
+                    "description": "หมายเหตุ (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateReceivableDTO": {
             "type": "object",
             "properties": {
@@ -7761,6 +8140,28 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.CustomerInfoDTO": {
+            "type": "object",
+            "required": [
+                "address",
+                "contact",
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "description": "ที่อยู่ลูกค้า (จำเป็น)",
+                    "type": "string"
+                },
+                "contact": {
+                    "description": "ช่องทางติดต่อ (จำเป็น)",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "ชื่อลูกค้า (จำเป็น)",
+                    "type": "string"
+                }
+            }
+        },
         "dto.DepartmentDTO": {
             "type": "object",
             "properties": {
@@ -7951,6 +8352,36 @@ const docTemplate = `{
                 },
                 "total_today": {
                     "type": "number"
+                }
+            }
+        },
+        "dto.IssuerInfoDTO": {
+            "type": "object",
+            "required": [
+                "address",
+                "contact",
+                "name"
+            ],
+            "properties": {
+                "address": {
+                    "description": "ที่อยู่ผู้ออกเอกสาร (จำเป็น)",
+                    "type": "string"
+                },
+                "contact": {
+                    "description": "ช่องทางติดต่อ (จำเป็น)",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "อีเมล (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "ชื่อผู้ออกเอกสาร (จำเป็น)",
+                    "type": "string"
+                },
+                "prepared_by": {
+                    "description": "ผู้จัดเตรียมเอกสาร (ไม่ส่งมาก็ได้)",
+                    "type": "string"
                 }
             }
         },
@@ -8249,6 +8680,44 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.PaymentInfoDTO": {
+            "type": "object",
+            "required": [
+                "amount_paid",
+                "method"
+            ],
+            "properties": {
+                "account_name": {
+                    "description": "ชื่อบัญชี (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "account_number": {
+                    "description": "เลขที่บัญชี (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "amount_paid": {
+                    "description": "จำนวนเงินที่ชำระ (ต้องมากกว่าหรือเท่ากับ 0 และจำเป็น)",
+                    "type": "number",
+                    "minimum": 0
+                },
+                "bank_name": {
+                    "description": "ชื่อธนาคาร (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "method": {
+                    "description": "วิธีชำระเงิน (จำเป็น)",
+                    "type": "string"
+                },
+                "note": {
+                    "description": "หมายเหตุการชำระเงิน (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "paid_date": {
+                    "description": "YYYY-MM-DD วันที่ชำระเงิน (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                }
+            }
+        },
         "dto.PaymentTransactionDTO": {
             "type": "object",
             "properties": {
@@ -8420,6 +8889,37 @@ const docTemplate = `{
                 },
                 "step_name": {
                     "type": "string"
+                }
+            }
+        },
+        "dto.ReceiptItemDTO": {
+            "type": "object",
+            "required": [
+                "description",
+                "quantity",
+                "unit_price"
+            ],
+            "properties": {
+                "description": {
+                    "description": "รายละเอียดรายการ (จำเป็น)",
+                    "type": "string"
+                },
+                "other": {
+                    "description": "ค่าใช้จ่ายอื่นๆ ต่อรายการ (ไม่ส่งมาก็ได้)",
+                    "type": "number"
+                },
+                "quantity": {
+                    "description": "จำนวน (ต้องมากกว่า 0)",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "ถ้าเป็น 0 ระบบจะคำนวณให้: จำนวน x ราคาต่อหน่วย + ค่าอื่นๆ",
+                    "type": "number"
+                },
+                "unit_price": {
+                    "description": "ราคาต่อหน่วย (ต้องมากกว่าหรือเท่ากับ 0)",
+                    "type": "number",
+                    "minimum": 0
                 }
             }
         },

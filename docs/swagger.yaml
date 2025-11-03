@@ -374,6 +374,49 @@ definitions:
       project_name:
         type: string
     type: object
+  dto.CreateReceiptDTO:
+    properties:
+      approved_by:
+        description: ผู้อนุมัติ (ไม่ส่งมาก็ได้)
+        type: string
+      customer:
+        allOf:
+        - $ref: '#/definitions/dto.CustomerInfoDTO'
+        description: ข้อมูลลูกค้า (จำเป็นต้องส่ง)
+      issuer:
+        allOf:
+        - $ref: '#/definitions/dto.IssuerInfoDTO'
+        description: ข้อมูลผู้ออกเอกสาร (จำเป็นต้องส่ง)
+      items:
+        description: รายการสินค้า/บริการ (จำเป็นต้องส่ง)
+        items:
+          $ref: '#/definitions/dto.ReceiptItemDTO'
+        type: array
+      payment_detail:
+        allOf:
+        - $ref: '#/definitions/dto.PaymentInfoDTO'
+        description: รายละเอียดการชำระเงิน (จำเป็นต้องส่ง)
+      receipt_date:
+        description: YYYY-MM-DD รูปแบบวันที่ปี-เดือน-วัน (ไม่ส่งมาก็ได้)
+        type: string
+      receipt_number:
+        description: เลขที่ใบเสร็จ (ไม่ส่งมาก็ได้)
+        type: string
+      received_by:
+        description: ผู้รับเงิน/ผู้รับเอกสาร (ไม่ส่งมาก็ได้)
+        type: string
+      remark:
+        description: หมายเหตุ (ไม่ส่งมาก็ได้)
+        type: string
+      status:
+        description: สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)
+        type: string
+    required:
+    - customer
+    - issuer
+    - items
+    - payment_detail
+    type: object
   dto.CreateReceivableDTO:
     properties:
       amount:
@@ -568,6 +611,22 @@ definitions:
         description: ชื่อ Template
         type: string
     type: object
+  dto.CustomerInfoDTO:
+    properties:
+      address:
+        description: ที่อยู่ลูกค้า (จำเป็น)
+        type: string
+      contact:
+        description: ช่องทางติดต่อ (จำเป็น)
+        type: string
+      name:
+        description: ชื่อลูกค้า (จำเป็น)
+        type: string
+    required:
+    - address
+    - contact
+    - name
+    type: object
   dto.DepartmentDTO:
     properties:
       created_at:
@@ -700,6 +759,28 @@ definitions:
         type: number
       total_today:
         type: number
+    type: object
+  dto.IssuerInfoDTO:
+    properties:
+      address:
+        description: ที่อยู่ผู้ออกเอกสาร (จำเป็น)
+        type: string
+      contact:
+        description: ช่องทางติดต่อ (จำเป็น)
+        type: string
+      email:
+        description: อีเมล (ไม่ส่งมาก็ได้)
+        type: string
+      name:
+        description: ชื่อผู้ออกเอกสาร (จำเป็น)
+        type: string
+      prepared_by:
+        description: ผู้จัดเตรียมเอกสาร (ไม่ส่งมาก็ได้)
+        type: string
+    required:
+    - address
+    - contact
+    - name
     type: object
   dto.KPIEvaluationResponse:
     properties:
@@ -904,6 +985,34 @@ definitions:
         description: ยอดคงค้าง
         type: number
     type: object
+  dto.PaymentInfoDTO:
+    properties:
+      account_name:
+        description: ชื่อบัญชี (ไม่ส่งมาก็ได้)
+        type: string
+      account_number:
+        description: เลขที่บัญชี (ไม่ส่งมาก็ได้)
+        type: string
+      amount_paid:
+        description: จำนวนเงินที่ชำระ (ต้องมากกว่าหรือเท่ากับ 0 และจำเป็น)
+        minimum: 0
+        type: number
+      bank_name:
+        description: ชื่อธนาคาร (ไม่ส่งมาก็ได้)
+        type: string
+      method:
+        description: วิธีชำระเงิน (จำเป็น)
+        type: string
+      note:
+        description: หมายเหตุการชำระเงิน (ไม่ส่งมาก็ได้)
+        type: string
+      paid_date:
+        description: YYYY-MM-DD วันที่ชำระเงิน (ไม่ส่งมาก็ได้)
+        type: string
+    required:
+    - amount_paid
+    - method
+    type: object
   dto.PaymentTransactionDTO:
     properties:
       amount:
@@ -1027,6 +1136,29 @@ definitions:
         type: string
       step_name:
         type: string
+    type: object
+  dto.ReceiptItemDTO:
+    properties:
+      description:
+        description: รายละเอียดรายการ (จำเป็น)
+        type: string
+      other:
+        description: ค่าใช้จ่ายอื่นๆ ต่อรายการ (ไม่ส่งมาก็ได้)
+        type: number
+      quantity:
+        description: จำนวน (ต้องมากกว่า 0)
+        type: integer
+      total:
+        description: 'ถ้าเป็น 0 ระบบจะคำนวณให้: จำนวน x ราคาต่อหน่วย + ค่าอื่นๆ'
+        type: number
+      unit_price:
+        description: ราคาต่อหน่วย (ต้องมากกว่าหรือเท่ากับ 0)
+        minimum: 0
+        type: number
+    required:
+    - description
+    - quantity
+    - unit_price
     type: object
   dto.RecordPaymentDTO:
     properties:
@@ -4703,6 +4835,216 @@ paths:
       summary: Get a list of projects
       tags:
       - Projects
+  /v1/receipt/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a receipt record by its ID
+      parameters:
+      - description: Receipt ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Delete receipt by ID
+      tags:
+      - Receipts
+    get:
+      consumes:
+      - application/json
+      description: Get a receipt record by its ID
+      parameters:
+      - description: Receipt ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Get receipts by ID
+      tags:
+      - Receipts
+  /v1/receipt/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new receipt record
+      parameters:
+      - description: Receipt data
+        in: body
+        name: receipt
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateReceiptDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Create a new receipt
+      tags:
+      - Receipts
+  /v1/receipt/list:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of receipts
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Search term
+        in: query
+        name: search
+        type: string
+      - default: created_at
+        description: Sort by field
+        enum:
+        - created_at
+        - updated_at
+        in: query
+        name: sort_by
+        type: string
+      - default: desc
+        description: Sort order
+        enum:
+        - asc
+        - desc
+        in: query
+        name: sort_order
+        type: string
+      - description: Filter by status
+        enum:
+        - paid
+        - pending
+        in: query
+        name: status
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: List receipts
+      tags:
+      - Receipts
+  /v1/receipt/summary:
+    get:
+      consumes:
+      - application/json
+      description: Get summary of receipts
+      parameters:
+      - default: all
+        description: Report type
+        enum:
+        - day
+        - month
+        - all
+        in: query
+        name: report
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Summary receipts
+      tags:
+      - Receipts
   /v1/receivable/{id}:
     delete:
       consumes:

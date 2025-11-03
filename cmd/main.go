@@ -69,6 +69,7 @@ func main() {
 	expenseRepo := repositories.NewExpenseRepository(database)
 	payableRepo := repositories.NewPayableRepository(database)
 	receivableRepo := repositories.NewReceivableRepository(database)
+	receiptRepo := repositories.NewReceiptRepository(database)
 
 	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage, taskRepo)
 	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
@@ -91,6 +92,7 @@ func main() {
 	expenseSvc := services.NewExpenseService(*cfg, expenseRepo, transactionCategoryRepo)
 	payableSvc := services.NewPayablesService(*cfg, payableRepo, bankAccountsRepo)
 	receivableSvc := services.NewReceivableService(*cfg, receivableRepo, bankAccountsRepo)
+	receiptSvc := services.NewReceiptService(*cfg, receiptRepo, bankAccountsRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
@@ -113,6 +115,7 @@ func main() {
 	expenseHdl := handlers.NewExpenseHandler(expenseSvc, authCookieMiddleware)
 	payableHdl := handlers.NewPayableHandler(payableSvc, authCookieMiddleware)
 	receivableHdl := handlers.NewReceivableHandler(receivableSvc, authCookieMiddleware)
+	receiptHdl := handlers.NewReceiptHandler(receiptSvc, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -146,6 +149,7 @@ func main() {
 	expenseHdl.ExpenseRoutes(apiGroup)
 	payableHdl.PayableRoutes(apiGroup)
 	receivableHdl.ReceivableRoutes(apiGroup)
+	receiptHdl.ReceiptRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{
