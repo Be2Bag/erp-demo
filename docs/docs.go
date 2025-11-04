@@ -7313,6 +7313,20 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.BankAccountPayable": {
+            "type": "object",
+            "properties": {
+                "account_name": {
+                    "type": "string"
+                },
+                "account_no": {
+                    "type": "string"
+                },
+                "bank_name": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.BankAccountsDTO": {
             "type": "object",
             "properties": {
@@ -7742,6 +7756,14 @@ const docTemplate = `{
                     "description": "ยอดคงเหลือ",
                     "type": "number"
                 },
+                "bank_account": {
+                    "description": "ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/dto.BankAccountPayable"
+                        }
+                    ]
+                },
                 "bank_id": {
                     "description": "รหัสบัญชีธนาคารที่เกี่ยวข้อง",
                     "type": "string"
@@ -7758,12 +7780,23 @@ const docTemplate = `{
                     "description": "วันที่ออกใบแจ้งหนี้",
                     "type": "string"
                 },
+                "items": {
+                    "description": "รายการสินค้า/บริการ",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ReceiptItemDTO"
+                    }
+                },
                 "note": {
                     "description": "หมายเหตุ",
                     "type": "string"
                 },
                 "payment_ref": {
                     "description": "เลขที่อ้างอิงการชำระเงิน",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้",
                     "type": "string"
                 },
                 "purchase_no": {
@@ -8617,6 +8650,14 @@ const docTemplate = `{
                     "description": "ยอดคงเหลือ",
                     "type": "number"
                 },
+                "bank_account": {
+                    "description": "ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/dto.BankAccountPayable"
+                        }
+                    ]
+                },
                 "bank_id": {
                     "description": "รหัสบัญชีธนาคารที่เกี่ยวข้อง",
                     "type": "string"
@@ -8641,12 +8682,23 @@ const docTemplate = `{
                     "description": "วันที่ออกใบแจ้งหนี้",
                     "type": "string"
                 },
+                "items": {
+                    "description": "รายการสินค้า/บริการ",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ReceiptItemDTO"
+                    }
+                },
                 "note": {
                     "description": "หมายเหตุ",
                     "type": "string"
                 },
                 "payment_ref": {
                     "description": "เลขที่อ้างอิงการชำระเงิน",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้",
                     "type": "string"
                 },
                 "purchase_no": {
@@ -9848,6 +9900,14 @@ const docTemplate = `{
                     "description": "ยอดคงเหลือ",
                     "type": "number"
                 },
+                "bank_account": {
+                    "description": "ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/dto.BankAccountPayable"
+                        }
+                    ]
+                },
                 "bank_id": {
                     "description": "รหัสบัญชีธนาคารที่เกี่ยวข้อง",
                     "type": "string"
@@ -9864,12 +9924,23 @@ const docTemplate = `{
                     "description": "วันที่ออกใบแจ้งหนี้",
                     "type": "string"
                 },
+                "items": {
+                    "description": "รายการสินค้า/บริการ",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.ReceiptItemDTO"
+                    }
+                },
                 "note": {
                     "description": "หมายเหตุ",
                     "type": "string"
                 },
                 "payment_ref": {
                     "description": "เลขที่อ้างอิงการชำระเงิน",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้",
                     "type": "string"
                 },
                 "purchase_no": {

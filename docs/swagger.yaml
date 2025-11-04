@@ -24,6 +24,15 @@ definitions:
         description: ตำบล
         type: string
     type: object
+  dto.BankAccountPayable:
+    properties:
+      account_name:
+        type: string
+      account_no:
+        type: string
+      bank_name:
+        type: string
+    type: object
   dto.BankAccountsDTO:
     properties:
       account_name:
@@ -332,6 +341,10 @@ definitions:
       balance:
         description: ยอดคงเหลือ
         type: number
+      bank_account:
+        allOf:
+        - $ref: '#/definitions/dto.BankAccountPayable'
+        description: ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง
       bank_id:
         description: รหัสบัญชีธนาคารที่เกี่ยวข้อง
         type: string
@@ -344,11 +357,19 @@ definitions:
       issue_date:
         description: วันที่ออกใบแจ้งหนี้
         type: string
+      items:
+        description: รายการสินค้า/บริการ
+        items:
+          $ref: '#/definitions/dto.ReceiptItemDTO'
+        type: array
       note:
         description: หมายเหตุ
         type: string
       payment_ref:
         description: เลขที่อ้างอิงการชำระเงิน
+        type: string
+      phone:
+        description: เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้
         type: string
       purchase_no:
         description: เลขที่ใบสั่งซื้อ
@@ -939,6 +960,10 @@ definitions:
       balance:
         description: ยอดคงเหลือ
         type: number
+      bank_account:
+        allOf:
+        - $ref: '#/definitions/dto.BankAccountPayable'
+        description: ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง
       bank_id:
         description: รหัสบัญชีธนาคารที่เกี่ยวข้อง
         type: string
@@ -957,11 +982,19 @@ definitions:
       issue_date:
         description: วันที่ออกใบแจ้งหนี้
         type: string
+      items:
+        description: รายการสินค้า/บริการ
+        items:
+          $ref: '#/definitions/dto.ReceiptItemDTO'
+        type: array
       note:
         description: หมายเหตุ
         type: string
       payment_ref:
         description: เลขที่อ้างอิงการชำระเงิน
+        type: string
+      phone:
+        description: เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้
         type: string
       purchase_no:
         description: เลขที่ใบสั่งซื้อ
@@ -1816,6 +1849,10 @@ definitions:
       balance:
         description: ยอดคงเหลือ
         type: number
+      bank_account:
+        allOf:
+        - $ref: '#/definitions/dto.BankAccountPayable'
+        description: ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง
       bank_id:
         description: รหัสบัญชีธนาคารที่เกี่ยวข้อง
         type: string
@@ -1828,11 +1865,19 @@ definitions:
       issue_date:
         description: วันที่ออกใบแจ้งหนี้
         type: string
+      items:
+        description: รายการสินค้า/บริการ
+        items:
+          $ref: '#/definitions/dto.ReceiptItemDTO'
+        type: array
       note:
         description: หมายเหตุ
         type: string
       payment_ref:
         description: เลขที่อ้างอิงการชำระเงิน
+        type: string
+      phone:
+        description: เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้
         type: string
       purchase_no:
         description: เลขที่ใบสั่งซื้อ

@@ -51,6 +51,29 @@ func (s *payablesService) CreatePayable(ctx context.Context, payable dto.CreateP
 		balance = payable.Amount
 	}
 
+	if len(payable.Items) == 0 {
+		return fmt.Errorf("items required")
+	}
+	items := make([]models.ReceiptItem, 0, len(payable.Items))
+	var total float64
+	for _, it := range payable.Items {
+		qty := it.Quantity
+		unit := it.UnitPrice
+		other := it.Other
+		itemTotal := it.Total
+		if itemTotal <= 0 {
+			itemTotal = float64(qty)*unit + other
+		}
+		items = append(items, models.ReceiptItem{
+			Description: it.Description,
+			Quantity:    qty,
+			UnitPrice:   unit,
+			Other:       other,
+			Total:       itemTotal,
+		})
+		total += itemTotal
+	}
+
 	model := models.Payable{
 		IDPayable:  uuid.NewString(),
 		BankID:     strings.TrimSpace(payable.BankID),
@@ -63,10 +86,17 @@ func (s *payablesService) CreatePayable(ctx context.Context, payable dto.CreateP
 		Balance:    balance,
 		Status:     "pending",
 		PaymentRef: strings.TrimSpace(payable.PaymentRef),
-		Note:       strings.TrimSpace(payable.Note),
-		CreatedBy:  claims.UserID,
-		CreatedAt:  now,
-		UpdatedAt:  now,
+		Items:      items,
+		BankAccount: models.BankAccountPayable{
+			BankName:    strings.TrimSpace(payable.BankAccount.BankName),
+			AccountNo:   strings.TrimSpace(payable.BankAccount.AccountNo),
+			AccountName: strings.TrimSpace(payable.BankAccount.AccountName),
+		},
+		Phone:     strings.TrimSpace(payable.Phone),
+		Note:      strings.TrimSpace(payable.Note),
+		CreatedBy: claims.UserID,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	if err := s.payablesRepo.CreatePayable(ctx, model); err != nil {
@@ -164,6 +194,17 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 	list := make([]interface{}, 0, len(items))
 	for _, m := range items {
 
+		dtoItems := make([]dto.ReceiptItemDTO, 0, len(m.Items))
+		for _, it := range m.Items {
+			dtoItems = append(dtoItems, dto.ReceiptItemDTO{
+				Description: it.Description,
+				Quantity:    it.Quantity,
+				UnitPrice:   it.UnitPrice,
+				Other:       it.Other,
+				Total:       it.Total,
+			})
+		}
+
 		list = append(list, dto.PayableDTO{
 			IDPayable:  m.IDPayable,
 			BankID:     m.BankID,
@@ -176,6 +217,13 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 			Amount:     m.Amount,
 			Balance:    m.Balance,
 			Status:     m.Status,
+			Items:      dtoItems,
+			BankAccount: dto.BankAccountPayable{
+				BankName:    bankMap[m.BankID],
+				AccountNo:   m.BankAccount.AccountNo,
+				AccountName: m.BankAccount.AccountName,
+			},
+			Phone:      m.Phone,
 			PaymentRef: m.PaymentRef,
 			Note:       m.Note,
 		})
@@ -248,18 +296,36 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 		}
 	}
 
+	dtoItems := make([]dto.ReceiptItemDTO, 0, len(m.Items))
+	for _, it := range m.Items {
+		dtoItems = append(dtoItems, dto.ReceiptItemDTO{
+			Description: it.Description,
+			Quantity:    it.Quantity,
+			UnitPrice:   it.UnitPrice,
+			Other:       it.Other,
+			Total:       it.Total,
+		})
+	}
+
 	dtoObj := &dto.PayableDTO{
 		// ---------- รายละเอียดเจ้าหนี้ ----------
-		IDPayable:    m.IDPayable,
-		BankID:       m.BankID,
-		BankName:     bankMap[m.BankID],
-		Supplier:     m.Supplier,
-		InvoiceNo:    m.InvoiceNo,
-		IssueDate:    m.IssueDate,
-		DueDate:      m.DueDate,
-		Amount:       m.Amount,
-		Balance:      m.Balance,
-		Status:       m.Status,
+		IDPayable: m.IDPayable,
+		BankID:    m.BankID,
+		BankName:  bankMap[m.BankID],
+		Supplier:  m.Supplier,
+		InvoiceNo: m.InvoiceNo,
+		IssueDate: m.IssueDate,
+		DueDate:   m.DueDate,
+		Amount:    m.Amount,
+		Balance:   m.Balance,
+		Status:    m.Status,
+		Items:     dtoItems,
+		BankAccount: dto.BankAccountPayable{
+			BankName:    bankMap[m.BankID],
+			AccountNo:   m.BankAccount.AccountNo,
+			AccountName: m.BankAccount.AccountName,
+		},
+		Phone:        m.Phone,
 		PaymentRef:   m.PaymentRef,
 		Note:         m.Note,
 		Transactions: PaymentTransactions,
@@ -313,6 +379,39 @@ func (s *payablesService) UpdatePayableByID(ctx context.Context, payableID strin
 			existing.Status = strings.ToLower(update.Status)
 		default:
 			return fmt.Errorf("invalid status: %s", update.Status)
+		}
+	}
+
+	if strings.TrimSpace(update.Phone) != "" {
+		existing.Phone = update.Phone
+	}
+
+	if len(update.Items) > 0 {
+		items := make([]models.ReceiptItem, 0, len(update.Items))
+		for _, it := range update.Items {
+			qty := it.Quantity
+			unit := it.UnitPrice
+			other := it.Other
+			itemTotal := it.Total
+			if itemTotal <= 0 {
+				itemTotal = float64(qty)*unit + other
+			}
+			items = append(items, models.ReceiptItem{
+				Description: it.Description,
+				Quantity:    qty,
+				UnitPrice:   unit,
+				Other:       other,
+				Total:       itemTotal,
+			})
+		}
+		existing.Items = items
+	}
+
+	if strings.TrimSpace(update.BankAccount.BankName) != "" || strings.TrimSpace(update.BankAccount.AccountNo) != "" || strings.TrimSpace(update.BankAccount.AccountName) != "" {
+		existing.BankAccount = models.BankAccountPayable{
+			BankName:    strings.TrimSpace(update.BankAccount.BankName),
+			AccountNo:   strings.TrimSpace(update.BankAccount.AccountNo),
+			AccountName: strings.TrimSpace(update.BankAccount.AccountName),
 		}
 	}
 
