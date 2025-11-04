@@ -15,7 +15,7 @@ type Receivable struct {
 	Balance      float64    `json:"balance" bson:"balance"`                           // ยอดคงเหลือ
 	Status       string     `json:"status" bson:"status"`                             // สถานะ: pending, paid, overdue, partial
 	Phone        string     `json:"phone"`                                            // เบอร์โทรศัพท์ของพนักงาน
-	Address      Address    `json:"address"`                                          // ที่อยู่ของพนักงาน
+	Address      string     `json:"address"`                                          // ที่อยู่ของพนักงาน
 	CreatedBy    string     `json:"created_by" bson:"created_by"`                     // ผู้สร้างข้อมูล
 	CreatedAt    time.Time  `json:"created_at" bson:"created_at"`                     // วันที่สร้างข้อมูล
 	UpdatedAt    time.Time  `json:"updated_at" bson:"updated_at"`                     // วันที่แก้ไขล่าสุด
