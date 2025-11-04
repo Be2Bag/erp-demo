@@ -7804,6 +7804,7 @@ const docTemplate = `{
         "dto.CreateReceiptDTO": {
             "type": "object",
             "required": [
+                "bill_type",
                 "customer",
                 "issuer",
                 "items",
@@ -7812,6 +7813,10 @@ const docTemplate = `{
             "properties": {
                 "approved_by": {
                     "description": "ผู้อนุมัติ (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "bill_type": {
+                    "description": "ประเภทบิล: quotation, delivery_note, receipt (จำเป็นต้องส่ง)",
                     "type": "string"
                 },
                 "customer": {

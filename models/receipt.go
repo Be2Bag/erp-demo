@@ -15,6 +15,7 @@ type Receipt struct { // โครงสร้างข้อมูลใบเ�
 	Remark        string        `json:"remark,omitempty" bson:"remark,omitempty"` // หมายเหตุ
 	PaymentDetail PaymentInfo   `json:"payment_detail" bson:"payment_detail"`     // ข้อมูลการชำระเงิน
 	Status        string        `json:"status" bson:"status"`                     // สถานะใบเสร็จ เช่น paid, pending
+	BillType      string        `json:"bill_type" bson:"bill_type"`               // ประเภทบิล: quotation, delivery_note, receipt
 	ApprovedBy    string        `json:"approved_by,omitempty" bson:"approved_by"` // ผู้อนุมัติ
 	ReceivedBy    string        `json:"received_by,omitempty" bson:"received_by"` // ผู้รับเงิน/ผู้รับเอกสาร
 	CreatedAt     time.Time     `json:"created_at" bson:"created_at"`             // วันที่สร้างข้อมูล

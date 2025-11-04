@@ -379,6 +379,9 @@ definitions:
       approved_by:
         description: ผู้อนุมัติ (ไม่ส่งมาก็ได้)
         type: string
+      bill_type:
+        description: 'ประเภทบิล: quotation, delivery_note, receipt (จำเป็นต้องส่ง)'
+        type: string
       customer:
         allOf:
         - $ref: '#/definitions/dto.CustomerInfoDTO'
@@ -409,6 +412,7 @@ definitions:
         description: สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)
         type: string
     required:
+    - bill_type
     - customer
     - issuer
     - items

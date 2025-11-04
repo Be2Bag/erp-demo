@@ -132,7 +132,7 @@ func (h *receiptHandler) ListReceipts(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	list, err := h.svc.ListReceipts(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Status, req.StartDate, req.EndDate)
+	list, err := h.svc.ListReceipts(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Status, req.StartDate, req.EndDate, req.BillType)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

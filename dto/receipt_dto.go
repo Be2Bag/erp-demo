@@ -11,6 +11,7 @@ type CreateReceiptDTO struct { // โครงสร้างข้อมูล�
 	Remark        string           `json:"remark,omitempty"`                  // หมายเหตุ (ไม่ส่งมาก็ได้)
 	PaymentDetail PaymentInfoDTO   `json:"payment_detail" binding:"required"` // รายละเอียดการชำระเงิน (จำเป็นต้องส่ง)
 	Status        string           `json:"status,omitempty"`                  // สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)
+	BillType      string           `json:"bill_type" binding:"required"`      // ประเภทบิล: quotation, delivery_note, receipt (จำเป็นต้องส่ง)
 	ApprovedBy    string           `json:"approved_by,omitempty"`             // ผู้อนุมัติ (ไม่ส่งมาก็ได้)
 	ReceivedBy    string           `json:"received_by,omitempty"`             // ผู้รับเงิน/ผู้รับเอกสาร (ไม่ส่งมาก็ได้)
 } // จบโครงสร้าง CreateReceiptDTO
@@ -69,6 +70,7 @@ type RequestListReceipt struct { // โครงสร้างคำขอร�
 	Status    string `query:"status"`     // สถานะใบเสร็จสำหรับกรอง
 	StartDate string `query:"start_date"` // YYYY-MM-DD วันที่เริ่มต้นช่วงค้นหา
 	EndDate   string `query:"end_date"`   // YYYY-MM-DD วันที่สิ้นสุดช่วงค้นหา
+	BillType  string `query:"bill_type"`  // ประเภทบิล: quotation, delivery_note, receipt
 } // จบโครงสร้าง RequestListReceipt
 
 // ---------- Response DTOs ---------- // ส่วนของโครงสร้างสำหรับส่งข้อมูลตอบกลับ (Response)
@@ -83,6 +85,7 @@ type ReceiptDTO struct { // โครงสร้างข้อมูลใบ�
 	Remark        string             `json:"remark,omitempty"`      // หมายเหตุ (อาจว่าง)
 	PaymentDetail PaymentInfoRespDTO `json:"payment_detail"`        // รายละเอียดการชำระเงิน (สำหรับตอบกลับ)
 	Status        string             `json:"status"`                // สถานะใบเสร็จ
+	BillType      string             `json:"bill_type"`             // ประเภทบิล: quotation, delivery_note, receipt
 	ApprovedBy    string             `json:"approved_by,omitempty"` // ผู้อนุมัติ (อาจว่าง)
 	ReceivedBy    string             `json:"received_by,omitempty"` // ผู้รับเงิน/ผู้รับเอกสาร (อาจว่าง)
 	CreatedAt     time.Time          `json:"created_at"`            // วันที่สร้างข้อมูล

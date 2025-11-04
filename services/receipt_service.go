@@ -144,6 +144,7 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		Remark:        in.Remark,
 		PaymentDetail: payment,
 		Status:        status,
+		BillType:      in.BillType,
 		ApprovedBy:    in.ApprovedBy,
 		ReceivedBy:    receivedBy,
 		CreatedAt:     now,
@@ -156,12 +157,17 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 	return nil
 }
 
-func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims, page, size int, search, sortBy, sortOrder, status, startDate, endDate string) (dto.Pagination, error) {
+func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims, page, size int, search, sortBy, sortOrder, status, startDate, endDate, billType string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
 	filter := bson.M{
 		"deleted_at": nil,
+	}
+
+	// Bill type filter
+	if strings.TrimSpace(billType) != "" {
+		filter["bill_type"] = strings.ToLower(strings.TrimSpace(billType))
 	}
 
 	// Date range filter on receipt_date
@@ -281,6 +287,7 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 				Note:          m.PaymentDetail.Note,
 			},
 			Status:     m.Status,
+			BillType:   m.BillType,
 			ApprovedBy: m.ApprovedBy,
 			ReceivedBy: m.ReceivedBy,
 			CreatedAt:  m.CreatedAt,
@@ -356,6 +363,7 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 			Note:          m.PaymentDetail.Note,
 		},
 		Status:     m.Status,
+		BillType:   m.BillType,
 		ApprovedBy: m.ApprovedBy,
 		ReceivedBy: m.ReceivedBy,
 		CreatedAt:  m.CreatedAt,
