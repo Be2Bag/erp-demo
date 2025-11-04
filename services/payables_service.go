@@ -93,6 +93,7 @@ func (s *payablesService) CreatePayable(ctx context.Context, payable dto.CreateP
 			AccountName: strings.TrimSpace(payable.BankAccount.AccountName),
 		},
 		Phone:     strings.TrimSpace(payable.Phone),
+		Address:   strings.TrimSpace(payable.Address),
 		Note:      strings.TrimSpace(payable.Note),
 		CreatedBy: claims.UserID,
 		CreatedAt: now,
@@ -224,6 +225,7 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 				AccountName: m.BankAccount.AccountName,
 			},
 			Phone:      m.Phone,
+			Address:    m.Address,
 			PaymentRef: m.PaymentRef,
 			Note:       m.Note,
 		})
@@ -326,6 +328,7 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 			AccountName: m.BankAccount.AccountName,
 		},
 		Phone:        m.Phone,
+		Address:      m.Address,
 		PaymentRef:   m.PaymentRef,
 		Note:         m.Note,
 		Transactions: PaymentTransactions,
@@ -414,7 +417,9 @@ func (s *payablesService) UpdatePayableByID(ctx context.Context, payableID strin
 			AccountName: strings.TrimSpace(update.BankAccount.AccountName),
 		}
 	}
-
+	if strings.TrimSpace(update.Address) != "" {
+		existing.Address = update.Address
+	}
 	existing.UpdatedAt = time.Now()
 
 	if _, err := s.payablesRepo.UpdatePayableByID(ctx, payableID, *existing); err != nil {

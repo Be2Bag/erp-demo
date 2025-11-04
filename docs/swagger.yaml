@@ -335,6 +335,9 @@ definitions:
     type: object
   dto.CreatePayableDTO:
     properties:
+      address:
+        description: ที่อยู่ผู้ขาย / เจ้าหนี้
+        type: string
       amount:
         description: จำนวนเงิน
         type: number
@@ -954,6 +957,9 @@ definitions:
     type: object
   dto.PayableDTO:
     properties:
+      address:
+        description: ที่อยู่ผู้ขาย / เจ้าหนี้
+        type: string
       amount:
         description: จำนวนเงิน
         type: number
@@ -1843,6 +1849,9 @@ definitions:
     type: object
   dto.UpdatePayableDTO:
     properties:
+      address:
+        description: ที่อยู่ผู้ขาย / เจ้าหนี้
+        type: string
       amount:
         description: จำนวนเงิน
         type: number

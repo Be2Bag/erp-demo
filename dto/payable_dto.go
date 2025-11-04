@@ -16,6 +16,7 @@ type CreatePayableDTO struct {
 	PaymentRef  string             `json:"payment_ref,omitempty"`            // เลขที่อ้างอิงการชำระเงิน
 	BankAccount BankAccountPayable `json:"bank_account" bson:"bank_account"` // ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง
 	Phone       string             `json:"phone" bson:"phone"`               // เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้
+	Address     string             `json:"address" bson:"address"`           // ที่อยู่ผู้ขาย / เจ้าหนี้
 	Items       []ReceiptItemDTO   `json:"items,omitempty"`                  // รายการสินค้า/บริการ
 	Note        string             `json:"note,omitempty"`                   // หมายเหตุ
 }
@@ -33,6 +34,7 @@ type UpdatePayableDTO struct {
 	PaymentRef  string             `json:"payment_ref,omitempty"`            // เลขที่อ้างอิงการชำระเงิน
 	BankAccount BankAccountPayable `json:"bank_account" bson:"bank_account"` // ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง
 	Phone       string             `json:"phone" bson:"phone"`               // เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้
+	Address     string             `json:"address" bson:"address"`           // ที่อยู่ผู้ขาย / เจ้าหนี้
 	Items       []ReceiptItemDTO   `json:"items,omitempty"`                  // รายการสินค้า/บริการ
 	Note        string             `json:"note,omitempty"`                   // หมายเหตุ
 }
@@ -72,6 +74,7 @@ type PayableDTO struct {
 	PaymentRef   string                  `json:"payment_ref"`                      // เลขที่อ้างอิงการชำระเงิน
 	BankAccount  BankAccountPayable      `json:"bank_account" bson:"bank_account"` // ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง
 	Phone        string                  `json:"phone" bson:"phone"`               // เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้
+	Address      string                  `json:"address" bson:"address"`           // ที่อยู่ผู้ขาย / เจ้าหนี้
 	Items        []ReceiptItemDTO        `json:"items,omitempty"`                  // รายการสินค้า/บริการ
 	Note         string                  `json:"note"`                             // หมายเหตุ
 	Transactions []PaymentTransactionDTO `json:"transactions"`                     // รายการชำระเงิน

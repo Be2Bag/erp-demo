@@ -18,6 +18,7 @@ type Payable struct {
 	PaymentRef  string             `json:"payment_ref" bson:"payment_ref"`                   // เลขอ้างอิงการชำระเงิน (เช่น เลขที่เช็ค, โอนเงิน, เอกสารภายใน)
 	BankAccount BankAccountPayable `json:"bank_account" bson:"bank_account"`                 // ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง
 	Phone       string             `json:"phone" bson:"phone"`                               // เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้
+	Address     string             `json:"address" bson:"address"`                           // ที่อยู่ผู้ขาย / เจ้าหนี้
 	Items       []ReceiptItem      `json:"items" bson:"items"`                               // รายการสินค้า/บริการ
 	Note        string             `json:"note" bson:"note"`                                 // หมายเหตุเพิ่มเติม
 	CreatedBy   string             `json:"created_by" bson:"created_by"`                     // ผู้สร้างข้อมูล
