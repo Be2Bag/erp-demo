@@ -420,6 +420,8 @@ definitions:
     type: object
   dto.CreateReceivableDTO:
     properties:
+      address:
+        $ref: '#/definitions/dto.Address'
       amount:
         type: number
       balance:
@@ -433,6 +435,8 @@ definitions:
       invoice_no:
         type: string
       issue_date:
+        type: string
+      phone:
         type: string
     type: object
   dto.CreateSignJobDTO:
@@ -1863,6 +1867,8 @@ definitions:
     type: object
   dto.UpdateReceivableDTO:
     properties:
+      address:
+        $ref: '#/definitions/dto.Address'
       amount:
         type: number
       balance:
@@ -1878,6 +1884,8 @@ definitions:
       issue_date:
         type: string
       note:
+        type: string
+      phone:
         type: string
       status:
         type: string

@@ -128,3 +128,5 @@
 Client → handlers → services → repositories → pkg/db
       ↳ middleware (ตรวจสอบ/แทรกกลางคำขอ)
       ↳ pkg/storage (อัปโหลด/ดึงไฟล์)
+
+swag init -g cmd/main.go 

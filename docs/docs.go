@@ -7871,6 +7871,9 @@ const docTemplate = `{
         "dto.CreateReceivableDTO": {
             "type": "object",
             "properties": {
+                "address": {
+                    "$ref": "#/definitions/dto.Address"
+                },
                 "amount": {
                     "type": "number"
                 },
@@ -7890,6 +7893,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "issue_date": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 }
             }
@@ -9914,6 +9920,9 @@ const docTemplate = `{
         "dto.UpdateReceivableDTO": {
             "type": "object",
             "properties": {
+                "address": {
+                    "$ref": "#/definitions/dto.Address"
+                },
                 "amount": {
                     "type": "number"
                 },
@@ -9936,6 +9945,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "note": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 },
                 "status": {

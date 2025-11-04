@@ -12,6 +12,8 @@ type CreateReceivableDTO struct {
 	DueDate   string  `json:"due_date"`
 	Amount    float64 `json:"amount"`
 	Balance   float64 `json:"balance"`
+	Phone     string  `json:"phone"`
+	Address   Address `json:"address"`
 }
 
 type UpdateReceivableDTO struct {
@@ -24,6 +26,8 @@ type UpdateReceivableDTO struct {
 	Balance   float64 `json:"balance,omitempty"`
 	Status    string  `json:"status,omitempty"`
 	Note      string  `json:"note,omitempty"`
+	Phone     string  `json:"phone"`
+	Address   Address `json:"address"`
 }
 
 type RequestListReceivable struct {
@@ -51,6 +55,8 @@ type ReceivableDTO struct {
 	Amount       float64                 `json:"amount"`
 	Balance      float64                 `json:"balance"`
 	Status       string                  `json:"status"`
+	Phone        string                  `json:"phone"`
+	Address      Address                 `json:"address"`
 	CreatedBy    string                  `json:"created_by"`
 	CreatedAt    time.Time               `json:"created_at"`
 	UpdatedAt    time.Time               `json:"updated_at"`

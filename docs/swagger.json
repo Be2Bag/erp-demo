@@ -7865,6 +7865,9 @@
         "dto.CreateReceivableDTO": {
             "type": "object",
             "properties": {
+                "address": {
+                    "$ref": "#/definitions/dto.Address"
+                },
                 "amount": {
                     "type": "number"
                 },
@@ -7884,6 +7887,9 @@
                     "type": "string"
                 },
                 "issue_date": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 }
             }
@@ -9908,6 +9914,9 @@
         "dto.UpdateReceivableDTO": {
             "type": "object",
             "properties": {
+                "address": {
+                    "$ref": "#/definitions/dto.Address"
+                },
                 "amount": {
                     "type": "number"
                 },
@@ -9930,6 +9939,9 @@
                     "type": "string"
                 },
                 "note": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 },
                 "status": {

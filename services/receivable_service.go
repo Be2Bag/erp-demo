@@ -57,9 +57,19 @@ func (s *receivableService) CreateReceivable(ctx context.Context, receivable dto
 		Amount:       receivable.Amount,
 		Balance:      receivable.Balance,
 		Status:       "pending",
-		CreatedBy:    claims.UserID,
-		CreatedAt:    now,
-		UpdatedAt:    now,
+		Phone:        receivable.Phone,
+		Address: models.Address{
+			AddressLine1: receivable.Address.AddressLine1,
+			AddressLine2: receivable.Address.AddressLine2,
+			Subdistrict:  receivable.Address.Subdistrict,
+			District:     receivable.Address.District,
+			Province:     receivable.Address.Province,
+			PostalCode:   receivable.Address.PostalCode,
+			Country:      receivable.Address.Country,
+		},
+		CreatedBy: claims.UserID,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 
 	if err := s.receivableRepo.CreateReceivable(ctx, model); err != nil {
@@ -168,10 +178,20 @@ func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWT
 			Amount:       m.Amount,
 			Balance:      m.Balance,
 			Status:       m.Status,
-			CreatedBy:    m.CreatedBy,
-			CreatedAt:    m.CreatedAt,
-			UpdatedAt:    m.UpdatedAt,
-			Note:         m.Note,
+			Phone:        m.Phone,
+			Address: dto.Address{
+				AddressLine1: m.Address.AddressLine1,
+				AddressLine2: m.Address.AddressLine2,
+				Subdistrict:  m.Address.Subdistrict,
+				District:     m.Address.District,
+				Province:     m.Address.Province,
+				PostalCode:   m.Address.PostalCode,
+				Country:      m.Address.Country,
+			},
+			CreatedBy: m.CreatedBy,
+			CreatedAt: m.CreatedAt,
+			UpdatedAt: m.UpdatedAt,
+			Note:      m.Note,
 		})
 	}
 
@@ -251,6 +271,16 @@ func (s *receivableService) GetReceivableByID(ctx context.Context, receivableID 
 		Amount:       m.Amount,
 		Balance:      m.Balance,
 		Status:       m.Status,
+		Phone:        m.Phone,
+		Address: dto.Address{
+			AddressLine1: m.Address.AddressLine1,
+			AddressLine2: m.Address.AddressLine2,
+			Subdistrict:  m.Address.Subdistrict,
+			District:     m.Address.District,
+			Province:     m.Address.Province,
+			PostalCode:   m.Address.PostalCode,
+			Country:      m.Address.Country,
+		},
 		CreatedBy:    m.CreatedBy,
 		CreatedAt:    m.CreatedAt,
 		UpdatedAt:    m.UpdatedAt,
@@ -312,6 +342,23 @@ func (s *receivableService) UpdateReceivableByID(ctx context.Context, receivable
 	if strings.TrimSpace(update.Note) != "" {
 		existing.Note = update.Note
 	}
+
+	if strings.TrimSpace(update.Phone) != "" {
+		existing.Phone = update.Phone
+	}
+
+	if update.Address != (dto.Address{}) {
+		existing.Address = models.Address{
+			AddressLine1: update.Address.AddressLine1,
+			AddressLine2: update.Address.AddressLine2,
+			Subdistrict:  update.Address.Subdistrict,
+			District:     update.Address.District,
+			Province:     update.Address.Province,
+			PostalCode:   update.Address.PostalCode,
+			Country:      update.Address.Country,
+		}
+	}
+
 	existing.UpdatedAt = time.Now()
 
 	if _, err := s.receivableRepo.UpdateReceivableByID(ctx, receivableID, *existing); err != nil {
