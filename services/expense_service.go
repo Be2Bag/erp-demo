@@ -299,14 +299,6 @@ func (s *expenseService) DeleteExpenseByID(ctx context.Context, expenseID string
 func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestExpenseSummary) (dto.ExpenseSummaryDTO, error) {
 	now := time.Now()
 
-	filter := bson.M{
-		"deleted_at": nil,
-	}
-
-	if report.BankID != "" {
-		filter["bank_id"] = report.BankID
-	}
-
 	// Today
 	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	endToday := startToday.Add(24 * time.Hour)
@@ -316,6 +308,9 @@ func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto
 			"$gte": startToday,
 			"$lt":  endToday,
 		},
+	}
+	if report.BankID != "" {
+		filterToday["bank_id"] = report.BankID
 	}
 	expensesToday, err := s.expenseRepo.GetAllExpenseByFilter(ctx, filterToday, nil)
 	if err != nil {
@@ -336,6 +331,9 @@ func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto
 			"$lt":  endMonth,
 		},
 	}
+	if report.BankID != "" {
+		filterMonth["bank_id"] = report.BankID
+	}
 	expensesMonth, err := s.expenseRepo.GetAllExpenseByFilter(ctx, filterMonth, nil)
 	if err != nil {
 		return dto.ExpenseSummaryDTO{}, err
@@ -348,6 +346,9 @@ func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto
 	// All
 	filterAll := bson.M{
 		"deleted_at": nil,
+	}
+	if report.BankID != "" {
+		filterAll["bank_id"] = report.BankID
 	}
 	expensesAll, err := s.expenseRepo.GetAllExpenseByFilter(ctx, filterAll, nil)
 	if err != nil {

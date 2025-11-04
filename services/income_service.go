@@ -300,13 +300,6 @@ func (s *inComeService) DeleteInComeByInComeID(ctx context.Context, incomeID str
 func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestIncomeSummary) (dto.IncomeSummaryDTO, error) {
 	now := time.Now()
 
-	filter := bson.M{
-		"deleted_at": nil,
-	}
-	if strings.TrimSpace(report.BankID) != "" {
-		filter["bank_id"] = strings.TrimSpace(report.BankID)
-	}
-
 	// Today
 	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	endToday := startToday.Add(24 * time.Hour)
@@ -316,6 +309,9 @@ func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.J
 			"$gte": startToday,
 			"$lt":  endToday,
 		},
+	}
+	if strings.TrimSpace(report.BankID) != "" {
+		filterToday["bank_id"] = strings.TrimSpace(report.BankID)
 	}
 	incomesToday, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterToday, nil)
 	if err != nil {
@@ -336,6 +332,9 @@ func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.J
 			"$lt":  endMonth,
 		},
 	}
+	if strings.TrimSpace(report.BankID) != "" {
+		filterMonth["bank_id"] = strings.TrimSpace(report.BankID)
+	}
 	incomesMonth, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterMonth, nil)
 	if err != nil {
 		return dto.IncomeSummaryDTO{}, err
@@ -348,6 +347,9 @@ func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.J
 	// All
 	filterAll := bson.M{
 		"deleted_at": nil,
+	}
+	if strings.TrimSpace(report.BankID) != "" {
+		filterAll["bank_id"] = strings.TrimSpace(report.BankID)
 	}
 	incomesAll, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterAll, nil)
 	if err != nil {
