@@ -430,6 +430,10 @@ func (s *payablesService) UpdatePayableByID(ctx context.Context, payableID strin
 		existing.Note = update.Note
 	}
 
+	if strings.TrimSpace(update.PurchaseNo) != "" {
+		existing.PurchaseNo = update.PurchaseNo
+	}
+
 	existing.UpdatedAt = time.Now()
 
 	if _, err := s.payablesRepo.UpdatePayableByID(ctx, payableID, *existing); err != nil {
