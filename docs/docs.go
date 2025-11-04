@@ -7748,6 +7748,10 @@ const docTemplate = `{
         "dto.CreatePayableDTO": {
             "type": "object",
             "properties": {
+                "address": {
+                    "description": "ที่อยู่ผู้ขาย / เจ้าหนี้",
+                    "type": "string"
+                },
                 "amount": {
                     "description": "จำนวนเงิน",
                     "type": "number"
@@ -8642,6 +8646,10 @@ const docTemplate = `{
         "dto.PayableDTO": {
             "type": "object",
             "properties": {
+                "address": {
+                    "description": "ที่อยู่ผู้ขาย / เจ้าหนี้",
+                    "type": "string"
+                },
                 "amount": {
                     "description": "จำนวนเงิน",
                     "type": "number"
@@ -9892,6 +9900,10 @@ const docTemplate = `{
         "dto.UpdatePayableDTO": {
             "type": "object",
             "properties": {
+                "address": {
+                    "description": "ที่อยู่ผู้ขาย / เจ้าหนี้",
+                    "type": "string"
+                },
                 "amount": {
                     "description": "จำนวนเงิน",
                     "type": "number"
