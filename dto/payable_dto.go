@@ -13,7 +13,7 @@ type CreatePayableDTO struct {
 	DueDate     string             `json:"due_date"`                         // วันที่ครบกำหนดชำระ
 	Amount      float64            `json:"amount"`                           // จำนวนเงิน
 	Balance     float64            `json:"balance"`                          // ยอดคงเหลือ
-	PaymentRef  string             `json:"payment_ref,omitempty"`            // เลขที่อ้างอิงการชำระเงิน
+	PaymentRef  string             `json:"payment_ref"`                      // เลขที่อ้างอิงการชำระเงิน
 	BankAccount BankAccountPayable `json:"bank_account" bson:"bank_account"` // ข้อมูลบัญชีธนาคารที่เกี่ยวข้อง
 	Phone       string             `json:"phone" bson:"phone"`               // เบอร์โทรศัพท์ผู้ขาย / เจ้าหนี้
 	Address     string             `json:"address" bson:"address"`           // ที่อยู่ผู้ขาย / เจ้าหนี้

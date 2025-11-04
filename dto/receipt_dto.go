@@ -46,7 +46,7 @@ type ReceiptItemDTO struct { // โครงสร้างรายการใ
 	Description string  `json:"description" binding:"required"`      // รายละเอียดรายการ (จำเป็น)
 	Quantity    int     `json:"quantity" binding:"required,gt=0"`    // จำนวน (ต้องมากกว่า 0)
 	UnitPrice   float64 `json:"unit_price" binding:"required,gte=0"` // ราคาต่อหน่วย (ต้องมากกว่าหรือเท่ากับ 0)
-	Other       float64 `json:"other,omitempty"`                     // ค่าใช้จ่ายอื่นๆ ต่อรายการ (ไม่ส่งมาก็ได้)
+	Other       float64 `json:"other"`                               // ค่าใช้จ่ายอื่นๆ ต่อรายการ (ไม่ส่งมาก็ได้)
 	Total       float64 `json:"total,omitempty"`                     // ถ้าเป็น 0 ระบบจะคำนวณให้: จำนวน x ราคาต่อหน่วย + ค่าอื่นๆ
 } // จบโครงสร้าง ReceiptItemDTO
 

@@ -14,6 +14,7 @@ type CreateReceivableDTO struct {
 	Balance   float64 `json:"balance"`
 	Phone     string  `json:"phone"`
 	Address   string  `json:"address"`
+	Note      string  `json:"note,omitempty"` // หมายเหตุ
 }
 
 type UpdateReceivableDTO struct {

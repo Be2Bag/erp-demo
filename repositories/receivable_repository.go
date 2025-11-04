@@ -33,12 +33,16 @@ func (r *receivableRepo) UpdateReceivableByID(ctx context.Context, receivableID 
 	filter := bson.M{"id_receivable": receivableID}
 	set := bson.M{
 		"customer":   update.Customer,
+		"bank_id":    update.BankID,
 		"invoice_no": update.InvoiceNo,
 		"issue_date": update.IssueDate,
 		"due_date":   update.DueDate,
 		"amount":     update.Amount,
 		"balance":    update.Balance,
 		"status":     update.Status,
+		"note":       update.Note,
+		"phone":      update.Phone,
+		"address":    update.Address,
 		"updated_at": time.Now(),
 	}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)

@@ -311,17 +311,18 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 
 	dtoObj := &dto.PayableDTO{
 		// ---------- รายละเอียดเจ้าหนี้ ----------
-		IDPayable: m.IDPayable,
-		BankID:    m.BankID,
-		BankName:  bankMap[m.BankID],
-		Supplier:  m.Supplier,
-		InvoiceNo: m.InvoiceNo,
-		IssueDate: m.IssueDate,
-		DueDate:   m.DueDate,
-		Amount:    m.Amount,
-		Balance:   m.Balance,
-		Status:    m.Status,
-		Items:     dtoItems,
+		IDPayable:  m.IDPayable,
+		BankID:     m.BankID,
+		BankName:   bankMap[m.BankID],
+		Supplier:   m.Supplier,
+		InvoiceNo:  m.InvoiceNo,
+		PurchaseNo: m.PurchaseNo,
+		IssueDate:  m.IssueDate,
+		DueDate:    m.DueDate,
+		Amount:     m.Amount,
+		Balance:    m.Balance,
+		Status:     m.Status,
+		Items:      dtoItems,
 		BankAccount: dto.BankAccountPayable{
 			BankName:    bankMap[m.BankID],
 			AccountNo:   m.BankAccount.AccountNo,
@@ -420,6 +421,19 @@ func (s *payablesService) UpdatePayableByID(ctx context.Context, payableID strin
 	if strings.TrimSpace(update.Address) != "" {
 		existing.Address = update.Address
 	}
+
+	if strings.TrimSpace(update.PaymentRef) != "" {
+		existing.PaymentRef = update.PaymentRef
+	}
+
+	if strings.TrimSpace(update.Note) != "" {
+		existing.Note = update.Note
+	}
+
+	if strings.TrimSpace(update.PurchaseNo) != "" {
+		existing.PurchaseNo = update.PurchaseNo
+	}
+
 	existing.UpdatedAt = time.Now()
 
 	if _, err := s.payablesRepo.UpdatePayableByID(ctx, payableID, *existing); err != nil {
