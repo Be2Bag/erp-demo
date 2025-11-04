@@ -7905,7 +7905,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/dto.Address"
+                    "type": "string"
                 },
                 "amount": {
                     "type": "number"
@@ -9992,7 +9992,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/dto.Address"
+                    "type": "string"
                 },
                 "amount": {
                     "type": "number"

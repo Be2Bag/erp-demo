@@ -7899,7 +7899,7 @@
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/dto.Address"
+                    "type": "string"
                 },
                 "amount": {
                     "type": "number"
@@ -9986,7 +9986,7 @@
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/dto.Address"
+                    "type": "string"
                 },
                 "amount": {
                     "type": "number"

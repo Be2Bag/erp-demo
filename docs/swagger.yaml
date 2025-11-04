@@ -442,7 +442,7 @@ definitions:
   dto.CreateReceivableDTO:
     properties:
       address:
-        $ref: '#/definitions/dto.Address'
+        type: string
       amount:
         type: number
       balance:
@@ -1913,7 +1913,7 @@ definitions:
   dto.UpdateReceivableDTO:
     properties:
       address:
-        $ref: '#/definitions/dto.Address'
+        type: string
       amount:
         type: number
       balance:
