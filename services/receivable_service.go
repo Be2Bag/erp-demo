@@ -62,6 +62,7 @@ func (s *receivableService) CreateReceivable(ctx context.Context, receivable dto
 		CreatedBy:    claims.UserID,
 		CreatedAt:    now,
 		UpdatedAt:    now,
+		Note:         receivable.Note,
 	}
 
 	if err := s.receivableRepo.CreateReceivable(ctx, model); err != nil {

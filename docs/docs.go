@@ -7932,6 +7932,10 @@ const docTemplate = `{
                 "issue_date": {
                     "type": "string"
                 },
+                "note": {
+                    "description": "หมายเหตุ",
+                    "type": "string"
+                },
                 "phone": {
                     "type": "string"
                 }
