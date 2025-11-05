@@ -4420,6 +4420,17 @@ const docTemplate = `{
                         "description": "End date (YYYY-MM-DD)",
                         "name": "end_date",
                         "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "quotation",
+                            "delivery_note",
+                            "receipt"
+                        ],
+                        "type": "string",
+                        "description": "Filter by bill type",
+                        "name": "bill_type",
+                        "in": "query"
                     }
                 ],
                 "responses": {

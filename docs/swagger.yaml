@@ -5055,6 +5055,14 @@ paths:
         in: query
         name: end_date
         type: string
+      - description: Filter by bill type
+        enum:
+        - quotation
+        - delivery_note
+        - receipt
+        in: query
+        name: bill_type
+        type: string
       produces:
       - application/json
       responses:
