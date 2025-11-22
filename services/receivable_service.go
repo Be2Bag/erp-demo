@@ -22,10 +22,11 @@ type receivableService struct {
 	receivableRepo   ports.ReceivableRepository
 	bankAccountsRepo ports.BankAccountsRepository
 	signJobRepo      ports.SignJobRepository
+	incomeRepo       ports.InComeRepository
 }
 
-func NewReceivableService(cfg config.Config, receivableRepo ports.ReceivableRepository, bankAccountsRepo ports.BankAccountsRepository, signJobRepo ports.SignJobRepository) ports.ReceivableService {
-	return &receivableService{config: cfg, receivableRepo: receivableRepo, bankAccountsRepo: bankAccountsRepo, signJobRepo: signJobRepo}
+func NewReceivableService(cfg config.Config, receivableRepo ports.ReceivableRepository, bankAccountsRepo ports.BankAccountsRepository, signJobRepo ports.SignJobRepository, incomeRepo ports.InComeRepository) ports.ReceivableService {
+	return &receivableService{config: cfg, receivableRepo: receivableRepo, bankAccountsRepo: bankAccountsRepo, signJobRepo: signJobRepo, incomeRepo: incomeRepo}
 }
 
 func (s *receivableService) CreateReceivable(ctx context.Context, receivable dto.CreateReceivableDTO, claims *dto.JWTClaims) error {
@@ -503,6 +504,26 @@ func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordR
 				return fmt.Errorf("update sign job: %w", errUpdateSignJob)
 			}
 		}
+	}
+
+	modelIncome := models.Income{
+		IncomeID:              uuid.NewString(),
+		BankID:                "221128ac-c435-437d-be52-6e577475d4bc", // บันชีบริษัท
+		TransactionCategoryID: "4159541a-7490-4f4e-afc3-dd4c05dd6d04", // หมวกหมู่รายได้จากบริษัท
+		Description:           signJob.Content,
+		Amount:                amt,
+		Currency:              "THB",
+		TxnDate:               now,
+		PaymentMethod:         input.PaymentMethod,
+		ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
+		Note:                  &signJob.JobName,
+		CreatedBy:             claims.UserID,
+		CreatedAt:             now,
+		UpdatedAt:             now,
+	}
+
+	if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+		return err
 	}
 
 	return nil // สำเร็จ
