@@ -146,6 +146,26 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 			return err
 		}
 
+		modelIncome := models.Income{
+			IncomeID:              uuid.NewString(),
+			BankID:                "221128ac-c435-437d-be52-6e577475d4bc", // บันชีบริษัท
+			TransactionCategoryID: "4159541a-7490-4f4e-afc3-dd4c05dd6d04", // หมวกหมู่รายได้จากบริษัท
+			Description:           signJob.Content,
+			Amount:                signJob.DepositAmount,
+			Currency:              "THB",
+			TxnDate:               due,
+			PaymentMethod:         signJob.PaymentMethod,
+			ReferenceNo:           invoiceNo,
+			Note:                  nil,
+			CreatedBy:             claims.UserID,
+			CreatedAt:             now,
+			UpdatedAt:             now,
+		}
+
+		if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+			return err
+		}
+
 	}
 
 	return nil
