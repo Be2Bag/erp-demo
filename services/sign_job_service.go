@@ -140,6 +140,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 			CreatedAt:    now,
 			UpdatedAt:    now,
 			Note:         "",
+			JobID:        model.JobID,
 		}
 
 		if err := s.receivableRepo.CreateReceivable(ctx, modelReceivable); err != nil {

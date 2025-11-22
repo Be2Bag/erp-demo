@@ -21,4 +21,5 @@ type Receivable struct {
 	UpdatedAt    time.Time  `json:"updated_at" bson:"updated_at"`                     // วันที่แก้ไขล่าสุด
 	DeletedAt    *time.Time `json:"deleted_at,omitempty" bson:"deleted_at,omitempty"` // วันที่ลบข้อมูล (ถ้ามี)
 	Note         string     `json:"note" bson:"note"`                                 // หมายเหตุเพิ่มเติม
+	JobID        string     `json:"job_id" bson:"job_id,omitempty"`                   // รหัสงาน
 }
