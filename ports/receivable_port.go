@@ -27,4 +27,5 @@ type ReceivableRepository interface {
 	GetListReceivablesByFilter(ctx context.Context, filter interface{}, projection interface{}, sort bson.D, skip, limit int64) ([]models.Receivable, int64, error)
 	CreatePaymentTransaction(ctx context.Context, tx models.PaymentTransaction) error
 	GetAllPaymentTransactionsByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.PaymentTransaction, error)
+	GetMaxInvoiceNumber(ctx context.Context, prefix string) (string, error)
 }

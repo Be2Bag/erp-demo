@@ -106,7 +106,23 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 
 	} else {
 
-		invoiceNo := fmt.Sprintf("BILL-%s", time.Now().Format("20060102"))
+		prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
+		maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
+		if err != nil {
+			return fmt.Errorf("get max invoice number: %w", err)
+		}
+
+		counter := 1
+		if maxInvoiceNo != "" {
+			// Extract counter from last invoice (e.g., "AR-25-01-15-001" -> 1)
+			var lastCounter int
+			_, scanErr := fmt.Sscanf(maxInvoiceNo, prefix+"%d", &lastCounter)
+			if scanErr == nil {
+				counter = lastCounter + 1
+			}
+		}
+
+		invoiceNo := fmt.Sprintf("%s%03d", prefix, counter)
 
 		modelReceivable := models.Receivable{
 			IDReceivable: uuid.NewString(),
