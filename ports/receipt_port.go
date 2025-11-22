@@ -10,7 +10,7 @@ import (
 
 type ReceiptService interface {
 	CreateReceipt(ctx context.Context, in dto.CreateReceiptDTO, claims *dto.JWTClaims) error
-	ListReceipts(ctx context.Context, claims *dto.JWTClaims, page, size int, search, sortBy, sortOrder, status, startDate, endDate, billType string) (dto.Pagination, error)
+	ListReceipts(ctx context.Context, claims *dto.JWTClaims, page, size int, search, sortBy, sortOrder, status, startDate, endDate, billType, typeReceipt string) (dto.Pagination, error)
 	GetReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) (*dto.ReceiptDTO, error)
 	DeleteReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) error
 	SummaryReceiptByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestSummaryReceipt) (dto.ReceiptSummaryDTO, error)

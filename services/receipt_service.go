@@ -64,6 +64,14 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		total += itemTotal
 	}
 
+	// Apply VAT 7% if TypeReceipt is "company"
+	subTotal := total
+	var totalVAT float64
+	if strings.ToLower(strings.TrimSpace(in.TypeReceipt)) == "company" {
+		totalVAT = subTotal * 0.07
+		total = subTotal + totalVAT
+	}
+
 	// payment info
 	paidDate := now
 	if strings.TrimSpace(in.PaymentDetail.PaidDate) != "" {
@@ -115,10 +123,12 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		receivedBy = claims.UserID
 	}
 
-	// IV-DD-MM-YY
-	prefix := fmt.Sprintf("IV-%02d-%02d-%02d", now.Day(), int(now.Month()), now.Year()%100)
+	// IV014-DD-MM-YY-XXX
+	year := now.Year() % 100
+	yearPrefix := fmt.Sprintf("IV%03d", 14+year-25) // IV014 for 2025, IV015 for 2026, etc.
+	datePrefix := fmt.Sprintf("%s-%02d-%02d-%02d", yearPrefix, now.Day(), int(now.Month()), year)
 
-	maxNumber, err := s.receiptRepo.GetMaxReceiptNumber(ctx, prefix)
+	maxNumber, err := s.receiptRepo.GetMaxReceiptNumber(ctx, datePrefix)
 	if err != nil {
 		return fmt.Errorf("failed to generate receipt number: %w", err)
 	}
@@ -131,7 +141,7 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		}
 	}
 
-	receiptNumber := fmt.Sprintf("%s-%03d", prefix, sequence+1)
+	receiptNumber := fmt.Sprintf("%s-%03d", datePrefix, sequence+1)
 
 	model := models.Receipt{
 		IDReceipt:     uuid.NewString(),
@@ -140,11 +150,14 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		Customer:      customer,
 		Issuer:        issuer,
 		Items:         items,
+		SubTotal:      subTotal,
+		TotalVAT:      totalVAT,
 		TotalAmount:   total,
 		Remark:        in.Remark,
 		PaymentDetail: payment,
 		Status:        status,
 		BillType:      in.BillType,
+		TypeReceipt:   in.TypeReceipt,
 		ApprovedBy:    in.ApprovedBy,
 		ReceivedBy:    receivedBy,
 		CreatedAt:     now,
@@ -157,12 +170,16 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 	return nil
 }
 
-func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims, page, size int, search, sortBy, sortOrder, status, startDate, endDate, billType string) (dto.Pagination, error) {
+func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims, page, size int, search, sortBy, sortOrder, status, startDate, endDate, billType, typeReceipt string) (dto.Pagination, error) {
 	skip := int64((page - 1) * size)
 	limit := int64(size)
 
 	filter := bson.M{
 		"deleted_at": nil,
+	}
+
+	if strings.TrimSpace(typeReceipt) != "" {
+		filter["type_receipt"] = strings.ToLower(strings.TrimSpace(typeReceipt))
 	}
 
 	// Bill type filter
@@ -275,6 +292,8 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 				PreparedBy: m.Issuer.PreparedBy,
 			},
 			Items:       dtoItems,
+			SubTotal:    m.SubTotal,
+			TotalVAT:    m.TotalVAT,
 			TotalAmount: m.TotalAmount,
 			Remark:      m.Remark,
 			PaymentDetail: dto.PaymentInfoRespDTO{
@@ -351,6 +370,8 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 			PreparedBy: m.Issuer.PreparedBy,
 		},
 		Items:       dtoItems,
+		SubTotal:    m.SubTotal,
+		TotalVAT:    m.TotalVAT,
 		TotalAmount: m.TotalAmount,
 		Remark:      m.Remark,
 		PaymentDetail: dto.PaymentInfoRespDTO{

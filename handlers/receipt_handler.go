@@ -98,6 +98,7 @@ func (h *receiptHandler) CreateReceipt(c *fiber.Ctx) error {
 // @Param start_date query string false "Start date (YYYY-MM-DD)"
 // @Param end_date query string false "End date (YYYY-MM-DD)"
 // @Param bill_type query string false "Filter by bill type" Enums(quotation, delivery_note, receipt)
+// @Param type_receipt query string false "Filter by type receipt" Enums(company, shop)
 // @Success 200 {object} dto.BaseResponse
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
@@ -133,7 +134,7 @@ func (h *receiptHandler) ListReceipts(c *fiber.Ctx) error {
 		req.Page = 1
 	}
 
-	list, err := h.svc.ListReceipts(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Status, req.StartDate, req.EndDate, req.BillType)
+	list, err := h.svc.ListReceipts(c.Context(), claims, req.Page, req.Limit, req.Search, req.SortBy, req.SortOrder, req.Status, req.StartDate, req.EndDate, req.BillType, req.TypeReceipt)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

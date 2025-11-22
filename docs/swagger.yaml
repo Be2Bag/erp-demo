@@ -435,12 +435,15 @@ definitions:
       status:
         description: สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)
         type: string
+      type_receipt:
+        type: string
     required:
     - bill_type
     - customer
     - issuer
     - items
     - payment_detail
+    - type_receipt
     type: object
   dto.CreateReceivableDTO:
     properties:
@@ -485,7 +488,7 @@ definitions:
         type: string
       deposit_amount:
         description: เงินมัดจำ
-        type: integer
+        type: number
       design_option:
         description: '---------- งานออกแบบ / การติดตั้ง ----------'
         type: string
@@ -515,7 +518,7 @@ definitions:
         type: string
       outstanding_amount:
         description: ยอดค้างชำระ
-        type: integer
+        type: number
       payment_method:
         description: '---------- การชำระเงิน ----------'
         type: string
@@ -524,7 +527,7 @@ definitions:
         type: string
       price_thb:
         description: 'ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)'
-        type: integer
+        type: number
       production_time:
         description: '---------- การผลิต / ไทม์ไลน์ ----------'
         type: string
@@ -1603,7 +1606,7 @@ definitions:
         type: string
       deposit_amount:
         description: เงินมัดจำ
-        type: integer
+        type: number
       design_option:
         description: '---------- งานออกแบบ / การติดตั้ง ----------'
         type: string
@@ -1636,7 +1639,7 @@ definitions:
         type: string
       outstanding_amount:
         description: ยอดค้างชำระ
-        type: integer
+        type: number
       payment_method:
         description: '---------- การชำระเงิน ----------'
         type: string
@@ -1645,7 +1648,7 @@ definitions:
         type: string
       price_thb:
         description: ราคา
-        type: integer
+        type: number
       production_time:
         description: '---------- การผลิต / ไทม์ไลน์ ----------'
         type: string
@@ -1966,7 +1969,7 @@ definitions:
         type: string
       deposit_amount:
         description: เงินมัดจำ
-        type: integer
+        type: number
       design_option:
         description: '---------- งานออกแบบ / การติดตั้ง ----------'
         type: string
@@ -1996,7 +1999,7 @@ definitions:
         type: string
       outstanding_amount:
         description: ยอดค้างชำระ
-        type: integer
+        type: number
       payment_method:
         description: '---------- การชำระเงิน ----------'
         type: string
@@ -2005,7 +2008,7 @@ definitions:
         type: string
       price_thb:
         description: 'ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)'
-        type: integer
+        type: number
       production_time:
         description: '---------- การผลิต / ไทม์ไลน์ ----------'
         type: string
@@ -5062,6 +5065,13 @@ paths:
         - receipt
         in: query
         name: bill_type
+        type: string
+      - description: Filter by type receipt
+        enum:
+        - company
+        - shop
+        in: query
+        name: type_receipt
         type: string
       produces:
       - application/json

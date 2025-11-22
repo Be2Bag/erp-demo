@@ -91,7 +91,7 @@ func main() {
 	inComeSvc := services.NewInComeService(*cfg, inComeRepo, transactionCategoryRepo)
 	expenseSvc := services.NewExpenseService(*cfg, expenseRepo, transactionCategoryRepo)
 	payableSvc := services.NewPayablesService(*cfg, payableRepo, bankAccountsRepo)
-	receivableSvc := services.NewReceivableService(*cfg, receivableRepo, bankAccountsRepo)
+	receivableSvc := services.NewReceivableService(*cfg, receivableRepo, bankAccountsRepo, signJobRepo)
 	receiptSvc := services.NewReceiptService(*cfg, receiptRepo, bankAccountsRepo)
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)

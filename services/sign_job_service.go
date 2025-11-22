@@ -82,6 +82,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 		return err
 	}
 
+	jobName := signJob.JobName
+
 	if !signJob.IsDeposit {
 
 		modelIncome := models.Income{
@@ -94,7 +96,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 			TxnDate:               due,
 			PaymentMethod:         signJob.PaymentMethod,
 			ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
-			Note:                  nil,
+			Note:                  &jobName,
 			CreatedBy:             claims.UserID,
 			CreatedAt:             now,
 			UpdatedAt:             now,
@@ -139,7 +141,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 			CreatedBy:    claims.UserID,
 			CreatedAt:    now,
 			UpdatedAt:    now,
-			Note:         "",
+			Note:         jobName,
 			JobID:        model.JobID,
 		}
 
@@ -157,7 +159,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 			TxnDate:               due,
 			PaymentMethod:         signJob.PaymentMethod,
 			ReferenceNo:           invoiceNo,
-			Note:                  nil,
+			Note:                  &jobName,
 			CreatedBy:             claims.UserID,
 			CreatedAt:             now,
 			UpdatedAt:             now,
