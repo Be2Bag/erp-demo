@@ -79,7 +79,7 @@ func main() {
 	taskSvc := services.NewTaskService(*cfg, taskRepo, userRepo, workFlowRepo, departmentRepo, kpiEvaluationRepo, kpiRepo, signJobRepo)
 	authSvc := services.NewAuthService(*cfg, authRepo, userRepo)
 	workFlowSvc := services.NewWorkflowService(*cfg, workFlowRepo)
-	signJobSvc := services.NewSignJobService(*cfg, signJobRepo, dropDownRepo, taskRepo)
+	signJobSvc := services.NewSignJobService(*cfg, signJobRepo, dropDownRepo, taskRepo, inComeRepo, receivableRepo)
 	projectSvc := services.NewProjectService(*cfg, projectRepo, userRepo, signJobRepo, taskRepo)
 	departmentSvc := services.NewDepartmentService(*cfg, departmentRepo, userRepo)
 	positionSvc := services.NewPositionService(*cfg, positionRepo, departmentRepo, userRepo)

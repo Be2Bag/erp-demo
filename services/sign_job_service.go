@@ -18,14 +18,16 @@ import (
 )
 
 type signJobService struct {
-	config       config.Config
-	signJobRepo  ports.SignJobRepository
-	dropDownRepo ports.DropDownRepository
-	taskRepo     ports.TaskRepository
+	config         config.Config
+	signJobRepo    ports.SignJobRepository
+	dropDownRepo   ports.DropDownRepository
+	taskRepo       ports.TaskRepository
+	incomeRepo     ports.InComeRepository
+	receivableRepo ports.ReceivableRepository
 }
 
-func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository, dropDownRepo ports.DropDownRepository, taskRepo ports.TaskRepository) ports.SignJobService {
-	return &signJobService{config: cfg, signJobRepo: signJobRepo, dropDownRepo: dropDownRepo, taskRepo: taskRepo}
+func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository, dropDownRepo ports.DropDownRepository, taskRepo ports.TaskRepository, incomeRepo ports.InComeRepository, receivableRepo ports.ReceivableRepository) ports.SignJobService {
+	return &signJobService{config: cfg, signJobRepo: signJobRepo, dropDownRepo: dropDownRepo, taskRepo: taskRepo, incomeRepo: incomeRepo, receivableRepo: receivableRepo}
 }
 
 func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSignJobDTO, claims *dto.JWTClaims) error {
@@ -79,6 +81,57 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 	if err := s.signJobRepo.CreateSignJob(ctx, model); err != nil {
 		return err
 	}
+
+	if !signJob.IsDeposit {
+
+		modelIncome := models.Income{
+			IncomeID:              uuid.NewString(),
+			BankID:                "221128ac-c435-437d-be52-6e577475d4bc", // บันชีบริษัท
+			TransactionCategoryID: "4159541a-7490-4f4e-afc3-dd4c05dd6d04", // หมวกหมู่รายได้จากบริษัท
+			Description:           signJob.Content,
+			Amount:                signJob.PriceTHB,
+			Currency:              "THB",
+			TxnDate:               due,
+			PaymentMethod:         signJob.PaymentMethod,
+			ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
+			Note:                  nil,
+			CreatedBy:             claims.UserID,
+			CreatedAt:             now,
+			UpdatedAt:             now,
+		}
+
+		if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+			return err
+		}
+
+	} else {
+
+		invoiceNo := fmt.Sprintf("BILL-%s", time.Now().Format("20060102"))
+
+		modelReceivable := models.Receivable{
+			IDReceivable: uuid.NewString(),
+			BankID:       "221128ac-c435-437d-be52-6e577475d4bc", // บันชีบริษัท
+			Customer:     signJob.CompanyName,
+			InvoiceNo:    invoiceNo,
+			IssueDate:    due,
+			DueDate:      due.AddDate(0, 0, 30),
+			Amount:       signJob.PriceTHB,
+			Balance:      signJob.OutstandingAmount,
+			Status:       "pending",
+			Phone:        signJob.Phone,
+			Address:      signJob.Address,
+			CreatedBy:    claims.UserID,
+			CreatedAt:    now,
+			UpdatedAt:    now,
+			Note:         "",
+		}
+
+		if err := s.receivableRepo.CreateReceivable(ctx, modelReceivable); err != nil {
+			return err
+		}
+
+	}
+
 	return nil
 }
 

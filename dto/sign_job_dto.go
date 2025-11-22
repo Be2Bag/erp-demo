@@ -20,9 +20,9 @@ type CreateSignJobDTO struct { // DTO สำหรับสร้างงาน
 	Width             float64 `json:"width"`              // ความกว้าง (ซม.)
 	Height            float64 `json:"height"`             // ความสูง (ซม.)
 	Quantity          int     `json:"quantity"`           // จำนวน
-	PriceTHB          int64   `json:"price_thb"`          // ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)
-	DepositAmount     int64   `json:"deposit_amount"`     // เงินมัดจำ
-	OutstandingAmount int64   `json:"outstanding_amount"` // ยอดค้างชำระ
+	PriceTHB          float64 `json:"price_thb"`          // ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)
+	DepositAmount     float64 `json:"deposit_amount"`     // เงินมัดจำ
+	OutstandingAmount float64 `json:"outstanding_amount"` // ยอดค้างชำระ
 	Content           string  `json:"content"`            // รายละเอียด / ข้อความบนป้าย
 	MainColor         string  `json:"main_color"`         // สีหลัก
 
@@ -63,9 +63,9 @@ type UpdateSignJobDTO struct { // DTO สำหรับสร้างงาน
 	Width             float64 `json:"width"`              // ความกว้าง (ซม.)
 	Height            float64 `json:"height"`             // ความสูง (ซม.)
 	Quantity          int     `json:"quantity"`           // จำนวน
-	PriceTHB          int64   `json:"price_thb"`          // ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)
-	DepositAmount     int64   `json:"deposit_amount"`     // เงินมัดจำ
-	OutstandingAmount int64   `json:"outstanding_amount"` // ยอดค้างชำระ
+	PriceTHB          float64 `json:"price_thb"`          // ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)
+	DepositAmount     float64 `json:"deposit_amount"`     // เงินมัดจำ
+	OutstandingAmount float64 `json:"outstanding_amount"` // ยอดค้างชำระ
 	Content           string  `json:"content"`            // รายละเอียด / ข้อความบนป้าย
 	MainColor         string  `json:"main_color"`         // สีหลัก
 
@@ -119,9 +119,9 @@ type SignJobDTO struct { // DTO สำหรับส่งกลับให้
 	Width             float64 `json:"width"`              // ความกว้าง (ซม.)
 	Height            float64 `json:"height"`             // ความสูง (ซม.)
 	Quantity          int     `json:"quantity"`           // จำนวน
-	PriceTHB          int64   `json:"price_thb"`          // ราคา
-	DepositAmount     int64   `json:"deposit_amount"`     // เงินมัดจำ
-	OutstandingAmount int64   `json:"outstanding_amount"` // ยอดค้างชำระ
+	PriceTHB          float64 `json:"price_thb"`          // ราคา
+	DepositAmount     float64 `json:"deposit_amount"`     // เงินมัดจำ
+	OutstandingAmount float64 `json:"outstanding_amount"` // ยอดค้างชำระ
 	Content           string  `json:"content"`            // รายละเอียด / ข้อความบนป้าย
 	MainColor         string  `json:"main_color"`         // สีหลัก
 
