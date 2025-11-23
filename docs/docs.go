@@ -7921,11 +7921,20 @@ const docTemplate = `{
                     "description": "หมายเหตุ (ไม่ส่งมาก็ได้)",
                     "type": "string"
                 },
+                "shop_detail": {
+                    "description": "รายละเอียดร้านค้า (ถ้ามี) (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
                 "status": {
                     "description": "สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)",
                     "type": "string"
                 },
+                "tax_id": {
+                    "description": "เลขประจำตัวผู้เสียภาษีอากร (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
                 "type_receipt": {
+                    "description": "ประเภทใบเสร็จ \"company\" หรือ \"shop\" (จำเป็นต้องส่ง)",
                     "type": "string"
                 }
             }
