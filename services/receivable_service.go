@@ -508,8 +508,8 @@ func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordR
 
 	modelIncome := models.Income{
 		IncomeID:              uuid.NewString(),
-		BankID:                "221128ac-c435-437d-be52-6e577475d4bc", // บันชีบริษัท
-		TransactionCategoryID: "4159541a-7490-4f4e-afc3-dd4c05dd6d04", // หมวกหมู่รายได้จากบริษัท
+		BankID:                "307961ea-eb4f-4127-8e83-6eba0b8abbaf", // บันชีบริษัท
+		TransactionCategoryID: "ee1bbffd-aee7-4f1b-8c92-582d9449b0fd", // หมวกหมู่รายได้จากบริษัท
 		Description:           signJob.Content,
 		Amount:                amt,
 		Currency:              "THB",
