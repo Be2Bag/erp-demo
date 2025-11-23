@@ -162,6 +162,7 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		ReceivedBy:    receivedBy,
 		CreatedAt:     now,
 		UpdatedAt:     now,
+		TaxID:         in.TaxID,
 	}
 
 	if err := s.receiptRepo.CreateReceipt(ctx, model); err != nil {
@@ -312,6 +313,7 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 			ReceivedBy:  m.ReceivedBy,
 			CreatedAt:   m.CreatedAt,
 			UpdatedAt:   m.UpdatedAt,
+			TaxID:       m.TaxID,
 		})
 	}
 
@@ -391,6 +393,7 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 		ReceivedBy:  m.ReceivedBy,
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,
+		TaxID:       m.TaxID,
 	}
 
 	return dtoObj, nil

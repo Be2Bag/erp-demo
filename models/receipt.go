@@ -23,6 +23,7 @@ type Receipt struct { // โครงสร้างข้อมูลใบเ�
 	ReceivedBy    string        `json:"received_by,omitempty" bson:"received_by"` // ผู้รับเงิน/ผู้รับเอกสาร
 	CreatedAt     time.Time     `json:"created_at" bson:"created_at"`             // วันที่สร้างข้อมูล
 	UpdatedAt     time.Time     `json:"updated_at" bson:"updated_at"`             // วันที่อัปเดตข้อมูลล่าสุด
+	TaxID         string        `json:"tax_id" bson:"tax_id"`                     // เลขประจำตัวผู้เสียภาษีอากร
 } // ปิดโครงสร้าง Receipt
 
 type CustomerInfo struct { // โครงสร้างข้อมูลลูกค้า
