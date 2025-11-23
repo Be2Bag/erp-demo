@@ -15,18 +15,17 @@ type UpLoadService struct {
 	config                   config.Config
 	authRepo                 ports.AuthRepository
 	upLoadRepo               ports.UpLoadRepository
-	storageService           *storage.SupabaseStorage
 	storageCloudflareService *storage.CloudflareStorage
 	userRepo                 ports.UserRepository
 }
 
-func NewUpLoadService(cfg config.Config, authRepo ports.AuthRepository, upLoadRepo ports.UpLoadRepository, storageService *storage.SupabaseStorage, userRepo ports.UserRepository, storageCloudflareService *storage.CloudflareStorage) ports.UpLoadService {
-	return &UpLoadService{config: cfg, authRepo: authRepo, upLoadRepo: upLoadRepo, storageService: storageService, userRepo: userRepo, storageCloudflareService: storageCloudflareService}
+func NewUpLoadService(cfg config.Config, authRepo ports.AuthRepository, upLoadRepo ports.UpLoadRepository, userRepo ports.UserRepository, storageCloudflareService *storage.CloudflareStorage) ports.UpLoadService {
+	return &UpLoadService{config: cfg, authRepo: authRepo, upLoadRepo: upLoadRepo, userRepo: userRepo, storageCloudflareService: storageCloudflareService}
 }
 
 func (s *UpLoadService) UploadFile(ctx context.Context, filePath, key string) error {
 
-	err := s.storageService.UploadFile(filePath, key)
+	err := s.storageCloudflareService.UploadFile(filePath, key)
 	if err != nil {
 		return fmt.Errorf("failed to upload file to storage: %w", err)
 	}
@@ -34,15 +33,12 @@ func (s *UpLoadService) UploadFile(ctx context.Context, filePath, key string) er
 }
 
 func (s *UpLoadService) ListFiles(ctx context.Context, prefix string) ([]dto.FileMeta, error) {
-	files, err := s.storageService.ListFileMetas(prefix)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list files: %w", err)
-	}
-	return files, nil
+	// This function is deprecated - Supabase storage has been removed
+	return nil, fmt.Errorf("ListFiles is no longer supported")
 }
 
 func (s *UpLoadService) GetFileURL(ctx context.Context, req dto.RequestGetFile) (string, error) {
-	url, err := s.storageService.GetFileURLByName(req.Folder + "/" + req.File)
+	url, err := s.storageCloudflareService.GetFileURLByName(req.Folder + "/" + req.File)
 	if err != nil {
 		return "", fmt.Errorf("failed to get file URL: %w", err)
 	}

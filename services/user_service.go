@@ -23,13 +23,12 @@ type userService struct {
 	config            config.Config
 	userRepo          ports.UserRepository
 	dropDownRepo      ports.DropDownRepository
-	storageService    *storage.SupabaseStorage
 	storageCloudflare *storage.CloudflareStorage
 	taskRepo          ports.TaskRepository
 }
 
-func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository, ss *storage.SupabaseStorage, sc *storage.CloudflareStorage, tr ports.TaskRepository) ports.UserService {
-	return &userService{config: cfg, userRepo: ur, dropDownRepo: dr, storageService: ss, storageCloudflare: sc, taskRepo: tr}
+func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository, sc *storage.CloudflareStorage, tr ports.TaskRepository) ports.UserService {
+	return &userService{config: cfg, userRepo: ur, dropDownRepo: dr, storageCloudflare: sc, taskRepo: tr}
 }
 
 func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) error {

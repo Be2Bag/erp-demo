@@ -37,11 +37,6 @@ func main() {
 	}
 	database := db.GetDB(client, cfg.Mongo.Database)
 
-	supabaseStorage, err := storage.NewSupabaseStorage(cfg.Supabase)
-	if err != nil {
-		log.Fatal("supabase storage:", err)
-	}
-
 	cloudflareStorage, err := storage.NewCloudflareStorage(cfg.Cloudflare)
 	if err != nil {
 		log.Fatal("cloudflare storage:", err)
@@ -72,8 +67,8 @@ func main() {
 	receivableRepo := repositories.NewReceivableRepository(database)
 	receiptRepo := repositories.NewReceiptRepository(database)
 
-	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, supabaseStorage, cloudflareStorage, taskRepo)
-	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, supabaseStorage, userRepo, cloudflareStorage)
+	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, cloudflareStorage, taskRepo)
+	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, userRepo, cloudflareStorage)
 	adminSvc := services.NewAdminService(*cfg, adminRepo, authRepo, userRepo)
 	dropDownSvc := services.NewDropDownService(*cfg, dropDownRepo)
 	kpiSvc := services.NewKPIService(*cfg, kpiRepo, userRepo)
