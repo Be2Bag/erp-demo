@@ -418,6 +418,10 @@ func (s *receiptService) SummaryReceiptByFilter(ctx context.Context, claims *dto
 		"deleted_at": nil,
 	}
 
+	if report.TypeReceipt != "" {
+		filter["type_receipt"] = strings.ToLower(strings.TrimSpace(report.TypeReceipt))
+	}
+
 	// date range by report type: day | month | all
 	switch strings.ToLower(strings.TrimSpace(report.Report)) {
 	case "day":
