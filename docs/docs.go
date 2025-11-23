@@ -15,6 +15,42 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/cron/status-check": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "รันการตรวจสอบและอัปเดตสถานะของ Payable และ Receivable ทันที (ไม่ต้องรอถึงเวลา 00:00 น.)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cron"
+                ],
+                "summary": "รัน cronjob ตรวจสอบสถานะ Payable/Receivable ทันที",
+                "responses": {
+                    "200": {
+                        "description": "สำเร็จ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "เกิดข้อผิดพลาด",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/admin/update-position-user": {
             "put": {
                 "description": "สำหรับจัดการอัปเดตตำแหน่งผู้ใช้",

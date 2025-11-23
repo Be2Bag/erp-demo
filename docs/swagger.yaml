@@ -2178,6 +2178,30 @@ info:
   title: ERP Demo API
   version: "1.0"
 paths:
+  /cron/status-check:
+    post:
+      consumes:
+      - application/json
+      description: รันการตรวจสอบและอัปเดตสถานะของ Payable และ Receivable ทันที (ไม่ต้องรอถึงเวลา
+        00:00 น.)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: สำเร็จ
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: เกิดข้อผิดพลาด
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: รัน cronjob ตรวจสอบสถานะ Payable/Receivable ทันที
+      tags:
+      - Cron
   /v1/admin/update-position-user:
     put:
       consumes:
