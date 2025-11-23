@@ -90,6 +90,7 @@ type ReceiptDTO struct { // โครงสร้างข้อมูลใบ�
 	PaymentDetail PaymentInfoRespDTO `json:"payment_detail"`        // รายละเอียดการชำระเงิน (สำหรับตอบกลับ)
 	Status        string             `json:"status"`                // สถานะใบเสร็จ
 	BillType      string             `json:"bill_type"`             // ประเภทบิล: quotation, delivery_note, receipt
+	TypeReceipt   string             `json:"type_receipt"`          // ประเภทใบเสร็จ "company" หรือ "shop"
 	ApprovedBy    string             `json:"approved_by,omitempty"` // ผู้อนุมัติ (อาจว่าง)
 	ReceivedBy    string             `json:"received_by,omitempty"` // ผู้รับเงิน/ผู้รับเอกสาร (อาจว่าง)
 	CreatedAt     time.Time          `json:"created_at"`            // วันที่สร้างข้อมูล

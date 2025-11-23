@@ -305,12 +305,13 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 				PaidDate:      m.PaymentDetail.PaidDate,
 				Note:          m.PaymentDetail.Note,
 			},
-			Status:     m.Status,
-			BillType:   m.BillType,
-			ApprovedBy: m.ApprovedBy,
-			ReceivedBy: m.ReceivedBy,
-			CreatedAt:  m.CreatedAt,
-			UpdatedAt:  m.UpdatedAt,
+			Status:      m.Status,
+			BillType:    m.BillType,
+			TypeReceipt: m.TypeReceipt,
+			ApprovedBy:  m.ApprovedBy,
+			ReceivedBy:  m.ReceivedBy,
+			CreatedAt:   m.CreatedAt,
+			UpdatedAt:   m.UpdatedAt,
 		})
 	}
 
@@ -383,12 +384,13 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 			PaidDate:      m.PaymentDetail.PaidDate,
 			Note:          m.PaymentDetail.Note,
 		},
-		Status:     m.Status,
-		BillType:   m.BillType,
-		ApprovedBy: m.ApprovedBy,
-		ReceivedBy: m.ReceivedBy,
-		CreatedAt:  m.CreatedAt,
-		UpdatedAt:  m.UpdatedAt,
+		Status:      m.Status,
+		BillType:    m.BillType,
+		TypeReceipt: m.TypeReceipt,
+		ApprovedBy:  m.ApprovedBy,
+		ReceivedBy:  m.ReceivedBy,
+		CreatedAt:   m.CreatedAt,
+		UpdatedAt:   m.UpdatedAt,
 	}
 
 	return dtoObj, nil
