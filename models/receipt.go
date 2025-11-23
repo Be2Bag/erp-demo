@@ -5,25 +5,26 @@ import "time" // นำเข้าแพ็กเกจ time สำหรับ
 const CollectionReceipts = "receipts" // ชื่อคอลเลกชันใบเสร็จในฐานข้อมูล
 
 type Receipt struct { // โครงสร้างข้อมูลใบเสร็จ
-	IDReceipt     string        `json:"id_receipt" bson:"id_receipt"`             // รหัสใบเสร็จ
-	ReceiptNumber string        `json:"receipt_number" bson:"receipt_number"`     // เลขที่ใบเสร็จ
-	ReceiptDate   time.Time     `json:"receipt_date" bson:"receipt_date"`         // วันที่ออกใบเสร็จ
-	Customer      CustomerInfo  `json:"customer" bson:"customer"`                 // ข้อมูลลูกค้า
-	Issuer        IssuerInfo    `json:"issuer" bson:"issuer"`                     // ข้อมูลผู้ออกใบเสร็จ
-	Items         []ReceiptItem `json:"items" bson:"items"`                       // รายการสินค้า/บริการ
-	SubTotal      float64       `json:"sub_total" bson:"sub_total"`               // ยอดรวมก่อน VAT (บาท)
-	TotalVAT      float64       `json:"total_vat" bson:"total_vat"`               // ค่าภาษีมูลค่าเพิ่ม VAT 7% (บาท)
-	TotalAmount   float64       `json:"total_amount" bson:"total_amount"`         // ยอดรวมสุทธิรวม VAT แล้ว (บาท)
-	Remark        string        `json:"remark,omitempty" bson:"remark,omitempty"` // หมายเหตุ
-	PaymentDetail PaymentInfo   `json:"payment_detail" bson:"payment_detail"`     // ข้อมูลการชำระเงิน
-	Status        string        `json:"status" bson:"status"`                     // สถานะใบเสร็จ เช่น paid, pending
-	BillType      string        `json:"bill_type" bson:"bill_type"`               // ประเภทบิล: quotation, delivery_note, receipt
-	TypeReceipt   string        `json:"type_receipt" bson:"type_receipt"`         // ประเภทใบเสร็จ "company" หรือ "shop"
-	ApprovedBy    string        `json:"approved_by,omitempty" bson:"approved_by"` // ผู้อนุมัติ
-	ReceivedBy    string        `json:"received_by,omitempty" bson:"received_by"` // ผู้รับเงิน/ผู้รับเอกสาร
-	CreatedAt     time.Time     `json:"created_at" bson:"created_at"`             // วันที่สร้างข้อมูล
-	UpdatedAt     time.Time     `json:"updated_at" bson:"updated_at"`             // วันที่อัปเดตข้อมูลล่าสุด
-	TaxID         string        `json:"tax_id" bson:"tax_id"`                     // เลขประจำตัวผู้เสียภาษีอากร
+	IDReceipt     string        `json:"id_receipt" bson:"id_receipt"`                       // รหัสใบเสร็จ
+	ReceiptNumber string        `json:"receipt_number" bson:"receipt_number"`               // เลขที่ใบเสร็จ
+	ReceiptDate   time.Time     `json:"receipt_date" bson:"receipt_date"`                   // วันที่ออกใบเสร็จ
+	Customer      CustomerInfo  `json:"customer" bson:"customer"`                           // ข้อมูลลูกค้า
+	Issuer        IssuerInfo    `json:"issuer" bson:"issuer"`                               // ข้อมูลผู้ออกใบเสร็จ
+	Items         []ReceiptItem `json:"items" bson:"items"`                                 // รายการสินค้า/บริการ
+	SubTotal      float64       `json:"sub_total" bson:"sub_total"`                         // ยอดรวมก่อน VAT (บาท)
+	TotalVAT      float64       `json:"total_vat" bson:"total_vat"`                         // ค่าภาษีมูลค่าเพิ่ม VAT 7% (บาท)
+	TotalAmount   float64       `json:"total_amount" bson:"total_amount"`                   // ยอดรวมสุทธิรวม VAT แล้ว (บาท)
+	Remark        string        `json:"remark,omitempty" bson:"remark,omitempty"`           // หมายเหตุ
+	PaymentDetail PaymentInfo   `json:"payment_detail" bson:"payment_detail"`               // ข้อมูลการชำระเงิน
+	Status        string        `json:"status" bson:"status"`                               // สถานะใบเสร็จ เช่น paid, pending
+	BillType      string        `json:"bill_type" bson:"bill_type"`                         // ประเภทบิล: quotation, delivery_note, receipt
+	TypeReceipt   string        `json:"type_receipt" bson:"type_receipt"`                   // ประเภทใบเสร็จ "company" หรือ "shop"
+	ApprovedBy    string        `json:"approved_by,omitempty" bson:"approved_by"`           // ผู้อนุมัติ
+	ReceivedBy    string        `json:"received_by,omitempty" bson:"received_by"`           // ผู้รับเงิน/ผู้รับเอกสาร
+	CreatedAt     time.Time     `json:"created_at" bson:"created_at"`                       // วันที่สร้างข้อมูล
+	UpdatedAt     time.Time     `json:"updated_at" bson:"updated_at"`                       // วันที่อัปเดตข้อมูลล่าสุด
+	TaxID         string        `json:"tax_id" bson:"tax_id"`                               // เลขประจำตัวผู้เสียภาษีอากร
+	ShopDetail    string        `json:"shop_detail,omitempty" bson:"shop_detail,omitempty"` // รายละเอียดร้านค้า (ถ้ามี)
 } // ปิดโครงสร้าง Receipt
 
 type CustomerInfo struct { // โครงสร้างข้อมูลลูกค้า
