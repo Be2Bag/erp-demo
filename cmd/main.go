@@ -16,6 +16,7 @@ import (
 	fiberSwagger "github.com/swaggo/fiber-swagger"
 
 	"github.com/Be2Bag/erp-demo/config"
+	"github.com/Be2Bag/erp-demo/cron"
 	_ "github.com/Be2Bag/erp-demo/docs"
 	handlers "github.com/Be2Bag/erp-demo/handlers"
 	"github.com/Be2Bag/erp-demo/middleware"
@@ -79,7 +80,7 @@ func main() {
 	taskSvc := services.NewTaskService(*cfg, taskRepo, userRepo, workFlowRepo, departmentRepo, kpiEvaluationRepo, kpiRepo, signJobRepo)
 	authSvc := services.NewAuthService(*cfg, authRepo, userRepo)
 	workFlowSvc := services.NewWorkflowService(*cfg, workFlowRepo)
-	signJobSvc := services.NewSignJobService(*cfg, signJobRepo, dropDownRepo, taskRepo)
+	signJobSvc := services.NewSignJobService(*cfg, signJobRepo, dropDownRepo, taskRepo, inComeRepo, receivableRepo)
 	projectSvc := services.NewProjectService(*cfg, projectRepo, userRepo, signJobRepo, taskRepo)
 	departmentSvc := services.NewDepartmentService(*cfg, departmentRepo, userRepo)
 	positionSvc := services.NewPositionService(*cfg, positionRepo, departmentRepo, userRepo)
@@ -91,8 +92,16 @@ func main() {
 	inComeSvc := services.NewInComeService(*cfg, inComeRepo, transactionCategoryRepo)
 	expenseSvc := services.NewExpenseService(*cfg, expenseRepo, transactionCategoryRepo)
 	payableSvc := services.NewPayablesService(*cfg, payableRepo, bankAccountsRepo)
-	receivableSvc := services.NewReceivableService(*cfg, receivableRepo, bankAccountsRepo)
+	receivableSvc := services.NewReceivableService(*cfg, receivableRepo, bankAccountsRepo, signJobRepo, inComeRepo)
 	receiptSvc := services.NewReceiptService(*cfg, receiptRepo, bankAccountsRepo)
+
+	// เริ่มต้น Cronjob สำหรับตรวจสอบสถานะ Payable และ Receivable
+	statusChecker := cron.NewStatusChecker(payableRepo, receivableRepo)
+	if err := statusChecker.Start(); err != nil {
+		log.Printf("เริ่ม cronjob ไม่สำเร็จ: %v", err)
+	} else {
+		log.Println("🚀🚀🚀 Cronjob เริ่มทำงานแล้ว - ระบบจะตรวจสอบสถานะ Payable/Receivable ทุกวันเวลา 00:00 น.")
+	}
 
 	userHdl := handlers.NewUserHandler(userSvc, upLoadSvc, authCookieMiddleware)
 	upLoadHdl := handlers.NewUpLoadHandler(upLoadSvc, authCookieMiddleware)
@@ -116,6 +125,7 @@ func main() {
 	payableHdl := handlers.NewPayableHandler(payableSvc, authCookieMiddleware)
 	receivableHdl := handlers.NewReceivableHandler(receivableSvc, authCookieMiddleware)
 	receiptHdl := handlers.NewReceiptHandler(receiptSvc, authCookieMiddleware)
+	cronHdl := handlers.NewCronHandler(statusChecker, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -150,6 +160,7 @@ func main() {
 	payableHdl.PayableRoutes(apiGroup)
 	receivableHdl.ReceivableRoutes(apiGroup)
 	receiptHdl.ReceiptRoutes(apiGroup)
+	cronHdl.CronRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{

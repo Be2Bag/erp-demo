@@ -18,14 +18,16 @@ import (
 )
 
 type signJobService struct {
-	config       config.Config
-	signJobRepo  ports.SignJobRepository
-	dropDownRepo ports.DropDownRepository
-	taskRepo     ports.TaskRepository
+	config         config.Config
+	signJobRepo    ports.SignJobRepository
+	dropDownRepo   ports.DropDownRepository
+	taskRepo       ports.TaskRepository
+	incomeRepo     ports.InComeRepository
+	receivableRepo ports.ReceivableRepository
 }
 
-func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository, dropDownRepo ports.DropDownRepository, taskRepo ports.TaskRepository) ports.SignJobService {
-	return &signJobService{config: cfg, signJobRepo: signJobRepo, dropDownRepo: dropDownRepo, taskRepo: taskRepo}
+func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository, dropDownRepo ports.DropDownRepository, taskRepo ports.TaskRepository, incomeRepo ports.InComeRepository, receivableRepo ports.ReceivableRepository) ports.SignJobService {
+	return &signJobService{config: cfg, signJobRepo: signJobRepo, dropDownRepo: dropDownRepo, taskRepo: taskRepo, incomeRepo: incomeRepo, receivableRepo: receivableRepo}
 }
 
 func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSignJobDTO, claims *dto.JWTClaims) error {
@@ -79,6 +81,96 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 	if err := s.signJobRepo.CreateSignJob(ctx, model); err != nil {
 		return err
 	}
+
+	jobName := signJob.JobName
+
+	if !signJob.IsDeposit {
+
+		modelIncome := models.Income{
+			IncomeID:              uuid.NewString(),
+			BankID:                "221128ac-c435-437d-be52-6e577475d4bc", // บันชีบริษัท
+			TransactionCategoryID: "4159541a-7490-4f4e-afc3-dd4c05dd6d04", // หมวกหมู่รายได้จากบริษัท
+			Description:           signJob.Content,
+			Amount:                signJob.PriceTHB,
+			Currency:              "THB",
+			TxnDate:               due,
+			PaymentMethod:         signJob.PaymentMethod,
+			ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
+			Note:                  &jobName,
+			CreatedBy:             claims.UserID,
+			CreatedAt:             now,
+			UpdatedAt:             now,
+		}
+
+		if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+			return err
+		}
+
+	} else {
+
+		prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
+		maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
+		if err != nil {
+			return fmt.Errorf("get max invoice number: %w", err)
+		}
+
+		counter := 1
+		if maxInvoiceNo != "" {
+			// Extract counter from last invoice (e.g., "AR-25-01-15-001" -> 1)
+			var lastCounter int
+			_, scanErr := fmt.Sscanf(maxInvoiceNo, prefix+"%d", &lastCounter)
+			if scanErr == nil {
+				counter = lastCounter + 1
+			}
+		}
+
+		invoiceNo := fmt.Sprintf("%s%03d", prefix, counter)
+
+		modelReceivable := models.Receivable{
+			IDReceivable: uuid.NewString(),
+			BankID:       "221128ac-c435-437d-be52-6e577475d4bc", // บันชีบริษัท
+			Customer:     signJob.CompanyName,
+			InvoiceNo:    invoiceNo,
+			IssueDate:    due,
+			DueDate:      due.AddDate(0, 0, 30),
+			Amount:       signJob.PriceTHB,
+			Balance:      signJob.OutstandingAmount,
+			Status:       "pending",
+			Phone:        signJob.Phone,
+			Address:      signJob.Address,
+			CreatedBy:    claims.UserID,
+			CreatedAt:    now,
+			UpdatedAt:    now,
+			Note:         jobName,
+			JobID:        model.JobID,
+		}
+
+		if err := s.receivableRepo.CreateReceivable(ctx, modelReceivable); err != nil {
+			return err
+		}
+
+		modelIncome := models.Income{
+			IncomeID:              uuid.NewString(),
+			BankID:                "221128ac-c435-437d-be52-6e577475d4bc", // บันชีบริษัท
+			TransactionCategoryID: "4159541a-7490-4f4e-afc3-dd4c05dd6d04", // หมวกหมู่รายได้จากบริษัท
+			Description:           signJob.Content,
+			Amount:                signJob.DepositAmount,
+			Currency:              "THB",
+			TxnDate:               due,
+			PaymentMethod:         signJob.PaymentMethod,
+			ReferenceNo:           invoiceNo,
+			Note:                  &jobName,
+			CreatedBy:             claims.UserID,
+			CreatedAt:             now,
+			UpdatedAt:             now,
+		}
+
+		if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+			return err
+		}
+
+	}
+
 	return nil
 }
 

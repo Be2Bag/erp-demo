@@ -15,6 +15,42 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/cron/status-check": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "รันการตรวจสอบและอัปเดตสถานะของ Payable และ Receivable ทันที (ไม่ต้องรอถึงเวลา 00:00 น.)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cron"
+                ],
+                "summary": "รัน cronjob ตรวจสอบสถานะ Payable/Receivable ทันที",
+                "responses": {
+                    "200": {
+                        "description": "สำเร็จ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "เกิดข้อผิดพลาด",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/v1/admin/update-position-user": {
             "put": {
                 "description": "สำหรับจัดการอัปเดตตำแหน่งผู้ใช้",
@@ -4431,6 +4467,16 @@ const docTemplate = `{
                         "description": "Filter by bill type",
                         "name": "bill_type",
                         "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "company",
+                            "shop"
+                        ],
+                        "type": "string",
+                        "description": "Filter by type receipt",
+                        "name": "type_receipt",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -7856,7 +7902,8 @@ const docTemplate = `{
                 "customer",
                 "issuer",
                 "items",
-                "payment_detail"
+                "payment_detail",
+                "type_receipt"
             ],
             "properties": {
                 "approved_by": {
@@ -7910,8 +7957,20 @@ const docTemplate = `{
                     "description": "หมายเหตุ (ไม่ส่งมาก็ได้)",
                     "type": "string"
                 },
+                "shop_detail": {
+                    "description": "รายละเอียดร้านค้า (ถ้ามี) (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
                 "status": {
                     "description": "สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "tax_id": {
+                    "description": "เลขประจำตัวผู้เสียภาษีอากร (ไม่ส่งมาก็ได้)",
+                    "type": "string"
+                },
+                "type_receipt": {
+                    "description": "ประเภทใบเสร็จ \"company\" หรือ \"shop\" (จำเป็นต้องส่ง)",
                     "type": "string"
                 }
             }
@@ -7977,7 +8036,7 @@ const docTemplate = `{
                 },
                 "deposit_amount": {
                     "description": "เงินมัดจำ",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "design_option": {
                     "description": "---------- งานออกแบบ / การติดตั้ง ----------",
@@ -8017,7 +8076,7 @@ const docTemplate = `{
                 },
                 "outstanding_amount": {
                     "description": "ยอดค้างชำระ",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "payment_method": {
                     "description": "---------- การชำระเงิน ----------",
@@ -8029,7 +8088,7 @@ const docTemplate = `{
                 },
                 "price_thb": {
                     "description": "ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "production_time": {
                     "description": "---------- การผลิต / ไทม์ไลน์ ----------",
@@ -9565,7 +9624,7 @@ const docTemplate = `{
                 },
                 "deposit_amount": {
                     "description": "เงินมัดจำ",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "design_option": {
                     "description": "---------- งานออกแบบ / การติดตั้ง ----------",
@@ -9609,7 +9668,7 @@ const docTemplate = `{
                 },
                 "outstanding_amount": {
                     "description": "ยอดค้างชำระ",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "payment_method": {
                     "description": "---------- การชำระเงิน ----------",
@@ -9621,7 +9680,7 @@ const docTemplate = `{
                 },
                 "price_thb": {
                     "description": "ราคา",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "production_time": {
                     "description": "---------- การผลิต / ไทม์ไลน์ ----------",
@@ -10078,7 +10137,7 @@ const docTemplate = `{
                 },
                 "deposit_amount": {
                     "description": "เงินมัดจำ",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "design_option": {
                     "description": "---------- งานออกแบบ / การติดตั้ง ----------",
@@ -10118,7 +10177,7 @@ const docTemplate = `{
                 },
                 "outstanding_amount": {
                     "description": "ยอดค้างชำระ",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "payment_method": {
                     "description": "---------- การชำระเงิน ----------",
@@ -10130,7 +10189,7 @@ const docTemplate = `{
                 },
                 "price_thb": {
                     "description": "ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)",
-                    "type": "integer"
+                    "type": "number"
                 },
                 "production_time": {
                     "description": "---------- การผลิต / ไทม์ไลน์ ----------",

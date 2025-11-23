@@ -432,8 +432,17 @@ definitions:
       remark:
         description: หมายเหตุ (ไม่ส่งมาก็ได้)
         type: string
+      shop_detail:
+        description: รายละเอียดร้านค้า (ถ้ามี) (ไม่ส่งมาก็ได้)
+        type: string
       status:
         description: สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)
+        type: string
+      tax_id:
+        description: เลขประจำตัวผู้เสียภาษีอากร (ไม่ส่งมาก็ได้)
+        type: string
+      type_receipt:
+        description: ประเภทใบเสร็จ "company" หรือ "shop" (จำเป็นต้องส่ง)
         type: string
     required:
     - bill_type
@@ -441,6 +450,7 @@ definitions:
     - issuer
     - items
     - payment_detail
+    - type_receipt
     type: object
   dto.CreateReceivableDTO:
     properties:
@@ -485,7 +495,7 @@ definitions:
         type: string
       deposit_amount:
         description: เงินมัดจำ
-        type: integer
+        type: number
       design_option:
         description: '---------- งานออกแบบ / การติดตั้ง ----------'
         type: string
@@ -515,7 +525,7 @@ definitions:
         type: string
       outstanding_amount:
         description: ยอดค้างชำระ
-        type: integer
+        type: number
       payment_method:
         description: '---------- การชำระเงิน ----------'
         type: string
@@ -524,7 +534,7 @@ definitions:
         type: string
       price_thb:
         description: 'ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)'
-        type: integer
+        type: number
       production_time:
         description: '---------- การผลิต / ไทม์ไลน์ ----------'
         type: string
@@ -1603,7 +1613,7 @@ definitions:
         type: string
       deposit_amount:
         description: เงินมัดจำ
-        type: integer
+        type: number
       design_option:
         description: '---------- งานออกแบบ / การติดตั้ง ----------'
         type: string
@@ -1636,7 +1646,7 @@ definitions:
         type: string
       outstanding_amount:
         description: ยอดค้างชำระ
-        type: integer
+        type: number
       payment_method:
         description: '---------- การชำระเงิน ----------'
         type: string
@@ -1645,7 +1655,7 @@ definitions:
         type: string
       price_thb:
         description: ราคา
-        type: integer
+        type: number
       production_time:
         description: '---------- การผลิต / ไทม์ไลน์ ----------'
         type: string
@@ -1966,7 +1976,7 @@ definitions:
         type: string
       deposit_amount:
         description: เงินมัดจำ
-        type: integer
+        type: number
       design_option:
         description: '---------- งานออกแบบ / การติดตั้ง ----------'
         type: string
@@ -1996,7 +2006,7 @@ definitions:
         type: string
       outstanding_amount:
         description: ยอดค้างชำระ
-        type: integer
+        type: number
       payment_method:
         description: '---------- การชำระเงิน ----------'
         type: string
@@ -2005,7 +2015,7 @@ definitions:
         type: string
       price_thb:
         description: 'ราคา (หน่วย: สตางค์หรือบาท เลือกใช้ให้คงที่)'
-        type: integer
+        type: number
       production_time:
         description: '---------- การผลิต / ไทม์ไลน์ ----------'
         type: string
@@ -2168,6 +2178,30 @@ info:
   title: ERP Demo API
   version: "1.0"
 paths:
+  /cron/status-check:
+    post:
+      consumes:
+      - application/json
+      description: รันการตรวจสอบและอัปเดตสถานะของ Payable และ Receivable ทันที (ไม่ต้องรอถึงเวลา
+        00:00 น.)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: สำเร็จ
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: เกิดข้อผิดพลาด
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: รัน cronjob ตรวจสอบสถานะ Payable/Receivable ทันที
+      tags:
+      - Cron
   /v1/admin/update-position-user:
     put:
       consumes:
@@ -5062,6 +5096,13 @@ paths:
         - receipt
         in: query
         name: bill_type
+        type: string
+      - description: Filter by type receipt
+        enum:
+        - company
+        - shop
+        in: query
+        name: type_receipt
         type: string
       produces:
       - application/json

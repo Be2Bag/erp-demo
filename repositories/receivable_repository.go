@@ -164,3 +164,23 @@ func (r *receivableRepo) GetAllPaymentTransactionsByFilter(ctx context.Context, 
 
 	return transactions, nil
 }
+
+func (r *receivableRepo) GetMaxInvoiceNumber(ctx context.Context, prefix string) (string, error) {
+	filter := bson.M{
+		"invoice_no": bson.M{"$regex": fmt.Sprintf("^%s", prefix)},
+		"deleted_at": nil,
+	}
+	opts := options.FindOne().
+		SetSort(bson.D{{Key: "invoice_no", Value: -1}}).
+		SetProjection(bson.M{"invoice_no": 1})
+
+	var result models.Receivable
+	err := r.collReceivables.FindOne(ctx, filter, opts).Decode(&result)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return "", nil
+		}
+		return "", fmt.Errorf("find max invoice number: %w", err)
+	}
+	return result.InvoiceNo, nil
+}

@@ -14,6 +14,9 @@ type CreateReceiptDTO struct { // โครงสร้างข้อมูล�
 	BillType      string           `json:"bill_type" binding:"required"`      // ประเภทบิล: quotation, delivery_note, receipt (จำเป็นต้องส่ง)
 	ApprovedBy    string           `json:"approved_by,omitempty"`             // ผู้อนุมัติ (ไม่ส่งมาก็ได้)
 	ReceivedBy    string           `json:"received_by,omitempty"`             // ผู้รับเงิน/ผู้รับเอกสาร (ไม่ส่งมาก็ได้)
+	TypeReceipt   string           `json:"type_receipt" binding:"required"`   // ประเภทใบเสร็จ "company" หรือ "shop" (จำเป็นต้องส่ง)
+	TaxID         string           `json:"tax_id,omitempty"`                  // เลขประจำตัวผู้เสียภาษีอากร (ไม่ส่งมาก็ได้)
+	ShopDetail    string           `json:"shop_detail,omitempty"`             // รายละเอียดร้านค้า (ถ้ามี) (ไม่ส่งมาก็ได้)
 } // จบโครงสร้าง CreateReceiptDTO
 
 type UpdateReceiptDTO struct { // โครงสร้างข้อมูลสำหรับอัปเดตใบเสร็จ (ส่งเฉพาะฟิลด์ที่ต้องการแก้)
@@ -62,15 +65,16 @@ type PaymentInfoDTO struct { // โครงสร้างรายละเอ
 
 // ---------- Query DTO ---------- // ส่วนของโครงสร้างสำหรับพารามิเตอร์การค้นหา/แบ่งหน้า
 type RequestListReceipt struct { // โครงสร้างคำขอรายการใบเสร็จ
-	Page      int    `query:"page"`       // หน้าที่ต้องการ
-	Limit     int    `query:"limit"`      // จำนวนรายการต่อหน้า
-	Search    string `query:"search"`     // คำค้นหา (เช่น เลขที่ใบเสร็จ/ชื่อลูกค้า)
-	SortBy    string `query:"sort_by"`    // ฟิลด์ที่ใช้เรียงลำดับ
-	SortOrder string `query:"sort_order"` // asc | desc
-	Status    string `query:"status"`     // สถานะใบเสร็จสำหรับกรอง
-	StartDate string `query:"start_date"` // YYYY-MM-DD วันที่เริ่มต้นช่วงค้นหา
-	EndDate   string `query:"end_date"`   // YYYY-MM-DD วันที่สิ้นสุดช่วงค้นหา
-	BillType  string `query:"bill_type"`  // ประเภทบิล: quotation, delivery_note, receipt
+	Page        int    `query:"page"`         // หน้าที่ต้องการ
+	Limit       int    `query:"limit"`        // จำนวนรายการต่อหน้า
+	Search      string `query:"search"`       // คำค้นหา (เช่น เลขที่ใบเสร็จ/ชื่อลูกค้า)
+	SortBy      string `query:"sort_by"`      // ฟิลด์ที่ใช้เรียงลำดับ
+	SortOrder   string `query:"sort_order"`   // asc | desc
+	Status      string `query:"status"`       // สถานะใบเสร็จสำหรับกรอง
+	StartDate   string `query:"start_date"`   // YYYY-MM-DD วันที่เริ่มต้นช่วงค้นหา
+	EndDate     string `query:"end_date"`     // YYYY-MM-DD วันที่สิ้นสุดช่วงค้นหา
+	BillType    string `query:"bill_type"`    // ประเภทบิล: quotation, delivery_note, receipt
+	TypeReceipt string `query:"type_receipt"` // ประเภทใบเสร็จ "company" หรือ "shop"
 } // จบโครงสร้าง RequestListReceipt
 
 // ---------- Response DTOs ---------- // ส่วนของโครงสร้างสำหรับส่งข้อมูลตอบกลับ (Response)
@@ -81,15 +85,20 @@ type ReceiptDTO struct { // โครงสร้างข้อมูลใบ�
 	Customer      CustomerInfoDTO    `json:"customer"`              // ข้อมูลลูกค้า
 	Issuer        IssuerInfoDTO      `json:"issuer"`                // ข้อมูลผู้ออกเอกสาร
 	Items         []ReceiptItemDTO   `json:"items"`                 // รายการสินค้า/บริการ
-	TotalAmount   float64            `json:"total_amount"`          // ยอดรวมทั้งใบเสร็จ
+	SubTotal      float64            `json:"sub_total"`             // ยอดรวมก่อน VAT
+	TotalVAT      float64            `json:"total_vat"`             // ค่าภาษีมูลค่าเพิ่ม VAT 7%
+	TotalAmount   float64            `json:"total_amount"`          // ยอดรวมสุทธิรวม VAT แล้ว
 	Remark        string             `json:"remark,omitempty"`      // หมายเหตุ (อาจว่าง)
 	PaymentDetail PaymentInfoRespDTO `json:"payment_detail"`        // รายละเอียดการชำระเงิน (สำหรับตอบกลับ)
 	Status        string             `json:"status"`                // สถานะใบเสร็จ
 	BillType      string             `json:"bill_type"`             // ประเภทบิล: quotation, delivery_note, receipt
+	TypeReceipt   string             `json:"type_receipt"`          // ประเภทใบเสร็จ "company" หรือ "shop"
 	ApprovedBy    string             `json:"approved_by,omitempty"` // ผู้อนุมัติ (อาจว่าง)
 	ReceivedBy    string             `json:"received_by,omitempty"` // ผู้รับเงิน/ผู้รับเอกสาร (อาจว่าง)
 	CreatedAt     time.Time          `json:"created_at"`            // วันที่สร้างข้อมูล
 	UpdatedAt     time.Time          `json:"updated_at"`            // วันที่แก้ไขล่าสุด
+	TaxID         string             `json:"tax_id"`                // เลขประจำตัวผู้เสียภาษีอากร
+	ShopDetail    string             `json:"shop_detail,omitempty"` // รายละเอียดร้านค้า (อาจว่าง)
 } // จบโครงสร้าง ReceiptDTO
 
 type PaymentInfoRespDTO struct { // โครงสร้างรายละเอียดการชำระเงิน (Response)
@@ -109,5 +118,6 @@ type ReceiptSummaryDTO struct { // โครงสร้างสรุปข้
 } // จบโครงสร้าง ReceiptSummaryDTO
 
 type RequestSummaryReceipt struct {
-	Report string `query:"report"` // รายงานประเภท day | month | all
+	Report      string `query:"report"`       // รายงานประเภท day | month | all
+	TypeReceipt string `query:"type_receipt"` // ประเภทใบเสร็จ "company" หรือ "shop"
 }
