@@ -483,47 +483,51 @@ func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordR
 		return fmt.Errorf("update receivable: %w", err) // หากบันทึกไม่สำเร็จ ส่ง error ออกไป
 	}
 
-	signJob, errSignJob := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": rec.JobID, "deleted_at": nil}, bson.M{})
-	if errSignJob != nil {
-		return fmt.Errorf("get sign job: %w", errSignJob)
-	}
+	// ตรวจสอบว่า Receivable มี JobID หรือไม่
+	if rec.JobID != "" {
+		signJob, errSignJob := s.signJobRepo.GetOneSignJobByFilter(ctx, bson.M{"job_id": rec.JobID, "deleted_at": nil}, bson.M{})
+		if errSignJob != nil {
+			return fmt.Errorf("get sign job: %w", errSignJob)
+		}
 
-	if signJob != nil {
-		if rec.Balance == 0 {
-			signJob.OutstandingAmount = 0
-			signJob.UpdatedAt = time.Now()
-			_, errUpdateSignJob := s.signJobRepo.UpdateSignJobByJobID(ctx, signJob.JobID, *signJob)
-			if errUpdateSignJob != nil {
-				return fmt.Errorf("update sign job: %w", errUpdateSignJob)
+		if signJob != nil {
+			if rec.Balance == 0 {
+				signJob.OutstandingAmount = 0
+				signJob.UpdatedAt = time.Now()
+				_, errUpdateSignJob := s.signJobRepo.UpdateSignJobByJobID(ctx, signJob.JobID, *signJob)
+				if errUpdateSignJob != nil {
+					return fmt.Errorf("update sign job: %w", errUpdateSignJob)
+				}
+			} else {
+				signJob.OutstandingAmount = rec.Balance
+				signJob.UpdatedAt = time.Now()
+				_, errUpdateSignJob := s.signJobRepo.UpdateSignJobByJobID(ctx, signJob.JobID, *signJob)
+				if errUpdateSignJob != nil {
+					return fmt.Errorf("update sign job: %w", errUpdateSignJob)
+				}
 			}
-		} else {
-			signJob.OutstandingAmount = rec.Balance
-			signJob.UpdatedAt = time.Now()
-			_, errUpdateSignJob := s.signJobRepo.UpdateSignJobByJobID(ctx, signJob.JobID, *signJob)
-			if errUpdateSignJob != nil {
-				return fmt.Errorf("update sign job: %w", errUpdateSignJob)
+
+			// สร้างรายได้เฉพาะเมื่อมี SignJob
+			modelIncome := models.Income{
+				IncomeID:              uuid.NewString(),
+				BankID:                "307961ea-eb4f-4127-8e83-6eba0b8abbaf", // บันชีบริษัท
+				TransactionCategoryID: "ee1bbffd-aee7-4f1b-8c92-582d9449b0fd", // หมวกหมู่รายได้จากบริษัท
+				Description:           signJob.Content,
+				Amount:                amt,
+				Currency:              "THB",
+				TxnDate:               now,
+				PaymentMethod:         input.PaymentMethod,
+				ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
+				Note:                  &signJob.JobName,
+				CreatedBy:             claims.UserID,
+				CreatedAt:             now,
+				UpdatedAt:             now,
+			}
+
+			if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+				return err
 			}
 		}
-	}
-
-	modelIncome := models.Income{
-		IncomeID:              uuid.NewString(),
-		BankID:                "307961ea-eb4f-4127-8e83-6eba0b8abbaf", // บันชีบริษัท
-		TransactionCategoryID: "ee1bbffd-aee7-4f1b-8c92-582d9449b0fd", // หมวกหมู่รายได้จากบริษัท
-		Description:           signJob.Content,
-		Amount:                amt,
-		Currency:              "THB",
-		TxnDate:               now,
-		PaymentMethod:         input.PaymentMethod,
-		ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
-		Note:                  &signJob.JobName,
-		CreatedBy:             claims.UserID,
-		CreatedAt:             now,
-		UpdatedAt:             now,
-	}
-
-	if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
-		return err
 	}
 
 	return nil // สำเร็จ
