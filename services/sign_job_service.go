@@ -171,6 +171,51 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 
 	}
 
+	if signJob.PaymentMethod == "credit" && !signJob.IsDeposit {
+
+		prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
+		maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
+		if err != nil {
+			return fmt.Errorf("get max invoice number: %w", err)
+		}
+
+		counter := 1
+		if maxInvoiceNo != "" {
+			// Extract counter from last invoice (e.g., "AR-25-01-15-001" -> 1)
+			var lastCounter int
+			_, scanErr := fmt.Sscanf(maxInvoiceNo, prefix+"%d", &lastCounter)
+			if scanErr == nil {
+				counter = lastCounter + 1
+			}
+		}
+
+		invoiceNo := fmt.Sprintf("%s%03d", prefix, counter)
+
+		modelReceivable := models.Receivable{
+			IDReceivable: uuid.NewString(),
+			BankID:       "307961ea-eb4f-4127-8e83-6eba0b8abbaf", // บันชีบริษัท
+			Customer:     signJob.CompanyName,
+			InvoiceNo:    invoiceNo,
+			IssueDate:    due,
+			DueDate:      due.AddDate(0, 0, 30),
+			Amount:       signJob.PriceTHB,
+			Balance:      signJob.PriceTHB,
+			Status:       "pending",
+			Phone:        signJob.Phone,
+			Address:      signJob.Address,
+			CreatedBy:    claims.UserID,
+			CreatedAt:    now,
+			UpdatedAt:    now,
+			Note:         jobName,
+			JobID:        model.JobID,
+		}
+
+		if err := s.receivableRepo.CreateReceivable(ctx, modelReceivable); err != nil {
+			return err
+		}
+
+	}
+
 	return nil
 }
 

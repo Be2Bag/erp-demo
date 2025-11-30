@@ -527,6 +527,30 @@ func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordR
 			if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
 				return err
 			}
+
+		} else {
+
+			// สร้างรายได้เฉพาะเมื่อมี SignJob
+			modelIncome := models.Income{
+				IncomeID:              uuid.NewString(),
+				BankID:                "307961ea-eb4f-4127-8e83-6eba0b8abbaf", // บันชีบริษัท
+				TransactionCategoryID: "ee1bbffd-aee7-4f1b-8c92-582d9449b0fd", // หมวกหมู่รายได้จากบริษัท
+				Description:           "รับชำระลูกหนี้ " + rec.Customer,
+				Amount:                amt,
+				Currency:              "THB",
+				TxnDate:               now,
+				PaymentMethod:         input.PaymentMethod,
+				ReferenceNo:           rec.InvoiceNo, // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
+				Note:                  &rec.Note,
+				CreatedBy:             claims.UserID,
+				CreatedAt:             now,
+				UpdatedAt:             now,
+			}
+
+			if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+				return err
+			}
+
 		}
 	}
 

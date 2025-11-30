@@ -86,7 +86,7 @@ func main() {
 	transactionCategorySvc := services.NewTransactionCategoryService(*cfg, transactionCategoryRepo)
 	inComeSvc := services.NewInComeService(*cfg, inComeRepo, transactionCategoryRepo)
 	expenseSvc := services.NewExpenseService(*cfg, expenseRepo, transactionCategoryRepo)
-	payableSvc := services.NewPayablesService(*cfg, payableRepo, bankAccountsRepo)
+	payableSvc := services.NewPayablesService(*cfg, payableRepo, bankAccountsRepo, expenseRepo)
 	receivableSvc := services.NewReceivableService(*cfg, receivableRepo, bankAccountsRepo, signJobRepo, inComeRepo)
 	receiptSvc := services.NewReceiptService(*cfg, receiptRepo, bankAccountsRepo)
 

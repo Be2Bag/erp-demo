@@ -21,10 +21,11 @@ type payablesService struct {
 	config           config.Config
 	payablesRepo     ports.PayableRepository
 	bankAccountsRepo ports.BankAccountsRepository
+	expenseRepo      ports.ExpenseRepository
 }
 
-func NewPayablesService(cfg config.Config, payablesRepo ports.PayableRepository, bankAccountsRepo ports.BankAccountsRepository) ports.PayableService {
-	return &payablesService{config: cfg, payablesRepo: payablesRepo, bankAccountsRepo: bankAccountsRepo}
+func NewPayablesService(cfg config.Config, payablesRepo ports.PayableRepository, bankAccountsRepo ports.BankAccountsRepository, expenseRepo ports.ExpenseRepository) ports.PayableService {
+	return &payablesService{config: cfg, payablesRepo: payablesRepo, bankAccountsRepo: bankAccountsRepo, expenseRepo: expenseRepo}
 }
 
 func (s *payablesService) CreatePayable(ctx context.Context, payable dto.CreatePayableDTO, claims *dto.JWTClaims) error {
@@ -588,6 +589,26 @@ func (s *payablesService) RecordPayment(ctx context.Context, input dto.RecordPay
 
 	if _, err := s.payablesRepo.UpdatePayableByID(ctx, payable.IDPayable, *payable); err != nil {
 		return fmt.Errorf("update payable: %w", err)
+	}
+
+	expenseModel := models.Expense{
+		ExpenseID:             uuid.NewString(),
+		TransactionCategoryID: "70e128e9-aef3-4699-83a1-7d34e1a1f342",
+		BankID:                payable.BankID,
+		Description:           "ชำระหนี้ " + payable.Supplier,
+		Amount:                amt,
+		Currency:              "THB",
+		TxnDate:               payDate,
+		PaymentMethod:         strings.TrimSpace(input.PaymentMethod),
+		ReferenceNo:           refInvoice,
+		Note:                  &input.Note,
+		CreatedBy:             claims.UserID,
+		CreatedAt:             now,
+		UpdatedAt:             now,
+	}
+
+	if err := s.expenseRepo.CreateExpense(ctx, expenseModel); err != nil {
+		return err
 	}
 
 	return nil
