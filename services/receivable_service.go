@@ -515,7 +515,7 @@ func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordR
 				Description:           signJob.Content,
 				Amount:                amt,
 				Currency:              "THB",
-				TxnDate:               now,
+				TxnDate:               payDate,
 				PaymentMethod:         input.PaymentMethod,
 				ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
 				Note:                  &signJob.JobName,
@@ -538,7 +538,7 @@ func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordR
 				Description:           "รับชำระลูกหนี้ " + rec.Customer,
 				Amount:                amt,
 				Currency:              "THB",
-				TxnDate:               now,
+				TxnDate:               payDate,
 				PaymentMethod:         input.PaymentMethod,
 				ReferenceNo:           rec.InvoiceNo, // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
 				Note:                  &rec.Note,
