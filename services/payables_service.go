@@ -148,6 +148,8 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 		re := primitive.Regex{Pattern: safe, Options: "i"}
 		filter["$or"] = []bson.M{
 			{"description": re},
+			{"supplier": re},
+			{"note": re},
 		}
 	}
 

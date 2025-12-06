@@ -114,6 +114,8 @@ func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWT
 		re := primitive.Regex{Pattern: safe, Options: "i"}
 		filter["$or"] = []bson.M{
 			{"description": re},
+			{"customer": re},
+			{"note": re},
 		}
 	}
 
