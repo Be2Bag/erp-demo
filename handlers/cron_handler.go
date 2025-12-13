@@ -25,11 +25,12 @@ func NewCronHandler(statusChecker *cron.StatusChecker, middleware *middleware.Mi
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} map[string]interface{} "สำเร็จ"
+// @Success 200 {object} map[string]interface{} "สำเร็จ พร้อมผลสรุปการอัปเดต"
 // @Failure 500 {object} map[string]interface{} "เกิดข้อผิดพลาด"
 // @Router /cron/status-check [post]
 func (h *CronHandler) RunStatusCheck(c *fiber.Ctx) error {
-	if err := h.statusChecker.RunNow(); err != nil {
+	summary, err := h.statusChecker.RunNow()
+	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success": false,
 			"message": "รัน cronjob ไม่สำเร็จ",
@@ -39,7 +40,34 @@ func (h *CronHandler) RunStatusCheck(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
-		"message": "รัน cronjob สำเร็จ - ตรวจสอบ log เพื่อดูรายละเอียด",
+		"message": "รัน cronjob สำเร็จ",
+		"data":    summary,
+	})
+}
+
+// GetLastRunSummary
+// @Summary ดูผลสรุปการรัน cronjob ครั้งล่าสุด
+// @Description ดึงข้อมูลผลสรุปการตรวจสอบสถานะ Payable/Receivable ครั้งล่าสุด
+// @Tags Cron
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{} "สำเร็จ พร้อมผลสรุป"
+// @Router /cron/last-run [get]
+func (h *CronHandler) GetLastRunSummary(c *fiber.Ctx) error {
+	summary := h.statusChecker.GetLastRunSummary()
+	if summary == nil {
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"success": true,
+			"message": "ยังไม่มีการรัน cronjob",
+			"data":    nil,
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "ดึงข้อมูลสำเร็จ",
+		"data":    summary,
 	})
 }
 
@@ -49,4 +77,5 @@ func (h *CronHandler) CronRoutes(r fiber.Router) {
 
 	// ต้อง authenticate ก่อนเรียกใช้ (ใช้เฉพาะ Admin)
 	cronGroup.Post("/status-check", h.middleware.AuthCookieMiddleware(), h.RunStatusCheck)
+	cronGroup.Get("/last-run", h.middleware.AuthCookieMiddleware(), h.GetLastRunSummary)
 }
