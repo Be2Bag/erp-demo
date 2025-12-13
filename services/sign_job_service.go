@@ -418,7 +418,6 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 
 func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string, update dto.UpdateSignJobDTO, claims *dto.JWTClaims) error {
 	// ดึงข้อมูลเดิม
-	IsEditJobName := false
 	oldJobName := ""
 
 	filter := bson.M{"job_id": jobID, "deleted_at": nil}
@@ -460,7 +459,6 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	}
 	if update.JobName != "" {
 		existing.JobName = update.JobName
-		IsEditJobName = true
 	}
 	if update.SignTypeID != "" {
 		existing.SignTypeID = update.SignTypeID
@@ -533,14 +531,19 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		return mongo.ErrNoDocuments
 	}
 
-	if IsEditJobName {
-		filterTask := bson.M{"job_id": existing.JobID}
-		partialTaskUpdate := bson.M{"job_name": existing.JobName}
+	// อัพเดท Task ที่เกี่ยวข้องกับ SignJob นี้ (โดยใช้ job_id)
+	filterTask := bson.M{"job_id": existing.JobID, "deleted_at": nil}
+	partialTaskUpdate := bson.M{
+		"project_id":   existing.ProjectID,
+		"project_name": existing.ProjectName,
+		"job_name":     existing.JobName,
+		"description":  existing.Content,
+		"updated_at":   now,
+	}
 
-		_, errOnUpdateTask := s.taskRepo.UpdateManyTaskFields(ctx, filterTask, partialTaskUpdate)
-		if errOnUpdateTask != nil {
-			return errOnUpdateTask
-		}
+	_, errOnUpdateTask := s.taskRepo.UpdateManyTaskFields(ctx, filterTask, partialTaskUpdate)
+	if errOnUpdateTask != nil && errOnUpdateTask != mongo.ErrNoDocuments {
+		return errOnUpdateTask
 	}
 
 	// อัพเดท Receivable ที่เกี่ยวข้องกับ SignJob นี้ (โดยใช้ job_id)
