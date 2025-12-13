@@ -15,6 +15,35 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/cron/last-run": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "ดึงข้อมูลผลสรุปการตรวจสอบสถานะ Payable/Receivable ครั้งล่าสุด",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Cron"
+                ],
+                "summary": "ดูผลสรุปการรัน cronjob ครั้งล่าสุด",
+                "responses": {
+                    "200": {
+                        "description": "สำเร็จ พร้อมผลสรุป",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
         "/cron/status-check": {
             "post": {
                 "security": [
@@ -35,7 +64,7 @@ const docTemplate = `{
                 "summary": "รัน cronjob ตรวจสอบสถานะ Payable/Receivable ทันที",
                 "responses": {
                     "200": {
-                        "description": "สำเร็จ",
+                        "description": "สำเร็จ พร้อมผลสรุปการอัปเดต",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true

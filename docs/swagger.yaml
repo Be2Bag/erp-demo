@@ -2178,6 +2178,24 @@ info:
   title: ERP Demo API
   version: "1.0"
 paths:
+  /cron/last-run:
+    get:
+      consumes:
+      - application/json
+      description: ดึงข้อมูลผลสรุปการตรวจสอบสถานะ Payable/Receivable ครั้งล่าสุด
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: สำเร็จ พร้อมผลสรุป
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: ดูผลสรุปการรัน cronjob ครั้งล่าสุด
+      tags:
+      - Cron
   /cron/status-check:
     post:
       consumes:
@@ -2188,7 +2206,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: สำเร็จ
+          description: สำเร็จ พร้อมผลสรุปการอัปเดต
           schema:
             additionalProperties: true
             type: object
