@@ -106,6 +106,7 @@ func (s *inComeService) ListInComes(ctx context.Context, claims *dto.JWTClaims, 
 		re := primitive.Regex{Pattern: safe, Options: "i"}
 		filter["$or"] = []bson.M{
 			{"description": re},
+			{"note": re},
 		}
 	}
 
