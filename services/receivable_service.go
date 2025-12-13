@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 	"time"
@@ -431,15 +432,17 @@ func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordR
 	}
 
 	// 3) parse date
-	now := time.Now()                               // เวลา ณ ปัจจุบัน
-	payDate := now                                  // กำหนดวันที่รับชำระเริ่มต้นเป็นปัจจุบัน
-	if strings.TrimSpace(input.PaymentDate) != "" { // หากมีระบุวันที่รับชำระมา
+	now := time.Now()                                     // เวลา ณ ปัจจุบัน
+	payDate := now                                        // กำหนดวันที่รับชำระเริ่มต้นเป็นปัจจุบัน
+	log.Println("Payment Date Input:", input.PaymentDate) // Debug log to check the input value
+	if strings.TrimSpace(input.PaymentDate) != "" {       // หากมีระบุวันที่รับชำระมา
 		t, err := time.Parse("2006-01-02", input.PaymentDate) // แปลงรูปแบบวันที่เป็น YYYY-MM-DD
 		if err != nil {
 			return fmt.Errorf("invalid payment_date, want YYYY-MM-DD: %w", err) // รูปแบบวันที่ไม่ถูกต้อง
 		}
 		payDate = t // ใช้วันที่ที่ผู้ใช้ระบุ
 	}
+	log.Println("payDate:", payDate)
 
 	// 4) build transaction (incoming for receivable)
 	refInvoice := rec.InvoiceNo              // อ้างอิงเลขที่ใบแจ้งหนี้
