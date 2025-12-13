@@ -419,6 +419,7 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string, update dto.UpdateSignJobDTO, claims *dto.JWTClaims) error {
 	// ดึงข้อมูลเดิม
 	IsEditJobName := false
+	oldJobName := ""
 
 	filter := bson.M{"job_id": jobID, "deleted_at": nil}
 	existing, err := s.signJobRepo.GetOneSignJobByFilter(ctx, filter, bson.M{})
@@ -428,6 +429,9 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	if existing == nil {
 		return mongo.ErrNoDocuments
 	}
+
+	// เก็บ job_name เดิมไว้สำหรับอัพเดท Income
+	oldJobName = existing.JobName
 
 	if update.CompanyName != "" {
 		existing.CompanyName = update.CompanyName
@@ -518,7 +522,8 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		existing.Status = update.Status
 	}
 
-	existing.UpdatedAt = time.Now()
+	now := time.Now()
+	existing.UpdatedAt = now
 
 	updated, err := s.signJobRepo.UpdateSignJobByJobID(ctx, jobID, *existing)
 	if err != nil {
@@ -535,6 +540,55 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		_, errOnUpdateTask := s.taskRepo.UpdateManyTaskFields(ctx, filterTask, partialTaskUpdate)
 		if errOnUpdateTask != nil {
 			return errOnUpdateTask
+		}
+	}
+
+	// อัพเดท Receivable ที่เกี่ยวข้องกับ SignJob นี้ (โดยใช้ job_id)
+	filterReceivable := bson.M{"job_id": existing.JobID, "deleted_at": nil}
+	receivables, errOnGetReceivables := s.receivableRepo.GetAllReceivablesByFilter(ctx, filterReceivable, nil)
+	if errOnGetReceivables != nil && errOnGetReceivables != mongo.ErrNoDocuments {
+		return errOnGetReceivables
+	}
+
+	for _, rec := range receivables {
+		// อัพเดทข้อมูลลูกค้า
+		rec.Customer = existing.CompanyName
+		rec.Phone = existing.Phone
+		rec.Address = existing.Address
+		rec.Amount = existing.PriceTHB
+		rec.Balance = existing.OutstandingAmount
+		rec.Note = existing.JobName
+		rec.UpdatedAt = now
+
+		if _, errOnUpdateReceivable := s.receivableRepo.UpdateReceivableByID(ctx, rec.IDReceivable, *rec); errOnUpdateReceivable != nil {
+			return errOnUpdateReceivable
+		}
+	}
+
+	// อัพเดท Income ที่เกี่ยวข้อง (โดยใช้ note เป็น job_name เดิม)
+	filterIncome := bson.M{"note": oldJobName, "deleted_at": nil}
+	incomes, errOnGetIncomes := s.incomeRepo.GetAllInComeByFilter(ctx, filterIncome, nil)
+	if errOnGetIncomes != nil && errOnGetIncomes != mongo.ErrNoDocuments {
+		return errOnGetIncomes
+	}
+
+	for _, inc := range incomes {
+		// อัพเดทข้อมูล
+		inc.Description = existing.Content
+		inc.PaymentMethod = existing.PaymentMethod
+		newJobName := existing.JobName
+		inc.Note = &newJobName
+		inc.UpdatedAt = now
+
+		// ถ้าเป็นการจ่ายแบบมีมัดจำ ให้อัพเดทจำนวนเงินเป็น DepositAmount
+		if existing.IsDeposit {
+			inc.Amount = existing.DepositAmount
+		} else {
+			inc.Amount = existing.PriceTHB
+		}
+
+		if _, errOnUpdateIncome := s.incomeRepo.UpdateInComeByID(ctx, inc.IncomeID, *inc); errOnUpdateIncome != nil {
+			return errOnUpdateIncome
 		}
 	}
 
