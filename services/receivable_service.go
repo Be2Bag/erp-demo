@@ -116,6 +116,7 @@ func (s *receivableService) ListReceivables(ctx context.Context, claims *dto.JWT
 			{"description": re},
 			{"customer": re},
 			{"note": re},
+			{"invoice_no": re},
 		}
 	}
 

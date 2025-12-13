@@ -150,6 +150,7 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 			{"description": re},
 			{"supplier": re},
 			{"note": re},
+			{"invoice_no": re},
 		}
 	}
 
