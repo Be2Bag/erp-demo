@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "api.rkp-media.com",
+    "host": "api.dev.rkp-media.com",
     "basePath": "/service/api",
     "paths": {
         "/cron/status-check": {
