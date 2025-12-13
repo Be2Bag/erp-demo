@@ -88,8 +88,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 
 		modelIncome := models.Income{
 			IncomeID:              uuid.NewString(),
-			BankID:                "307961ea-eb4f-4127-8e83-6eba0b8abbaf", // บันชีบริษัท
-			TransactionCategoryID: "ee1bbffd-aee7-4f1b-8c92-582d9449b0fd", // หมวกหมู่รายได้จากบริษัท
+			BankID:                config.DefaultBankAccountIDs.CompanyBank,
+			TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
 			Description:           signJob.Content,
 			Amount:                signJob.PriceTHB,
 			Currency:              "THB",
@@ -128,7 +128,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 
 		modelReceivable := models.Receivable{
 			IDReceivable: uuid.NewString(),
-			BankID:       "307961ea-eb4f-4127-8e83-6eba0b8abbaf", // บันชีบริษัท
+			BankID:       config.DefaultBankAccountIDs.CompanyBank,
 			Customer:     signJob.CompanyName,
 			InvoiceNo:    invoiceNo,
 			IssueDate:    now,
@@ -151,8 +151,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 
 		modelIncome := models.Income{
 			IncomeID:              uuid.NewString(),
-			BankID:                "307961ea-eb4f-4127-8e83-6eba0b8abbaf", // บันชีบริษัท
-			TransactionCategoryID: "ee1bbffd-aee7-4f1b-8c92-582d9449b0fd", // หมวกหมู่รายได้จากบริษัท
+			BankID:                config.DefaultBankAccountIDs.CompanyBank,
+			TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
 			Description:           signJob.Content,
 			Amount:                signJob.DepositAmount,
 			Currency:              "THB",
@@ -193,7 +193,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 
 		modelReceivable := models.Receivable{
 			IDReceivable: uuid.NewString(),
-			BankID:       "307961ea-eb4f-4127-8e83-6eba0b8abbaf", // บันชีบริษัท
+			BankID:       config.DefaultBankAccountIDs.CompanyBank,
 			Customer:     signJob.CompanyName,
 			InvoiceNo:    invoiceNo,
 			IssueDate:    now,

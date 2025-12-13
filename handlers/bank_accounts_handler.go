@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
@@ -187,7 +188,7 @@ func (h *BankAccountsHandler) DeleteBankAccountByID(c *fiber.Ctx) error {
 		})
 	}
 
-	if bankID == "307961ea-eb4f-4127-8e83-6eba0b8abbaf" || bankID == "d2791d28-4427-4857-9d38-1492110aaba3" {
+	if config.IsProtectedBankAccount(bankID) {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
 			MessageEN:  "This bank account cannot be deleted",

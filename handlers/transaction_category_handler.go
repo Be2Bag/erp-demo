@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
@@ -302,14 +303,14 @@ func (h *TransactionCategoryHandler) DeleteTransactionCategory(c *fiber.Ctx) err
 	if transactionCategoryID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Invalid project ID",
-			MessageTH:  "รหัสโปรเจกต์ไม่ถูกต้อง",
+			MessageEN:  "Invalid category ID",
+			MessageTH:  "รหัสหมวดหมู่ไม่ถูกต้อง",
 			Status:     "error",
 			Data:       nil,
 		})
 	}
 
-	if transactionCategoryID == "70e128e9-aef3-4699-83a1-7d34e1a1f342" || transactionCategoryID == "ee1bbffd-aee7-4f1b-8c92-582d9449b0fd" {
+	if config.IsProtectedTransactionCategory(transactionCategoryID) {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
 			MessageEN:  "This category cannot be deleted",

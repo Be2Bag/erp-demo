@@ -595,7 +595,7 @@ func (s *payablesService) RecordPayment(ctx context.Context, input dto.RecordPay
 
 	expenseModel := models.Expense{
 		ExpenseID:             uuid.NewString(),
-		TransactionCategoryID: "70e128e9-aef3-4699-83a1-7d34e1a1f342",
+		TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyExpense,
 		BankID:                payable.BankID,
 		Description:           "ชำระหนี้ " + payable.Supplier,
 		Amount:                amt,

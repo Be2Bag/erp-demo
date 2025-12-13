@@ -7,7 +7,11 @@ package main
 // @BasePath     /service/api
 
 import (
+	"context"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -164,5 +168,36 @@ func main() {
 	}))
 	app.Get("/swagger/*", fiberSwagger.WrapHandler)
 
-	log.Fatal(app.Listen(":3000"))
+	// Graceful shutdown
+	go func() {
+		if err := app.Listen(":3000"); err != nil {
+			log.Printf("Server error: %v", err)
+		}
+	}()
+
+	// รอ signal สำหรับ shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Println("Shutting down server...")
+
+	// หยุด cronjob
+	statusChecker.Stop()
+	log.Println("Cronjob stopped")
+
+	// ปิด Fiber app
+	if err := app.Shutdown(); err != nil {
+		log.Printf("Error shutting down server: %v", err)
+	}
+
+	// ปิด MongoDB connection
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := client.Disconnect(ctx); err != nil {
+		log.Printf("Error disconnecting MongoDB: %v", err)
+	}
+	log.Println("MongoDB disconnected")
+
+	log.Println("Server shutdown complete")
 }
