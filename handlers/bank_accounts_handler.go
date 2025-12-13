@@ -187,6 +187,16 @@ func (h *BankAccountsHandler) DeleteBankAccountByID(c *fiber.Ctx) error {
 		})
 	}
 
+	if bankID == "307961ea-eb4f-4127-8e83-6eba0b8abbaf" || bankID == "d2791d28-4427-4857-9d38-1492110aaba3" {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "This bank account cannot be deleted",
+			MessageTH:  "ห้ามลบบัญชีนี้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	err = h.svc.DeleteBankAccountByID(c.Context(), bankID, claims)
 	if err != nil {
 		if err == fiber.ErrNotFound {

@@ -309,6 +309,16 @@ func (h *TransactionCategoryHandler) DeleteTransactionCategory(c *fiber.Ctx) err
 		})
 	}
 
+	if transactionCategoryID == "70e128e9-aef3-4699-83a1-7d34e1a1f342" || transactionCategoryID == "ee1bbffd-aee7-4f1b-8c92-582d9449b0fd" {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "This category cannot be deleted",
+			MessageTH:  "ห้ามลบหมวดหมู่นี้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	if err := h.svc.DeleteTransactionCategoryByID(c.Context(), transactionCategoryID, claims); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
