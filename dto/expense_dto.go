@@ -40,7 +40,9 @@ type RequestListExpense struct {
 }
 
 type RequestExpenseSummary struct {
-	BankID string `query:"bank_id"` // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+	BankID    string `query:"bank_id"` // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+	StartDate string `query:"start_date"`
+	EndDate   string `query:"end_date"`
 }
 
 // ---------- Response DTO ----------
@@ -66,4 +68,5 @@ type ExpenseSummaryDTO struct {
 	TotalToday     float64 `json:"total_today"`
 	TotalThisMonth float64 `json:"total_this_month"`
 	TotalAll       float64 `json:"total_all"`
+	TotalFiltered  float64 `json:"total_filtered"`
 }

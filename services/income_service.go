@@ -362,9 +362,50 @@ func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.J
 		totalAll += income.Amount
 	}
 
+	// Filtered by StartDate and EndDate
+	var totalFiltered float64
+	if strings.TrimSpace(report.StartDate) != "" || strings.TrimSpace(report.EndDate) != "" {
+		filterFiltered := bson.M{
+			"deleted_at": nil,
+		}
+		if strings.TrimSpace(report.BankID) != "" {
+			filterFiltered["bank_id"] = strings.TrimSpace(report.BankID)
+		}
+
+		txnDateFilter := bson.M{}
+		if strings.TrimSpace(report.StartDate) != "" {
+			parsedStartDate, err := time.Parse("2006-01-02", report.StartDate)
+			if err != nil {
+				return dto.IncomeSummaryDTO{}, fmt.Errorf("invalid start_date format: %w", err)
+			}
+			txnDateFilter["$gte"] = parsedStartDate
+		}
+		if strings.TrimSpace(report.EndDate) != "" {
+			parsedEndDate, err := time.Parse("2006-01-02", report.EndDate)
+			if err != nil {
+				return dto.IncomeSummaryDTO{}, fmt.Errorf("invalid end_date format: %w", err)
+			}
+			// เพิ่ม 1 วันเพื่อให้ครบ 23:59:59 ของวันที่ endDate
+			txnDateFilter["$lt"] = parsedEndDate.Add(24 * time.Hour)
+		}
+		filterFiltered["txn_date"] = txnDateFilter
+
+		incomesFiltered, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterFiltered, nil)
+		if err != nil {
+			return dto.IncomeSummaryDTO{}, err
+		}
+		for _, income := range incomesFiltered {
+			totalFiltered += income.Amount
+		}
+	} else {
+		// ถ้าไม่มี filter ให้ใช้ค่า totalAll
+		totalFiltered = 0
+	}
+
 	return dto.IncomeSummaryDTO{
 		TotalToday:     totalToday,
 		TotalThisMonth: totalThisMonth,
 		TotalAll:       totalAll,
+		TotalFiltered:  totalFiltered,
 	}, nil
 }

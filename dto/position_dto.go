@@ -25,8 +25,10 @@ type RequestListPosition struct {
 }
 
 type RequestSummaryReceivable struct {
-	BankID string `query:"bank_id"` // รหัสบัญชีธนาคารที่เกี่ยวข้อง
-	Report string `query:"report"`  // รายงานประเภท day | month | all
+	BankID    string `query:"bank_id"` // รหัสบัญชีธนาคารที่เกี่ยวข้อง
+	Report    string `query:"report"`  // รายงานประเภท day | month | all
+	StartDate string `query:"start_date"`
+	EndDate   string `query:"end_date"`
 }
 
 // ---------- Response DTO ----------

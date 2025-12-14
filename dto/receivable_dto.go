@@ -66,7 +66,8 @@ type ReceivableDTO struct {
 }
 
 type ReceivableSummaryDTO struct {
-	TotalAmount  float64 `json:"total_amount"`  // ยอดรวมทั้งหมด
-	TotalDue     float64 `json:"total_due"`     // ยอดคงค้าง
-	OverdueCount int     `json:"overdue_count"` // จำนวนรายการเกินกำหนด
+	TotalAmount   float64 `json:"total_amount"`   // ยอดรวมทั้งหมด
+	TotalDue      float64 `json:"total_due"`      // ยอดคงค้าง
+	OverdueCount  int     `json:"overdue_count"`  // จำนวนรายการเกินกำหนด
+	TotalFiltered float64 `json:"total_filtered"` // ยอดตามช่วงวันที่กรอง
 }
