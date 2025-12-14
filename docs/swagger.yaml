@@ -2178,7 +2178,7 @@ definitions:
         description: ชื่อ Template
         type: string
     type: object
-host: api.dev.rkp-media.com
+host: api.rkp-media.com
 info:
   contact: {}
   description: This is an ERP API demo.
