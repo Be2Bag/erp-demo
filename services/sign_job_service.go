@@ -83,8 +83,11 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 	}
 
 	jobName := signJob.JobName
+	nowUTC := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
 	if !signJob.IsDeposit {
+
+		// Truncate to start of day in UTC
 
 		modelIncome := models.Income{
 			IncomeID:              uuid.NewString(),
@@ -93,7 +96,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 			Description:           signJob.Content,
 			Amount:                signJob.PriceTHB,
 			Currency:              "THB",
-			TxnDate:               now,
+			TxnDate:               nowUTC,
 			PaymentMethod:         signJob.PaymentMethod,
 			ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
 			Note:                  &jobName,
@@ -131,8 +134,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 			BankID:       config.DefaultBankAccountIDs.CompanyBank,
 			Customer:     signJob.CompanyName,
 			InvoiceNo:    invoiceNo,
-			IssueDate:    now,
-			DueDate:      now.AddDate(0, 0, 30),
+			IssueDate:    nowUTC,
+			DueDate:      nowUTC.AddDate(0, 0, 30),
 			Amount:       signJob.PriceTHB,
 			Balance:      signJob.OutstandingAmount,
 			Status:       "pending",
@@ -156,7 +159,7 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 			Description:           signJob.Content,
 			Amount:                signJob.DepositAmount,
 			Currency:              "THB",
-			TxnDate:               now,
+			TxnDate:               nowUTC,
 			PaymentMethod:         signJob.PaymentMethod,
 			ReferenceNo:           invoiceNo,
 			Note:                  &jobName,
@@ -196,8 +199,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 			BankID:       config.DefaultBankAccountIDs.CompanyBank,
 			Customer:     signJob.CompanyName,
 			InvoiceNo:    invoiceNo,
-			IssueDate:    now,
-			DueDate:      now.AddDate(0, 0, 30),
+			IssueDate:    nowUTC,
+			DueDate:      nowUTC.AddDate(0, 0, 30),
 			Amount:       signJob.PriceTHB,
 			Balance:      signJob.PriceTHB,
 			Status:       "pending",
