@@ -321,6 +321,8 @@ func (h *PayableHandler) DeletePayableByID(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param bank_id query string false "Bank ID"
+// @Param start_date query string false "Start date filter (YYYY-MM-DD)"
+// @Param end_date query string false "End date filter (YYYY-MM-DD)"
 // @Param report query string true "Report type" Enums(day, month, all)
 // @Success 200 {object} dto.BaseResponse{data=dto.PayableSummaryDTO}
 // @Failure 400 {object} dto.BaseResponse

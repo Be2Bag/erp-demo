@@ -779,6 +779,8 @@ definitions:
     properties:
       total_all:
         type: number
+      total_filtered:
+        type: number
       total_this_month:
         type: number
       total_today:
@@ -796,6 +798,8 @@ definitions:
   dto.IncomeSummaryDTO:
     properties:
       total_all:
+        type: number
+      total_filtered:
         type: number
       total_this_month:
         type: number
@@ -1040,6 +1044,9 @@ definitions:
         type: number
       total_due:
         description: ยอดคงค้าง
+        type: number
+      total_filtered:
+        description: ยอดตามช่วงวันที่กรอง
         type: number
     type: object
   dto.PaymentInfoDTO:
@@ -3715,6 +3722,14 @@ paths:
         in: query
         name: bank_id
         type: string
+      - description: Start date filter (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date filter (YYYY-MM-DD)
+        in: query
+        name: end_date
+        type: string
       produces:
       - application/json
       responses:
@@ -3936,6 +3951,14 @@ paths:
       - description: Bank ID to filter incomes
         in: query
         name: bank_id
+        type: string
+      - description: Start date filter (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date filter (YYYY-MM-DD)
+        in: query
+        name: end_date
         type: string
       produces:
       - application/json
@@ -4518,6 +4541,14 @@ paths:
       - description: Bank ID
         in: query
         name: bank_id
+        type: string
+      - description: Start date filter (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date filter (YYYY-MM-DD)
+        in: query
+        name: end_date
         type: string
       - description: Report type
         enum:
@@ -5436,6 +5467,14 @@ paths:
       - description: Bank ID
         in: query
         name: bank_id
+        type: string
+      - description: Start date filter (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date filter (YYYY-MM-DD)
+        in: query
+        name: end_date
         type: string
       - description: Report type
         enum:

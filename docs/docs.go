@@ -2297,6 +2297,18 @@ const docTemplate = `{
                         "description": "Bank ID to filter expenses",
                         "name": "bank_id",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date filter (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date filter (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2646,6 +2658,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bank ID to filter incomes",
                         "name": "bank_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date filter (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date filter (YYYY-MM-DD)",
+                        "name": "end_date",
                         "in": "query"
                     }
                 ],
@@ -3496,6 +3520,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bank ID",
                         "name": "bank_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date filter (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date filter (YYYY-MM-DD)",
+                        "name": "end_date",
                         "in": "query"
                     },
                     {
@@ -4915,6 +4951,18 @@ const docTemplate = `{
                         "type": "string",
                         "description": "Bank ID",
                         "name": "bank_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date filter (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date filter (YYYY-MM-DD)",
+                        "name": "end_date",
                         "in": "query"
                     },
                     {
@@ -8466,6 +8514,9 @@ const docTemplate = `{
                 "total_all": {
                     "type": "number"
                 },
+                "total_filtered": {
+                    "type": "number"
+                },
                 "total_this_month": {
                     "type": "number"
                 },
@@ -8492,6 +8543,9 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "total_all": {
+                    "type": "number"
+                },
+                "total_filtered": {
                     "type": "number"
                 },
                 "total_this_month": {
@@ -8846,6 +8900,10 @@ const docTemplate = `{
                 },
                 "total_due": {
                     "description": "ยอดคงค้าง",
+                    "type": "number"
+                },
+                "total_filtered": {
+                    "description": "ยอดตามช่วงวันที่กรอง",
                     "type": "number"
                 }
             }

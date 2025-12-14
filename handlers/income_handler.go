@@ -313,6 +313,8 @@ func (h *InComeHandler) DeleteInComeByID(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Param bank_id query string false "Bank ID to filter incomes"
+// @Param start_date query string false "Start date filter (YYYY-MM-DD)"
+// @Param end_date query string false "End date filter (YYYY-MM-DD)"
 // @Success 200 {object} dto.BaseResponse{data=dto.IncomeSummaryDTO}
 // @Failure 400 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
