@@ -782,8 +782,6 @@ definitions:
     properties:
       total_all:
         type: number
-      total_filtered:
-        type: number
       total_this_month:
         type: number
       total_today:
@@ -801,8 +799,6 @@ definitions:
   dto.IncomeSummaryDTO:
     properties:
       total_all:
-        type: number
-      total_filtered:
         type: number
       total_this_month:
         type: number
@@ -1047,9 +1043,6 @@ definitions:
         type: number
       total_due:
         description: ยอดคงค้าง
-        type: number
-      total_filtered:
-        description: ยอดตามช่วงวันที่กรอง
         type: number
     type: object
   dto.PaymentInfoDTO:
@@ -2181,7 +2174,7 @@ definitions:
         description: ชื่อ Template
         type: string
     type: object
-host: api.rkp-media.com
+host: api.dev.rkp-media.com
 info:
   contact: {}
   description: This is an ERP API demo.
@@ -5526,15 +5519,6 @@ paths:
       - description: End date filter (YYYY-MM-DD)
         in: query
         name: end_date
-        type: string
-      - description: Report type
-        enum:
-        - day
-        - month
-        - all
-        in: query
-        name: report
-        required: true
         type: string
       produces:
       - application/json

@@ -5036,18 +5036,6 @@ const docTemplate = `{
                         "description": "End date filter (YYYY-MM-DD)",
                         "name": "end_date",
                         "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "day",
-                            "month",
-                            "all"
-                        ],
-                        "type": "string",
-                        "description": "Report type",
-                        "name": "report",
-                        "in": "query",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -8590,9 +8578,6 @@ const docTemplate = `{
                 "total_all": {
                     "type": "number"
                 },
-                "total_filtered": {
-                    "type": "number"
-                },
                 "total_this_month": {
                     "type": "number"
                 },
@@ -8619,9 +8604,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "total_all": {
-                    "type": "number"
-                },
-                "total_filtered": {
                     "type": "number"
                 },
                 "total_this_month": {
@@ -8976,10 +8958,6 @@ const docTemplate = `{
                 },
                 "total_due": {
                     "description": "ยอดคงค้าง",
-                    "type": "number"
-                },
-                "total_filtered": {
-                    "description": "ยอดตามช่วงวันที่กรอง",
                     "type": "number"
                 }
             }
@@ -10586,7 +10564,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "api.rkp-media.com",
+	Host:             "api.dev.rkp-media.com",
 	BasePath:         "/service/api",
 	Schemes:          []string{},
 	Title:            "ERP Demo API",
