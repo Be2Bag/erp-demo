@@ -68,7 +68,7 @@ func (h *BankAccountsHandler) CreateBankAccount(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create bank account" + err.Error(),
+			MessageEN:  "Failed to create bank account: " + err.Error(),
 			MessageTH:  "สร้างบัญชีธนาคารไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -274,7 +274,7 @@ func (h *BankAccountsHandler) ListBankAccounts(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list bank accounts" + err.Error(),
+			MessageEN:  "Failed to list bank accounts: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงรายการบัญชีธนาคารได้",
 			Status:     "error",
 			Data:       nil,

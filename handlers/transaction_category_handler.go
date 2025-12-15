@@ -67,7 +67,7 @@ func (h *TransactionCategoryHandler) CreateTransactionCategory(c *fiber.Ctx) err
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create category" + err.Error(),
+			MessageEN:  "Failed to create category: " + err.Error(),
 			MessageTH:  "สร้างหมวดหมู่ไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -133,7 +133,7 @@ func (h *TransactionCategoryHandler) GetTransactionCategoryList(c *fiber.Ctx) er
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to retrieve categories" + err.Error(),
+			MessageEN:  "Failed to retrieve categories: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลหมวดหมู่ได้",
 			Status:     "error",
 			Data:       nil,
@@ -187,7 +187,7 @@ func (h *TransactionCategoryHandler) GetTransactionCategoryByID(c *fiber.Ctx) er
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to retrieve category" + err.Error(),
+			MessageEN:  "Failed to retrieve category: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลหมวดหมู่ได้",
 			Status:     "error",
 			Data:       nil,
@@ -261,7 +261,7 @@ func (h *TransactionCategoryHandler) UpdateTransactionCategory(c *fiber.Ctx) err
 	if err := h.svc.UpdateTransactionCategoryByID(c.Context(), transactionCategoryByID, updateDTO, claims); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to update category" + err.Error(),
+			MessageEN:  "Failed to update category: " + err.Error(),
 			MessageTH:  "ไม่สามารถอัปเดตหมวดหมู่ได้",
 			Status:     "error",
 			Data:       nil,
@@ -323,7 +323,7 @@ func (h *TransactionCategoryHandler) DeleteTransactionCategory(c *fiber.Ctx) err
 	if err := h.svc.DeleteTransactionCategoryByID(c.Context(), transactionCategoryID, claims); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to delete category" + err.Error(),
+			MessageEN:  "Failed to delete category: " + err.Error(),
 			MessageTH:  "ไม่สามารถลบหมวดหมู่ได้",
 			Status:     "error",
 			Data:       nil,

@@ -71,7 +71,7 @@ func (h *InComeHandler) CreateInCome(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create income" + err.Error(),
+			MessageEN:  "Failed to create income: " + err.Error(),
 			MessageTH:  "สร้างรายได้ไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -140,7 +140,7 @@ func (h *InComeHandler) ListInComes(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list income" + err.Error(),
+			MessageEN:  "Failed to list income: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงรายการรายได้",
 			Status:     "error",
 			Data:       nil,
@@ -252,7 +252,7 @@ func (h *InComeHandler) UpdateInComeByID(c *fiber.Ctx) error {
 		}
 
 		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update income" + errOnUpdate.Error()
+		MsgEN = "Failed to update income: " + errOnUpdate.Error()
 		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 

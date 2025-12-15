@@ -72,7 +72,7 @@ func (h *SignJobHandler) CreateSignJob(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create sign job" + err.Error(),
+			MessageEN:  "Failed to create sign job: " + err.Error(),
 			MessageTH:  "สร้างงานไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -138,7 +138,7 @@ func (h *SignJobHandler) ListSignJobs(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list sign jobs" + err.Error(),
+			MessageEN:  "Failed to list sign jobs: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงรายการงานได้",
 			Status:     "error",
 			Data:       nil,
@@ -248,11 +248,11 @@ func (h *SignJobHandler) UpdateSignJobByID(c *fiber.Ctx) error {
 		if errors.Is(errOnUpdate, mongo.ErrNoDocuments) {
 			statusCode = fiber.StatusNotFound
 			MsgEN = "Sign job not found"
-			MsgTH = "ไม่ใบพบงาน"
+			MsgTH = "ไม่พบใบงาน"
 		}
 
 		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update" + errOnUpdate.Error()
+		MsgEN = "Failed to update: " + errOnUpdate.Error()
 		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 
@@ -341,7 +341,7 @@ func (h *SignJobHandler) VerifySignJob(c *fiber.Ctx) error {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			statusCode = fiber.StatusNotFound
 			MsgEN = "Sign job not found"
-			MsgTH = "ไม่ใบพบงาน"
+			MsgTH = "ไม่พบใบงาน"
 		} else if err.Error() == "can not verify" {
 			statusCode = fiber.StatusBadRequest
 			MsgEN = err.Error()

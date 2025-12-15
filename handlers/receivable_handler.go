@@ -73,7 +73,7 @@ func (h *ReceivableHandler) CreateReceivable(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create receivable" + err.Error(),
+			MessageEN:  "Failed to create receivable: " + err.Error(),
 			MessageTH:  "สร้างลูกหนี้ไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -142,7 +142,7 @@ func (h *ReceivableHandler) ListReceivables(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list receivables" + err.Error(),
+			MessageEN:  "Failed to list receivables: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงรายการลูกหนี้",
 			Status:     "error",
 			Data:       nil,
@@ -194,8 +194,8 @@ func (h *ReceivableHandler) GetReceivableByID(c *fiber.Ctx) error {
 	if item == nil {
 		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusNotFound,
-			MessageEN:  "Income not found",
-			MessageTH:  "ไม่พบรายได้",
+			MessageEN:  "Receivable not found",
+			MessageTH:  "ไม่พบลูกหนี้",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -258,7 +258,7 @@ func (h *ReceivableHandler) UpdateReceivableByID(c *fiber.Ctx) error {
 		}
 
 		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update receivable" + errOnUpdate.Error()
+		MsgEN = "Failed to update receivable: " + errOnUpdate.Error()
 		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 
@@ -404,7 +404,7 @@ func (h *ReceivableHandler) RecordReceipt(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to record receipt" + err.Error(),
+			MessageEN:  "Failed to record receipt: " + err.Error(),
 			MessageTH:  "บันทึกรายรับไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,

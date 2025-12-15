@@ -69,7 +69,7 @@ func (h *receiptHandler) CreateReceipt(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create receipt" + err.Error(),
+			MessageEN:  "Failed to create receipt: " + err.Error(),
 			MessageTH:  "สร้างใบเสร็จไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -139,7 +139,7 @@ func (h *receiptHandler) ListReceipts(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list receipts" + err.Error(),
+			MessageEN:  "Failed to list receipts: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงรายการใบเสร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -191,8 +191,8 @@ func (h *receiptHandler) GetReceiptByID(c *fiber.Ctx) error {
 	if item == nil {
 		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusNotFound,
-			MessageEN:  "Income not found",
-			MessageTH:  "ไม่พบรายได้",
+			MessageEN:  "Receipt not found",
+			MessageTH:  "ไม่พบใบเสร็จ",
 			Status:     "error",
 			Data:       nil,
 		})

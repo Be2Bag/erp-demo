@@ -69,7 +69,7 @@ func (h *PositionHandler) CreatePosition(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create position" + err.Error(),
+			MessageEN:  "Failed to create position: " + err.Error(),
 			MessageTH:  "สร้างตำแหน่งไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -136,7 +136,7 @@ func (h *PositionHandler) UpdatePosition(c *fiber.Ctx) error {
 
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to update position" + errOnuUpdate.Error(),
+			MessageEN:  "Failed to update position: " + errOnuUpdate.Error(),
 			MessageTH:  "อัปเดตตำแหน่งไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -179,7 +179,7 @@ func (h *PositionHandler) DeletePosition(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to delete position" + err.Error(),
+			MessageEN:  "Failed to delete position: " + err.Error(),
 			MessageTH:  "ลบตำแหน่งไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -222,7 +222,7 @@ func (h *PositionHandler) GetPositionByID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to get position" + err.Error(),
+			MessageEN:  "Failed to get position: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลตำแหน่งได้",
 			Status:     "error",
 			Data:       nil,
@@ -298,7 +298,7 @@ func (h *PositionHandler) GetPositionList(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to retrieve positions" + err.Error(),
+			MessageEN:  "Failed to retrieve positions: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลตำแหน่งได้",
 			Status:     "error",
 			Data:       nil,

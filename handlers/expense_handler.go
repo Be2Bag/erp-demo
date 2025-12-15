@@ -71,7 +71,7 @@ func (h *ExpenseHandler) CreateExpense(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create expense" + err.Error(),
+			MessageEN:  "Failed to create expense: " + err.Error(),
 			MessageTH:  "สร้างรายจ่ายไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -139,7 +139,7 @@ func (h *ExpenseHandler) ListExpenses(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list expenses" + err.Error(),
+			MessageEN:  "Failed to list expenses: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงรายการรายจ่าย",
 			Status:     "error",
 			Data:       nil,
@@ -251,7 +251,7 @@ func (h *ExpenseHandler) UpdateExpenseByID(c *fiber.Ctx) error {
 		}
 
 		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update expense" + errOnUpdate.Error()
+		MsgEN = "Failed to update expense: " + errOnUpdate.Error()
 		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 

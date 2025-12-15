@@ -88,7 +88,7 @@ func (h *KPIHandler) GetKPITemplateList(c *fiber.Ctx) error {
 	if errOnGetList != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to retrieve KPI Templates" + errOnGetList.Error(),
+			MessageEN:  "Failed to retrieve KPI Templates: " + errOnGetList.Error(),
 			MessageTH:  "ไม่สามารถดึงแม่แบบ KPI ได้",
 			Status:     "error",
 		})

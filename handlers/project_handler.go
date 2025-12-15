@@ -66,7 +66,7 @@ func (h *ProjectHandler) CreateProject(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create project" + err.Error(),
+			MessageEN:  "Failed to create project: " + err.Error(),
 			MessageTH:  "สร้างโปรเจกต์ไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -131,7 +131,7 @@ func (h *ProjectHandler) GetProjectList(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to retrieve projects" + err.Error(),
+			MessageEN:  "Failed to retrieve projects: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลโปรเจกต์ได้",
 			Status:     "error",
 			Data:       nil,
@@ -185,7 +185,7 @@ func (h *ProjectHandler) GetProjectByID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to retrieve project" + err.Error(),
+			MessageEN:  "Failed to retrieve project: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลโปรเจกต์ได้",
 			Status:     "error",
 			Data:       nil,
@@ -250,7 +250,7 @@ func (h *ProjectHandler) UpdateProject(c *fiber.Ctx) error {
 	if err := h.svc.UpdateProjectByID(c.Context(), projectID, updateDTO, claims); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to update project" + err.Error(),
+			MessageEN:  "Failed to update project: " + err.Error(),
 			MessageTH:  "ไม่สามารถอัปเดตโปรเจกต์ได้",
 			Status:     "error",
 			Data:       nil,
@@ -303,7 +303,7 @@ func (h *ProjectHandler) DeleteProject(c *fiber.Ctx) error {
 	if err := h.svc.DeleteProjectByID(c.Context(), projectID, claims); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to delete project" + err.Error(),
+			MessageEN:  "Failed to delete project: " + err.Error(),
 			MessageTH:  "ไม่สามารถลบโปรเจกต์ได้",
 			Status:     "error",
 			Data:       nil,

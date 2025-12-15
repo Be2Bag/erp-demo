@@ -145,7 +145,7 @@ func (h *TaskHandler) CreateTask(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create task" + err.Error(),
+			MessageEN:  "Failed to create task: " + err.Error(),
 			MessageTH:  "สร้างงานไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,

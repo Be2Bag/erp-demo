@@ -71,7 +71,7 @@ func (h *SignTypeHandler) CreateSignType(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create sign type" + err.Error(),
+			MessageEN:  "Failed to create sign type: " + err.Error(),
 			MessageTH:  "สร้างประเภทงานไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -132,7 +132,7 @@ func (h *SignTypeHandler) ListSignTypes(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list sign types" + err.Error(),
+			MessageEN:  "Failed to list sign types: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงรายการประเภทงานได้",
 			Status:     "error",
 			Data:       nil,
@@ -247,7 +247,7 @@ func (h *SignTypeHandler) UpdateSignTypeByID(c *fiber.Ctx) error {
 		}
 
 		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update" + errOnUpdate.Error()
+		MsgEN = "Failed to update: " + errOnUpdate.Error()
 		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 

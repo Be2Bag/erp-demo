@@ -73,7 +73,7 @@ func (h *PayableHandler) CreatePayable(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create payable" + err.Error(),
+			MessageEN:  "Failed to create payable: " + err.Error(),
 			MessageTH:  "สร้างเจ้าหนี้ไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -143,7 +143,7 @@ func (h *PayableHandler) ListPayables(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to list payables" + err.Error(),
+			MessageEN:  "Failed to list payables: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงรายการเจ้าหนี้",
 			Status:     "error",
 			Data:       nil,
@@ -259,7 +259,7 @@ func (h *PayableHandler) UpdatePayableByID(c *fiber.Ctx) error {
 		}
 
 		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update payable" + errOnUpdate.Error()
+		MsgEN = "Failed to update payable: " + errOnUpdate.Error()
 		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 
@@ -406,7 +406,7 @@ func (h *PayableHandler) RecordPayment(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to record payment" + err.Error(),
+			MessageEN:  "Failed to record payment: " + err.Error(),
 			MessageTH:  "บันทึกการชำระเงินไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,

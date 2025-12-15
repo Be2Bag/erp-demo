@@ -605,8 +605,8 @@ func (h *DropDownHandler) GetCategory(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
-		MessageEN:  "Get workflows successfully",
-		MessageTH:  "ดึงข้อมูล Workflow สำเร็จ",
+		MessageEN:  "Get categories successfully",
+		MessageTH:  "ดึงข้อมูลหมวดหมู่สำเร็จ",
 		Status:     "success",
 		Data:       categorys,
 	})
@@ -701,8 +701,8 @@ func (h *DropDownHandler) GetTransactionCategory(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
-		MessageEN:  "Get workflows successfully",
-		MessageTH:  "ดึงข้อมูล Workflow สำเร็จ",
+		MessageEN:  "Get transaction categories successfully",
+		MessageTH:  "ดึงข้อมูลหมวดหมู่รายการสำเร็จ",
 		Status:     "success",
 		Data:       transactionCategorys,
 	})

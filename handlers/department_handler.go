@@ -66,7 +66,7 @@ func (h *DepartmentHandler) CreateDepartment(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to create department" + err.Error(),
+			MessageEN:  "Failed to create department: " + err.Error(),
 			MessageTH:  "สร้างแผนกไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -122,7 +122,7 @@ func (h *DepartmentHandler) UpdateDepartment(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to update department" + err.Error(),
+			MessageEN:  "Failed to update department: " + err.Error(),
 			MessageTH:  "อัปเดตแผนกไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -165,7 +165,7 @@ func (h *DepartmentHandler) DeleteDepartment(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to delete department" + err.Error(),
+			MessageEN:  "Failed to delete department: " + err.Error(),
 			MessageTH:  "ลบแผนกไม่สำเร็จ",
 			Status:     "error",
 			Data:       nil,
@@ -208,7 +208,7 @@ func (h *DepartmentHandler) GetDepartmentByID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to get department" + err.Error(),
+			MessageEN:  "Failed to get department: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลแผนกได้",
 			Status:     "error",
 			Data:       nil,
@@ -283,7 +283,7 @@ func (h *DepartmentHandler) GetDepartmentList(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
-			MessageEN:  "Failed to retrieve departments" + err.Error(),
+			MessageEN:  "Failed to retrieve departments: " + err.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลแผนกได้",
 			Status:     "error",
 			Data:       nil,
