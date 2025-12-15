@@ -346,32 +346,16 @@ func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.J
 		totalThisMonth += income.Amount
 	}
 
-	// All
+	// All (หรือ Filtered by StartDate and EndDate ถ้ามี)
 	filterAll := bson.M{
 		"deleted_at": nil,
 	}
 	if strings.TrimSpace(report.BankID) != "" {
 		filterAll["bank_id"] = strings.TrimSpace(report.BankID)
 	}
-	incomesAll, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterAll, nil)
-	if err != nil {
-		return dto.IncomeSummaryDTO{}, err
-	}
-	var totalAll float64
-	for _, income := range incomesAll {
-		totalAll += income.Amount
-	}
 
-	// Filtered by StartDate and EndDate
-	var totalFiltered float64
+	// ถ้ามี StartDate หรือ EndDate ให้ใช้ช่วงวันที่ที่กำหนด
 	if strings.TrimSpace(report.StartDate) != "" || strings.TrimSpace(report.EndDate) != "" {
-		filterFiltered := bson.M{
-			"deleted_at": nil,
-		}
-		if strings.TrimSpace(report.BankID) != "" {
-			filterFiltered["bank_id"] = strings.TrimSpace(report.BankID)
-		}
-
 		txnDateFilter := bson.M{}
 		if strings.TrimSpace(report.StartDate) != "" {
 			parsedStartDate, err := time.Parse("2006-01-02", report.StartDate)
@@ -388,24 +372,21 @@ func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.J
 			// เพิ่ม 1 วันเพื่อให้ครบ 23:59:59 ของวันที่ endDate
 			txnDateFilter["$lt"] = parsedEndDate.Add(24 * time.Hour)
 		}
-		filterFiltered["txn_date"] = txnDateFilter
+		filterAll["txn_date"] = txnDateFilter
+	}
 
-		incomesFiltered, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterFiltered, nil)
-		if err != nil {
-			return dto.IncomeSummaryDTO{}, err
-		}
-		for _, income := range incomesFiltered {
-			totalFiltered += income.Amount
-		}
-	} else {
-		// ถ้าไม่มี filter ให้ใช้ค่า totalAll
-		totalFiltered = 0
+	incomesAll, err := s.inComeRepo.GetAllInComeByFilter(ctx, filterAll, nil)
+	if err != nil {
+		return dto.IncomeSummaryDTO{}, err
+	}
+	var totalAll float64
+	for _, income := range incomesAll {
+		totalAll += income.Amount
 	}
 
 	return dto.IncomeSummaryDTO{
 		TotalToday:     totalToday,
 		TotalThisMonth: totalThisMonth,
 		TotalAll:       totalAll,
-		TotalFiltered:  totalFiltered,
 	}, nil
 }

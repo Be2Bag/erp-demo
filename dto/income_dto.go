@@ -68,5 +68,4 @@ type IncomeSummaryDTO struct {
 	TotalToday     float64 `json:"total_today"`
 	TotalThisMonth float64 `json:"total_this_month"`
 	TotalAll       float64 `json:"total_all"`
-	TotalFiltered  float64 `json:"total_filtered"`
 }
