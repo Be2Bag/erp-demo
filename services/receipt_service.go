@@ -488,7 +488,9 @@ func (s *receiptService) SummaryReceiptByFilter(ctx context.Context, claims *dto
 
 	for _, r := range receipts {
 		totalAmount += r.TotalAmount
-		totalPaid += r.PaymentDetail.AmountPaid
+		if strings.ToLower(strings.TrimSpace(r.Status)) == "paid" {
+			totalPaid += r.PaymentDetail.AmountPaid
+		}
 
 		outstanding := r.TotalAmount - r.PaymentDetail.AmountPaid
 		if strings.ToLower(strings.TrimSpace(r.Status)) != "paid" && outstanding > 0 {
