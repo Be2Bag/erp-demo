@@ -247,9 +247,9 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 			})
 		}
 
-		return c.Status(fiber.ErrBadGateway.Code).JSON(dto.BaseResponse{
-			StatusCode: fiber.ErrBadGateway.Code,
-			MessageEN:  fiber.ErrBadGateway.Message,
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to create user: " + errOnCreateUser.Error(),
 			MessageTH:  "ไม่สามารถสร้างผู้ใช้ได้",
 			Status:     "error",
 			Data:       nil,

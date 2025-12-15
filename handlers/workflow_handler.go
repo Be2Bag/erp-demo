@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"errors"
+
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/middleware"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type WorkFlowHandler struct {
@@ -60,9 +63,9 @@ func (h *WorkFlowHandler) createWorkflow(c *fiber.Ctx) error {
 
 	errOnCreate := h.svc.CreateWorkflowTemplate(c.Context(), req, claims)
 	if errOnCreate != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  errOnCreate.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to create workflow: " + errOnCreate.Error(),
 			MessageTH:  "ไม่สามารถสร้าง Workflow ได้",
 			Status:     "error",
 			Data:       nil,
@@ -91,10 +94,19 @@ func (h *WorkFlowHandler) GetWorkflowByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	out, err := h.svc.GetWorkflowTemplateByID(c.Context(), id)
 	if err != nil {
-		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusNotFound,
-			MessageEN:  "Workflow not found",
-			MessageTH:  "ไม่พบ Workflow",
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "Workflow not found",
+				MessageTH:  "ไม่พบ Workflow",
+				Status:     "error",
+				Data:       nil,
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to get workflow: " + err.Error(),
+			MessageTH:  "ไม่สามารถดึงข้อมูล Workflow ได้",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -166,9 +178,9 @@ func (h *WorkFlowHandler) ListWorkflows(c *fiber.Ctx) error {
 
 	list, errOnGetWorkFlow := h.svc.ListWorkflowTemplates(c.Context(), claims, req.Page, req.Limit, req.Search, req.Department, req.SortBy, req.SortOrder)
 	if errOnGetWorkFlow != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  errOnGetWorkFlow.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to list workflows: " + errOnGetWorkFlow.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลได้",
 			Status:     "error",
 			Data:       nil,
@@ -218,10 +230,20 @@ func (h *WorkFlowHandler) UpdateWorkflow(c *fiber.Ctx) error {
 	}
 	errOnUpdate := h.svc.UpdateWorkflowTemplate(c.Context(), id, req, claims.UserID)
 	if errOnUpdate != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  errOnUpdate.Error(),
-			MessageTH:  "ไม่สามารถอัปเดต Workflow ได้",
+		statusCode := fiber.StatusInternalServerError
+		MsgEN := "Failed to update workflow: " + errOnUpdate.Error()
+		MsgTH := "ไม่สามารถอัปเดต Workflow ได้"
+
+		if errors.Is(errOnUpdate, mongo.ErrNoDocuments) {
+			statusCode = fiber.StatusNotFound
+			MsgEN = "Workflow not found"
+			MsgTH = "ไม่พบ Workflow"
+		}
+
+		return c.Status(statusCode).JSON(dto.BaseResponse{
+			StatusCode: statusCode,
+			MessageEN:  MsgEN,
+			MessageTH:  MsgTH,
 			Status:     "error",
 			Data:       nil,
 		})
@@ -246,10 +268,20 @@ func (h *WorkFlowHandler) UpdateWorkflow(c *fiber.Ctx) error {
 func (h *WorkFlowHandler) DeleteWorkflow(c *fiber.Ctx) error {
 	id := c.Params("id")
 	if err := h.svc.DeleteWorkflowTemplate(c.Context(), id); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  err.Error(),
-			MessageTH:  "ไม่สามารถลบ Workflow ได้",
+		statusCode := fiber.StatusInternalServerError
+		MsgEN := "Failed to delete workflow: " + err.Error()
+		MsgTH := "ไม่สามารถลบ Workflow ได้"
+
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			statusCode = fiber.StatusNotFound
+			MsgEN = "Workflow not found"
+			MsgTH = "ไม่พบ Workflow"
+		}
+
+		return c.Status(statusCode).JSON(dto.BaseResponse{
+			StatusCode: statusCode,
+			MessageEN:  MsgEN,
+			MessageTH:  MsgTH,
 			Status:     "error",
 			Data:       nil,
 		})

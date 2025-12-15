@@ -335,7 +335,7 @@ func (h *SignJobHandler) VerifySignJob(c *fiber.Ctx) error {
 	err = h.svc.VerifySignJob(c.Context(), jobID, claims)
 	if err != nil {
 
-		statusCode := fiber.StatusOK
+		statusCode := fiber.StatusInternalServerError
 		MsgEN := "Failed to verify"
 		MsgTH := "ส่งงานไม่สำเร็จ"
 

@@ -89,9 +89,9 @@ func (h *TaskHandler) GetListTasks(c *fiber.Ctx) error {
 
 	tasks, errOnGetTasks := h.svc.GetListTasks(c.Context(), claims, req.Page, req.Limit, req.Search, req.Department, req.SortBy, req.SortOrder, req.Status)
 	if errOnGetTasks != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  errOnGetTasks.Error(),
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to get tasks: " + errOnGetTasks.Error(),
 			MessageTH:  "ไม่สามารถดึงข้อมูลได้",
 			Status:     "error",
 			Data:       nil,

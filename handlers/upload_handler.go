@@ -179,8 +179,8 @@ func (h *UpLoadHandler) GetFile(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
-		MessageEN:  "File list retrieved successfully",
-		MessageTH:  "ดึงรายการไฟล์สำเร็จ",
+		MessageEN:  "File retrieved successfully",
+		MessageTH:  "ดึงไฟล์สำเร็จ",
 		Status:     "success",
 		Data:       url,
 	})
@@ -214,7 +214,7 @@ func (h *UpLoadHandler) DeleteFile(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
 			MessageEN:  "Failed to delete file: " + err.Error(),
-			MessageTH:  "ไม่สามารถลบไฟล์ได้: " + err.Error(),
+			MessageTH:  "ไม่สามารถลบไฟล์ได้",
 			Status:     "error",
 			Data:       nil,
 		})
