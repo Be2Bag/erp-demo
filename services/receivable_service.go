@@ -360,21 +360,27 @@ func (s *receivableService) SummaryReceivableByFilter(ctx context.Context, claim
 		filter["bank_id"] = strings.TrimSpace(report.BankID)
 	}
 
-	// date range by report type: day | month | all
-	switch strings.ToLower(strings.TrimSpace(report.Report)) {
-	case "day":
-		start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-		end := start.Add(24 * time.Hour)
-		filter["issue_date"] = bson.M{"$gte": start, "$lt": end}
-	case "month":
-		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-		end := start.AddDate(0, 1, 0)
-		filter["issue_date"] = bson.M{"$gte": start, "$lt": end}
-	case "all", "":
-		// no date filter
-	default:
-		// unknown report type -> treat as all
+	// ถ้ามี StartDate หรือ EndDate ให้ใช้ช่วงวันที่ที่กำหนด
+	if strings.TrimSpace(report.StartDate) != "" || strings.TrimSpace(report.EndDate) != "" {
+		issueDateFilter := bson.M{}
+		if strings.TrimSpace(report.StartDate) != "" {
+			parsedStartDate, err := time.Parse("2006-01-02", report.StartDate)
+			if err != nil {
+				return dto.ReceivableSummaryDTO{}, fmt.Errorf("invalid start_date format: %w", err)
+			}
+			issueDateFilter["$gte"] = parsedStartDate
+		}
+		if strings.TrimSpace(report.EndDate) != "" {
+			parsedEndDate, err := time.Parse("2006-01-02", report.EndDate)
+			if err != nil {
+				return dto.ReceivableSummaryDTO{}, fmt.Errorf("invalid end_date format: %w", err)
+			}
+			// เพิ่ม 1 วันเพื่อให้ครบ 23:59:59 ของวันที่ endDate
+			issueDateFilter["$lt"] = parsedEndDate.Add(24 * time.Hour)
+		}
+		filter["issue_date"] = issueDateFilter
 	}
+	// ถ้าไม่มี StartDate/EndDate จะดึงข้อมูลทั้งหมด
 
 	receivables, err := s.receivableRepo.GetAllReceivablesByFilter(ctx, filter, nil)
 	if err != nil {
@@ -402,51 +408,10 @@ func (s *receivableService) SummaryReceivableByFilter(ctx context.Context, claim
 		}
 	}
 
-	// Filtered by StartDate and EndDate
-	var totalFiltered float64
-	if strings.TrimSpace(report.StartDate) != "" || strings.TrimSpace(report.EndDate) != "" {
-		filterFiltered := bson.M{
-			"deleted_at": nil,
-		}
-		if strings.TrimSpace(report.BankID) != "" {
-			filterFiltered["bank_id"] = strings.TrimSpace(report.BankID)
-		}
-
-		issueDateFilter := bson.M{}
-		if strings.TrimSpace(report.StartDate) != "" {
-			parsedStartDate, err := time.Parse("2006-01-02", report.StartDate)
-			if err != nil {
-				return dto.ReceivableSummaryDTO{}, fmt.Errorf("invalid start_date format: %w", err)
-			}
-			issueDateFilter["$gte"] = parsedStartDate
-		}
-		if strings.TrimSpace(report.EndDate) != "" {
-			parsedEndDate, err := time.Parse("2006-01-02", report.EndDate)
-			if err != nil {
-				return dto.ReceivableSummaryDTO{}, fmt.Errorf("invalid end_date format: %w", err)
-			}
-			// เพิ่ม 1 วันเพื่อให้ครบ 23:59:59 ของวันที่ endDate
-			issueDateFilter["$lt"] = parsedEndDate.Add(24 * time.Hour)
-		}
-		filterFiltered["issue_date"] = issueDateFilter
-
-		receivablesFiltered, err := s.receivableRepo.GetAllReceivablesByFilter(ctx, filterFiltered, nil)
-		if err != nil {
-			return dto.ReceivableSummaryDTO{}, err
-		}
-		for _, p := range receivablesFiltered {
-			totalFiltered += p.Amount
-		}
-	} else {
-		// ถ้าไม่มี filter ให้ใช้ค่า totalAmount
-		totalFiltered = totalAmount
-	}
-
 	return dto.ReceivableSummaryDTO{
-		TotalAmount:   totalAmount,
-		TotalDue:      totalDue,
-		OverdueCount:  overdueCount,
-		TotalFiltered: totalFiltered,
+		TotalAmount:  totalAmount,
+		TotalDue:     totalDue,
+		OverdueCount: overdueCount,
 	}, nil
 }
 
