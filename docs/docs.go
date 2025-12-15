@@ -4592,6 +4592,28 @@ const docTemplate = `{
                         "name": "report",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "enum": [
+                            "company",
+                            "shop"
+                        ],
+                        "type": "string",
+                        "description": "Type receipt",
+                        "name": "type_receipt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -4689,6 +4711,56 @@ const docTemplate = `{
                     "Receipts"
                 ],
                 "summary": "Delete receipt by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Receipt ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/receipt/{id}/confirm": {
+            "post": {
+                "description": "Confirm a receipt record by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Receipts"
+                ],
+                "summary": "Confirm receipt by ID",
                 "parameters": [
                     {
                         "type": "string",
@@ -7998,6 +8070,10 @@ const docTemplate = `{
                             "$ref": "#/definitions/dto.CustomerInfoDTO"
                         }
                     ]
+                },
+                "discount": {
+                    "description": "ส่วนลดรวม (บาท) - ไม่ส่งมาก็ได้",
+                    "type": "number"
                 },
                 "issuer": {
                     "description": "ข้อมูลผู้ออกเอกสาร (จำเป็นต้องส่ง)",

@@ -8,6 +8,7 @@ type CreateReceiptDTO struct { // โครงสร้างข้อมูล�
 	Customer      CustomerInfoDTO  `json:"customer" binding:"required"`       // ข้อมูลลูกค้า (จำเป็นต้องส่ง)
 	Issuer        IssuerInfoDTO    `json:"issuer" binding:"required"`         // ข้อมูลผู้ออกเอกสาร (จำเป็นต้องส่ง)
 	Items         []ReceiptItemDTO `json:"items" binding:"required"`          // รายการสินค้า/บริการ (จำเป็นต้องส่ง)
+	Discount      float64          `json:"discount"`                          // ส่วนลดรวม (บาท) - ไม่ส่งมาก็ได้
 	Remark        string           `json:"remark,omitempty"`                  // หมายเหตุ (ไม่ส่งมาก็ได้)
 	PaymentDetail PaymentInfoDTO   `json:"payment_detail" binding:"required"` // รายละเอียดการชำระเงิน (จำเป็นต้องส่ง)
 	Status        string           `json:"status,omitempty"`                  // สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)
@@ -24,6 +25,7 @@ type UpdateReceiptDTO struct { // โครงสร้างข้อมูล�
 	Customer      *CustomerInfoDTO `json:"customer,omitempty"`       // ข้อมูลลูกค้า (อาจไม่ส่ง)
 	Issuer        *IssuerInfoDTO   `json:"issuer,omitempty"`         // ข้อมูลผู้ออกเอกสาร (อาจไม่ส่ง)
 	Items         []ReceiptItemDTO `json:"items,omitempty"`          // รายการสินค้า/บริการ (อาจไม่ส่ง)
+	Discount      *float64         `json:"discount,omitempty"`       // ส่วนลดรวม (บาท) (อาจไม่ส่ง)
 	Remark        *string          `json:"remark,omitempty"`         // หมายเหตุ (อาจไม่ส่ง)
 	PaymentDetail *PaymentInfoDTO  `json:"payment_detail,omitempty"` // รายละเอียดการชำระเงิน (อาจไม่ส่ง)
 	Status        *string          `json:"status,omitempty"`         // สถานะใบเสร็จ (อาจไม่ส่ง)
@@ -86,6 +88,7 @@ type ReceiptDTO struct { // โครงสร้างข้อมูลใบ�
 	Issuer        IssuerInfoDTO      `json:"issuer"`                // ข้อมูลผู้ออกเอกสาร
 	Items         []ReceiptItemDTO   `json:"items"`                 // รายการสินค้า/บริการ
 	SubTotal      float64            `json:"sub_total"`             // ยอดรวมก่อน VAT
+	Discount      float64            `json:"discount"`              // ส่วนลดรวม (บาท)
 	TotalVAT      float64            `json:"total_vat"`             // ค่าภาษีมูลค่าเพิ่ม VAT 7%
 	TotalAmount   float64            `json:"total_amount"`          // ยอดรวมสุทธิรวม VAT แล้ว
 	Remark        string             `json:"remark,omitempty"`      // หมายเหตุ (อาจว่าง)
@@ -120,4 +123,6 @@ type ReceiptSummaryDTO struct { // โครงสร้างสรุปข้
 type RequestSummaryReceipt struct {
 	Report      string `query:"report"`       // รายงานประเภท day | month | all
 	TypeReceipt string `query:"type_receipt"` // ประเภทใบเสร็จ "company" หรือ "shop"
+	StartDate   string `query:"start_date"`
+	EndDate     string `query:"end_date"`
 }

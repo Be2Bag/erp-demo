@@ -14,6 +14,7 @@ type ReceiptService interface {
 	GetReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) (*dto.ReceiptDTO, error)
 	DeleteReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) error
 	SummaryReceiptByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestSummaryReceipt) (dto.ReceiptSummaryDTO, error)
+	ConfirmReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) error
 }
 
 type ReceiptRepository interface {
@@ -23,4 +24,5 @@ type ReceiptRepository interface {
 	SoftDeleteReceiptByID(ctx context.Context, receiptID string) error
 	GetAllReceiptsByFilter(ctx context.Context, filter interface{}, projection interface{}) ([]*models.Receipt, error)
 	GetMaxReceiptNumber(ctx context.Context, prefix string) (string, error)
+	UpdateReceiptByID(ctx context.Context, receiptID string, updateData interface{}) error
 }

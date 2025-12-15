@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -64,12 +65,24 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		total += itemTotal
 	}
 
+	// Apply discount (total discount on all items)
+	subTotal := total // ยอดรวมก่อนหักส่วนลด
+	discount := in.Discount
+	if discount < 0 {
+		discount = 0
+	}
+	if discount > subTotal {
+		discount = subTotal // ส่วนลดไม่เกินยอดรวม
+	}
+	afterDiscount := subTotal - discount
+
 	// Apply VAT 7% if TypeReceipt is "company"
-	subTotal := total
 	var totalVAT float64
 	if strings.ToLower(strings.TrimSpace(in.TypeReceipt)) == "company" {
-		totalVAT = subTotal * 0.07
-		total = subTotal + totalVAT
+		totalVAT = math.Round(afterDiscount*0.07*100) / 100 // ปัดเศษ 2 ตำแหน่ง
+		total = math.Round((afterDiscount+totalVAT)*100) / 100
+	} else {
+		total = afterDiscount
 	}
 
 	// payment info
@@ -151,6 +164,7 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		Issuer:        issuer,
 		Items:         items,
 		SubTotal:      subTotal,
+		Discount:      discount,
 		TotalVAT:      totalVAT,
 		TotalAmount:   total,
 		Remark:        in.Remark,
@@ -295,6 +309,7 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 			},
 			Items:       dtoItems,
 			SubTotal:    m.SubTotal,
+			Discount:    m.Discount,
 			TotalVAT:    m.TotalVAT,
 			TotalAmount: m.TotalAmount,
 			Remark:      m.Remark,
@@ -376,6 +391,7 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 		},
 		Items:       dtoItems,
 		SubTotal:    m.SubTotal,
+		Discount:    m.Discount,
 		TotalVAT:    m.TotalVAT,
 		TotalAmount: m.TotalAmount,
 		Remark:      m.Remark,
@@ -422,20 +438,43 @@ func (s *receiptService) SummaryReceiptByFilter(ctx context.Context, claims *dto
 		filter["type_receipt"] = strings.ToLower(strings.TrimSpace(report.TypeReceipt))
 	}
 
-	// date range by report type: day | month | all
-	switch strings.ToLower(strings.TrimSpace(report.Report)) {
-	case "day":
-		start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-		end := start.Add(24 * time.Hour)
-		filter["receipt_date"] = bson.M{"$gte": start, "$lt": end}
-	case "month":
-		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-		end := start.AddDate(0, 1, 0)
-		filter["receipt_date"] = bson.M{"$gte": start, "$lt": end}
-	case "all", "":
-		// no date filter
-	default:
-		// unknown report type -> treat as all
+	// ถ้ามี StartDate หรือ EndDate ให้ใช้ custom date range
+	if strings.TrimSpace(report.StartDate) != "" || strings.TrimSpace(report.EndDate) != "" {
+		dateFilter := bson.M{}
+
+		if strings.TrimSpace(report.StartDate) != "" {
+			parsedStartDate, err := time.ParseInLocation("2006-01-02", report.StartDate, time.UTC)
+			if err != nil {
+				return dto.ReceiptSummaryDTO{}, fmt.Errorf("invalid start_date format: %w", err)
+			}
+			dateFilter["$gte"] = parsedStartDate
+		}
+		if strings.TrimSpace(report.EndDate) != "" {
+			parsedEndDate, err := time.ParseInLocation("2006-01-02", report.EndDate, time.UTC)
+			if err != nil {
+				return dto.ReceiptSummaryDTO{}, fmt.Errorf("invalid end_date format: %w", err)
+			}
+			// include entire endDate day
+			dateFilter["$lt"] = parsedEndDate.Add(24 * time.Hour)
+		}
+
+		filter["receipt_date"] = dateFilter
+	} else {
+		// date range by report type: day | month | all
+		switch strings.ToLower(strings.TrimSpace(report.Report)) {
+		case "day":
+			start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+			end := start.Add(24 * time.Hour)
+			filter["receipt_date"] = bson.M{"$gte": start, "$lt": end}
+		case "month":
+			start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+			end := start.AddDate(0, 1, 0)
+			filter["receipt_date"] = bson.M{"$gte": start, "$lt": end}
+		case "all", "":
+			// no date filter
+		default:
+			// unknown report type -> treat as all
+		}
 	}
 
 	receipts, err := s.receiptRepo.GetAllReceiptsByFilter(ctx, filter, nil)
@@ -462,4 +501,32 @@ func (s *receiptService) SummaryReceiptByFilter(ctx context.Context, claims *dto
 		TotalPaid:    totalPaid,
 		PendingCount: pendingCount,
 	}, nil
+}
+
+func (s *receiptService) ConfirmReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) error {
+	filter := bson.M{"id_receipt": strings.TrimSpace(receiptID), "deleted_at": nil}
+	projection := bson.M{"id_receipt": 1, "status": 1}
+
+	m, err := s.receiptRepo.GetOneReceiptsByFilter(ctx, filter, projection)
+	if err != nil {
+		return err
+	}
+	if m == nil {
+		return fmt.Errorf("receipt not found")
+	}
+
+	if strings.ToLower(strings.TrimSpace(m.Status)) == "paid" {
+		return fmt.Errorf("receipt already confirmed")
+	}
+
+	updateData := bson.M{
+		"status":     "paid",
+		"updated_at": time.Now(),
+	}
+
+	if err := s.receiptRepo.UpdateReceiptByID(ctx, m.IDReceipt, updateData); err != nil {
+		return err
+	}
+
+	return nil
 }

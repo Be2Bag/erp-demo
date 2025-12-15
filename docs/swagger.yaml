@@ -410,6 +410,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/dto.CustomerInfoDTO'
         description: ข้อมูลลูกค้า (จำเป็นต้องส่ง)
+      discount:
+        description: ส่วนลดรวม (บาท) - ไม่ส่งมาก็ได้
+        type: number
       issuer:
         allOf:
         - $ref: '#/definitions/dto.IssuerInfoDTO'
@@ -5053,6 +5056,39 @@ paths:
       summary: Get receipts by ID
       tags:
       - Receipts
+  /v1/receipt/{id}/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Confirm a receipt record by its ID
+      parameters:
+      - description: Receipt ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Confirm receipt by ID
+      tags:
+      - Receipts
   /v1/receipt/create:
     post:
       consumes:
@@ -5186,6 +5222,21 @@ paths:
         in: query
         name: report
         required: true
+        type: string
+      - description: Type receipt
+        enum:
+        - company
+        - shop
+        in: query
+        name: type_receipt
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end_date
         type: string
       produces:
       - application/json

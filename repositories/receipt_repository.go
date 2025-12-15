@@ -121,3 +121,11 @@ func (r *receiptRepo) GetMaxReceiptNumber(ctx context.Context, prefix string) (s
 	}
 	return result.ReceiptNumber, nil
 }
+
+func (r *receiptRepo) UpdateReceiptByID(ctx context.Context, receiptID string, updateData interface{}) error {
+	update := bson.M{
+		"$set": updateData,
+	}
+	_, err := r.coll.UpdateOne(ctx, bson.M{"id_receipt": receiptID}, update)
+	return err
+}
