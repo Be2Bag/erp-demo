@@ -12,6 +12,7 @@ type Receipt struct { // โครงสร้างข้อมูลใบเ�
 	Issuer        IssuerInfo    `json:"issuer" bson:"issuer"`                               // ข้อมูลผู้ออกใบเสร็จ
 	Items         []ReceiptItem `json:"items" bson:"items"`                                 // รายการสินค้า/บริการ
 	SubTotal      float64       `json:"sub_total" bson:"sub_total"`                         // ยอดรวมก่อน VAT (บาท)
+	Discount      float64       `json:"discount" bson:"discount"`                           // ส่วนลดรวม (บาท)
 	TotalVAT      float64       `json:"total_vat" bson:"total_vat"`                         // ค่าภาษีมูลค่าเพิ่ม VAT 7% (บาท)
 	TotalAmount   float64       `json:"total_amount" bson:"total_amount"`                   // ยอดรวมสุทธิรวม VAT แล้ว (บาท)
 	Remark        string        `json:"remark,omitempty" bson:"remark,omitempty"`           // หมายเหตุ

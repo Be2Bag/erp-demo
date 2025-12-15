@@ -8049,6 +8049,10 @@ const docTemplate = `{
                         }
                     ]
                 },
+                "discount": {
+                    "description": "ส่วนลดรวม (บาท) - ไม่ส่งมาก็ได้",
+                    "type": "number"
+                },
                 "issuer": {
                     "description": "ข้อมูลผู้ออกเอกสาร (จำเป็นต้องส่ง)",
                     "allOf": [

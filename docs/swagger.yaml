@@ -410,6 +410,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/dto.CustomerInfoDTO'
         description: ข้อมูลลูกค้า (จำเป็นต้องส่ง)
+      discount:
+        description: ส่วนลดรวม (บาท) - ไม่ส่งมาก็ได้
+        type: number
       issuer:
         allOf:
         - $ref: '#/definitions/dto.IssuerInfoDTO'

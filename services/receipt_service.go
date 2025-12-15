@@ -64,12 +64,24 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		total += itemTotal
 	}
 
+	// Apply discount (total discount on all items)
+	subTotal := total // ยอดรวมก่อนหักส่วนลด
+	discount := in.Discount
+	if discount < 0 {
+		discount = 0
+	}
+	if discount > subTotal {
+		discount = subTotal // ส่วนลดไม่เกินยอดรวม
+	}
+	afterDiscount := subTotal - discount
+
 	// Apply VAT 7% if TypeReceipt is "company"
-	subTotal := total
 	var totalVAT float64
 	if strings.ToLower(strings.TrimSpace(in.TypeReceipt)) == "company" {
-		totalVAT = subTotal * 0.07
-		total = subTotal + totalVAT
+		totalVAT = afterDiscount * 0.07
+		total = afterDiscount + totalVAT
+	} else {
+		total = afterDiscount
 	}
 
 	// payment info
@@ -151,6 +163,7 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		Issuer:        issuer,
 		Items:         items,
 		SubTotal:      subTotal,
+		Discount:      discount,
 		TotalVAT:      totalVAT,
 		TotalAmount:   total,
 		Remark:        in.Remark,
@@ -295,6 +308,7 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 			},
 			Items:       dtoItems,
 			SubTotal:    m.SubTotal,
+			Discount:    m.Discount,
 			TotalVAT:    m.TotalVAT,
 			TotalAmount: m.TotalAmount,
 			Remark:      m.Remark,
@@ -376,6 +390,7 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 		},
 		Items:       dtoItems,
 		SubTotal:    m.SubTotal,
+		Discount:    m.Discount,
 		TotalVAT:    m.TotalVAT,
 		TotalAmount: m.TotalAmount,
 		Remark:      m.Remark,
