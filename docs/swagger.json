@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "api.dev.rkp-media.com",
+    "host": "localhost:3000",
     "basePath": "/service/api",
     "paths": {
         "/cron/last-run": {
@@ -4586,6 +4586,28 @@
                         "name": "report",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "enum": [
+                            "company",
+                            "shop"
+                        ],
+                        "type": "string",
+                        "description": "Type receipt",
+                        "name": "type_receipt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query"
                     }
                 ],
                 "responses": {

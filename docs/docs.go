@@ -4592,6 +4592,28 @@ const docTemplate = `{
                         "name": "report",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "enum": [
+                            "company",
+                            "shop"
+                        ],
+                        "type": "string",
+                        "description": "Type receipt",
+                        "name": "type_receipt",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -10564,7 +10586,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "api.dev.rkp-media.com",
+	Host:             "localhost:3000",
 	BasePath:         "/service/api",
 	Schemes:          []string{},
 	Title:            "ERP Demo API",

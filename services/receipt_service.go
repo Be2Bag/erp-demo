@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -78,8 +79,8 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 	// Apply VAT 7% if TypeReceipt is "company"
 	var totalVAT float64
 	if strings.ToLower(strings.TrimSpace(in.TypeReceipt)) == "company" {
-		totalVAT = afterDiscount * 0.07
-		total = afterDiscount + totalVAT
+		totalVAT = math.Round(afterDiscount*0.07*100) / 100 // ปัดเศษ 2 ตำแหน่ง
+		total = math.Round((afterDiscount+totalVAT)*100) / 100
 	} else {
 		total = afterDiscount
 	}
@@ -437,20 +438,43 @@ func (s *receiptService) SummaryReceiptByFilter(ctx context.Context, claims *dto
 		filter["type_receipt"] = strings.ToLower(strings.TrimSpace(report.TypeReceipt))
 	}
 
-	// date range by report type: day | month | all
-	switch strings.ToLower(strings.TrimSpace(report.Report)) {
-	case "day":
-		start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-		end := start.Add(24 * time.Hour)
-		filter["receipt_date"] = bson.M{"$gte": start, "$lt": end}
-	case "month":
-		start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
-		end := start.AddDate(0, 1, 0)
-		filter["receipt_date"] = bson.M{"$gte": start, "$lt": end}
-	case "all", "":
-		// no date filter
-	default:
-		// unknown report type -> treat as all
+	// ถ้ามี StartDate หรือ EndDate ให้ใช้ custom date range
+	if strings.TrimSpace(report.StartDate) != "" || strings.TrimSpace(report.EndDate) != "" {
+		dateFilter := bson.M{}
+
+		if strings.TrimSpace(report.StartDate) != "" {
+			parsedStartDate, err := time.ParseInLocation("2006-01-02", report.StartDate, time.UTC)
+			if err != nil {
+				return dto.ReceiptSummaryDTO{}, fmt.Errorf("invalid start_date format: %w", err)
+			}
+			dateFilter["$gte"] = parsedStartDate
+		}
+		if strings.TrimSpace(report.EndDate) != "" {
+			parsedEndDate, err := time.ParseInLocation("2006-01-02", report.EndDate, time.UTC)
+			if err != nil {
+				return dto.ReceiptSummaryDTO{}, fmt.Errorf("invalid end_date format: %w", err)
+			}
+			// include entire endDate day
+			dateFilter["$lt"] = parsedEndDate.Add(24 * time.Hour)
+		}
+
+		filter["receipt_date"] = dateFilter
+	} else {
+		// date range by report type: day | month | all
+		switch strings.ToLower(strings.TrimSpace(report.Report)) {
+		case "day":
+			start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+			end := start.Add(24 * time.Hour)
+			filter["receipt_date"] = bson.M{"$gte": start, "$lt": end}
+		case "month":
+			start := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+			end := start.AddDate(0, 1, 0)
+			filter["receipt_date"] = bson.M{"$gte": start, "$lt": end}
+		case "all", "":
+			// no date filter
+		default:
+			// unknown report type -> treat as all
+		}
 	}
 
 	receipts, err := s.receiptRepo.GetAllReceiptsByFilter(ctx, filter, nil)

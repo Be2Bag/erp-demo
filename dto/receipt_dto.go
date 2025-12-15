@@ -123,4 +123,6 @@ type ReceiptSummaryDTO struct { // โครงสร้างสรุปข้
 type RequestSummaryReceipt struct {
 	Report      string `query:"report"`       // รายงานประเภท day | month | all
 	TypeReceipt string `query:"type_receipt"` // ประเภทใบเสร็จ "company" หรือ "shop"
+	StartDate   string `query:"start_date"`
+	EndDate     string `query:"end_date"`
 }

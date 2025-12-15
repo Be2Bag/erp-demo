@@ -254,6 +254,9 @@ func (h *receiptHandler) DeleteReceiptByID(c *fiber.Ctx) error {
 // @Accept       json
 // @Produce      json
 // @Param report query string true "Report type" Enums(day, month, all) default(all)
+// @Param type_receipt query string false "Type receipt" Enums(company, shop)
+// @Param start_date query string false "Start date (YYYY-MM-DD)"
+// @Param end_date query string false "End date (YYYY-MM-DD)"
 // @Success      200  {object}  dto.BaseResponse
 // @Failure      400  {object}  dto.BaseResponse
 // @Failure      401  {object}  dto.BaseResponse

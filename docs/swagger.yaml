@@ -2181,7 +2181,7 @@ definitions:
         description: ชื่อ Template
         type: string
     type: object
-host: api.dev.rkp-media.com
+host: localhost:3000
 info:
   contact: {}
   description: This is an ERP API demo.
@@ -5222,6 +5222,21 @@ paths:
         in: query
         name: report
         required: true
+        type: string
+      - description: Type receipt
+        enum:
+        - company
+        - shop
+        in: query
+        name: type_receipt
+        type: string
+      - description: Start date (YYYY-MM-DD)
+        in: query
+        name: start_date
+        type: string
+      - description: End date (YYYY-MM-DD)
+        in: query
+        name: end_date
         type: string
       produces:
       - application/json
