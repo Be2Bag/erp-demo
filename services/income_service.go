@@ -31,6 +31,7 @@ func (s *inComeService) CreateInCome(ctx context.Context, inCome dto.CreateIncom
 	now := time.Now()
 	var due time.Time
 	if inCome.TxnDate != "" {
+		// เก็บเป็น UTC เช่น "2025-12-15T00:00:00Z"
 		parsedDate, err := time.Parse("2006-01-02", inCome.TxnDate)
 		if err != nil {
 			return err
@@ -264,16 +265,12 @@ func (s *inComeService) UpdateInComeByID(ctx context.Context, incomeID string, u
 		existing.Currency = update.Currency
 	}
 	if update.TxnDate != "" {
-
-		var due time.Time
-
+		// เก็บเป็น UTC เช่น "2025-12-15T00:00:00Z"
 		parsedDate, err := time.Parse("2006-01-02", update.TxnDate)
 		if err != nil {
 			return err
 		}
-		due = parsedDate
-
-		existing.TxnDate = due
+		existing.TxnDate = parsedDate
 	}
 	if update.PaymentMethod != "" {
 		existing.PaymentMethod = update.PaymentMethod
@@ -300,10 +297,12 @@ func (s *inComeService) DeleteInComeByInComeID(ctx context.Context, incomeID str
 }
 
 func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestIncomeSummary) (dto.IncomeSummaryDTO, error) {
-	now := time.Now()
+	// หาวันที่ "วันนี้" ตาม timezone ไทย แต่ filter เป็น UTC ให้ตรงกับที่เก็บ
+	thailandLoc, _ := time.LoadLocation("Asia/Bangkok")
+	nowThai := time.Now().In(thailandLoc)
 
-	// Today
-	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	// Today (ใช้วันที่ไทย แต่ filter เป็น UTC)
+	startToday := time.Date(nowThai.Year(), nowThai.Month(), nowThai.Day(), 0, 0, 0, 0, time.UTC)
 	endToday := startToday.Add(24 * time.Hour)
 	filterToday := bson.M{
 		"deleted_at": nil,
@@ -324,8 +323,8 @@ func (s *inComeService) SummaryInComeByFilter(ctx context.Context, claims *dto.J
 		totalToday += income.Amount
 	}
 
-	// This Month
-	startMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	// This Month (ใช้เดือนไทย แต่ filter เป็น UTC)
+	startMonth := time.Date(nowThai.Year(), nowThai.Month(), 1, 0, 0, 0, 0, time.UTC)
 	endMonth := startMonth.AddDate(0, 1, 0)
 	filterMonth := bson.M{
 		"deleted_at": nil,

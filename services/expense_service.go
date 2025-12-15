@@ -31,6 +31,7 @@ func (s *expenseService) CreateExpense(ctx context.Context, expense dto.CreateEx
 	now := time.Now()
 	var due time.Time
 	if expense.TxnDate != "" {
+		// เก็บเป็น UTC เช่น "2025-12-15T00:00:00Z"
 		parsedDate, err := time.Parse("2006-01-02", expense.TxnDate)
 		if err != nil {
 			return err
@@ -74,12 +75,12 @@ func (s *expenseService) ListExpenses(ctx context.Context, claims *dto.JWTClaims
 		filter["bank_id"] = bankID
 	}
 
-	// กรอง startDate และ endDate
+	// กรอง startDate และ endDate (ใช้ UTC ให้ตรงกับที่เก็บ)
 	if startDate != "" || endDate != "" {
 		txnDateFilter := bson.M{}
 
 		if startDate != "" {
-			parsedStartDate, err := time.ParseInLocation("2006-01-02", startDate, time.UTC)
+			parsedStartDate, err := time.Parse("2006-01-02", startDate)
 			if err != nil {
 				return dto.Pagination{}, fmt.Errorf("invalid startDate format: %w", err)
 			}
@@ -87,7 +88,7 @@ func (s *expenseService) ListExpenses(ctx context.Context, claims *dto.JWTClaims
 		}
 
 		if endDate != "" {
-			parsedEndDate, err := time.ParseInLocation("2006-01-02", endDate, time.UTC)
+			parsedEndDate, err := time.Parse("2006-01-02", endDate)
 			if err != nil {
 				return dto.Pagination{}, fmt.Errorf("invalid endDate format: %w", err)
 			}
@@ -262,16 +263,12 @@ func (s *expenseService) UpdateExpenseByID(ctx context.Context, expenseID string
 		existing.Currency = update.Currency
 	}
 	if update.TxnDate != "" {
-
-		var due time.Time
-
+		// เก็บเป็น UTC เช่น "2025-12-15T00:00:00Z"
 		parsedDate, err := time.Parse("2006-01-02", update.TxnDate)
 		if err != nil {
 			return err
 		}
-		due = parsedDate
-
-		existing.TxnDate = due
+		existing.TxnDate = parsedDate
 	}
 	if update.PaymentMethod != "" {
 		existing.PaymentMethod = update.PaymentMethod
@@ -298,10 +295,12 @@ func (s *expenseService) DeleteExpenseByID(ctx context.Context, expenseID string
 }
 
 func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestExpenseSummary) (dto.ExpenseSummaryDTO, error) {
-	now := time.Now()
+	// หาวันที่ "วันนี้" ตาม timezone ไทย แต่ filter เป็น UTC ให้ตรงกับที่เก็บ
+	thailandLoc, _ := time.LoadLocation("Asia/Bangkok")
+	nowThai := time.Now().In(thailandLoc)
 
-	// Today
-	startToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	// Today (ใช้วันที่ไทย แต่ filter เป็น UTC)
+	startToday := time.Date(nowThai.Year(), nowThai.Month(), nowThai.Day(), 0, 0, 0, 0, time.UTC)
 	endToday := startToday.Add(24 * time.Hour)
 	filterToday := bson.M{
 		"deleted_at": nil,
@@ -322,8 +321,8 @@ func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto
 		totalToday += expense.Amount
 	}
 
-	// This Month
-	startMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, now.Location())
+	// This Month (ใช้เดือนไทย แต่ filter เป็น UTC)
+	startMonth := time.Date(nowThai.Year(), nowThai.Month(), 1, 0, 0, 0, 0, time.UTC)
 	endMonth := startMonth.AddDate(0, 1, 0)
 	filterMonth := bson.M{
 		"deleted_at": nil,
@@ -352,7 +351,7 @@ func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto
 		filterAll["bank_id"] = report.BankID
 	}
 
-	// ถ้ามี StartDate หรือ EndDate ให้ใช้ช่วงวันที่ที่กำหนด
+	// ถ้ามี StartDate หรือ EndDate ให้ใช้ช่วงวันที่ที่กำหนด (UTC)
 	if strings.TrimSpace(report.StartDate) != "" || strings.TrimSpace(report.EndDate) != "" {
 		txnDateFilter := bson.M{}
 		if strings.TrimSpace(report.StartDate) != "" {
@@ -367,7 +366,6 @@ func (s *expenseService) SummaryExpenseByFilter(ctx context.Context, claims *dto
 			if err != nil {
 				return dto.ExpenseSummaryDTO{}, fmt.Errorf("invalid end_date format: %w", err)
 			}
-			// เพิ่ม 1 วันเพื่อให้ครบ 23:59:59 ของวันที่ endDate
 			txnDateFilter["$lt"] = parsedEndDate.Add(24 * time.Hour)
 		}
 		filterAll["txn_date"] = txnDateFilter
