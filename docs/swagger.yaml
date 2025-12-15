@@ -5053,6 +5053,39 @@ paths:
       summary: Get receipts by ID
       tags:
       - Receipts
+  /v1/receipt/{id}/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Confirm a receipt record by its ID
+      parameters:
+      - description: Receipt ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Confirm receipt by ID
+      tags:
+      - Receipts
   /v1/receipt/create:
     post:
       consumes:

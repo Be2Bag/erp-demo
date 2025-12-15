@@ -25,6 +25,7 @@ func (h *receiptHandler) ReceiptRoutes(router fiber.Router) {
 	receipt.Get("/list", h.mdw.AuthCookieMiddleware(), h.ListReceipts)
 	receipt.Get("/summary", h.mdw.AuthCookieMiddleware(), h.SummaryReceiptByFilter)
 	receipt.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetReceiptByID)
+	receipt.Post("/:id/confirm", h.mdw.AuthCookieMiddleware(), h.ConfirmReceiptByID)
 	receipt.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteReceiptByID)
 
 }
@@ -296,5 +297,47 @@ func (h *receiptHandler) SummaryReceiptByFilter(c *fiber.Ctx) error {
 		MessageTH:  "สำเร็จ",
 		Status:     "success",
 		Data:       summary,
+	})
+}
+
+// @Summary      Confirm receipt by ID
+// @Description  Confirm a receipt record by its ID
+// @Tags         Receipts
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "Receipt ID"
+// @Success      200  {object}  dto.BaseResponse
+// @Failure      400  {object}  dto.BaseResponse
+// @Failure      401  {object}  dto.BaseResponse
+// @Failure      500  {object}  dto.BaseResponse
+// @Router       /v1/receipt/{id}/confirm [post]
+func (h *receiptHandler) ConfirmReceiptByID(c *fiber.Ctx) error {
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	receiptID := c.Params("id")
+	err = h.svc.ConfirmReceiptByID(c.Context(), receiptID, claims)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to confirm receipt",
+			MessageTH:  "ยืนยันไม่สำเร็จ",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	return c.JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Receipt confirmed successfully",
+		MessageTH:  "ยืนยันใบเสร็จเรียบร้อยแล้ว",
+		Status:     "success",
+		Data:       nil,
 	})
 }

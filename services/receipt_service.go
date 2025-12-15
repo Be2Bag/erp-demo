@@ -463,3 +463,31 @@ func (s *receiptService) SummaryReceiptByFilter(ctx context.Context, claims *dto
 		PendingCount: pendingCount,
 	}, nil
 }
+
+func (s *receiptService) ConfirmReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) error {
+	filter := bson.M{"id_receipt": strings.TrimSpace(receiptID), "deleted_at": nil}
+	projection := bson.M{"id_receipt": 1, "status": 1}
+
+	m, err := s.receiptRepo.GetOneReceiptsByFilter(ctx, filter, projection)
+	if err != nil {
+		return err
+	}
+	if m == nil {
+		return fmt.Errorf("receipt not found")
+	}
+
+	if strings.ToLower(strings.TrimSpace(m.Status)) == "paid" {
+		return fmt.Errorf("receipt already confirmed")
+	}
+
+	updateData := bson.M{
+		"status":     "paid",
+		"updated_at": time.Now(),
+	}
+
+	if err := s.receiptRepo.UpdateReceiptByID(ctx, m.IDReceipt, updateData); err != nil {
+		return err
+	}
+
+	return nil
+}
