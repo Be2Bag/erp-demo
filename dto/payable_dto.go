@@ -54,7 +54,6 @@ type RequestListPayable struct {
 
 type RequestSummaryPayable struct {
 	BankID    string `query:"bank_id"` // รหัสบัญชีธนาคารที่เกี่ยวข้อง
-	Report    string `query:"report"`  // รายงานประเภท day | month | all
 	StartDate string `query:"start_date"`
 	EndDate   string `query:"end_date"`
 }
@@ -98,10 +97,9 @@ type PaymentTransactionDTO struct {
 }
 
 type PayableSummaryDTO struct {
-	TotalAmount   float64 `json:"total_amount"`   // ยอดรวมทั้งหมด
-	TotalDue      float64 `json:"total_due"`      // ยอดคงค้าง
-	OverdueCount  int     `json:"overdue_count"`  // จำนวนรายการเกินกำหนด
-	TotalFiltered float64 `json:"total_filtered"` // ยอดตามช่วงวันที่กรอง
+	TotalAmount  float64 `json:"total_amount"`  // ยอดรวมทั้งหมด
+	TotalDue     float64 `json:"total_due"`     // ยอดคงค้าง
+	OverdueCount int     `json:"overdue_count"` // จำนวนรายการเกินกำหนด
 }
 
 type BankAccountPayable struct {
