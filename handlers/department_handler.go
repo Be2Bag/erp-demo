@@ -292,7 +292,7 @@ func (h *DepartmentHandler) GetDepartmentList(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
-		MessageEN:  "Projects retrieved successfully",
+		MessageEN:  "Departments retrieved successfully",
 		MessageTH:  "ดึงข้อมูลแผนกเรียบร้อยแล้ว",
 		Status:     "success",
 		Data:       departments,

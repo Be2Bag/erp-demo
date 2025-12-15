@@ -297,8 +297,8 @@ func (h *CategoryHandler) DeleteCategory(c *fiber.Ctx) error {
 	if categoryID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusBadRequest,
-			MessageEN:  "Invalid project ID",
-			MessageTH:  "รหัสโปรเจกต์ไม่ถูกต้อง",
+			MessageEN:  "Invalid category ID",
+			MessageTH:  "รหัสหมวดหมู่ไม่ถูกต้อง",
 			Status:     "error",
 			Data:       nil,
 		})

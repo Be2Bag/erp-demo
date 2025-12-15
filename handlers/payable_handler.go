@@ -256,11 +256,11 @@ func (h *PayableHandler) UpdatePayableByID(c *fiber.Ctx) error {
 			statusCode = fiber.StatusNotFound
 			MsgEN = "Payable not found"
 			MsgTH = "ไม่พบเจ้าหนี้"
+		} else {
+			statusCode = fiber.StatusInternalServerError
+			MsgEN = "Failed to update payable: " + errOnUpdate.Error()
+			MsgTH = "อัปเดตไม่สำเร็จ"
 		}
-
-		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update payable: " + errOnUpdate.Error()
-		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 
 	return c.JSON(dto.BaseResponse{

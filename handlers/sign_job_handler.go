@@ -190,7 +190,7 @@ func (h *SignJobHandler) GetSignJobByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusNotFound,
 			MessageEN:  "Sign job not found",
-			MessageTH:  "ไม่พบนงาน",
+			MessageTH:  "ไม่พบงาน",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -249,11 +249,11 @@ func (h *SignJobHandler) UpdateSignJobByID(c *fiber.Ctx) error {
 			statusCode = fiber.StatusNotFound
 			MsgEN = "Sign job not found"
 			MsgTH = "ไม่พบใบงาน"
+		} else {
+			statusCode = fiber.StatusInternalServerError
+			MsgEN = "Failed to update: " + errOnUpdate.Error()
+			MsgTH = "อัปเดตไม่สำเร็จ"
 		}
-
-		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update: " + errOnUpdate.Error()
-		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 
 	return c.JSON(dto.BaseResponse{

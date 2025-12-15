@@ -184,7 +184,7 @@ func (h *SignTypeHandler) GetSignTypeByID(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusNotFound,
 			MessageEN:  "Sign type not found",
-			MessageTH:  "ไม่พบบประเภทงาน",
+			MessageTH:  "ไม่พบประเภทงาน",
 			Status:     "error",
 			Data:       nil,
 		})
@@ -244,11 +244,11 @@ func (h *SignTypeHandler) UpdateSignTypeByID(c *fiber.Ctx) error {
 			statusCode = fiber.StatusNotFound
 			MsgEN = "Sign type not found"
 			MsgTH = "ไม่พบประเภทงาน"
+		} else {
+			statusCode = fiber.StatusInternalServerError
+			MsgEN = "Failed to update: " + errOnUpdate.Error()
+			MsgTH = "อัปเดตไม่สำเร็จ"
 		}
-
-		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update: " + errOnUpdate.Error()
-		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 
 	return c.JSON(dto.BaseResponse{

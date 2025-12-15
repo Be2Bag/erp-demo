@@ -255,11 +255,11 @@ func (h *ReceivableHandler) UpdateReceivableByID(c *fiber.Ctx) error {
 			statusCode = fiber.StatusNotFound
 			MsgEN = "Receivable not found"
 			MsgTH = "ไม่พบลูกหนี้"
+		} else {
+			statusCode = fiber.StatusInternalServerError
+			MsgEN = "Failed to update receivable: " + errOnUpdate.Error()
+			MsgTH = "อัปเดตไม่สำเร็จ"
 		}
-
-		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update receivable: " + errOnUpdate.Error()
-		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 
 	return c.JSON(dto.BaseResponse{

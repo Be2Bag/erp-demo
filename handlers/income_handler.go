@@ -249,11 +249,11 @@ func (h *InComeHandler) UpdateInComeByID(c *fiber.Ctx) error {
 			statusCode = fiber.StatusNotFound
 			MsgEN = "Income not found"
 			MsgTH = "ไม่พบรายได้"
+		} else {
+			statusCode = fiber.StatusInternalServerError
+			MsgEN = "Failed to update income: " + errOnUpdate.Error()
+			MsgTH = "อัปเดตไม่สำเร็จ"
 		}
-
-		statusCode = fiber.StatusInternalServerError
-		MsgEN = "Failed to update income: " + errOnUpdate.Error()
-		MsgTH = "อัปเดตไม่สำเร็จ"
 	}
 
 	return c.JSON(dto.BaseResponse{

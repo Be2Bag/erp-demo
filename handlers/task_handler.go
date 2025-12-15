@@ -371,7 +371,7 @@ func (h *TaskHandler) UpdateStepStatusNote(c *fiber.Ctx) error {
 		case errors.Is(errOnUpdate, mongo.ErrNoDocuments):
 			statusCode = fiber.StatusNotFound
 			messageEN = "Task or step not found"
-			messageTH = "ไม่พบนงานหรือขั้นตอน"
+			messageTH = "ไม่พบงานหรือขั้นตอน"
 		case strings.Contains(errOnUpdate.Error(), "user is not the assignee"):
 			statusCode = fiber.StatusForbidden
 			messageEN = errOnUpdate.Error()
