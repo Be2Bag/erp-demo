@@ -361,8 +361,8 @@ func (h *UserHandler) GetUserByID(c *fiber.Ctx) error {
 	}
 
 	if user == nil {
-		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-			StatusCode: fiber.StatusBadRequest,
+		return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusNotFound,
 			MessageEN:  "User not found",
 			MessageTH:  "ไม่พบผู้ใช้",
 			Status:     "error",
@@ -459,9 +459,9 @@ func (h *UserHandler) DeleteUserByID(c *fiber.Ctx) error {
 	if err != nil {
 
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
-				StatusCode: fiber.StatusBadRequest,
-				MessageEN:  "User not found: " + err.Error(),
+			return c.Status(fiber.StatusNotFound).JSON(dto.BaseResponse{
+				StatusCode: fiber.StatusNotFound,
+				MessageEN:  "User not found",
 				MessageTH:  "ไม่พบผู้ใช้",
 				Status:     "error",
 				Data:       nil,

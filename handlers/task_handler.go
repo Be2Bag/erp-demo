@@ -446,7 +446,7 @@ func (h *TaskHandler) PutTaskV2(c *fiber.Ctx) error {
 		case errors.Is(err, mongo.ErrNoDocuments):
 			statusCode = fiber.StatusNotFound
 			messageEN = "Task or step not found"
-			messageTH = "ไม่พบนงานหรือขั้นตอน"
+			messageTH = "ไม่พบงานหรือขั้นตอน"
 		case strings.Contains(err.Error(), "user is not the assignee"):
 			statusCode = fiber.StatusForbidden
 			messageEN = err.Error()

@@ -248,9 +248,10 @@ func (h *ReceivableHandler) UpdateReceivableByID(c *fiber.Ctx) error {
 	statusCode := fiber.StatusOK
 	MsgEN := "Updated"
 	MsgTH := "อัปเดตแล้ว"
+	status := "success"
 
 	if errOnUpdate != nil {
-
+		status = "error"
 		if errors.Is(errOnUpdate, mongo.ErrNoDocuments) {
 			statusCode = fiber.StatusNotFound
 			MsgEN = "Receivable not found"
@@ -262,11 +263,11 @@ func (h *ReceivableHandler) UpdateReceivableByID(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.JSON(dto.BaseResponse{
+	return c.Status(statusCode).JSON(dto.BaseResponse{
 		StatusCode: statusCode,
 		MessageEN:  MsgEN,
 		MessageTH:  MsgTH,
-		Status:     "success",
+		Status:     status,
 		Data:       nil,
 	})
 
