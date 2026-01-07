@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
@@ -207,6 +208,11 @@ func (s *dropDownService) GetSignJobList(ctx context.Context, projectID string) 
 	if len(signJobs) == 0 {
 		return nil, mongo.ErrNoDocuments
 	}
+
+	// เรียงจากใหม่ไปเก่า (descending by CreatedAt)
+	sort.Slice(signJobs, func(i, j int) bool {
+		return signJobs[i].CreatedAt.After(signJobs[j].CreatedAt)
+	})
 
 	var response []dto.ResponseGetSignList
 	for _, signJob := range signJobs {
