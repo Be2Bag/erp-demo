@@ -321,16 +321,39 @@ func (s *userService) GetAll(ctx context.Context, req dto.RequestGetUserAll) (dt
 			departmentsName = departments[0].DepartmentName
 		}
 
-		filterUserTaskStats := bson.M{"user_id": u.UserID, "deleted_at": nil}
-		projectionUserTaskStats := bson.M{}
+		// กำหนดช่วงเวลาของปีปัจจุบัน (เริ่มนับใหม่ทุกปี)
+		currentYear := time.Now().Year()
+		yearStart := time.Date(currentYear, 1, 1, 0, 0, 0, 0, time.UTC)
+		yearEnd := time.Date(currentYear, 12, 31, 23, 59, 59, 999999999, time.UTC)
 
-		existingStats, _ := s.taskRepo.GetOneUserTaskStatsByFilter(ctx, filterUserTaskStats, projectionUserTaskStats)
+		// Filter tasks ของ user นี้ที่สร้างในปีปัจจุบัน
+		filterTasksCurrentYear := bson.M{
+			"assignee":   u.UserID,
+			"deleted_at": nil,
+			"created_at": bson.M{
+				"$gte": yearStart,
+				"$lte": yearEnd,
+			},
+		}
 
-		if existingStats != nil {
-			tasksCompleted = fmt.Sprintf("%d", existingStats.Totals.Completed)
-			tasksTotal = fmt.Sprintf("%d", existingStats.Totals.Assigned)
-			if existingStats.KPI.Score != nil {
-				tasksKPIScore = fmt.Sprintf("%.0f%%", *existingStats.KPI.Score)
+		tasksCurrentYear, _ := s.taskRepo.GetAllTaskByFilter(ctx, filterTasksCurrentYear, nil)
+
+		if len(tasksCurrentYear) > 0 {
+			totalTasks := len(tasksCurrentYear)
+			completedTasks := 0
+			for _, task := range tasksCurrentYear {
+				if task.Status == "done" {
+					completedTasks++
+				}
+			}
+
+			tasksCompleted = fmt.Sprintf("%d", completedTasks)
+			tasksTotal = fmt.Sprintf("%d", totalTasks)
+
+			// คำนวณ KPI Score = (completed / total) * 100
+			if totalTasks > 0 {
+				kpiScore := (float64(completedTasks) / float64(totalTasks)) * 100
+				tasksKPIScore = fmt.Sprintf("%.0f%%", kpiScore)
 			}
 		}
 
