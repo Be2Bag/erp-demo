@@ -27,6 +27,7 @@ func (h *SignJobHandler) SignJobRoutes(router fiber.Router) {
 	signJob.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateSignJob)
 	signJob.Get("/list", h.mdw.AuthCookieMiddleware(), h.ListSignJobs)
 	signJob.Put("/verify/:id", h.mdw.AuthCookieMiddleware(), h.VerifySignJob)
+	signJob.Put("/confirm/:id", h.mdw.AuthCookieMiddleware(), h.ConfirmSignJob)
 	signJob.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetSignJobByID)
 	signJob.Put("/:id", h.mdw.AuthCookieMiddleware(), h.UpdateSignJobByID)
 	signJob.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteSignJobByID)
@@ -369,6 +370,49 @@ func (h *SignJobHandler) VerifySignJob(c *fiber.Ctx) error {
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Verified",
 		MessageTH:  "ตรวจสอบแล้ว",
+		Status:     "success",
+		Data:       nil,
+	})
+}
+
+// @Summary Confirm Sign Job
+// @Description Confirm a sign job by its ID
+// @Tags SignJob
+// @Accept json
+// @Produce json
+// @Param id path string true "Sign Job ID"
+// @Success 200 {object} dto.BaseResponse
+// @Failure 401 {object} dto.BaseResponse
+// @Failure 404 {object} dto.BaseResponse
+// @Failure 500 {object} dto.BaseResponse
+// @Router /v1/sign-job/confirm/{id} [put]
+
+func (h *SignJobHandler) ConfirmSignJob(c *fiber.Ctx) error {
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	jobID := c.Params("id")
+	err = h.svc.ConfirmSignJob(c.Context(), jobID, claims)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to confirm",
+			MessageTH:  "ยืนยันงานไม่สำเร็จ",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	return c.JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Confirmed",
+		MessageTH:  "ยืนยันแล้ว",
 		Status:     "success",
 		Data:       nil,
 	})

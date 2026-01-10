@@ -45,8 +45,9 @@ type SignJob struct {
 	InstallOption string `bson:"install_option" json:"install_option"` // none|self|shop
 
 	// ---------- Notes ----------
-	Notes string `bson:"notes" json:"notes"` // หมายเหตุ
-
+	Notes       string `bson:"notes" json:"notes"`             // หมายเหตุ
+	WaitPrice   bool   `bson:"waitprice" json:"waitprice"`     // รอราคา
+	WaitConfirm bool   `bson:"waitconfirm" json:"waitconfirm"` // รอยืนยัน
 	// ---------- Meta ----------
 	Status    string     `bson:"status" json:"status"`         // อยู่ในขั้นตอนไหนแล้ว
 	CreatedBy string     `bson:"created_by" json:"created_by"` // ใครสร้างงานนี้

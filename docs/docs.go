@@ -8303,6 +8303,14 @@ const docTemplate = `{
                     "description": "รหัสประเภทป้าย",
                     "type": "string"
                 },
+                "waitconfirm": {
+                    "description": "รอยืนยัน",
+                    "type": "boolean"
+                },
+                "waitprice": {
+                    "description": "รอราคา",
+                    "type": "boolean"
+                },
                 "width": {
                     "description": "ความกว้าง (ซม.)",
                     "type": "number"
@@ -10436,6 +10444,14 @@ const docTemplate = `{
                 "status": {
                     "description": "---------- เมต้า ----------",
                     "type": "string"
+                },
+                "waitconfirm": {
+                    "description": "รอยืนยัน",
+                    "type": "boolean"
+                },
+                "waitprice": {
+                    "description": "รอราคา",
+                    "type": "boolean"
                 },
                 "width": {
                     "description": "ความกว้าง (ซม.)",

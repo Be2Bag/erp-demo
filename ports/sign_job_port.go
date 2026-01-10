@@ -27,4 +27,5 @@ type SignJobService interface {
 	UpdateSignJobByJobID(ctx context.Context, jobID string, update dto.UpdateSignJobDTO, claims *dto.JWTClaims) error
 	DeleteSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) error
 	VerifySignJob(ctx context.Context, jobID string, claims *dto.JWTClaims) error
+	ConfirmSignJob(ctx context.Context, jobID string, claims *dto.JWTClaims) error // ยืนยันงาน (เปลี่ยน WaitConfirm จาก true เป็น false)
 }

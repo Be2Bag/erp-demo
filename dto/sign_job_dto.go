@@ -25,6 +25,8 @@ type CreateSignJobDTO struct { // DTO สำหรับสร้างงาน
 	OutstandingAmount float64 `json:"outstanding_amount"` // ยอดค้างชำระ
 	Content           string  `json:"content"`            // รายละเอียด / ข้อความบนป้าย
 	MainColor         string  `json:"main_color"`         // สีหลัก
+	WaitPrice         bool    `json:"waitprice"`          // รอราคา
+	WaitConfirm       bool    `json:"waitconfirm"`        // รอยืนยัน
 
 	// ---------- การชำระเงิน ----------
 	PaymentMethod string `json:"payment_method"` // วิธีชำระเงิน: cash|transfer|credit
@@ -82,7 +84,9 @@ type UpdateSignJobDTO struct { // DTO สำหรับสร้างงาน
 	InstallOption string `json:"install_option"` // ตัวเลือกติดตั้ง: none|self|shop
 
 	// ---------- หมายเหตุ ----------
-	Notes string `json:"notes"` // หมายเหตุเพิ่มเติม
+	Notes       string `json:"notes"`       // หมายเหตุเพิ่มเติม
+	WaitPrice   bool   `json:"waitprice"`   // รอราคา
+	WaitConfirm bool   `json:"waitconfirm"` // รอยืนยัน
 
 	// ---------- เมต้า ----------
 	Status string `json:"status"` // สถานะงาน (อาจให้ระบบตั้ง)
