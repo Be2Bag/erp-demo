@@ -140,7 +140,7 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 
 	// IV014-DD-MM-YY-XXX
 	year := now.Year() % 100
-	yearPrefix := fmt.Sprintf("IV%03d", 14+year-25) // IV014 for 2025, IV015 for 2026, etc.
+	yearPrefix := fmt.Sprintf("IV%03d", 14+year-26) // IV014 for 2026, IV015 for 2027, etc.
 	datePrefix := fmt.Sprintf("%s-%02d-%02d-%02d", yearPrefix, now.Day(), int(now.Month()), year)
 
 	maxNumber, err := s.receiptRepo.GetMaxReceiptNumber(ctx, datePrefix)
@@ -587,7 +587,7 @@ func (s *receiptService) CopyReceiptByID(ctx context.Context, receiptID string, 
 
 	// สร้าง ReceiptNumber ใหม่ IV014-DD-MM-YY-XXX
 	year := now.Year() % 100
-	yearPrefix := fmt.Sprintf("IV%03d", 14+year-25) // IV014 for 2025, IV015 for 2026, etc.
+	yearPrefix := fmt.Sprintf("IV%03d", 14+year-26) // IV014 for 2026, IV015 for 2027, etc.
 	datePrefix := fmt.Sprintf("%s-%02d-%02d-%02d", yearPrefix, now.Day(), int(now.Month()), year)
 
 	maxNumber, err := s.receiptRepo.GetMaxReceiptNumber(ctx, datePrefix)
