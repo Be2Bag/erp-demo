@@ -386,7 +386,6 @@ func (h *SignJobHandler) VerifySignJob(c *fiber.Ctx) error {
 // @Failure 404 {object} dto.BaseResponse
 // @Failure 500 {object} dto.BaseResponse
 // @Router /v1/sign-job/confirm/{id} [put]
-
 func (h *SignJobHandler) ConfirmSignJob(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {
@@ -412,7 +411,7 @@ func (h *SignJobHandler) ConfirmSignJob(c *fiber.Ctx) error {
 	return c.JSON(dto.BaseResponse{
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Confirmed",
-		MessageTH:  "ยืนยันแล้ว",
+		MessageTH:  "ยืนยันแล้ว สามารถเริ่มงานได้",
 		Status:     "success",
 		Data:       nil,
 	})

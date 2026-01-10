@@ -5717,6 +5717,39 @@ paths:
       summary: Update Sign Job by ID
       tags:
       - SignJob
+  /v1/sign-job/confirm/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Confirm a sign job by its ID
+      parameters:
+      - description: Sign Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Confirm Sign Job
+      tags:
+      - SignJob
   /v1/sign-job/create:
     post:
       consumes:
