@@ -17,7 +17,7 @@ type Receipt struct { // โครงสร้างข้อมูลใบเ�
 	TotalAmount   float64       `json:"total_amount" bson:"total_amount"`                   // ยอดรวมสุทธิรวม VAT แล้ว (บาท)
 	Remark        string        `json:"remark,omitempty" bson:"remark,omitempty"`           // หมายเหตุ
 	PaymentDetail PaymentInfo   `json:"payment_detail" bson:"payment_detail"`               // ข้อมูลการชำระเงิน
-	Status        string        `json:"status" bson:"status"`                               // สถานะใบเสร็จ เช่น paid, pending
+	Status        string        `json:"status" bson:"status"`                               // สถานะใบเสร็จ เช่น paid, pending, credit
 	BillType      string        `json:"bill_type" bson:"bill_type"`                         // ประเภทบิล: quotation, delivery_note, receipt
 	TypeReceipt   string        `json:"type_receipt" bson:"type_receipt"`                   // ประเภทใบเสร็จ "company" หรือ "shop"
 	ApprovedBy    string        `json:"approved_by,omitempty" bson:"approved_by"`           // ผู้อนุมัติ
@@ -29,9 +29,12 @@ type Receipt struct { // โครงสร้างข้อมูลใบเ�
 } // ปิดโครงสร้าง Receipt
 
 type CustomerInfo struct { // โครงสร้างข้อมูลลูกค้า
-	Name    string `json:"name" bson:"name"`       // ชื่อลูกค้า
-	Address string `json:"address" bson:"address"` // ที่อยู่
-	Contact string `json:"contact" bson:"contact"` // เบอร์ติดต่อ
+	Name                string `json:"name" bson:"name"`                                                     // ชื่อลูกค้า
+	Address             string `json:"address" bson:"address"`                                               // ที่อยู่
+	Contact             string `json:"contact" bson:"contact"`                                               // เบอร์ติดต่อ
+	TaxIDCustomer       string `json:"tax_id_customer" bson:"tax_id_customer"`                               // เลขประจำตัวผู้เสียภาษีอากรลูกค้า
+	TypeReceiptCustomer string `json:"type_receipt_customer" bson:"type_receipt_customer"`                   // ประเภทใบเสร็จลูกค้า "company" หรือ "shop"
+	ShopDetailCustomer  string `json:"shop_detail_customer,omitempty" bson:"shop_detail_customer,omitempty"` // รายละเอียดร้านค้าลูกค้า (ถ้ามี)
 } // ปิดโครงสร้าง CustomerInfo
 
 type IssuerInfo struct { // โครงสร้างข้อมูลผู้ออกใบเสร็จ/บริษัท
@@ -43,19 +46,18 @@ type IssuerInfo struct { // โครงสร้างข้อมูลผู�
 } // ปิดโครงสร้าง IssuerInfo
 
 type ReceiptItem struct { // โครงสร้างข้อมูลรายการสินค้า/บริการ
-	Description string  `json:"description" bson:"description"`         // รายละเอียดรายการ
-	Quantity    int     `json:"quantity" bson:"quantity"`               // จำนวน
-	UnitPrice   float64 `json:"unit_price" bson:"unit_price"`           // ราคาต่อหน่วย
-	Other       float64 `json:"other,omitempty" bson:"other,omitempty"` // ค่าใช้จ่ายอื่นๆ (ถ้ามี)
-	Total       float64 `json:"total" bson:"total"`                     // รวมเป็นเงิน
+	Description string  `json:"description" bson:"description"` // รายละเอียดรายการ
+	Quantity    int     `json:"quantity" bson:"quantity"`       // จำนวน
+	UnitPrice   float64 `json:"unit_price" bson:"unit_price"`   // ราคาต่อหน่วย
+	Total       float64 `json:"total" bson:"total"`             // รวมเป็นเงิน
 } // ปิดโครงสร้าง ReceiptItem
 
 type PaymentInfo struct { // โครงสร้างข้อมูลการชำระเงิน
-	Method        string    `json:"method" bson:"method"`                                     // วิธีชำระ (เงินสด, โอน, อื่นๆ)
-	BankName      string    `json:"bank_name,omitempty" bson:"bank_name,omitempty"`           // ชื่อธนาคาร (ถ้ามี)
-	AccountName   string    `json:"account_name,omitempty" bson:"account_name,omitempty"`     // ชื่อบัญชี (ถ้ามี)
-	AccountNumber string    `json:"account_number,omitempty" bson:"account_number,omitempty"` // เลขที่บัญชี (ถ้ามี)
-	AmountPaid    float64   `json:"amount_paid" bson:"amount_paid"`                           // จำนวนเงินที่ชำระ
-	PaidDate      time.Time `json:"paid_date" bson:"paid_date"`                               // วันที่ชำระเงิน
-	Note          string    `json:"note,omitempty" bson:"note,omitempty"`                     // รายละเอียดเพิ่มเติม
+	Method        string     `json:"method" bson:"method"`                                     // วิธีชำระ (เงินสด, โอน, อื่นๆ)
+	BankName      string     `json:"bank_name,omitempty" bson:"bank_name,omitempty"`           // ชื่อธนาคาร (ถ้ามี)
+	AccountName   string     `json:"account_name,omitempty" bson:"account_name,omitempty"`     // ชื่อบัญชี (ถ้ามี)
+	AccountNumber string     `json:"account_number,omitempty" bson:"account_number,omitempty"` // เลขที่บัญชี (ถ้ามี)
+	AmountPaid    float64    `json:"amount_paid" bson:"amount_paid"`                           // จำนวนเงินที่ชำระ
+	PaidDate      *time.Time `json:"paid_date,omitempty" bson:"paid_date,omitempty"`           // วันที่ชำระเงิน (nil = ยังไม่ได้ชำระ)
+	Note          string     `json:"note,omitempty" bson:"note,omitempty"`                     // รายละเอียดเพิ่มเติม
 } // ปิดโครงสร้าง PaymentInfo

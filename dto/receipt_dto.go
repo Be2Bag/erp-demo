@@ -11,7 +11,7 @@ type CreateReceiptDTO struct { // โครงสร้างข้อมูล�
 	Discount      float64          `json:"discount"`                          // ส่วนลดรวม (บาท) - ไม่ส่งมาก็ได้
 	Remark        string           `json:"remark,omitempty"`                  // หมายเหตุ (ไม่ส่งมาก็ได้)
 	PaymentDetail PaymentInfoDTO   `json:"payment_detail" binding:"required"` // รายละเอียดการชำระเงิน (จำเป็นต้องส่ง)
-	Status        string           `json:"status,omitempty"`                  // สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)
+	Status        string           `json:"status,omitempty"`                  // สถานะใบเสร็จ เช่น paid, pending, credit (ไม่ส่งมาก็ได้)
 	BillType      string           `json:"bill_type" binding:"required"`      // ประเภทบิล: quotation, delivery_note, receipt (จำเป็นต้องส่ง)
 	ApprovedBy    string           `json:"approved_by,omitempty"`             // ผู้อนุมัติ (ไม่ส่งมาก็ได้)
 	ReceivedBy    string           `json:"received_by,omitempty"`             // ผู้รับเงิน/ผู้รับเอกสาร (ไม่ส่งมาก็ได้)
@@ -34,9 +34,12 @@ type UpdateReceiptDTO struct { // โครงสร้างข้อมูล�
 } // จบโครงสร้าง UpdateReceiptDTO
 
 type CustomerInfoDTO struct { // โครงสร้างข้อมูลลูกค้า
-	Name    string `json:"name" binding:"required"`    // ชื่อลูกค้า (จำเป็น)
-	Address string `json:"address" binding:"required"` // ที่อยู่ลูกค้า (จำเป็น)
-	Contact string `json:"contact" binding:"required"` // ช่องทางติดต่อ (จำเป็น)
+	Name                string `json:"name" binding:"required"`                  // ชื่อลูกค้า (จำเป็น)
+	Address             string `json:"address" binding:"required"`               // ที่อยู่ลูกค้า (จำเป็น)
+	Contact             string `json:"contact" binding:"required"`               // ช่องทางติดต่อ (จำเป็น)
+	TaxIDCustomer       string `json:"tax_id_customer" binding:"required"`       // เลขประจำตัวผู้เสียภาษีอากรลูกค้า (จำเป็น)
+	TypeReceiptCustomer string `json:"type_receipt_customer" binding:"required"` // ประเภทใบเสร็จลูกค้า "company" หรือ "shop" (จำเป็น)
+	ShopDetailCustomer  string `json:"shop_detail_customer,omitempty"`           // รายละเอียดร้านค้าลูกค้า (ถ้ามี)
 } // จบโครงสร้าง CustomerInfoDTO
 
 type IssuerInfoDTO struct { // โครงสร้างข้อมูลผู้ออกเอกสาร
@@ -51,7 +54,6 @@ type ReceiptItemDTO struct { // โครงสร้างรายการใ
 	Description string  `json:"description" binding:"required"`      // รายละเอียดรายการ (จำเป็น)
 	Quantity    int     `json:"quantity" binding:"required,gt=0"`    // จำนวน (ต้องมากกว่า 0)
 	UnitPrice   float64 `json:"unit_price" binding:"required,gte=0"` // ราคาต่อหน่วย (ต้องมากกว่าหรือเท่ากับ 0)
-	Other       float64 `json:"other"`                               // ค่าใช้จ่ายอื่นๆ ต่อรายการ (ไม่ส่งมาก็ได้)
 	Total       float64 `json:"total,omitempty"`                     // ถ้าเป็น 0 ระบบจะคำนวณให้: จำนวน x ราคาต่อหน่วย + ค่าอื่นๆ
 } // จบโครงสร้าง ReceiptItemDTO
 
@@ -105,13 +107,13 @@ type ReceiptDTO struct { // โครงสร้างข้อมูลใบ�
 } // จบโครงสร้าง ReceiptDTO
 
 type PaymentInfoRespDTO struct { // โครงสร้างรายละเอียดการชำระเงิน (Response)
-	Method        string    `json:"method"`                   // วิธีชำระเงิน
-	BankName      string    `json:"bank_name,omitempty"`      // ชื่อธนาคาร (อาจว่าง)
-	AccountName   string    `json:"account_name,omitempty"`   // ชื่อบัญชี (อาจว่าง)
-	AccountNumber string    `json:"account_number,omitempty"` // เลขที่บัญชี (อาจว่าง)
-	AmountPaid    float64   `json:"amount_paid"`              // จำนวนเงินที่ชำระ
-	PaidDate      time.Time `json:"paid_date"`                // วันที่ชำระเงิน (ชนิดเวลา)
-	Note          string    `json:"note,omitempty"`           // หมายเหตุการชำระเงิน (อาจว่าง)
+	Method        string     `json:"method"`                   // วิธีชำระเงิน
+	BankName      string     `json:"bank_name,omitempty"`      // ชื่อธนาคาร (อาจว่าง)
+	AccountName   string     `json:"account_name,omitempty"`   // ชื่อบัญชี (อาจว่าง)
+	AccountNumber string     `json:"account_number,omitempty"` // เลขที่บัญชี (อาจว่าง)
+	AmountPaid    float64    `json:"amount_paid"`              // จำนวนเงินที่ชำระ
+	PaidDate      *time.Time `json:"paid_date,omitempty"`      // วันที่ชำระเงิน (nil = ยังไม่ได้ชำระ)
+	Note          string     `json:"note,omitempty"`           // หมายเหตุการชำระเงิน (อาจว่าง)
 } // จบโครงสร้าง PaymentInfoRespDTO
 
 type ReceiptSummaryDTO struct { // โครงสร้างสรุปข้อมูลใบเสร็จ

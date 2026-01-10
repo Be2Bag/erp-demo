@@ -50,16 +50,14 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 	for _, it := range in.Items {
 		qty := it.Quantity
 		unit := it.UnitPrice
-		other := it.Other
 		itemTotal := it.Total
 		if itemTotal <= 0 {
-			itemTotal = float64(qty)*unit + other
+			itemTotal = float64(qty) * unit
 		}
 		items = append(items, models.ReceiptItem{
 			Description: it.Description,
 			Quantity:    qty,
 			UnitPrice:   unit,
-			Other:       other,
 			Total:       itemTotal,
 		})
 		total += itemTotal
@@ -86,13 +84,13 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 	}
 
 	// payment info
-	paidDate := now
+	var paidDate *time.Time
 	if strings.TrimSpace(in.PaymentDetail.PaidDate) != "" {
 		t, err := time.Parse("2006-01-02", in.PaymentDetail.PaidDate)
 		if err != nil {
 			return fmt.Errorf("invalid paid_date (want YYYY-MM-DD): %w", err)
 		}
-		paidDate = t
+		paidDate = &t
 	}
 	payment := models.PaymentInfo{
 		Method:        in.PaymentDetail.Method,
@@ -106,9 +104,12 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 
 	// customer, issuer
 	customer := models.CustomerInfo{
-		Name:    in.Customer.Name,
-		Address: in.Customer.Address,
-		Contact: in.Customer.Contact,
+		Name:                in.Customer.Name,
+		Address:             in.Customer.Address,
+		Contact:             in.Customer.Contact,
+		TaxIDCustomer:       in.Customer.TaxIDCustomer,
+		TypeReceiptCustomer: in.Customer.TypeReceiptCustomer,
+		ShopDetailCustomer:  in.Customer.ShopDetailCustomer,
 	}
 	preparedBy := strings.TrimSpace(in.Issuer.PreparedBy)
 	if preparedBy == "" {
@@ -155,6 +156,19 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 	}
 
 	receiptNumber := fmt.Sprintf("%s-%03d", datePrefix, sequence+1)
+
+	// ถ้า status เป็น "credit" ให้ล้างค่า payment info ออก
+	if status == "credit" {
+		payment = models.PaymentInfo{
+			Method:        in.PaymentDetail.Method,
+			BankName:      in.PaymentDetail.BankName,
+			AccountName:   in.PaymentDetail.AccountName,
+			AccountNumber: in.PaymentDetail.AccountNumber,
+			AmountPaid:    in.PaymentDetail.AmountPaid,
+			PaidDate:      nil,
+			Note:          in.PaymentDetail.Note,
+		}
+	}
 
 	model := models.Receipt{
 		IDReceipt:     uuid.NewString(),
@@ -285,7 +299,6 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 				Description: it.Description,
 				Quantity:    it.Quantity,
 				UnitPrice:   it.UnitPrice,
-				Other:       it.Other,
 				Total:       it.Total,
 			})
 		}
@@ -296,9 +309,12 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 			ReceiptNumber: m.ReceiptNumber,
 			ReceiptDate:   m.ReceiptDate,
 			Customer: dto.CustomerInfoDTO{
-				Name:    m.Customer.Name,
-				Address: m.Customer.Address,
-				Contact: m.Customer.Contact,
+				Name:                m.Customer.Name,
+				Address:             m.Customer.Address,
+				Contact:             m.Customer.Contact,
+				TaxIDCustomer:       m.Customer.TaxIDCustomer,
+				TypeReceiptCustomer: m.Customer.TypeReceiptCustomer,
+				ShopDetailCustomer:  m.Customer.ShopDetailCustomer,
 			},
 			Issuer: dto.IssuerInfoDTO{
 				Name:       m.Issuer.Name,
@@ -367,7 +383,6 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 			Description: it.Description,
 			Quantity:    it.Quantity,
 			UnitPrice:   it.UnitPrice,
-			Other:       it.Other,
 			Total:       it.Total,
 		})
 	}
@@ -378,9 +393,12 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 		ReceiptNumber: m.ReceiptNumber,
 		ReceiptDate:   m.ReceiptDate,
 		Customer: dto.CustomerInfoDTO{
-			Name:    m.Customer.Name,
-			Address: m.Customer.Address,
-			Contact: m.Customer.Contact,
+			Name:                m.Customer.Name,
+			Address:             m.Customer.Address,
+			Contact:             m.Customer.Contact,
+			TaxIDCustomer:       m.Customer.TaxIDCustomer,
+			TypeReceiptCustomer: m.Customer.TypeReceiptCustomer,
+			ShopDetailCustomer:  m.Customer.ShopDetailCustomer,
 		},
 		Issuer: dto.IssuerInfoDTO{
 			Name:       m.Issuer.Name,
