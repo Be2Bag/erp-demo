@@ -60,16 +60,14 @@ func (s *payablesService) CreatePayable(ctx context.Context, payable dto.CreateP
 	for _, it := range payable.Items {
 		qty := it.Quantity
 		unit := it.UnitPrice
-		other := it.Other
 		itemTotal := it.Total
 		if itemTotal <= 0 {
-			itemTotal = float64(qty)*unit + other
+			itemTotal = float64(qty) * unit
 		}
 		items = append(items, models.ReceiptItem{
 			Description: it.Description,
 			Quantity:    qty,
 			UnitPrice:   unit,
-			Other:       other,
 			Total:       itemTotal,
 		})
 		total += itemTotal
@@ -205,7 +203,6 @@ func (s *payablesService) ListPayables(ctx context.Context, claims *dto.JWTClaim
 				Description: it.Description,
 				Quantity:    it.Quantity,
 				UnitPrice:   it.UnitPrice,
-				Other:       it.Other,
 				Total:       it.Total,
 			})
 		}
@@ -308,7 +305,6 @@ func (s *payablesService) GetPayableByID(ctx context.Context, payableID string, 
 			Description: it.Description,
 			Quantity:    it.Quantity,
 			UnitPrice:   it.UnitPrice,
-			Other:       it.Other,
 			Total:       it.Total,
 		})
 	}
@@ -399,16 +395,14 @@ func (s *payablesService) UpdatePayableByID(ctx context.Context, payableID strin
 		for _, it := range update.Items {
 			qty := it.Quantity
 			unit := it.UnitPrice
-			other := it.Other
 			itemTotal := it.Total
 			if itemTotal <= 0 {
-				itemTotal = float64(qty)*unit + other
+				itemTotal = float64(qty) * unit
 			}
 			items = append(items, models.ReceiptItem{
 				Description: it.Description,
 				Quantity:    qty,
 				UnitPrice:   unit,
-				Other:       other,
 				Total:       itemTotal,
 			})
 		}

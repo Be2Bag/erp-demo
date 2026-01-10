@@ -8103,7 +8103,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "status": {
-                    "description": "สถานะใบเสร็จ เช่น paid, pending (ไม่ส่งมาก็ได้)",
+                    "description": "สถานะใบเสร็จ เช่น paid, pending, credit (ไม่ส่งมาก็ได้)",
                     "type": "string"
                 },
                 "tax_id": {
@@ -8404,7 +8404,9 @@ const docTemplate = `{
             "required": [
                 "address",
                 "contact",
-                "name"
+                "name",
+                "tax_id_customer",
+                "type_receipt_customer"
             ],
             "properties": {
                 "address": {
@@ -8417,6 +8419,18 @@ const docTemplate = `{
                 },
                 "name": {
                     "description": "ชื่อลูกค้า (จำเป็น)",
+                    "type": "string"
+                },
+                "shop_detail_customer": {
+                    "description": "รายละเอียดร้านค้าลูกค้า (ถ้ามี)",
+                    "type": "string"
+                },
+                "tax_id_customer": {
+                    "description": "เลขประจำตัวผู้เสียภาษีอากรลูกค้า (จำเป็น)",
+                    "type": "string"
+                },
+                "type_receipt_customer": {
+                    "description": "ประเภทใบเสร็จลูกค้า \"company\" หรือ \"shop\" (จำเป็น)",
                     "type": "string"
                 }
             }
@@ -9185,10 +9199,6 @@ const docTemplate = `{
                 "description": {
                     "description": "รายละเอียดรายการ (จำเป็น)",
                     "type": "string"
-                },
-                "other": {
-                    "description": "ค่าใช้จ่ายอื่นๆ ต่อรายการ (ไม่ส่งมาก็ได้)",
-                    "type": "number"
                 },
                 "quantity": {
                     "description": "จำนวน (ต้องมากกว่า 0)",
@@ -10564,7 +10574,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "api.rkp-media.com",
+	Host:             "api.dev.rkp-media.com",
 	BasePath:         "/service/api",
 	Schemes:          []string{},
 	Title:            "ERP Demo API",
