@@ -24,6 +24,7 @@ func (h *receiptHandler) ReceiptRoutes(router fiber.Router) {
 	receipt.Post("/create", h.mdw.AuthCookieMiddleware(), h.CreateReceipt)
 	receipt.Get("/list", h.mdw.AuthCookieMiddleware(), h.ListReceipts)
 	receipt.Get("/summary", h.mdw.AuthCookieMiddleware(), h.SummaryReceiptByFilter)
+	receipt.Post("/copy", h.mdw.AuthCookieMiddleware(), h.CopyReceiptByID)
 	receipt.Get("/:id", h.mdw.AuthCookieMiddleware(), h.GetReceiptByID)
 	receipt.Post("/:id/confirm", h.mdw.AuthCookieMiddleware(), h.ConfirmReceiptByID)
 	receipt.Delete("/:id", h.mdw.AuthCookieMiddleware(), h.DeleteReceiptByID)
@@ -340,6 +341,65 @@ func (h *receiptHandler) ConfirmReceiptByID(c *fiber.Ctx) error {
 		StatusCode: fiber.StatusOK,
 		MessageEN:  "Receipt confirmed successfully",
 		MessageTH:  "ยืนยันใบเสร็จเรียบร้อยแล้ว",
+		Status:     "success",
+		Data:       nil,
+	})
+}
+
+func (h *receiptHandler) CopyReceiptByID(c *fiber.Ctx) error {
+	claims, err := middleware.GetClaims(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	var req dto.RequestCopyReceipt
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusBadRequest,
+			MessageEN:  "Invalid request body",
+			MessageTH:  "รูปแบบข้อมูลไม่ถูกต้อง",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
+	err = h.svc.CopyReceiptByID(c.Context(), req.IDReceipt, req.BillType, claims)
+	if err != nil {
+		errMsg := err.Error()
+		messageEN := "Failed to copy receipt"
+		messageTH := "คัดลอกไม่สำเร็จ"
+		statusCode := fiber.StatusInternalServerError
+
+		// Handle specific errors
+		if errMsg == "receipt not found" {
+			messageEN = "Receipt not found"
+			messageTH = "ไม่พบใบเสร็จที่ต้องการคัดลอก"
+			statusCode = fiber.StatusNotFound
+		} else if len(errMsg) > 15 && errMsg[:14] == "DUPLICATE_COPY" {
+			billType := errMsg[15:] // Get bill type after "DUPLICATE_COPY:"
+			messageEN = "This receipt has already been copied to '" + billType + "' and has not been deleted. Cannot copy again."
+			messageTH = "ใบเสร็จนี้เคย copy ไปเป็น '" + billType + "' แล้ว และยังไม่ถูกลบ ไม่สามารถ copy ซ้ำได้"
+			statusCode = fiber.StatusConflict
+		}
+
+		return c.Status(statusCode).JSON(dto.BaseResponse{
+			StatusCode: statusCode,
+			MessageEN:  messageEN,
+			MessageTH:  messageTH,
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+	return c.JSON(dto.BaseResponse{
+		StatusCode: fiber.StatusOK,
+		MessageEN:  "Receipt copied successfully",
+		MessageTH:  "คัดลอกใบเสร็จเรียบร้อยแล้ว",
 		Status:     "success",
 		Data:       nil,
 	})

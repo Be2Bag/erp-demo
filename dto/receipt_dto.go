@@ -129,3 +129,8 @@ type RequestSummaryReceipt struct {
 	StartDate   string `query:"start_date"`
 	EndDate     string `query:"end_date"`
 }
+
+type RequestCopyReceipt struct {
+	IDReceipt string `json:"id_receipt" binding:"required"`
+	BillType  string `json:"bill_type" binding:"required"`
+}

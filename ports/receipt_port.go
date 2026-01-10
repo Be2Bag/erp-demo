@@ -15,6 +15,7 @@ type ReceiptService interface {
 	DeleteReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) error
 	SummaryReceiptByFilter(ctx context.Context, claims *dto.JWTClaims, report dto.RequestSummaryReceipt) (dto.ReceiptSummaryDTO, error)
 	ConfirmReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) error
+	CopyReceiptByID(ctx context.Context, receiptID string, billType string, claims *dto.JWTClaims) error
 }
 
 type ReceiptRepository interface {

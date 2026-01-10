@@ -553,3 +553,87 @@ func (s *receiptService) ConfirmReceiptByID(ctx context.Context, receiptID strin
 
 	return nil
 }
+
+func (s *receiptService) CopyReceiptByID(ctx context.Context, receiptID string, billType string, claims *dto.JWTClaims) error {
+	now := time.Now()
+	normalizedBillType := strings.ToLower(strings.TrimSpace(billType))
+	normalizedReceiptID := strings.TrimSpace(receiptID)
+
+	// ดึงข้อมูล receipt ต้นฉบับทั้งหมด
+	filter := bson.M{"id_receipt": normalizedReceiptID, "deleted_at": nil}
+	projection := bson.M{} // ดึงทุก field
+
+	m, err := s.receiptRepo.GetOneReceiptsByFilter(ctx, filter, projection)
+	if err != nil {
+		return err
+	}
+	if m == nil {
+		return fmt.Errorf("receipt not found")
+	}
+
+	// เช็คว่าเคย copy ไปเป็น BillType นี้แล้วหรือยัง (และยังไม่ถูกลบ)
+	existingCopyFilter := bson.M{
+		"copied_from_id": normalizedReceiptID,
+		"bill_type":      normalizedBillType,
+		"deleted_at":     nil,
+	}
+	existingCopy, err := s.receiptRepo.GetOneReceiptsByFilter(ctx, existingCopyFilter, bson.M{"id_receipt": 1})
+	if err != nil {
+		return err
+	}
+	if existingCopy != nil {
+		return fmt.Errorf("DUPLICATE_COPY:%s", normalizedBillType)
+	}
+
+	// สร้าง ReceiptNumber ใหม่ IV014-DD-MM-YY-XXX
+	year := now.Year() % 100
+	yearPrefix := fmt.Sprintf("IV%03d", 14+year-25) // IV014 for 2025, IV015 for 2026, etc.
+	datePrefix := fmt.Sprintf("%s-%02d-%02d-%02d", yearPrefix, now.Day(), int(now.Month()), year)
+
+	maxNumber, err := s.receiptRepo.GetMaxReceiptNumber(ctx, datePrefix)
+	if err != nil {
+		return fmt.Errorf("failed to generate receipt number: %w", err)
+	}
+
+	sequence := 0
+	if maxNumber != "" {
+		parts := strings.Split(maxNumber, "-")
+		if len(parts) == 5 {
+			_, _ = fmt.Sscanf(parts[4], "%d", &sequence)
+		}
+	}
+
+	receiptNumber := fmt.Sprintf("%s-%03d", datePrefix, sequence+1)
+
+	// สร้าง receipt ใหม่โดย copy ข้อมูลจากต้นฉบับ
+	newReceipt := models.Receipt{
+		IDReceipt:     uuid.NewString(),
+		ReceiptNumber: receiptNumber, // ReceiptNumber ใหม่
+		ReceiptDate:   now,           // ใช้วันที่ปัจจุบัน
+		Customer:      m.Customer,
+		Issuer:        m.Issuer,
+		Items:         m.Items,
+		SubTotal:      m.SubTotal,
+		Discount:      m.Discount,
+		TotalVAT:      m.TotalVAT,
+		TotalAmount:   m.TotalAmount,
+		Remark:        m.Remark,
+		PaymentDetail: m.PaymentDetail,
+		Status:        "pending",          // สถานะเริ่มต้นเป็น pending
+		BillType:      normalizedBillType, // BillType ใหม่ตามที่ส่งมา
+		TypeReceipt:   m.TypeReceipt,
+		ApprovedBy:    "",
+		ReceivedBy:    claims.UserID,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+		TaxID:         m.TaxID,
+		ShopDetail:    m.ShopDetail,
+		CopiedFromID:  normalizedReceiptID, // เก็บ ID ต้นฉบับที่ copy มา
+	}
+
+	if err := s.receiptRepo.CreateReceipt(ctx, newReceipt); err != nil {
+		return err
+	}
+
+	return nil
+}
