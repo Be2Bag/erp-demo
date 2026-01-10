@@ -346,6 +346,17 @@ func (h *receiptHandler) ConfirmReceiptByID(c *fiber.Ctx) error {
 	})
 }
 
+// @Summary      Copy receipt by ID
+// @Description  Copy a receipt record by its ID
+// @Tags         Receipts
+// @Accept       json
+// @Produce      json
+// @Param        receipt  body      dto.RequestCopyReceipt  true  "Receipt data"
+// @Success      200  {object}  dto.BaseResponse
+// @Failure      400  {object}  dto.BaseResponse
+// @Failure      401  {object}  dto.BaseResponse
+// @Failure      500  {object}  dto.BaseResponse
+// @Router       /v1/receipt/copy [post]
 func (h *receiptHandler) CopyReceiptByID(c *fiber.Ctx) error {
 	claims, err := middleware.GetClaims(c)
 	if err != nil {

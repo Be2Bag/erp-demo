@@ -1289,6 +1289,16 @@ definitions:
     - new_password
     - token
     type: object
+  dto.RequestCopyReceipt:
+    properties:
+      bill_type:
+        type: string
+      id_receipt:
+        type: string
+    required:
+    - bill_type
+    - id_receipt
+    type: object
   dto.RequestDeleteFile:
     properties:
       name:
@@ -5091,6 +5101,40 @@ paths:
           schema:
             $ref: '#/definitions/dto.BaseResponse'
       summary: Confirm receipt by ID
+      tags:
+      - Receipts
+  /v1/receipt/copy:
+    post:
+      consumes:
+      - application/json
+      description: Copy a receipt record by its ID
+      parameters:
+      - description: Receipt data
+        in: body
+        name: receipt
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RequestCopyReceipt'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.BaseResponse'
+      summary: Copy receipt by ID
       tags:
       - Receipts
   /v1/receipt/create:

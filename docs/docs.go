@@ -4392,6 +4392,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/receipt/copy": {
+            "post": {
+                "description": "Copy a receipt record by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Receipts"
+                ],
+                "summary": "Copy receipt by ID",
+                "parameters": [
+                    {
+                        "description": "Receipt data",
+                        "name": "receipt",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RequestCopyReceipt"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/receipt/create": {
             "post": {
                 "description": "Create a new receipt record",
@@ -9296,6 +9348,21 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RequestCopyReceipt": {
+            "type": "object",
+            "required": [
+                "bill_type",
+                "id_receipt"
+            ],
+            "properties": {
+                "bill_type": {
+                    "type": "string"
+                },
+                "id_receipt": {
                     "type": "string"
                 }
             }
