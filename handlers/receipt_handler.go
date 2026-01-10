@@ -394,8 +394,24 @@ func (h *receiptHandler) CopyReceiptByID(c *fiber.Ctx) error {
 			statusCode = fiber.StatusNotFound
 		} else if len(errMsg) > 15 && errMsg[:14] == "DUPLICATE_COPY" {
 			billType := errMsg[15:] // Get bill type after "DUPLICATE_COPY:"
-			messageEN = "This receipt has already been copied to '" + billType + "' and has not been deleted. Cannot copy again."
-			messageTH = "ใบเสร็จนี้เคย copy ไปเป็น '" + billType + "' แล้ว และยังไม่ถูกลบ ไม่สามารถ copy ซ้ำได้"
+
+			// แปล bill type เป็นภาษาไทย
+			billTypeTH := billType
+			billTypeEN := billType
+			switch billType {
+			case "quotation":
+				billTypeTH = "ใบเสนอราคา"
+				billTypeEN = "Quotation"
+			case "delivery_note":
+				billTypeTH = "ใบส่งของ"
+				billTypeEN = "Delivery Note"
+			case "receipt":
+				billTypeTH = "ใบเสร็จรับเงิน"
+				billTypeEN = "Receipt"
+			}
+
+			messageEN = "This receipt has already been copied to '" + billTypeEN + "' and has not been deleted. Cannot copy again."
+			messageTH = "เอกสารนี้เคยคัดลอกไปเป็น '" + billTypeTH + "' แล้ว และยังไม่ถูกลบ ไม่สามารถคัดลอกซ้ำได้"
 			statusCode = fiber.StatusConflict
 		}
 
