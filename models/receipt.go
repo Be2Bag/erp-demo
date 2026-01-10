@@ -35,6 +35,7 @@ type CustomerInfo struct { // โครงสร้างข้อมูลล�
 	TaxIDCustomer       string `json:"tax_id_customer" bson:"tax_id_customer"`                               // เลขประจำตัวผู้เสียภาษีอากรลูกค้า
 	TypeReceiptCustomer string `json:"type_receipt_customer" bson:"type_receipt_customer"`                   // ประเภทใบเสร็จลูกค้า "company" หรือ "shop"
 	ShopDetailCustomer  string `json:"shop_detail_customer,omitempty" bson:"shop_detail_customer,omitempty"` // รายละเอียดร้านค้าลูกค้า (ถ้ามี)
+	Fax                 string `json:"fax,omitempty" bson:"fax,omitempty"`                                   // เบอร์แฟกซ์
 } // ปิดโครงสร้าง CustomerInfo
 
 type IssuerInfo struct { // โครงสร้างข้อมูลผู้ออกใบเสร็จ/บริษัท

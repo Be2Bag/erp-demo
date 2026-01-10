@@ -8417,6 +8417,10 @@ const docTemplate = `{
                     "description": "ช่องทางติดต่อ (จำเป็น)",
                     "type": "string"
                 },
+                "fax": {
+                    "description": "เบอร์แฟกซ์",
+                    "type": "string"
+                },
                 "name": {
                     "description": "ชื่อลูกค้า (จำเป็น)",
                     "type": "string"

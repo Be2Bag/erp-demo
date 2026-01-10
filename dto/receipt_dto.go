@@ -40,6 +40,7 @@ type CustomerInfoDTO struct { // โครงสร้างข้อมูล�
 	TaxIDCustomer       string `json:"tax_id_customer" binding:"required"`       // เลขประจำตัวผู้เสียภาษีอากรลูกค้า (จำเป็น)
 	TypeReceiptCustomer string `json:"type_receipt_customer" binding:"required"` // ประเภทใบเสร็จลูกค้า "company" หรือ "shop" (จำเป็น)
 	ShopDetailCustomer  string `json:"shop_detail_customer,omitempty"`           // รายละเอียดร้านค้าลูกค้า (ถ้ามี)
+	Fax                 string `json:"fax,omitempty"`                            // เบอร์แฟกซ์
 } // จบโครงสร้าง CustomerInfoDTO
 
 type IssuerInfoDTO struct { // โครงสร้างข้อมูลผู้ออกเอกสาร

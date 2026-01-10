@@ -110,6 +110,7 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		TaxIDCustomer:       in.Customer.TaxIDCustomer,
 		TypeReceiptCustomer: in.Customer.TypeReceiptCustomer,
 		ShopDetailCustomer:  in.Customer.ShopDetailCustomer,
+		Fax:                 in.Customer.Fax,
 	}
 	preparedBy := strings.TrimSpace(in.Issuer.PreparedBy)
 	if preparedBy == "" {
@@ -315,6 +316,7 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 				TaxIDCustomer:       m.Customer.TaxIDCustomer,
 				TypeReceiptCustomer: m.Customer.TypeReceiptCustomer,
 				ShopDetailCustomer:  m.Customer.ShopDetailCustomer,
+				Fax:                 m.Customer.Fax,
 			},
 			Issuer: dto.IssuerInfoDTO{
 				Name:       m.Issuer.Name,
@@ -399,6 +401,7 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 			TaxIDCustomer:       m.Customer.TaxIDCustomer,
 			TypeReceiptCustomer: m.Customer.TypeReceiptCustomer,
 			ShopDetailCustomer:  m.Customer.ShopDetailCustomer,
+			Fax:                 m.Customer.Fax,
 		},
 		Issuer: dto.IssuerInfoDTO{
 			Name:       m.Issuer.Name,
