@@ -770,8 +770,8 @@ func (s *signJobService) DeleteSignJobByJobID(ctx context.Context, jobID string,
 
 func (s *signJobService) VerifySignJob(ctx context.Context, jobID string, claims *dto.JWTClaims) error {
 
-	if claims.Role != "admin" {
-		return fmt.Errorf("only admin can verify")
+	if claims.Role != "admin" && !config.HasPermission(config.PermissionConfig.VerifySignJob, claims.UserID) {
+		return fmt.Errorf("permission denied: requires admin role or verify permission")
 	}
 
 	filter := bson.M{"job_id": jobID, "deleted_at": nil}
