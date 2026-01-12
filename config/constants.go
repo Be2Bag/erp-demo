@@ -31,3 +31,22 @@ func IsProtectedTransactionCategory(categoryID string) bool {
 	return categoryID == DefaultTransactionCategoryIDs.CompanyExpense ||
 		categoryID == DefaultTransactionCategoryIDs.CompanyIncome
 }
+
+// PermissionConfig - กำหนด UserIDs ที่มีสิทธิ์พิเศษนอกเหนือจาก admin
+var PermissionConfig = struct {
+	VerifySignJob []string // UserIDs ที่สามารถ verify sign job ได้
+}{
+	VerifySignJob: []string{
+		"ace8df6b-a785-491f-b33e-37085e7e8229",
+	},
+}
+
+// HasPermission ตรวจสอบว่า userID มีสิทธิ์ในรายการหรือไม่
+func HasPermission(allowedUserIDs []string, userID string) bool {
+	for _, id := range allowedUserIDs {
+		if id == userID {
+			return true
+		}
+	}
+	return false
+}
