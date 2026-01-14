@@ -51,6 +51,8 @@ func (r *signJobRepo) UpdateSignJobByJobID(ctx context.Context, jobID string, up
 		"design_option":      update.DesignOption,
 		"install_option":     update.InstallOption,
 		"notes":              update.Notes,
+		"waitprice":          update.WaitPrice,
+		"waitconfirm":        update.WaitConfirm,
 		"status":             update.Status,
 		"updated_at":         update.UpdatedAt,
 	}
