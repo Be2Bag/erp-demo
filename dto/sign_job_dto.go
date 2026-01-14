@@ -141,7 +141,9 @@ type SignJobDTO struct { // DTO สำหรับส่งกลับให้
 	InstallOption string `json:"install_option"` // ตัวเลือกติดตั้ง
 
 	// ---------- หมายเหตุ ----------
-	Notes string `json:"notes"` // หมายเหตุ
+	Notes       string `json:"notes"`       // หมายเหตุ
+	WaitPrice   bool   `json:"waitprice"`   // รอราคา
+	WaitConfirm bool   `json:"waitconfirm"` // รอยืนยัน
 
 	// ---------- เมต้า ----------
 	Status    string     `json:"status"`     // สถานะงาน

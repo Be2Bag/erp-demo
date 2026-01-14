@@ -1,0 +1,50 @@
+# MongoDB Configuration
+mongo:
+  connection: "" # Full connection string (optional, if not set will be built from host/port/user/password)
+  host: "localhost"
+  port: "27017"
+  user: ""
+  password: ""
+  database: "erp_demo"
+
+# Encryption Configuration
+encryption:
+  key: "" # 32-character key for AES encryption
+
+# Swagger Configuration
+swagger:
+  key: "" # Password for Swagger basic auth (username: admin)
+
+# Hash Configuration
+hash:
+  salt: "" # Salt for password hashing
+
+# JWT Configuration
+jwt:
+  secret: "" # Secret key for JWT signing
+
+# Email Configuration
+email:
+  host: "" # SMTP host (e.g., smtp.gmail.com)
+  port: 587 # SMTP port
+  username: "" # SMTP username
+  password: "" # SMTP password or app password
+  from: "" # Sender email address
+
+# Supabase Storage Configuration
+supabase:
+  access_key: ""
+  secret_key: ""
+  bucket: ""
+  region: ""
+  endpoint: ""
+  public_base: ""
+
+# Cloudflare R2 Storage Configuration
+cloudflare:
+  access_key: ""
+  secret_key: ""
+  bucket: ""
+  region: "auto"
+  endpoint: "" # https://<account_id>.r2.cloudflarestorage.com
+  public_base_url: "" # Public URL for accessing files

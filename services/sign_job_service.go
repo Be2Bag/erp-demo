@@ -345,6 +345,8 @@ func (s *signJobService) ListSignJobs(ctx context.Context, claims *dto.JWTClaims
 			InstallOption:     m.InstallOption,
 			Notes:             m.Notes,
 			Status:            m.Status,
+			WaitPrice:         m.WaitPrice,
+			WaitConfirm:       m.WaitConfirm,
 			CreatedBy:         m.CreatedBy,
 			CreatedAt:         m.CreatedAt,
 			UpdatedAt:         m.UpdatedAt,
@@ -425,7 +427,9 @@ func (s *signJobService) GetSignJobByJobID(ctx context.Context, jobID string, cl
 		DesignOption:  m.DesignOption,
 		InstallOption: m.InstallOption,
 		// ---------- หมายเหตุ ----------
-		Notes: m.Notes,
+		Notes:       m.Notes,
+		WaitPrice:   m.WaitPrice,
+		WaitConfirm: m.WaitConfirm,
 		// ---------- เมต้า ----------
 		Status:    m.Status,
 		CreatedBy: m.CreatedBy,
