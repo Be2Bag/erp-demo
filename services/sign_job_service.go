@@ -105,93 +105,101 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 	if !signJob.IsDeposit {
 
 		// Truncate to start of day in UTC
+		// สร้าง Income เฉพาะกรณียอด > 0
+		if signJob.PriceTHB > 0 {
+			modelIncome := models.Income{
+				IncomeID:              uuid.NewString(),
+				BankID:                config.DefaultBankAccountIDs.CompanyBank,
+				TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
+				Description:           signJob.Content,
+				Amount:                signJob.PriceTHB,
+				Currency:              "THB",
+				TxnDate:               nowUTC,
+				PaymentMethod:         signJob.PaymentMethod,
+				ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
+				Note:                  &jobName,
+				CreatedBy:             claims.UserID,
+				CreatedAt:             now,
+				UpdatedAt:             now,
+			}
 
-		modelIncome := models.Income{
-			IncomeID:              uuid.NewString(),
-			BankID:                config.DefaultBankAccountIDs.CompanyBank,
-			TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
-			Description:           signJob.Content,
-			Amount:                signJob.PriceTHB,
-			Currency:              "THB",
-			TxnDate:               nowUTC,
-			PaymentMethod:         signJob.PaymentMethod,
-			ReferenceNo:           "", // เพิ่มเลขใบเสร็จ / หมายเลขธุรกรรมธนาคาร
-			Note:                  &jobName,
-			CreatedBy:             claims.UserID,
-			CreatedAt:             now,
-			UpdatedAt:             now,
-		}
-
-		if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
-			return err
-		}
-
-	} else {
-
-		prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
-		maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
-		if err != nil {
-			return fmt.Errorf("get max invoice number: %w", err)
-		}
-
-		counter := 1
-		if maxInvoiceNo != "" {
-			// Extract counter from last invoice (e.g., "AR-25-01-15-001" -> 1)
-			var lastCounter int
-			_, scanErr := fmt.Sscanf(maxInvoiceNo, prefix+"%d", &lastCounter)
-			if scanErr == nil {
-				counter = lastCounter + 1
+			if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+				return err
 			}
 		}
 
-		invoiceNo := fmt.Sprintf("%s%03d", prefix, counter)
+	} else {
+		// สร้าง Receivable และ Income เฉพาะกรณียอด > 0
+		if signJob.PriceTHB > 0 {
+			prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
+			maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
+			if err != nil {
+				return fmt.Errorf("get max invoice number: %w", err)
+			}
 
-		modelReceivable := models.Receivable{
-			IDReceivable: uuid.NewString(),
-			BankID:       config.DefaultBankAccountIDs.CompanyBank,
-			Customer:     signJob.CompanyName,
-			InvoiceNo:    invoiceNo,
-			IssueDate:    nowUTC,
-			DueDate:      nowUTC.AddDate(0, 0, 30),
-			Amount:       signJob.PriceTHB,
-			Balance:      signJob.OutstandingAmount,
-			Status:       "pending",
-			Phone:        signJob.Phone,
-			Address:      signJob.Address,
-			CreatedBy:    claims.UserID,
-			CreatedAt:    now,
-			UpdatedAt:    now,
-			Note:         jobName,
-			JobID:        model.JobID,
-		}
+			counter := 1
+			if maxInvoiceNo != "" {
+				// Extract counter from last invoice (e.g., "AR-25-01-15-001" -> 1)
+				var lastCounter int
+				_, scanErr := fmt.Sscanf(maxInvoiceNo, prefix+"%d", &lastCounter)
+				if scanErr == nil {
+					counter = lastCounter + 1
+				}
+			}
 
-		if err := s.receivableRepo.CreateReceivable(ctx, modelReceivable); err != nil {
-			return err
-		}
+			invoiceNo := fmt.Sprintf("%s%03d", prefix, counter)
 
-		modelIncome := models.Income{
-			IncomeID:              uuid.NewString(),
-			BankID:                config.DefaultBankAccountIDs.CompanyBank,
-			TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
-			Description:           signJob.Content,
-			Amount:                signJob.DepositAmount,
-			Currency:              "THB",
-			TxnDate:               nowUTC,
-			PaymentMethod:         signJob.PaymentMethod,
-			ReferenceNo:           invoiceNo,
-			Note:                  &jobName,
-			CreatedBy:             claims.UserID,
-			CreatedAt:             now,
-			UpdatedAt:             now,
-		}
+			modelReceivable := models.Receivable{
+				IDReceivable: uuid.NewString(),
+				BankID:       config.DefaultBankAccountIDs.CompanyBank,
+				Customer:     signJob.CompanyName,
+				InvoiceNo:    invoiceNo,
+				IssueDate:    nowUTC,
+				DueDate:      nowUTC.AddDate(0, 0, 30),
+				Amount:       signJob.PriceTHB,
+				Balance:      signJob.OutstandingAmount,
+				Status:       "pending",
+				Phone:        signJob.Phone,
+				Address:      signJob.Address,
+				CreatedBy:    claims.UserID,
+				CreatedAt:    now,
+				UpdatedAt:    now,
+				Note:         jobName,
+				JobID:        model.JobID,
+			}
 
-		if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
-			return err
+			if err := s.receivableRepo.CreateReceivable(ctx, modelReceivable); err != nil {
+				return err
+			}
+
+			// สร้าง Income สำหรับมัดจำ เฉพาะกรณียอดมัดจำ > 0
+			if signJob.DepositAmount > 0 {
+				modelIncome := models.Income{
+					IncomeID:              uuid.NewString(),
+					BankID:                config.DefaultBankAccountIDs.CompanyBank,
+					TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
+					Description:           signJob.Content,
+					Amount:                signJob.DepositAmount,
+					Currency:              "THB",
+					TxnDate:               nowUTC,
+					PaymentMethod:         signJob.PaymentMethod,
+					ReferenceNo:           invoiceNo,
+					Note:                  &jobName,
+					CreatedBy:             claims.UserID,
+					CreatedAt:             now,
+					UpdatedAt:             now,
+				}
+
+				if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+					return err
+				}
+			}
 		}
 
 	}
 
-	if signJob.PaymentMethod == "credit" && !signJob.IsDeposit {
+	// สร้าง Receivable สำหรับ credit เฉพาะกรณียอด > 0
+	if signJob.PaymentMethod == "credit" && !signJob.IsDeposit && signJob.PriceTHB > 0 {
 
 		prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
 		maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
@@ -456,6 +464,9 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	// เก็บสถานะ WaitPrice เดิมไว้ เพื่อตรวจสอบว่าเปลี่ยนจากรอราคาเป็นมีราคาหรือไม่
 	wasWaitingForPrice := existing.WaitPrice
 
+	// เก็บสถานะ IsDeposit เดิมไว้ เพื่อตรวจสอบว่าเปลี่ยนจากไม่มีมัดจำเป็นมีมัดจำหรือไม่
+	wasNotDeposit := !existing.IsDeposit
+
 	// เก็บ job_name เดิมไว้สำหรับอัพเดท Income
 	oldJobName = existing.JobName
 
@@ -569,92 +580,99 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		nowUTC := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
 		if !existing.IsDeposit {
-			// กรณีจ่ายเต็มจำนวน - สร้าง Income
-			modelIncome := models.Income{
-				IncomeID:              uuid.NewString(),
-				BankID:                config.DefaultBankAccountIDs.CompanyBank,
-				TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
-				Description:           existing.Content,
-				Amount:                existing.PriceTHB,
-				Currency:              "THB",
-				TxnDate:               nowUTC,
-				PaymentMethod:         existing.PaymentMethod,
-				ReferenceNo:           "",
-				Note:                  &jobName,
-				CreatedBy:             claims.UserID,
-				CreatedAt:             now,
-				UpdatedAt:             now,
-			}
+			// กรณีจ่ายเต็มจำนวน - สร้าง Income (เฉพาะกรณียอด > 0)
+			if existing.PriceTHB > 0 {
+				modelIncome := models.Income{
+					IncomeID:              uuid.NewString(),
+					BankID:                config.DefaultBankAccountIDs.CompanyBank,
+					TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
+					Description:           existing.Content,
+					Amount:                existing.PriceTHB,
+					Currency:              "THB",
+					TxnDate:               nowUTC,
+					PaymentMethod:         existing.PaymentMethod,
+					ReferenceNo:           "",
+					Note:                  &jobName,
+					CreatedBy:             claims.UserID,
+					CreatedAt:             now,
+					UpdatedAt:             now,
+				}
 
-			if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
-				return err
-			}
-
-		} else {
-			// กรณีมีมัดจำ - สร้าง Receivable และ Income สำหรับมัดจำ
-			prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
-			maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
-			if err != nil {
-				return fmt.Errorf("get max invoice number: %w", err)
-			}
-
-			counter := 1
-			if maxInvoiceNo != "" {
-				var lastCounter int
-				_, scanErr := fmt.Sscanf(maxInvoiceNo, prefix+"%d", &lastCounter)
-				if scanErr == nil {
-					counter = lastCounter + 1
+				if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+					return err
 				}
 			}
 
-			invoiceNo := fmt.Sprintf("%s%03d", prefix, counter)
+		} else {
+			// กรณีมีมัดจำ - สร้าง Receivable และ Income สำหรับมัดจำ (เฉพาะกรณียอด > 0)
+			if existing.PriceTHB > 0 {
+				prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
+				maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
+				if err != nil {
+					return fmt.Errorf("get max invoice number: %w", err)
+				}
 
-			modelReceivable := models.Receivable{
-				IDReceivable: uuid.NewString(),
-				BankID:       config.DefaultBankAccountIDs.CompanyBank,
-				Customer:     existing.CompanyName,
-				InvoiceNo:    invoiceNo,
-				IssueDate:    nowUTC,
-				DueDate:      nowUTC.AddDate(0, 0, 30),
-				Amount:       existing.PriceTHB,
-				Balance:      existing.OutstandingAmount,
-				Status:       "pending",
-				Phone:        existing.Phone,
-				Address:      existing.Address,
-				CreatedBy:    claims.UserID,
-				CreatedAt:    now,
-				UpdatedAt:    now,
-				Note:         jobName,
-				JobID:        existing.JobID,
-			}
+				counter := 1
+				if maxInvoiceNo != "" {
+					var lastCounter int
+					_, scanErr := fmt.Sscanf(maxInvoiceNo, prefix+"%d", &lastCounter)
+					if scanErr == nil {
+						counter = lastCounter + 1
+					}
+				}
 
-			if err := s.receivableRepo.CreateReceivable(ctx, modelReceivable); err != nil {
-				return err
-			}
+				invoiceNo := fmt.Sprintf("%s%03d", prefix, counter)
 
-			modelIncome := models.Income{
-				IncomeID:              uuid.NewString(),
-				BankID:                config.DefaultBankAccountIDs.CompanyBank,
-				TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
-				Description:           existing.Content,
-				Amount:                existing.DepositAmount,
-				Currency:              "THB",
-				TxnDate:               nowUTC,
-				PaymentMethod:         existing.PaymentMethod,
-				ReferenceNo:           invoiceNo,
-				Note:                  &jobName,
-				CreatedBy:             claims.UserID,
-				CreatedAt:             now,
-				UpdatedAt:             now,
-			}
+				modelReceivable := models.Receivable{
+					IDReceivable: uuid.NewString(),
+					BankID:       config.DefaultBankAccountIDs.CompanyBank,
+					Customer:     existing.CompanyName,
+					InvoiceNo:    invoiceNo,
+					IssueDate:    nowUTC,
+					DueDate:      nowUTC.AddDate(0, 0, 30),
+					Amount:       existing.PriceTHB,
+					Balance:      existing.OutstandingAmount,
+					Status:       "pending",
+					Phone:        existing.Phone,
+					Address:      existing.Address,
+					CreatedBy:    claims.UserID,
+					CreatedAt:    now,
+					UpdatedAt:    now,
+					Note:         jobName,
+					JobID:        existing.JobID,
+				}
 
-			if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
-				return err
+				if err := s.receivableRepo.CreateReceivable(ctx, modelReceivable); err != nil {
+					return err
+				}
+
+				// สร้าง Income สำหรับมัดจำ (เฉพาะกรณียอดมัดจำ > 0)
+				if existing.DepositAmount > 0 {
+					modelIncome := models.Income{
+						IncomeID:              uuid.NewString(),
+						BankID:                config.DefaultBankAccountIDs.CompanyBank,
+						TransactionCategoryID: config.DefaultTransactionCategoryIDs.CompanyIncome,
+						Description:           existing.Content,
+						Amount:                existing.DepositAmount,
+						Currency:              "THB",
+						TxnDate:               nowUTC,
+						PaymentMethod:         existing.PaymentMethod,
+						ReferenceNo:           invoiceNo,
+						Note:                  &jobName,
+						CreatedBy:             claims.UserID,
+						CreatedAt:             now,
+						UpdatedAt:             now,
+					}
+
+					if err := s.incomeRepo.CreateInCome(ctx, modelIncome); err != nil {
+						return err
+					}
+				}
 			}
 		}
 
-		// กรณี credit และไม่มีมัดจำ - สร้าง Receivable เพิ่ม
-		if existing.PaymentMethod == "credit" && !existing.IsDeposit {
+		// กรณี credit และไม่มีมัดจำ - สร้าง Receivable เพิ่ม (เฉพาะกรณียอด > 0)
+		if existing.PaymentMethod == "credit" && !existing.IsDeposit && existing.PriceTHB > 0 {
 			prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
 			maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
 			if err != nil {
@@ -681,6 +699,64 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 				DueDate:      nowUTC.AddDate(0, 0, 30),
 				Amount:       existing.PriceTHB,
 				Balance:      existing.PriceTHB,
+				Status:       "pending",
+				Phone:        existing.Phone,
+				Address:      existing.Address,
+				CreatedBy:    claims.UserID,
+				CreatedAt:    now,
+				UpdatedAt:    now,
+				Note:         jobName,
+				JobID:        existing.JobID,
+			}
+
+			if err := s.receivableRepo.CreateReceivable(ctx, modelReceivable); err != nil {
+				return err
+			}
+		}
+	}
+
+	// กรณีเปลี่ยนจากจ่ายเต็มจำนวน (IsDeposit=false) เป็นมีมัดจำ (IsDeposit=true)
+	// และไม่ได้เปลี่ยนจากรอราคา (ไม่ต้องสร้างซ้ำ หากสร้างไว้แล้วจาก wasWaitingForPrice)
+	// ให้สร้าง Receivable ใหม่สำหรับยอดค้างชำระ
+	if wasNotDeposit && update.IsDeposit && !wasWaitingForPrice && existing.PriceTHB > 0 {
+		jobName := existing.JobName
+		nowUTC := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
+
+		// ตรวจสอบว่ามี Receivable อยู่แล้วหรือไม่
+		filterReceivableCheck := bson.M{"job_id": existing.JobID, "deleted_at": nil}
+		existingReceivables, errCheck := s.receivableRepo.GetAllReceivablesByFilter(ctx, filterReceivableCheck, nil)
+		if errCheck != nil && errCheck != mongo.ErrNoDocuments {
+			return errCheck
+		}
+
+		// ถ้ายังไม่มี Receivable ให้สร้างใหม่
+		if len(existingReceivables) == 0 {
+			prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
+			maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
+			if err != nil {
+				return fmt.Errorf("get max invoice number: %w", err)
+			}
+
+			counter := 1
+			if maxInvoiceNo != "" {
+				var lastCounter int
+				_, scanErr := fmt.Sscanf(maxInvoiceNo, prefix+"%d", &lastCounter)
+				if scanErr == nil {
+					counter = lastCounter + 1
+				}
+			}
+
+			invoiceNo := fmt.Sprintf("%s%03d", prefix, counter)
+
+			modelReceivable := models.Receivable{
+				IDReceivable: uuid.NewString(),
+				BankID:       config.DefaultBankAccountIDs.CompanyBank,
+				Customer:     existing.CompanyName,
+				InvoiceNo:    invoiceNo,
+				IssueDate:    nowUTC,
+				DueDate:      nowUTC.AddDate(0, 0, 30),
+				Amount:       existing.PriceTHB,
+				Balance:      existing.OutstandingAmount,
 				Status:       "pending",
 				Phone:        existing.Phone,
 				Address:      existing.Address,
