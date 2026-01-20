@@ -172,6 +172,191 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/audit-log/list": {
+            "get": {
+                "description": "Get a paginated list of audit logs (Admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AuditLog"
+                ],
+                "summary": "List audit logs",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 20,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Search in path, email, full_name",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "created_at",
+                        "description": "Sort by field",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "asc",
+                            "desc"
+                        ],
+                        "type": "string",
+                        "default": "desc",
+                        "description": "Sort order",
+                        "name": "sort_order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by user ID",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "CREATE",
+                            "READ",
+                            "UPDATE",
+                            "DELETE"
+                        ],
+                        "type": "string",
+                        "description": "Filter by action",
+                        "name": "action",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by resource type",
+                        "name": "resource",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "GET",
+                            "POST",
+                            "PUT",
+                            "DELETE"
+                        ],
+                        "type": "string",
+                        "description": "Filter by HTTP method",
+                        "name": "method",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Start date (YYYY-MM-DD)",
+                        "name": "start_date",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "End date (YYYY-MM-DD)",
+                        "name": "end_date",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/audit-log/{id}": {
+            "get": {
+                "description": "Get a single audit log record by its ID (Admin only)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "AuditLog"
+                ],
+                "summary": "Get audit log by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Audit Log ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BaseResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/auth/confirm-reset": {
             "post": {
                 "description": "ใช้สำหรับยืนยันการรีเซ็ตรหัสผ่านของผู้ใช้ token จะหมดอายุภายใน 15 นาที",
@@ -8139,7 +8324,6 @@ const docTemplate = `{
             "required": [
                 "bill_type",
                 "customer",
-                "issuer",
                 "items",
                 "payment_detail",
                 "type_receipt"
@@ -8166,7 +8350,7 @@ const docTemplate = `{
                     "type": "number"
                 },
                 "issuer": {
-                    "description": "ข้อมูลผู้ออกเอกสาร (จำเป็นต้องส่ง)",
+                    "description": "ข้อมูลผู้ออกเอกสาร (ไม่ส่งมาก็ได้)",
                     "allOf": [
                         {
                             "$ref": "#/definitions/dto.IssuerInfoDTO"
@@ -8744,18 +8928,13 @@ const docTemplate = `{
         },
         "dto.IssuerInfoDTO": {
             "type": "object",
-            "required": [
-                "address",
-                "contact",
-                "name"
-            ],
             "properties": {
                 "address": {
-                    "description": "ที่อยู่ผู้ออกเอกสาร (จำเป็น)",
+                    "description": "ที่อยู่ผู้ออกเอกสาร (ไม่ส่งมาก็ได้)",
                     "type": "string"
                 },
                 "contact": {
-                    "description": "ช่องทางติดต่อ (จำเป็น)",
+                    "description": "ช่องทางติดต่อ (ไม่ส่งมาก็ได้)",
                     "type": "string"
                 },
                 "email": {
@@ -8763,7 +8942,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "name": {
-                    "description": "ชื่อผู้ออกเอกสาร (จำเป็น)",
+                    "description": "ชื่อผู้ออกเอกสาร (ไม่ส่งมาก็ได้)",
                     "type": "string"
                 },
                 "prepared_by": {
@@ -9994,6 +10173,14 @@ const docTemplate = `{
                     "description": "เวลาอัปเดตล่าสุด",
                     "type": "string"
                 },
+                "waitconfirm": {
+                    "description": "รอยืนยัน",
+                    "type": "boolean"
+                },
+                "waitprice": {
+                    "description": "รอราคา",
+                    "type": "boolean"
+                },
                 "width": {
                     "description": "ความกว้าง (ซม.)",
                     "type": "number"
@@ -10711,7 +10898,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "api.dev.rkp-media.com",
+	Host:             "api.rkp-media.com",
 	BasePath:         "/service/api",
 	Schemes:          []string{},
 	Title:            "ERP Demo API",
