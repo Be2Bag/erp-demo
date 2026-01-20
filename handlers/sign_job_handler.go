@@ -228,6 +228,17 @@ func (h *SignJobHandler) UpdateSignJobByID(c *fiber.Ctx) error {
 			Data:       nil,
 		})
 	}
+
+	if claims.Role != "admin" {
+		return c.Status(fiber.StatusUnauthorized).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusUnauthorized,
+			MessageEN:  "Unauthorized",
+			MessageTH:  "ไม่ได้รับอนุญาต",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	jobID := c.Params("id")
 	var body dto.UpdateSignJobDTO
 	if err := c.BodyParser(&body); err != nil {
