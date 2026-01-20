@@ -70,6 +70,7 @@ func main() {
 	payableRepo := repositories.NewPayableRepository(database)
 	receivableRepo := repositories.NewReceivableRepository(database)
 	receiptRepo := repositories.NewReceiptRepository(database)
+	auditLogRepo := repositories.NewAuditLogRepository(database)
 
 	userSvc := services.NewUserService(*cfg, userRepo, dropDownRepo, cloudflareStorage, taskRepo)
 	upLoadSvc := services.NewUpLoadService(*cfg, authRepo, upLoadRepo, userRepo, cloudflareStorage)
@@ -93,6 +94,7 @@ func main() {
 	payableSvc := services.NewPayablesService(*cfg, payableRepo, bankAccountsRepo, expenseRepo)
 	receivableSvc := services.NewReceivableService(*cfg, receivableRepo, bankAccountsRepo, signJobRepo, inComeRepo)
 	receiptSvc := services.NewReceiptService(*cfg, receiptRepo, bankAccountsRepo)
+	auditLogSvc := services.NewAuditLogService(*cfg, auditLogRepo)
 
 	// เริ่มต้น Cronjob สำหรับตรวจสอบสถานะ Payable และ Receivable
 	statusChecker := cron.NewStatusChecker(payableRepo, receivableRepo)
@@ -125,6 +127,7 @@ func main() {
 	receivableHdl := handlers.NewReceivableHandler(receivableSvc, authCookieMiddleware)
 	receiptHdl := handlers.NewReceiptHandler(receiptSvc, authCookieMiddleware)
 	cronHdl := handlers.NewCronHandler(statusChecker, authCookieMiddleware)
+	auditLogHdl := handlers.NewAuditLogHandler(auditLogSvc, authCookieMiddleware)
 
 	app := fiber.New()
 
@@ -135,6 +138,9 @@ func main() {
 	}))
 
 	app.Use(authCookieMiddleware.TimeoutMiddleware(10 * time.Second))
+
+	// Audit Log Middleware - logs all POST, PUT, DELETE requests
+	app.Use(middleware.AuditLogMiddleware(auditLogSvc, cfg.JWT.SecretKey))
 
 	apiGroup := app.Group("/service/api")
 	userHdl.UserRoutes(apiGroup)
@@ -160,6 +166,7 @@ func main() {
 	receivableHdl.ReceivableRoutes(apiGroup)
 	receiptHdl.ReceiptRoutes(apiGroup)
 	cronHdl.CronRoutes(apiGroup)
+	auditLogHdl.AuditLogRoutes(apiGroup)
 
 	app.Use("/swagger", basicauth.New(basicauth.Config{
 		Users: map[string]string{
