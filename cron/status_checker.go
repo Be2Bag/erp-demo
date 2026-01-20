@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/robfig/cron/v3"
 	"go.mongodb.org/mongo-driver/bson"
@@ -108,7 +109,7 @@ func (sc *StatusChecker) checkPayableStatus(ctx context.Context) ([]StatusUpdate
 			"$in": []string{"pending", "partial"},
 		},
 		"balance": bson.M{
-			"$gt": 0,
+			"$gte": 0.01, // มากกว่า 1 สตางค์
 		},
 	}
 
@@ -123,14 +124,14 @@ func (sc *StatusChecker) checkPayableStatus(ctx context.Context) ([]StatusUpdate
 
 		// ตรวจสอบว่าเลยกำหนดชำระหรือไม่
 		if !payable.DueDate.IsZero() && payable.DueDate.Before(now) {
-			// เลยกำหนดและยังมียอดคงเหลือ
-			if payable.Balance > 0 {
+			// เลยกำหนดและยังมียอดคงเหลือ (มากกว่า 1 สตางค์)
+			if util.IsPositiveAmount(payable.Balance) {
 				payable.Status = "overdue"
 				needUpdate = true
 			}
 		} else {
 			// ยังไม่เลยกำหนด
-			if payable.Balance > 0 && payable.Balance < payable.Amount {
+			if util.IsPositiveAmount(payable.Balance) && payable.Balance < payable.Amount {
 				// จ่ายบางส่วน
 				payable.Status = "partial"
 				needUpdate = true
@@ -187,7 +188,7 @@ func (sc *StatusChecker) checkReceivableStatus(ctx context.Context) ([]StatusUpd
 			"$in": []string{"pending", "partial"},
 		},
 		"balance": bson.M{
-			"$gt": 0,
+			"$gte": 0.01, // มากกว่า 1 สตางค์
 		},
 	}
 
@@ -202,14 +203,14 @@ func (sc *StatusChecker) checkReceivableStatus(ctx context.Context) ([]StatusUpd
 
 		// ตรวจสอบว่าเลยกำหนดรับชำระหรือไม่
 		if !receivable.DueDate.IsZero() && receivable.DueDate.Before(now) {
-			// เลยกำหนดและยังมียอดคงเหลือ
-			if receivable.Balance > 0 {
+			// เลยกำหนดและยังมียอดคงเหลือ (มากกว่า 1 สตางค์)
+			if util.IsPositiveAmount(receivable.Balance) {
 				receivable.Status = "overdue"
 				needUpdate = true
 			}
 		} else {
 			// ยังไม่เลยกำหนด
-			if receivable.Balance > 0 && receivable.Balance < receivable.Amount {
+			if util.IsPositiveAmount(receivable.Balance) && receivable.Balance < receivable.Amount {
 				// รับชำระบางส่วน
 				receivable.Status = "partial"
 				needUpdate = true

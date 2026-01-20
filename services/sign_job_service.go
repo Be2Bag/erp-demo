@@ -10,6 +10,7 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/models"
+	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -42,9 +43,10 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 	}
 
 	// ถ้า Waitprice = true ให้ตั้งค่าราคาเป็น 0
-	priceTHB := signJob.PriceTHB
-	depositAmount := signJob.DepositAmount
-	outstandingAmount := signJob.OutstandingAmount
+	// ปัดเศษค่าเงินเป็น 2 ตำแหน่งเพื่อป้องกัน floating-point precision error
+	priceTHB := util.Round2(signJob.PriceTHB)
+	depositAmount := util.Round2(signJob.DepositAmount)
+	outstandingAmount := util.Round2(signJob.OutstandingAmount)
 	if signJob.WaitPrice {
 		priceTHB = 0
 		depositAmount = 0
@@ -105,8 +107,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 	if !signJob.IsDeposit {
 
 		// Truncate to start of day in UTC
-		// สร้าง Income เฉพาะกรณียอด > 0
-		if signJob.PriceTHB > 0 {
+		// สร้าง Income เฉพาะกรณียอด >= 0.01 (มากกว่า 1 สตางค์)
+		if signJob.PriceTHB >= 0.01 {
 			modelIncome := models.Income{
 				IncomeID:              uuid.NewString(),
 				BankID:                config.DefaultBankAccountIDs.CompanyBank,
@@ -129,8 +131,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 		}
 
 	} else {
-		// สร้าง Receivable และ Income เฉพาะกรณียอด > 0
-		if signJob.PriceTHB > 0 {
+		// สร้าง Receivable และ Income เฉพาะกรณียอด >= 0.01
+		if signJob.PriceTHB >= 0.01 {
 			prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
 			maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
 			if err != nil {
@@ -172,8 +174,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 				return err
 			}
 
-			// สร้าง Income สำหรับมัดจำ เฉพาะกรณียอดมัดจำ > 0
-			if signJob.DepositAmount > 0 {
+			// สร้าง Income สำหรับมัดจำ เฉพาะกรณียอดมัดจำ >= 0.01
+			if signJob.DepositAmount >= 0.01 {
 				modelIncome := models.Income{
 					IncomeID:              uuid.NewString(),
 					BankID:                config.DefaultBankAccountIDs.CompanyBank,
@@ -198,8 +200,8 @@ func (s *signJobService) CreateSignJob(ctx context.Context, signJob dto.CreateSi
 
 	}
 
-	// สร้าง Receivable สำหรับ credit เฉพาะกรณียอด > 0
-	if signJob.PaymentMethod == "credit" && !signJob.IsDeposit && signJob.PriceTHB > 0 {
+	// สร้าง Receivable สำหรับ credit เฉพาะกรณียอด >= 0.01
+	if signJob.PaymentMethod == "credit" && !signJob.IsDeposit && signJob.PriceTHB >= 0.01 {
 
 		prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
 		maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
@@ -511,7 +513,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		existing.Quantity = update.Quantity
 	}
 	if update.PriceTHB >= 0 {
-		existing.PriceTHB = update.PriceTHB
+		existing.PriceTHB = util.Round2(update.PriceTHB) // ปัดเศษ 2 ตำแหน่ง
 	}
 	if update.Content != "" {
 		existing.Content = update.Content
@@ -545,10 +547,10 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	}
 
 	if update.DepositAmount >= 0 {
-		existing.DepositAmount = update.DepositAmount
+		existing.DepositAmount = util.Round2(update.DepositAmount) // ปัดเศษ 2 ตำแหน่ง
 	}
 	if update.OutstandingAmount >= 0 {
-		existing.OutstandingAmount = update.OutstandingAmount
+		existing.OutstandingAmount = util.Round2(update.OutstandingAmount) // ปัดเศษ 2 ตำแหน่ง
 	}
 
 	existing.IsDeposit = update.IsDeposit
@@ -575,13 +577,13 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 
 	// ถ้าเปลี่ยนจากรอราคา (WaitPrice=true) เป็นมีราคาแล้ว (WaitPrice=false) และมีราคา > 0
 	// ให้สร้าง Income/Receivable ย้อนหลัง
-	if wasWaitingForPrice && !update.WaitPrice && existing.PriceTHB > 0 {
+	if wasWaitingForPrice && !update.WaitPrice && existing.PriceTHB >= 0.01 {
 		jobName := existing.JobName
 		nowUTC := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
 		if !existing.IsDeposit {
-			// กรณีจ่ายเต็มจำนวน - สร้าง Income (เฉพาะกรณียอด > 0)
-			if existing.PriceTHB > 0 {
+			// กรณีจ่ายเต็มจำนวน - สร้าง Income (เฉพาะกรณียอด >= 0.01)
+			if existing.PriceTHB >= 0.01 {
 				modelIncome := models.Income{
 					IncomeID:              uuid.NewString(),
 					BankID:                config.DefaultBankAccountIDs.CompanyBank,
@@ -604,8 +606,8 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 			}
 
 		} else {
-			// กรณีมีมัดจำ - สร้าง Receivable และ Income สำหรับมัดจำ (เฉพาะกรณียอด > 0)
-			if existing.PriceTHB > 0 {
+			// กรณีมีมัดจำ - สร้าง Receivable และ Income สำหรับมัดจำ (เฉพาะกรณียอด >= 0.01)
+			if existing.PriceTHB >= 0.01 {
 				prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
 				maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
 				if err != nil {
@@ -646,8 +648,8 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 					return err
 				}
 
-				// สร้าง Income สำหรับมัดจำ (เฉพาะกรณียอดมัดจำ > 0)
-				if existing.DepositAmount > 0 {
+				// สร้าง Income สำหรับมัดจำ (เฉพาะกรณียอดมัดจำ >= 0.01)
+				if existing.DepositAmount >= 0.01 {
 					modelIncome := models.Income{
 						IncomeID:              uuid.NewString(),
 						BankID:                config.DefaultBankAccountIDs.CompanyBank,
@@ -671,8 +673,8 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 			}
 		}
 
-		// กรณี credit และไม่มีมัดจำ - สร้าง Receivable เพิ่ม (เฉพาะกรณียอด > 0)
-		if existing.PaymentMethod == "credit" && !existing.IsDeposit && existing.PriceTHB > 0 {
+		// กรณี credit และไม่มีมัดจำ - สร้าง Receivable เพิ่ม (เฉพาะกรณียอด >= 0.01)
+		if existing.PaymentMethod == "credit" && !existing.IsDeposit && existing.PriceTHB >= 0.01 {
 			prefix := fmt.Sprintf("AR-%s-", now.Format("02-01-06"))
 			maxInvoiceNo, err := s.receivableRepo.GetMaxInvoiceNumber(ctx, prefix)
 			if err != nil {
@@ -718,7 +720,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	// กรณีเปลี่ยนจากจ่ายเต็มจำนวน (IsDeposit=false) เป็นมีมัดจำ (IsDeposit=true)
 	// และไม่ได้เปลี่ยนจากรอราคา (ไม่ต้องสร้างซ้ำ หากสร้างไว้แล้วจาก wasWaitingForPrice)
 	// ให้สร้าง Receivable ใหม่สำหรับยอดค้างชำระ
-	if wasNotDeposit && update.IsDeposit && !wasWaitingForPrice && existing.PriceTHB > 0 {
+	if wasNotDeposit && update.IsDeposit && !wasWaitingForPrice && existing.PriceTHB >= 0.01 {
 		jobName := existing.JobName
 		nowUTC := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 
@@ -927,8 +929,8 @@ func (s *signJobService) ConfirmSignJob(ctx context.Context, jobID string, claim
 		return nil
 	}
 
-	// ถ้าไม่รอราคาแล้ว (มีราคาแล้ว) และมีราคา > 0 ให้สร้าง Income/Receivable
-	if existing.PriceTHB > 0 {
+	// ถ้าไม่รอราคาแล้ว (มีราคาแล้ว) และมีราคา >= 0.01 ให้สร้าง Income/Receivable
+	if util.IsPositiveAmount(existing.PriceTHB) {
 		jobName := existing.JobName
 		nowUTC := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 

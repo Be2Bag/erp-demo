@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/models"
+	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -77,8 +77,8 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 	// Apply VAT 7% if TypeReceipt is "company"
 	var totalVAT float64
 	if strings.ToLower(strings.TrimSpace(in.TypeReceipt)) == "company" {
-		totalVAT = math.Round(afterDiscount*0.07*100) / 100 // ปัดเศษ 2 ตำแหน่ง
-		total = math.Round((afterDiscount+totalVAT)*100) / 100
+		totalVAT = util.Round2(afterDiscount * 0.07) // ปัดเศษ 2 ตำแหน่ง
+		total = util.Round2(afterDiscount + totalVAT)
 	} else {
 		total = afterDiscount
 	}
@@ -117,17 +117,17 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		preparedBy = claims.UserID
 	}
 	issuer := models.IssuerInfo{
-		Name:       in.Issuer.Name,
-		Address:    in.Issuer.Address,
-		Contact:    in.Issuer.Contact,
-		Email:      in.Issuer.Email,
+		Name:       "อาร์เคพี มีเดีย แอดเวอร์ไทซิ่ง จำกัด",
+		Address:    "241 ถ.ศรีกุญชร อ.พนัสนิคม จ.ชลบุรี 20140",
+		Contact:    "086-5207688 (ครูพงษ์) ,083-9019537 (คุณรัญ)",
+		Email:      "krupong14rkp@gmail.com",
 		PreparedBy: preparedBy,
 	}
 
 	// status and received by
 	status := strings.ToLower(strings.TrimSpace(in.Status))
 	if status == "" {
-		if payment.AmountPaid >= total && total > 0 {
+		if payment.AmountPaid >= total && util.IsPositiveAmount(total) {
 			status = "paid"
 		} else {
 			status = "pending"
@@ -191,7 +191,7 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 		ReceivedBy:    receivedBy,
 		CreatedAt:     now,
 		UpdatedAt:     now,
-		TaxID:         in.TaxID,
+		TaxID:         "0205555004557",
 		ShopDetail:    in.ShopDetail,
 	}
 
@@ -514,7 +514,7 @@ func (s *receiptService) SummaryReceiptByFilter(ctx context.Context, claims *dto
 		}
 
 		outstanding := r.TotalAmount - r.PaymentDetail.AmountPaid
-		if strings.ToLower(strings.TrimSpace(r.Status)) != "paid" && outstanding > 0 {
+		if strings.ToLower(strings.TrimSpace(r.Status)) != "paid" && util.IsPositiveAmount(outstanding) {
 			pendingCount++
 		}
 	}

@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/models"
+	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -57,8 +57,8 @@ func (s *receivableService) CreateReceivable(ctx context.Context, receivable dto
 		InvoiceNo:    receivable.InvoiceNo,
 		IssueDate:    issue,
 		DueDate:      due,
-		Amount:       receivable.Amount,
-		Balance:      receivable.Balance,
+		Amount:       util.Round2(receivable.Amount),  // ปัดเศษ 2 ตำแหน่ง
+		Balance:      util.Round2(receivable.Balance), // ปัดเศษ 2 ตำแหน่ง
 		Status:       "pending",
 		Phone:        receivable.Phone,
 		Address:      receivable.Address,
@@ -395,8 +395,8 @@ func (s *receivableService) SummaryReceivableByFilter(ctx context.Context, claim
 	for _, p := range receivables {
 		totalAmount += p.Amount
 
-		// outstanding amount
-		if p.Balance > 0 {
+		// outstanding amount (ต้องมากกว่า 1 สตางค์)
+		if util.IsPositiveAmount(p.Balance) {
 			totalDue += p.Balance
 
 			// overdue: due date passed and still has balance
@@ -479,9 +479,9 @@ func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordR
 	rec.Balance -= amt // หักยอดคงเหลือด้วยจำนวนที่รับชำระ
 
 	// ปัดเศษเป็นทศนิยม 2 ตำแหน่งเพื่อป้องกัน floating-point precision error
-	rec.Balance = math.Round(rec.Balance*100) / 100
+	rec.Balance = util.Round2(rec.Balance)
 
-	if rec.Balance < 0.01 { // ถ้าค่าใกล้ 0 มาก (น้อยกว่า 1 สตางค์) ให้ถือว่าเป็น 0
+	if util.IsZeroBalance(rec.Balance) { // ถ้าค่าใกล้ 0 มาก (น้อยกว่า 1 สตางค์) ให้ถือว่าเป็น 0
 		rec.Balance = 0 // เซ็ตเป็นศูนย์
 	}
 

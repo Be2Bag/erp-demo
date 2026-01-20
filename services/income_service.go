@@ -10,6 +10,7 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/models"
+	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -44,7 +45,7 @@ func (s *inComeService) CreateInCome(ctx context.Context, inCome dto.CreateIncom
 		BankID:                inCome.BankID,
 		TransactionCategoryID: inCome.TransactionCategoryID,
 		Description:           inCome.Description,
-		Amount:                inCome.Amount,
+		Amount:                util.Round2(inCome.Amount), // ปัดเศษ 2 ตำแหน่ง
 		Currency:              inCome.Currency,
 		TxnDate:               due,
 		PaymentMethod:         inCome.PaymentMethod,

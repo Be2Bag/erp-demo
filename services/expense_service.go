@@ -10,6 +10,7 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/models"
+	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -44,7 +45,7 @@ func (s *expenseService) CreateExpense(ctx context.Context, expense dto.CreateEx
 		TransactionCategoryID: expense.TransactionCategoryID,
 		BankID:                expense.BankID,
 		Description:           expense.Description,
-		Amount:                expense.Amount,
+		Amount:                util.Round2(expense.Amount), // ปัดเศษ 2 ตำแหน่ง
 		Currency:              expense.Currency,
 		TxnDate:               due,
 		PaymentMethod:         expense.PaymentMethod,

@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -11,6 +10,7 @@ import (
 	"github.com/Be2Bag/erp-demo/config"
 	"github.com/Be2Bag/erp-demo/dto"
 	"github.com/Be2Bag/erp-demo/models"
+	"github.com/Be2Bag/erp-demo/pkg/util"
 	"github.com/Be2Bag/erp-demo/ports"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
@@ -82,8 +82,8 @@ func (s *payablesService) CreatePayable(ctx context.Context, payable dto.CreateP
 		InvoiceNo:  strings.TrimSpace(payable.InvoiceNo),
 		IssueDate:  issue,
 		DueDate:    due,
-		Amount:     payable.Amount,
-		Balance:    balance,
+		Amount:     util.Round2(payable.Amount), // ปัดเศษ 2 ตำแหน่ง
+		Balance:    util.Round2(balance),        // ปัดเศษ 2 ตำแหน่ง
 		Status:     "pending",
 		PaymentRef: strings.TrimSpace(payable.PaymentRef),
 		Items:      items,
@@ -494,8 +494,8 @@ func (s *payablesService) SummaryPayableByFilter(ctx context.Context, claims *dt
 	for _, p := range payables {
 		totalAmount += p.Amount
 
-		// outstanding amount
-		if p.Balance > 0 {
+		// outstanding amount (ต้องมากกว่า 1 สตางค์)
+		if util.IsPositiveAmount(p.Balance) {
 			totalDue += p.Balance
 
 			// overdue: due date passed and still has balance
@@ -578,9 +578,9 @@ func (s *payablesService) RecordPayment(ctx context.Context, input dto.RecordPay
 	newBalance := payable.Balance - amt
 
 	// ปัดเศษเป็นทศนิยม 2 ตำแหน่งเพื่อป้องกัน floating-point precision error
-	newBalance = math.Round(newBalance*100) / 100
+	newBalance = util.Round2(newBalance)
 
-	if newBalance < 0.01 { // ถ้าค่าใกล้ 0 มาก (น้อยกว่า 1 สตางค์) ให้ถือว่าเป็น 0
+	if util.IsZeroBalance(newBalance) { // ถ้าค่าใกล้ 0 มาก (น้อยกว่า 1 สตางค์) ให้ถือว่าเป็น 0
 		newBalance = 0
 	}
 	payable.Balance = newBalance
