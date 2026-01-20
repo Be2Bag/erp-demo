@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -575,7 +576,11 @@ func (s *payablesService) RecordPayment(ctx context.Context, input dto.RecordPay
 
 	// 6) update payable balance and status
 	newBalance := payable.Balance - amt
-	if newBalance < 0 {
+
+	// ปัดเศษเป็นทศนิยม 2 ตำแหน่งเพื่อป้องกัน floating-point precision error
+	newBalance = math.Round(newBalance*100) / 100
+
+	if newBalance < 0.01 { // ถ้าค่าใกล้ 0 มาก (น้อยกว่า 1 สตางค์) ให้ถือว่าเป็น 0
 		newBalance = 0
 	}
 	payable.Balance = newBalance

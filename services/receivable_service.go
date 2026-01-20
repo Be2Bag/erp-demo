@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -475,9 +476,13 @@ func (s *receivableService) RecordReceipt(ctx context.Context, input dto.RecordR
 	}
 
 	// 6) update receivable balance and status
-	rec.Balance -= amt   // หักยอดคงเหลือด้วยจำนวนที่รับชำระ
-	if rec.Balance < 0 { // ป้องกันค่าติดลบ
-		rec.Balance = 0 // เซ็ตเป็นศูนย์หากต่ำกว่า 0
+	rec.Balance -= amt // หักยอดคงเหลือด้วยจำนวนที่รับชำระ
+
+	// ปัดเศษเป็นทศนิยม 2 ตำแหน่งเพื่อป้องกัน floating-point precision error
+	rec.Balance = math.Round(rec.Balance*100) / 100
+
+	if rec.Balance < 0.01 { // ถ้าค่าใกล้ 0 มาก (น้อยกว่า 1 สตางค์) ให้ถือว่าเป็น 0
+		rec.Balance = 0 // เซ็ตเป็นศูนย์
 	}
 
 	if rec.Balance == 0 { // หากชำระครบ
