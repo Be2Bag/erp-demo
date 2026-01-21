@@ -133,7 +133,7 @@ func main() {
 
 	// Enable CORS for your frontend
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:5173,https://erp-demo-frontend.vercel.app,https://dev-erp-demo-frontend.vercel.app,https://www.rkp-media.com",
+		AllowOrigins:     "http://localhost:5173,https://erp-demo-frontend.vercel.app,https://dev-erp-demo-frontend.vercel.app,https://www.rkp-media.com,https://audit-logs.vercel.app",
 		AllowCredentials: true,
 	}))
 
