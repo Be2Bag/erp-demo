@@ -550,7 +550,7 @@ func (s *receiptService) ConfirmReceiptByID(ctx context.Context, receiptID strin
 		"updated_at": now,
 	}
 
-	if strings.ToLower(strings.TrimSpace(m.Status)) == "credit" {
+	if strings.ToLower(strings.TrimSpace(m.Status)) == "credit" || m.PaymentDetail.PaidDate == nil {
 		updateData["payment_detail.paid_date"] = now
 	}
 
