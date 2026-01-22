@@ -527,6 +527,9 @@ func (s *receiptService) SummaryReceiptByFilter(ctx context.Context, claims *dto
 }
 
 func (s *receiptService) ConfirmReceiptByID(ctx context.Context, receiptID string, claims *dto.JWTClaims) error {
+
+	now := time.Now()
+
 	filter := bson.M{"id_receipt": strings.TrimSpace(receiptID), "deleted_at": nil}
 	projection := bson.M{"id_receipt": 1, "status": 1}
 
@@ -544,7 +547,11 @@ func (s *receiptService) ConfirmReceiptByID(ctx context.Context, receiptID strin
 
 	updateData := bson.M{
 		"status":     "paid",
-		"updated_at": time.Now(),
+		"updated_at": now,
+	}
+
+	if strings.ToLower(strings.TrimSpace(m.Status)) == "credit" {
+		updateData["payment_detail.paid_date"] = now
 	}
 
 	if err := s.receiptRepo.UpdateReceiptByID(ctx, m.IDReceipt, updateData); err != nil {
