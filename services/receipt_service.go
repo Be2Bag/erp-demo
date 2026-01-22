@@ -337,7 +337,7 @@ func (s *receiptService) ListReceipts(ctx context.Context, claims *dto.JWTClaims
 				AccountName:   m.PaymentDetail.AccountName,
 				AccountNumber: m.PaymentDetail.AccountNumber,
 				AmountPaid:    m.PaymentDetail.AmountPaid,
-				PaidDate:      m.PaymentDetail.PaidDate,
+				PaidDate:      formatPaidDate(m.PaymentDetail.PaidDate),
 				Note:          m.PaymentDetail.Note,
 			},
 			Status:      m.Status,
@@ -422,7 +422,7 @@ func (s *receiptService) GetReceiptByID(ctx context.Context, receiptID string, c
 			AccountName:   m.PaymentDetail.AccountName,
 			AccountNumber: m.PaymentDetail.AccountNumber,
 			AmountPaid:    m.PaymentDetail.AmountPaid,
-			PaidDate:      m.PaymentDetail.PaidDate,
+			PaidDate:      formatPaidDate(m.PaymentDetail.PaidDate),
 			Note:          m.PaymentDetail.Note,
 		},
 		Status:      m.Status,
@@ -636,4 +636,13 @@ func (s *receiptService) CopyReceiptByID(ctx context.Context, receiptID string, 
 	}
 
 	return nil
+}
+
+// formatPaidDate แปลง *time.Time เป็น string ในรูปแบบ YYYY-MM-DD
+// ถ้าค่าเป็น nil จะคืนค่า "" (string ว่าง)
+func formatPaidDate(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+	return t.Format("2006-01-02")
 }

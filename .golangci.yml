@@ -1,0 +1,142 @@
+# golangci-lint configuration - Best Practices for Go Projects
+# Docs: https://golangci-lint.run/usage/configuration/
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+output:
+  formats:
+    - format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  sort-results: true
+
+linters:
+  disable-all: true
+  enable:
+    # === Default Linters (จำเป็นต้องมี) ===
+    - errcheck      # เช็คว่าเราลืมเช็ค error หรือเปล่า (สำคัญมาก!)
+    - gosimple      # แนะนำโค้ดที่เรียบง่ายขึ้น
+    - govet         # เช็คความถูกต้องทั่วไปตามมาตรฐาน Go
+    - ineffassign   # เช็คการประกาศตัวแปรแล้วไม่ได้ใช้ หรือ assign ค่าซ้ำซ้อน
+    - staticcheck   # เช็ค logic ที่อาจจะผิด หรือ deprecated functions
+    - unused        # เช็คตัวแปร/ฟังก์ชันที่ไม่ได้ใช้
+
+    # === Code Style & Formatting ===
+    - gofmt         # ตรวจสอบ formatting ตามมาตรฐาน Go
+    - goimports     # ตรวจสอบ imports และจัดเรียงให้ถูกต้อง
+    - revive        # linter ที่ดีกว่า golint (แทนที่ golint ที่ deprecated แล้ว)
+    - misspell      # ตรวจสอบ typos ในชื่อตัวแปร/comments
+
+    # === Security ===
+    - gosec         # เช็คช่องโหว่ความปลอดภัย (SQL Injection, XSS, etc.)
+    - bodyclose     # เตือนถ้าลืมสั่ง close response body (สาเหตุ Memory Leak ยอดฮิต)
+    - noctx         # ตรวจสอบการใช้ context ใน HTTP requests
+
+    # === Performance ===
+    - prealloc      # แนะนำการ pre-allocate slices เพื่อประสิทธิภาพ
+    - copyloopvar   # ตรวจสอบ loop variable ที่อาจถูก capture ผิด (Go 1.22+)
+
+    # === Code Quality ===
+    - gocyclo       # เช็คความซับซ้อนของโค้ด (Cyclomatic Complexity)
+    - gocritic      # เช็ค code patterns ที่ไม่ดี หลายๆ แบบ
+    - nestif        # ตรวจสอบ nested if ที่ซับซ้อนเกินไป
+    - dupl          # ตรวจหา duplicated code
+
+    # === Error Handling ===
+    - errorlint     # ตรวจสอบการใช้ error wrapping (Go 1.13+)
+
+linters-settings:
+  gocyclo:
+    min-complexity: 20  # ยอมให้ซับซ้อนได้ไม่เกิน 20 (เหมาะกับ handler functions)
+
+  govet:
+    enable:
+      - shadow        # เตือนถ้าตั้งชื่อตัวแปรซ้ำกับตัวแปรด้านนอก (Shadowing)
+
+  revive:
+    rules:
+      - name: blank-imports
+      - name: context-as-argument
+      - name: context-keys-type
+      - name: dot-imports
+      - name: error-return
+      - name: error-naming
+      - name: exported
+        disabled: true  # ปิดเพราะไม่ต้องการบังคับ doc comments สำหรับ exported types
+      - name: if-return
+      - name: increment-decrement
+      - name: var-naming
+      - name: package-comments
+        disabled: true  # ปิดเพราะไม่จำเป็นต้องมี package comment ทุกไฟล์
+      - name: range
+      - name: receiver-naming
+      - name: time-naming
+      - name: unexported-return
+      - name: indent-error-flow
+      - name: errorf
+      - name: empty-block
+      - name: superfluous-else
+      - name: unused-parameter
+        disabled: true  # ปิดเพราะบางครั้ง parameter อาจต้อง match interface
+
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - style
+      - performance
+    disabled-checks:
+      - hugeParam      # ปิดเพราะ Go ส่ง struct by value ได้ปกติ
+      - rangeValCopy   # ปิดเพราะบางครั้งต้องการ copy
+
+  nestif:
+    min-complexity: 5   # เตือนถ้า nested if ซับซ้อนเกิน 5
+
+  dupl:
+    threshold: 200      # เพิ่มขึ้นเพราะ CRUD patterns มักซ้ำกัน
+
+  gosec:
+    excludes:
+      - G104  # ปิด audit ของ unhandled errors (errcheck จัดการแล้ว)
+      - G304  # ปิดเพราะบางครั้งต้อง read file จาก variable path
+
+  misspell:
+    locale: US
+
+  errorlint:
+    errorf: true
+    asserts: true
+    comparison: true
+
+issues:
+  # ไม่ใช้ default excludes (เปิด lint ให้ครบ)
+  exclude-use-default: false
+
+  # ข้ามโฟลเดอร์ที่ไม่ต้องการ lint
+  exclude-dirs:
+    - docs
+    - vendor
+
+  # ยกเว้นบาง patterns
+  exclude-rules:
+    # ไม่ต้อง lint ไฟล์ test
+    - path: _test\.go
+      linters:
+        - dupl
+        - gosec
+        - bodyclose
+
+    # swagger docs ไม่ต้อง lint
+    - path: docs/
+      linters:
+        - all
+
+    # ยกเว้น error check สำหรับ defer close (ปกติไม่ handle)
+    - source: "defer .+\\.Close\\(\\)"
+      linters:
+        - errcheck
+
+  # จำนวน issues สูงสุดต่อ linter
+  max-issues-per-linter: 50
+  max-same-issues: 5

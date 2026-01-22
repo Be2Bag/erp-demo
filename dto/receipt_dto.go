@@ -108,13 +108,13 @@ type ReceiptDTO struct { // โครงสร้างข้อมูลใบ�
 } // จบโครงสร้าง ReceiptDTO
 
 type PaymentInfoRespDTO struct { // โครงสร้างรายละเอียดการชำระเงิน (Response)
-	Method        string     `json:"method"`                   // วิธีชำระเงิน
-	BankName      string     `json:"bank_name,omitempty"`      // ชื่อธนาคาร (อาจว่าง)
-	AccountName   string     `json:"account_name,omitempty"`   // ชื่อบัญชี (อาจว่าง)
-	AccountNumber string     `json:"account_number,omitempty"` // เลขที่บัญชี (อาจว่าง)
-	AmountPaid    float64    `json:"amount_paid"`              // จำนวนเงินที่ชำระ
-	PaidDate      *time.Time `json:"paid_date,omitempty"`      // วันที่ชำระเงิน (nil = ยังไม่ได้ชำระ)
-	Note          string     `json:"note,omitempty"`           // หมายเหตุการชำระเงิน (อาจว่าง)
+	Method        string  `json:"method"`                   // วิธีชำระเงิน
+	BankName      string  `json:"bank_name,omitempty"`      // ชื่อธนาคาร (อาจว่าง)
+	AccountName   string  `json:"account_name,omitempty"`   // ชื่อบัญชี (อาจว่าง)
+	AccountNumber string  `json:"account_number,omitempty"` // เลขที่บัญชี (อาจว่าง)
+	AmountPaid    float64 `json:"amount_paid"`              // จำนวนเงินที่ชำระ
+	PaidDate      string  `json:"paid_date,omitempty"`      // วันที่ชำระเงิน ("" = ยังไม่ได้ชำระ)
+	Note          string  `json:"note,omitempty"`           // หมายเหตุการชำระเงิน (อาจว่าง)
 } // จบโครงสร้าง PaymentInfoRespDTO
 
 type ReceiptSummaryDTO struct { // โครงสร้างสรุปข้อมูลใบเสร็จ
