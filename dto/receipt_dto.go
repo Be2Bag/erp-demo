@@ -113,7 +113,7 @@ type PaymentInfoRespDTO struct { // โครงสร้างรายละ�
 	AccountName   string  `json:"account_name,omitempty"`   // ชื่อบัญชี (อาจว่าง)
 	AccountNumber string  `json:"account_number,omitempty"` // เลขที่บัญชี (อาจว่าง)
 	AmountPaid    float64 `json:"amount_paid"`              // จำนวนเงินที่ชำระ
-	PaidDate      string  `json:"paid_date,omitempty"`      // วันที่ชำระเงิน ("" = ยังไม่ได้ชำระ)
+	PaidDate      string  `json:"paid_date"`                // วันที่ชำระเงิน ("" = ยังไม่ได้ชำระ)
 	Note          string  `json:"note,omitempty"`           // หมายเหตุการชำระเงิน (อาจว่าง)
 } // จบโครงสร้าง PaymentInfoRespDTO
 
