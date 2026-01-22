@@ -645,11 +645,11 @@ func (s *receiptService) CopyReceiptByID(ctx context.Context, receiptID string, 
 	return nil
 }
 
-// formatPaidDate แปลง *time.Time เป็น string ในรูปแบบ YYYY-MM-DD
+// formatPaidDate แปลง *time.Time เป็น string
 // ถ้าค่าเป็น nil จะคืนค่า "" (string ว่าง)
 func formatPaidDate(t *time.Time) string {
 	if t == nil {
 		return ""
 	}
-	return t.Format("2006-01-02")
+	return t.Format("2006-01-02T15:04:05.000Z")
 }
