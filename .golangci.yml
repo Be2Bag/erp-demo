@@ -1,5 +1,6 @@
-# golangci-lint configuration - Best Practices for Go Projects
+# golangci-lint configuration - Best Practices 100% for Go Projects
 # Docs: https://golangci-lint.run/usage/configuration/
+# Version: golangci-lint v1.62+ / Go 1.23+
 
 run:
   timeout: 5m
@@ -15,47 +16,81 @@ output:
 linters:
   disable-all: true
   enable:
-    # === Default Linters (จำเป็นต้องมี) ===
+    # ══════════════════════════════════════════════════════════════════════════
+    # DEFAULT LINTERS (จำเป็นต้องมี - พื้นฐานของทุกโปรเจค Go)
+    # ══════════════════════════════════════════════════════════════════════════
     - errcheck      # เช็คว่าเราลืมเช็ค error หรือเปล่า (สำคัญมาก!)
-    - gosimple      # แนะนำโค้ดที่เรียบง่ายขึ้น
+    - gosimple      # แนะนำโค้ดที่เรียบง่ายขึ้น (ส่วนหนึ่งของ staticcheck)
     - govet         # เช็คความถูกต้องทั่วไปตามมาตรฐาน Go
     - ineffassign   # เช็คการประกาศตัวแปรแล้วไม่ได้ใช้ หรือ assign ค่าซ้ำซ้อน
     - staticcheck   # เช็ค logic ที่อาจจะผิด หรือ deprecated functions
     - unused        # เช็คตัวแปร/ฟังก์ชันที่ไม่ได้ใช้
 
-    # === Code Style & Formatting ===
+    # ══════════════════════════════════════════════════════════════════════════
+    # CODE STYLE & FORMATTING (ความสม่ำเสมอของโค้ด)
+    # ══════════════════════════════════════════════════════════════════════════
     - gofmt         # ตรวจสอบ formatting ตามมาตรฐาน Go
     - goimports     # ตรวจสอบ imports และจัดเรียงให้ถูกต้อง
     - revive        # linter ที่ดีกว่า golint (แทนที่ golint ที่ deprecated แล้ว)
     - misspell      # ตรวจสอบ typos ในชื่อตัวแปร/comments
+    - godot         # ตรวจสอบว่า comments จบด้วย period (.)
+    - whitespace    # ตรวจสอบ whitespace ที่ไม่จำเป็น
 
-    # === Security ===
+    # ══════════════════════════════════════════════════════════════════════════
+    # SECURITY (ความปลอดภัย - สำคัญมากสำหรับ Production)
+    # ══════════════════════════════════════════════════════════════════════════
     - gosec         # เช็คช่องโหว่ความปลอดภัย (SQL Injection, XSS, etc.)
     - bodyclose     # เตือนถ้าลืมสั่ง close response body (สาเหตุ Memory Leak ยอดฮิต)
     - noctx         # ตรวจสอบการใช้ context ใน HTTP requests
 
-    # === Performance ===
+    # ══════════════════════════════════════════════════════════════════════════
+    # PERFORMANCE (ประสิทธิภาพ)
+    # ══════════════════════════════════════════════════════════════════════════
     - prealloc      # แนะนำการ pre-allocate slices เพื่อประสิทธิภาพ
     - copyloopvar   # ตรวจสอบ loop variable ที่อาจถูก capture ผิด (Go 1.22+)
+    - intrange      # แนะนำ for range int แทน for i := 0 (Go 1.22+)
 
-    # === Code Quality ===
+    # ══════════════════════════════════════════════════════════════════════════
+    # CODE QUALITY (คุณภาพโค้ด)
+    # ══════════════════════════════════════════════════════════════════════════
     - gocyclo       # เช็คความซับซ้อนของโค้ด (Cyclomatic Complexity)
     - gocritic      # เช็ค code patterns ที่ไม่ดี หลายๆ แบบ
     - nestif        # ตรวจสอบ nested if ที่ซับซ้อนเกินไป
     - dupl          # ตรวจหา duplicated code
+    - goconst       # เตือนถ้ามี string/number ซ้ำหลายที่ ควรทำเป็น constant
+    - unconvert     # ตรวจสอบ type conversion ที่ไม่จำเป็น
+    - unparam       # ตรวจสอบ parameters ที่ไม่เคยเปลี่ยนค่า
 
-    # === Error Handling ===
+    # ══════════════════════════════════════════════════════════════════════════
+    # ERROR HANDLING (การจัดการ Error - สำคัญมากใน Go)
+    # ══════════════════════════════════════════════════════════════════════════
     - errorlint     # ตรวจสอบการใช้ error wrapping (Go 1.13+)
+    - nilerr        # เตือนถ้า return nil โดยไม่เช็ค error ก่อน
+    - wrapcheck     # เตือนถ้า error จาก external package ไม่ wrap
+
+    # ══════════════════════════════════════════════════════════════════════════
+    # BUGS & CORRECTNESS (ป้องกัน Bugs)
+    # ══════════════════════════════════════════════════════════════════════════
+    - exhaustive    # ตรวจสอบ switch enum ว่าครบทุก case ไหม
+    - asasalint     # ตรวจสอบ pass []any to any (Go 1.18+)
+    - nolintlint    # ตรวจสอบว่า //nolint comments ถูกใช้อย่างเหมาะสม
+    - makezero      # ตรวจสอบการใช้ append กับ slice ที่ไม่ได้ make ด้วย length 0
+    - durationcheck # ตรวจสอบการคูณ time.Duration ที่อาจผิดพลาด
 
 linters-settings:
+  # ── Cyclomatic Complexity ─────────────────────────────────────────────────
   gocyclo:
-    min-complexity: 20  # ยอมให้ซับซ้อนได้ไม่เกิน 20 (เหมาะกับ handler functions)
+    min-complexity: 15  # แนะนำ 10-15 สำหรับ production (ลดจาก 20)
 
+  # ── Go Vet ────────────────────────────────────────────────────────────────
   govet:
     enable:
       - shadow        # เตือนถ้าตั้งชื่อตัวแปรซ้ำกับตัวแปรด้านนอก (Shadowing)
+      - fieldalignment # เตือนถ้า struct field alignment ไม่ดี (ประหยัด memory)
 
+  # ── Revive (แทน golint) ───────────────────────────────────────────────────
   revive:
+    severity: warning
     rules:
       - name: blank-imports
       - name: context-as-argument
@@ -80,34 +115,90 @@ linters-settings:
       - name: superfluous-else
       - name: unused-parameter
         disabled: true  # ปิดเพราะบางครั้ง parameter อาจต้อง match interface
+      - name: unreachable-code
+      - name: redefines-builtin-id
 
+  # ── Go Critic ─────────────────────────────────────────────────────────────
   gocritic:
     enabled-tags:
       - diagnostic
       - style
       - performance
+      - experimental   # เปิด experimental checks เพิ่มเติม
+      - opinionated    # เปิด opinionated checks
     disabled-checks:
       - hugeParam      # ปิดเพราะ Go ส่ง struct by value ได้ปกติ
       - rangeValCopy   # ปิดเพราะบางครั้งต้องการ copy
+      - whyNoLint      # ปิดเพราะใช้ nolintlint แทน
 
+  # ── Nested If ─────────────────────────────────────────────────────────────
   nestif:
-    min-complexity: 5   # เตือนถ้า nested if ซับซ้อนเกิน 5
+    min-complexity: 4   # ลดจาก 5 เพื่อให้ตรวจจับ nested if ได้ดีขึ้น
 
+  # ── Duplicate Code ────────────────────────────────────────────────────────
   dupl:
-    threshold: 200      # เพิ่มขึ้นเพราะ CRUD patterns มักซ้ำกัน
+    threshold: 150      # ลดจาก 200 เพื่อจับ duplicate ได้ดีขึ้น
 
+  # ── Go Security ───────────────────────────────────────────────────────────
   gosec:
     excludes:
       - G104  # ปิด audit ของ unhandled errors (errcheck จัดการแล้ว)
       - G304  # ปิดเพราะบางครั้งต้อง read file จาก variable path
+    config:
+      global:
+        audit: true
 
+  # ── Misspell ──────────────────────────────────────────────────────────────
   misspell:
     locale: US
 
+  # ── Error Lint ────────────────────────────────────────────────────────────
   errorlint:
     errorf: true
+    errorf-multi: true
     asserts: true
     comparison: true
+
+  # ── Go Constant ───────────────────────────────────────────────────────────
+  goconst:
+    min-len: 3          # ความยาวขั้นต่ำของ string
+    min-occurrences: 3  # จำนวนครั้งที่ซ้ำขั้นต่ำ
+    ignore-tests: true
+
+  # ── Godot ─────────────────────────────────────────────────────────────────
+  godot:
+    scope: declarations # ตรวจสอบเฉพาะ declaration comments
+    capital: true       # ต้องขึ้นต้นด้วยตัวพิมพ์ใหญ่
+
+  # ── Exhaustive (Switch) ───────────────────────────────────────────────────
+  exhaustive:
+    check-generated: false
+    default-signifies-exhaustive: true  # ถ้ามี default case ถือว่า exhaustive
+
+  # ── Wrap Check ────────────────────────────────────────────────────────────
+  wrapcheck:
+    ignoreSigs:
+      - .Errorf(
+      - errors.New(
+      - errors.Unwrap(
+      - errors.Join(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
+    ignorePackageGlobs:
+      - github.com/Be2Bag/erp-demo/*  # ไม่ต้อง wrap error ภายในโปรเจค
+
+  # ── Nolint Lint ───────────────────────────────────────────────────────────
+  nolintlint:
+    allow-unused: false          # ต้องใช้ nolint จริงๆ
+    require-explanation: true    # ต้องมีคำอธิบายว่าทำไมถึง nolint
+    require-specific: true       # ต้องระบุ linter ที่จะ ignore
+
+  # ── Unparam ───────────────────────────────────────────────────────────────
+  unparam:
+    check-exported: false  # ไม่เช็ค exported functions (อาจเป็น interface)
 
 issues:
   # ไม่ใช้ default excludes (เปิด lint ให้ครบ)
@@ -117,15 +208,22 @@ issues:
   exclude-dirs:
     - docs
     - vendor
+    - .git
+    - tmp
 
   # ยกเว้นบาง patterns
   exclude-rules:
-    # ไม่ต้อง lint ไฟล์ test
+    # ไม่ต้อง lint ไฟล์ test อย่างเข้มงวด
     - path: _test\.go
       linters:
         - dupl
         - gosec
         - bodyclose
+        - wrapcheck
+        - goconst
+        - unparam
+        - errcheck
+        - gocritic
 
     # swagger docs ไม่ต้อง lint
     - path: docs/
@@ -137,6 +235,45 @@ issues:
       linters:
         - errcheck
 
+    # ยกเว้น defer recover pattern
+    - source: "defer func\\(\\) \\{ recover\\(\\)"
+      linters:
+        - errcheck
+
+    # ยกเว้น main.go จากบาง linters (มักมี complexity สูง)
+    - path: cmd/main\.go
+      linters:
+        - gocyclo
+        - funlen
+
+    # ยกเว้น handler files จากบาง checks
+    - path: handlers/
+      linters:
+        - wrapcheck  # handlers ไม่จำเป็นต้อง wrap errors
+
+    # ยกเว้น repository files (มักมี boilerplate ซ้ำๆ)
+    - path: repositories/
+      linters:
+        - dupl
+
+    # ยกเว้น godot สำหรับ TODO/FIXME/BUG comments
+    - source: "// (TODO|FIXME|BUG|XXX|HACK)"
+      linters:
+        - godot
+
   # จำนวน issues สูงสุดต่อ linter
   max-issues-per-linter: 50
   max-same-issues: 5
+
+  # แสดง issues ทั้งหมด (ไม่ limit)
+  fix: false
+
+severity:
+  default-severity: warning
+  rules:
+    - linters:
+        - gosec
+      severity: error
+    - linters:
+        - govet
+      severity: error
