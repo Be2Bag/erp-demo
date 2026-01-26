@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"regexp"
 	"strings"
@@ -727,7 +728,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		// ตรวจสอบว่ามี Receivable อยู่แล้วหรือไม่
 		filterReceivableCheck := bson.M{"job_id": existing.JobID, "deleted_at": nil}
 		existingReceivables, errCheck := s.receivableRepo.GetAllReceivablesByFilter(ctx, filterReceivableCheck, nil)
-		if errCheck != nil && errCheck != mongo.ErrNoDocuments {
+		if errCheck != nil && !errors.Is(errCheck, mongo.ErrNoDocuments) {
 			return errCheck
 		}
 
@@ -786,14 +787,14 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	}
 
 	_, errOnUpdateTask := s.taskRepo.UpdateManyTaskFields(ctx, filterTask, partialTaskUpdate)
-	if errOnUpdateTask != nil && errOnUpdateTask != mongo.ErrNoDocuments {
+	if errOnUpdateTask != nil && !errors.Is(errOnUpdateTask, mongo.ErrNoDocuments) {
 		return errOnUpdateTask
 	}
 
 	// อัพเดท Receivable ที่เกี่ยวข้องกับ SignJob นี้ (โดยใช้ job_id)
 	filterReceivable := bson.M{"job_id": existing.JobID, "deleted_at": nil}
 	receivables, errOnGetReceivables := s.receivableRepo.GetAllReceivablesByFilter(ctx, filterReceivable, nil)
-	if errOnGetReceivables != nil && errOnGetReceivables != mongo.ErrNoDocuments {
+	if errOnGetReceivables != nil && !errors.Is(errOnGetReceivables, mongo.ErrNoDocuments) {
 		return errOnGetReceivables
 	}
 
@@ -815,7 +816,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	// อัพเดท Income ที่เกี่ยวข้อง (โดยใช้ note เป็น job_name เดิม)
 	filterIncome := bson.M{"note": oldJobName, "deleted_at": nil}
 	incomes, errOnGetIncomes := s.incomeRepo.GetAllInComeByFilter(ctx, filterIncome, nil)
-	if errOnGetIncomes != nil && errOnGetIncomes != mongo.ErrNoDocuments {
+	if errOnGetIncomes != nil && !errors.Is(errOnGetIncomes, mongo.ErrNoDocuments) {
 		return errOnGetIncomes
 	}
 
@@ -844,7 +845,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 
 func (s *signJobService) DeleteSignJobByJobID(ctx context.Context, jobID string, claims *dto.JWTClaims) error {
 	err := s.signJobRepo.SoftDeleteSignJobByJobID(ctx, jobID)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		return nil
 	}
 	return err
@@ -859,7 +860,7 @@ func (s *signJobService) VerifySignJob(ctx context.Context, jobID string, claims
 	filter := bson.M{"job_id": jobID, "deleted_at": nil}
 	project := bson.M{"_id": 0, "status": 1, "job_name": 1}
 	task, errOnGetTask := s.taskRepo.GetAllTaskByFilter(ctx, filter, project)
-	if errOnGetTask != nil && errOnGetTask != mongo.ErrNoDocuments {
+	if errOnGetTask != nil && !errors.Is(errOnGetTask, mongo.ErrNoDocuments) {
 		return errOnGetTask
 	}
 

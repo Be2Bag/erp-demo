@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Be2Bag/erp-demo/models"
 	"github.com/Be2Bag/erp-demo/ports"
@@ -106,7 +107,7 @@ func (r *auditLogRepo) GetByID(ctx context.Context, logID string) (*models.Audit
 	var log models.AuditLog
 	err := r.coll.FindOne(ctx, bson.M{"log_id": logID}).Decode(&log)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, nil
 		}
 		return nil, err

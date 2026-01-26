@@ -1,6 +1,6 @@
 package dto
 
-type RecordPaymentDTO struct { // โครงสร้างข้อมูลสำหรับบันทึกการชำระเงิน
+type RecordPaymentDTO struct { // โครงสร้างข้อมูลสำหรับบันทึกการชำระเงิน.
 	PayableID     string  `json:"payable_id"`     // ไอดีของเจ้าหนี้/รายการที่ต้องชำระ
 	BankID        string  `json:"bank_id"`        // รหัสบัญชีธนาคารที่รับชำระ
 	Amount        float64 `json:"amount"`         // จำนวนเงินที่ชำระ

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -88,7 +89,7 @@ func LoadConfig() (*Config, error) {
 	if portStr := os.Getenv("EMAIL_PORT"); portStr != "" {
 		port, err := strconv.Atoi(portStr)
 		if err != nil {
-			return nil, fmt.Errorf("invalid EMAIL_PORT: %v", err)
+			return nil, fmt.Errorf("invalid EMAIL_PORT: %w", err)
 		}
 		cfg.Email.Port = port
 	}
@@ -117,7 +118,8 @@ func LoadConfig() (*Config, error) {
 		viper.AutomaticEnv()
 
 		if err := viper.ReadInConfig(); err != nil {
-			if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
+			var configFileNotFoundError viper.ConfigFileNotFoundError
+			if !errors.As(err, &configFileNotFoundError) {
 				return nil, fmt.Errorf("failed to read config file: %w", err)
 			}
 		}
@@ -149,7 +151,6 @@ func LoadConfig() (*Config, error) {
 		cfg.Cloudflare.Region = viper.GetString("cloudflare.region")
 		cfg.Cloudflare.Endpoint = viper.GetString("cloudflare.endpoint")
 		cfg.Cloudflare.PublicBaseURL = viper.GetString("cloudflare.public_base_url")
-
 	}
 
 	if cfg.Mongo.URI == "" {

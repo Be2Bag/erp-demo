@@ -2,7 +2,7 @@ package dto
 
 import "time"
 
-// ---------- Request DTO ----------
+// ---------- Request DTO ----------.
 type CreateBankAccountsDTO struct {
 	BankName    string `json:"bank_name"`    // ชื่อธนาคาร
 	AccountNo   string `json:"account_no"`   // เลขที่บัญชี
@@ -24,7 +24,7 @@ type RequestListBankAccounts struct {
 	SortOrder string `query:"sort_order"` // ทิศทางการเรียงลำดับ (asc หรือ desc)
 }
 
-// ---------- Response DTO ----------
+// ---------- Response DTO ----------.
 type BankAccountsDTO struct {
 	BankID      string     `json:"bank_id"`      // รหัสบัญชีธนาคาร
 	BankName    string     `json:"bank_name"`    // ชื่อธนาคาร

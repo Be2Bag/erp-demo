@@ -1,6 +1,6 @@
 package dto // แพ็กเกจ dto
 
-type RecordReceiptDTO struct { // โครงสร้าง DTO สำหรับบันทึกรับชำระ
+type RecordReceiptDTO struct { // โครงสร้าง DTO สำหรับบันทึกรับชำระ.
 	ReceivableID  string  `json:"receivable_id"`  // รหัสรายการลูกหนี้ที่รับชำระ
 	BankID        string  `json:"bank_id"`        // รหัสบัญชีธนาคารที่รับชำระ
 	Amount        float64 `json:"amount"`         // จำนวนเงินที่รับชำระ

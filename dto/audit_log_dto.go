@@ -2,7 +2,7 @@ package dto
 
 import "time"
 
-// RequestListAuditLog represents query parameters for listing audit logs
+// RequestListAuditLog represents query parameters for listing audit logs.
 type RequestListAuditLog struct {
 	Page      int    `query:"page"`
 	Limit     int    `query:"limit"`
@@ -19,7 +19,7 @@ type RequestListAuditLog struct {
 	EndDate   string `query:"end_date"`   // YYYY-MM-DD
 }
 
-// ResponseAuditLog represents the response format for a single audit log
+// ResponseAuditLog represents the response format for a single audit log.
 type ResponseAuditLog struct {
 	LogID        string `json:"log_id"`
 	UserID       string `json:"user_id"`
@@ -45,7 +45,7 @@ type ResponseAuditLog struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-// ResponseAuditLogList represents the paginated response for audit logs
+// ResponseAuditLogList represents the paginated response for audit logs.
 type ResponseAuditLogList struct {
 	Items      []ResponseAuditLog `json:"items"`
 	Total      int64              `json:"total"`

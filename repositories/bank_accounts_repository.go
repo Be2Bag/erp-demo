@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -37,7 +38,7 @@ func (r *BankAccountsRepo) UpdateBankAccountByID(ctx context.Context, id string,
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	var updated models.BankAccount
 	if err := r.coll.FindOneAndUpdate(ctx, filter, bson.M{"$set": set}, opts).Decode(&updated); err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, nil
 		}
 		return nil, err
@@ -84,7 +85,7 @@ func (r *BankAccountsRepo) GetOneBankAccountByFilter(ctx context.Context, filter
 	}
 	var bankAccount models.BankAccount
 	if err := r.coll.FindOne(ctx, filter, opts).Decode(&bankAccount); err != nil {
-		if err == mongo.ErrNoDocuments {
+		if errors.Is(err, mongo.ErrNoDocuments) {
 			return nil, nil
 		}
 		return nil, err

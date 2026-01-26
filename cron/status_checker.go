@@ -269,7 +269,7 @@ func (sc *StatusChecker) runStatusCheck() (*CronRunSummary, error) {
 	// ตรวจสอบ Payables
 	payableUpdates, totalPayables, err := sc.checkPayableStatus(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("ตรวจสอบ Payable ไม่สำเร็จ: %v", err)
+		return nil, fmt.Errorf("ตรวจสอบ Payable ไม่สำเร็จ: %w", err)
 	}
 	summary.TotalPayables = totalPayables
 	summary.UpdatedPayables = len(payableUpdates)
@@ -278,7 +278,7 @@ func (sc *StatusChecker) runStatusCheck() (*CronRunSummary, error) {
 	// ตรวจสอบ Receivables
 	receivableUpdates, totalReceivables, err := sc.checkReceivableStatus(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("ตรวจสอบ Receivable ไม่สำเร็จ: %v", err)
+		return nil, fmt.Errorf("ตรวจสอบ Receivable ไม่สำเร็จ: %w", err)
 	}
 	summary.TotalReceivables = totalReceivables
 	summary.UpdatedReceivables = len(receivableUpdates)
