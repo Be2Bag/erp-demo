@@ -18,9 +18,9 @@ import (
 )
 
 type departmentService struct {
-	config         config.Config
 	departmentRepo ports.DepartmentRepository
 	userRepo       ports.UserRepository
+	config         config.Config
 }
 
 func NewDepartmentService(cfg config.Config, departmentRepo ports.DepartmentRepository, userRepo ports.UserRepository) ports.DepartmentService {

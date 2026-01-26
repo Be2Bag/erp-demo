@@ -19,9 +19,9 @@ import (
 )
 
 type inComeService struct {
-	config                  config.Config
 	inComeRepo              ports.InComeRepository
 	transactionCategoryRepo ports.TransactionCategoryRepository
+	config                  config.Config
 }
 
 func NewInComeService(cfg config.Config, inComeRepo ports.InComeRepository, transactionCategoryRepo ports.TransactionCategoryRepository) ports.InComeService {

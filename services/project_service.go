@@ -18,11 +18,11 @@ import (
 )
 
 type projectService struct {
-	config      config.Config
 	projectRepo ports.ProjectRepository
 	userRepo    ports.UserRepository
 	signJobRepo ports.SignJobRepository
 	taskRepo    ports.TaskRepository
+	config      config.Config
 }
 
 func NewProjectService(cfg config.Config, projectRepo ports.ProjectRepository, userRepo ports.UserRepository, signJobRepo ports.SignJobRepository, taskRepo ports.TaskRepository) ports.ProjectService {

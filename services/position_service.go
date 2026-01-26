@@ -18,10 +18,10 @@ import (
 )
 
 type positionService struct {
-	config         config.Config
 	positionRepo   ports.PositionRepository
 	departmentRepo ports.DepartmentRepository
 	userRepo       ports.UserRepository
+	config         config.Config
 }
 
 func NewPositionService(cfg config.Config, positionRepo ports.PositionRepository, departmentRepo ports.DepartmentRepository, userRepo ports.UserRepository) ports.PositionService {

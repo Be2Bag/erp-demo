@@ -7,10 +7,10 @@ import (
 
 type EmailConfig struct {
 	Host     string
-	Port     int
 	Username string
 	Password string
 	From     string
+	Port     int
 }
 
 func SendResetPasswordEmail(cfg EmailConfig, to, link string) error {

@@ -14,9 +14,9 @@ import (
 )
 
 type auditLogService struct {
-	config   config.Config
 	repo     ports.AuditLogRepository
 	logQueue chan *models.AuditLog
+	config   config.Config
 }
 
 // NewAuditLogService creates a new audit log service with async logging support

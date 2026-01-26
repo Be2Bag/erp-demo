@@ -37,10 +37,10 @@ type JWTConfig struct {
 
 type EmailConfig struct {
 	Host     string
-	Port     int
 	Username string
 	Password string
 	From     string
+	Port     int
 }
 
 type SupabaseConfig struct {

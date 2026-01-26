@@ -13,8 +13,8 @@ import (
 )
 
 type dropDownService struct {
-	config       config.Config
 	dropDownRepo ports.DropDownRepository
+	config       config.Config
 }
 
 func NewDropDownService(cfg config.Config, dropDownRepo ports.DropDownRepository) ports.DropDownService {

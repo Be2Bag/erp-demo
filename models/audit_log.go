@@ -7,8 +7,11 @@ const CollectionAuditLogs = "audit_logs"
 
 // AuditLog represents a record of user actions in the system
 type AuditLog struct {
-	ID    string `bson:"_id,omitempty" json:"id"`
-	LogID string `bson:"log_id" json:"log_id"`
+
+	// Timestamps
+	CreatedAt time.Time `bson:"created_at" json:"created_at"`
+	ID        string    `bson:"_id,omitempty" json:"id"`
+	LogID     string    `bson:"log_id" json:"log_id"`
 
 	// User Information
 	UserID       string `bson:"user_id" json:"user_id"`
@@ -25,15 +28,13 @@ type AuditLog struct {
 	IPAddress   string `bson:"ip_address" json:"ip_address"`
 	UserAgent   string `bson:"user_agent" json:"user_agent"`
 
-	// Response Information
-	StatusCode   int   `bson:"status_code" json:"status_code"`
-	ResponseTime int64 `bson:"response_time_ms" json:"response_time_ms"` // milliseconds
-
 	// Semantic Information
 	Action     string `bson:"action" json:"action"`           // CREATE, READ, UPDATE, DELETE
 	Resource   string `bson:"resource" json:"resource"`       // user, task, receipt, etc.
 	ResourceID string `bson:"resource_id" json:"resource_id"` // ID of the affected resource
 
-	// Timestamps
-	CreatedAt time.Time `bson:"created_at" json:"created_at"`
+	// Response Information
+	StatusCode   int   `bson:"status_code" json:"status_code"`
+	ResponseTime int64 `bson:"response_time_ms" json:"response_time_ms"` // milliseconds
+
 }

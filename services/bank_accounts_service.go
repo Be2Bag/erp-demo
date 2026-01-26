@@ -18,8 +18,8 @@ import (
 )
 
 type bankAccountService struct {
-	config          config.Config
 	bankAccountRepo ports.BankAccountsRepository
+	config          config.Config
 }
 
 func NewBankAccountService(cfg config.Config, bankAccountRepo ports.BankAccountsRepository) ports.BankAccountsService {

@@ -19,9 +19,9 @@ import (
 )
 
 type expenseService struct {
-	config                  config.Config
 	expenseRepo             ports.ExpenseRepository
 	transactionCategoryRepo ports.TransactionCategoryRepository
+	config                  config.Config
 }
 
 func NewExpenseService(cfg config.Config, expenseRepo ports.ExpenseRepository, transactionCategoryRepo ports.TransactionCategoryRepository) ports.ExpenseService {

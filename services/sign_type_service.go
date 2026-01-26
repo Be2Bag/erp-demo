@@ -18,9 +18,9 @@ import (
 )
 
 type signTypeService struct {
-	config       config.Config
 	signTypeRepo ports.SignTypeRepository
 	userRepo     ports.UserRepository
+	config       config.Config
 }
 
 func NewSignTypeService(cfg config.Config, signTypeRepo ports.SignTypeRepository, userRepo ports.UserRepository) ports.SignTypeService {

@@ -19,8 +19,8 @@ import (
 )
 
 type workflowService struct {
-	config       config.Config
 	workflowRepo ports.WorkFlowRepository
+	config       config.Config
 }
 
 func NewWorkflowService(cfg config.Config, workflowRepo ports.WorkFlowRepository) ports.WorkFlowService {

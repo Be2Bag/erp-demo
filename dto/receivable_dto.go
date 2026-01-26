@@ -10,11 +10,11 @@ type CreateReceivableDTO struct {
 	InvoiceNo string  `json:"invoice_no"`
 	IssueDate string  `json:"issue_date"`
 	DueDate   string  `json:"due_date"`
-	Amount    float64 `json:"amount"`
-	Balance   float64 `json:"balance"`
 	Phone     string  `json:"phone"`
 	Address   string  `json:"address"`
 	Note      string  `json:"note,omitempty"` // หมายเหตุ
+	Amount    float64 `json:"amount"`
+	Balance   float64 `json:"balance"`
 }
 
 type UpdateReceivableDTO struct {
@@ -23,17 +23,15 @@ type UpdateReceivableDTO struct {
 	InvoiceNo string  `json:"invoice_no,omitempty"`
 	IssueDate string  `json:"issue_date,omitempty"`
 	DueDate   string  `json:"due_date,omitempty"`
-	Amount    float64 `json:"amount,omitempty"`
-	Balance   float64 `json:"balance,omitempty"`
 	Status    string  `json:"status,omitempty"`
 	Note      string  `json:"note,omitempty"`
 	Phone     string  `json:"phone"`
 	Address   string  `json:"address"`
+	Amount    float64 `json:"amount,omitempty"`
+	Balance   float64 `json:"balance,omitempty"`
 }
 
 type RequestListReceivable struct {
-	Page      int    `query:"page"`
-	Limit     int    `query:"limit"`
 	Search    string `query:"search"`
 	SortBy    string `query:"sort_by"`
 	SortOrder string `query:"sort_order"`
@@ -41,6 +39,8 @@ type RequestListReceivable struct {
 	StartDate string `query:"start_date"`
 	EndDate   string `query:"end_date"`
 	BankID    string `query:"bank_id"`
+	Page      int    `query:"page"`
+	Limit     int    `query:"limit"`
 }
 
 type RequestSummaryReceivable struct {
@@ -52,23 +52,23 @@ type RequestSummaryReceivable struct {
 // ---------- Response DTO ----------
 
 type ReceivableDTO struct {
+	IssueDate    time.Time               `json:"issue_date"`
+	DueDate      time.Time               `json:"due_date"`
+	CreatedAt    time.Time               `json:"created_at"`
+	UpdatedAt    time.Time               `json:"updated_at"`
 	IDReceivable string                  `json:"id_receivable"`
 	BankID       string                  `json:"bank_id"`
 	BankName     string                  `json:"bank_name"`
 	Customer     string                  `json:"customer"`
 	InvoiceNo    string                  `json:"invoice_no"`
-	IssueDate    time.Time               `json:"issue_date"`
-	DueDate      time.Time               `json:"due_date"`
-	Amount       float64                 `json:"amount"`
-	Balance      float64                 `json:"balance"`
 	Status       string                  `json:"status"`
 	Phone        string                  `json:"phone"`
 	Address      string                  `json:"address"`
 	CreatedBy    string                  `json:"created_by"`
-	CreatedAt    time.Time               `json:"created_at"`
-	UpdatedAt    time.Time               `json:"updated_at"`
-	Transactions []PaymentTransactionDTO `json:"transactions"` // รายการชำระเงิน
 	Note         string                  `json:"note"`
+	Transactions []PaymentTransactionDTO `json:"transactions"` // รายการชำระเงิน
+	Amount       float64                 `json:"amount"`
+	Balance      float64                 `json:"balance"`
 }
 
 type ReceivableSummaryDTO struct {

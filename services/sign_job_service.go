@@ -20,12 +20,12 @@ import (
 )
 
 type signJobService struct {
-	config         config.Config
 	signJobRepo    ports.SignJobRepository
 	dropDownRepo   ports.DropDownRepository
 	taskRepo       ports.TaskRepository
 	incomeRepo     ports.InComeRepository
 	receivableRepo ports.ReceivableRepository
+	config         config.Config
 }
 
 func NewSignJobService(cfg config.Config, signJobRepo ports.SignJobRepository, dropDownRepo ports.DropDownRepository, taskRepo ports.TaskRepository, incomeRepo ports.InComeRepository, receivableRepo ports.ReceivableRepository) ports.SignJobService {

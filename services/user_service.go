@@ -20,11 +20,11 @@ import (
 )
 
 type userService struct {
-	config            config.Config
 	userRepo          ports.UserRepository
 	dropDownRepo      ports.DropDownRepository
-	storageCloudflare *storage.CloudflareStorage
 	taskRepo          ports.TaskRepository
+	storageCloudflare *storage.CloudflareStorage
+	config            config.Config
 }
 
 func NewUserService(cfg config.Config, ur ports.UserRepository, dr ports.DropDownRepository, sc *storage.CloudflareStorage, tr ports.TaskRepository) ports.UserService {

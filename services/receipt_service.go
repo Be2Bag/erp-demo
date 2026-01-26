@@ -19,9 +19,9 @@ import (
 )
 
 type receiptService struct {
-	config           config.Config
 	receiptRepo      ports.ReceiptRepository
 	bankAccountsRepo ports.BankAccountsRepository
+	config           config.Config
 }
 
 func NewReceiptService(cfg config.Config, receiptRepo ports.ReceiptRepository, bankAccountsRepo ports.BankAccountsRepository) ports.ReceiptService {

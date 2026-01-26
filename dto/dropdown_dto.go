@@ -73,11 +73,11 @@ type ResponseGetCategorys struct {
 }
 
 type ResponseGetTransactionCategorys struct {
+	Note                      *string `json:"note,omitempty"`               // หมายเหตุเพิ่มเติม
 	TransactionCategoryID     string  `json:"transaction_category_id"`      // UUID
 	Type                      string  `json:"type"`                         // ประเภทหมวดหมู่
 	TransactionCategoryNameTH string  `json:"transaction_category_name_th"` // ชื่อหมวดหมู่ภาษาไทย
 	Description               string  `json:"description"`                  // รายละเอียด
-	Note                      *string `json:"note,omitempty"`               // หมายเหตุเพิ่มเติม
 }
 
 type ResponseGetBankAccounts struct {

@@ -45,22 +45,22 @@ type BankInfo struct {
 }
 
 type Document struct {
-	Name       string     `json:"name"`                 // ชื่อเอกสาร
-	FileURL    string     `json:"file_url"`             // ลิงก์ไฟล์เอกสาร
-	Type       string     `json:"type"`                 // ประเภทเอกสาร เช่น "id_card", "degree"
 	CreatedAt  time.Time  `json:"created_at"`           // วันที่สร้างเอกสาร
 	UploadedAt time.Time  `json:"uploaded_at"`          // วันที่อัปโหลดเอกสาร
 	DeletedAt  *time.Time `json:"deleted_at,omitempty"` // วันที่ลบเอกสาร (soft delete)
+	Name       string     `json:"name"`                 // ชื่อเอกสาร
+	FileURL    string     `json:"file_url"`             // ลิงก์ไฟล์เอกสาร
+	Type       string     `json:"type"`                 // ประเภทเอกสาร เช่น "id_card", "degree"
 }
 
 type RequestGetUserAll struct {
-	Page      int    `query:"page"`       // หมายเลขหน้าที่ต้องการดึงข้อมูล
-	Limit     int    `query:"limit"`      // จำนวนรายการต่อหน้า
 	Search    string `query:"search"`     // คำค้นหาสำหรับกรองข้อมูล
 	Status    string `query:"status"`     // สถานะของผู้ใช้ (เช่น pending, approved, rejected, cancelled)
 	Role      string `query:"role"`       // บทบาทของผู้ใช้ (เช่น admin, user)
 	SortBy    string `query:"sort_by"`    // คอลัมน์ที่ต้องการเรียงลำดับ
 	SortOrder string `query:"sort_order"` // ทิศทางการเรียงลำดับ (asc หรือ desc)
+	Page      int    `query:"page"`       // หมายเลขหน้าที่ต้องการดึงข้อมูล
+	Limit     int    `query:"limit"`      // จำนวนรายการต่อหน้า
 }
 
 type RequestUpdateUser struct {
@@ -97,6 +97,13 @@ type RequestUpdateDocuments struct {
 // Response
 
 type ResponseGetUserByID struct {
+	BirthDate         time.Time           `json:"birth_date"`         // วันเดือนปีเกิดของพนักงาน (รูปแบบ string)
+	HireDate          time.Time           `json:"hire_date"`          // วันที่เริ่มงาน
+	CreatedAt         time.Time           `json:"created_at"`         // วันที่สร้างข้อมูลนี้
+	UpdatedAt         time.Time           `json:"updated_at"`         // วันที่แก้ไขข้อมูลล่าสุด
+	DeletedAt         *time.Time          `json:"deleted_at"`         // วันที่ลบข้อมูล (soft delete)
+	Address           Address             `json:"address"`            // ที่อยู่ของพนักงาน
+	BankInfo          BankInfo            `json:"bank_info"`          // ข้อมูลบัญชีธนาคารของพนักงาน
 	UserID            string              `json:"user_id"`            // รหัสประจำตัวผู้ใช้ (ไม่ซ้ำกัน)
 	Email             string              `json:"email"`              // อีเมลของผู้ใช้
 	TitleTH           string              `json:"title_th"`           // คำนำหน้าชื่อ (ภาษาไทย)
@@ -113,34 +120,30 @@ type ResponseGetUserByID struct {
 	Status            string              `json:"status"`             // สถานะของผู้ใช้ (เช่น active, inactive)
 	EmployeeCode      string              `json:"employee_code"`      // รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
 	Gender            string              `json:"gender"`             // เพศของพนักงาน
-	BirthDate         time.Time           `json:"birth_date"`         // วันเดือนปีเกิดของพนักงาน (รูปแบบ string)
 	Position          string              `json:"position"`           // รหัสตำแหน่งงาน (FK ไปยัง Positions)
 	Department        string              `json:"department"`         // รหัสแผนก (FK ไปยัง Departments)
-	HireDate          time.Time           `json:"hire_date"`          // วันที่เริ่มงาน
 	EmploymentType    string              `json:"employment_type"`    // ประเภทการจ้างงาน (เช่น full-time, part-time)
 	EmploymentHistory []EmploymentHistory `json:"employment_history"` // ประวัติการจ้างงาน (อาจมีหลายรายการ)
-	Address           Address             `json:"address"`            // ที่อยู่ของพนักงาน
-	BankInfo          BankInfo            `json:"bank_info"`          // ข้อมูลบัญชีธนาคารของพนักงาน
 	Documents         []Document          `json:"documents"`
-	CreatedAt         time.Time           `json:"created_at"` // วันที่สร้างข้อมูลนี้
-	UpdatedAt         time.Time           `json:"updated_at"` // วันที่แก้ไขข้อมูลล่าสุด
-	DeletedAt         *time.Time          `json:"deleted_at"` // วันที่ลบข้อมูล (soft delete)
 }
 
 type EmploymentHistory struct {
+	FromDate       time.Time  `json:"from_date"` // วันที่เริ่มต้น
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
+	ToDate         *time.Time `json:"to_date"`         // วันที่สิ้นสุด (nullable ถ้ายังทำอยู่)
+	DeletedAt      *time.Time `json:"deleted_at"`      // soft delete
 	UserID         string     `json:"user_id"`         // รหัสผู้ใช้ที่เกี่ยวข้อง
 	PositionID     string     `json:"position_id"`     // ตำแหน่งในช่วงเวลานั้น
 	DepartmentID   string     `json:"department_id"`   // แผนกในช่วงเวลานั้น
-	FromDate       time.Time  `json:"from_date"`       // วันที่เริ่มต้น
-	ToDate         *time.Time `json:"to_date"`         // วันที่สิ้นสุด (nullable ถ้ายังทำอยู่)
 	EmploymentType string     `json:"employment_type"` // ประเภทการจ้าง (เช่น full-time, intern)
 	Note           string     `json:"note,omitempty"`  // หมายเหตุ (ถ้ามี)
-	CreatedAt      time.Time  `json:"created_at"`
-	UpdatedAt      time.Time  `json:"updated_at"`
-	DeletedAt      *time.Time `json:"deleted_at"` // soft delete
 }
 
 type ResponseGetUserAll struct {
+	CreatedAt      time.Time  `json:"created_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่สร้างข้อมูลนี้
+	UpdatedAt      time.Time  `json:"updated_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่แก้ไขข้อมูลล่าสุด
+	DeletedAt      *time.Time `json:"deleted_at" example:"null"`                              // วันที่ลบข้อมูล (soft delete)
 	UserID         string     `json:"user_id" example:"1d5855c2-7d14-4f8d-8b5d-ef20cb5cb3cf"` // รหัสประจำตัวผู้ใช้ (ไม่ซ้ำกัน)
 	TitleTH        string     `json:"title_th" example:"นางสาว"`                              // คำนำหน้าชื่อ (ภาษาไทย)
 	FirstNameTH    string     `json:"first_name_th" example:"กิตติยา"`                        // ชื่อจริงของพนักงาน
@@ -162,9 +165,6 @@ type ResponseGetUserAll struct {
 	DepartmentName string     `json:"department_name" example:"DEP001"`                       // รหัสแผนก (FK ไปยัง Departments)
 	Role           string     `json:"role" example:"admin"`                                   // บทบาทหรือสิทธิ์ของผู้ใช้ในระบบ (เช่น admin, user)
 	Note           string     `json:"note" example:"พนักงานดีเด่นประจำเดือน"`                 // หมายเหตุเกี่ยวกับผู้ใช้ (ถ้ามี)
-	CreatedAt      time.Time  `json:"created_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่สร้างข้อมูลนี้
-	UpdatedAt      time.Time  `json:"updated_at" example:"2025-07-11T08:25:08.526Z"`          // วันที่แก้ไขข้อมูลล่าสุด
-	DeletedAt      *time.Time `json:"deleted_at" example:"null"`                              // วันที่ลบข้อมูล (soft delete)
 }
 
 type ResponseGetCountUsers struct {

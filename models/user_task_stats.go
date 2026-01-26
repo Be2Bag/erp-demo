@@ -5,14 +5,14 @@ import "time"
 const CollectionUserTaskStats = "user_task_stats"
 
 type UserTaskStats struct {
+	CreatedAt time.Time   `json:"created_at" bson:"created_at"`
+	UpdatedAt time.Time   `json:"updated_at" bson:"updated_at"`
+	KPI       UserTaskKPI `json:"kpi,omitempty" bson:"kpi,omitempty"` // KPI (ถ้ามี)
+
+	DeletedAt    *time.Time     `json:"deleted_at" bson:"deleted_at"`
 	UserID       string         `json:"user_id" bson:"user_id"`                       // อ้างอิงผู้ใช้
 	DepartmentID string         `json:"department_id,omitempty" bson:"department_id"` // ช่วย filter รายแผนก (เลือกใส่)
 	Totals       UserTaskTotals `json:"totals" bson:"totals"`                         // ตัวเลขรวม
-	KPI          UserTaskKPI    `json:"kpi,omitempty" bson:"kpi,omitempty"`           // KPI (ถ้ามี)
-
-	CreatedAt time.Time  `json:"created_at" bson:"created_at"`
-	UpdatedAt time.Time  `json:"updated_at" bson:"updated_at"`
-	DeletedAt *time.Time `json:"deleted_at" bson:"deleted_at"`
 }
 
 // จำนวนงานรวมตามสถานะ

@@ -18,8 +18,8 @@ import (
 )
 
 type transactionCategoryService struct {
-	config                  config.Config
 	transactionCategoryRepo ports.TransactionCategoryRepository
+	config                  config.Config
 }
 
 func NewTransactionCategoryService(cfg config.Config, transactionCategoryRepo ports.TransactionCategoryRepository) ports.TransactionCategoryService {

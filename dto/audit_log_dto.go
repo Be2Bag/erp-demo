@@ -4,8 +4,6 @@ import "time"
 
 // RequestListAuditLog represents query parameters for listing audit logs.
 type RequestListAuditLog struct {
-	Page      int    `query:"page"`
-	Limit     int    `query:"limit"`
 	Search    string `query:"search"`     // Search in path, email, full_name
 	SortBy    string `query:"sort_by"`    // created_at (default)
 	SortOrder string `query:"sort_order"` // asc, desc (default: desc)
@@ -17,16 +15,19 @@ type RequestListAuditLog struct {
 	Method    string `query:"method"`     // GET, POST, PUT, DELETE
 	StartDate string `query:"start_date"` // YYYY-MM-DD
 	EndDate   string `query:"end_date"`   // YYYY-MM-DD
+	Page      int    `query:"page"`
+	Limit     int    `query:"limit"`
 }
 
 // ResponseAuditLog represents the response format for a single audit log.
 type ResponseAuditLog struct {
-	LogID        string `json:"log_id"`
-	UserID       string `json:"user_id"`
-	Email        string `json:"email"`
-	EmployeeCode string `json:"employee_code"`
-	Role         string `json:"role"`
-	FullName     string `json:"full_name"`
+	CreatedAt    time.Time `json:"created_at"`
+	LogID        string    `json:"log_id"`
+	UserID       string    `json:"user_id"`
+	Email        string    `json:"email"`
+	EmployeeCode string    `json:"employee_code"`
+	Role         string    `json:"role"`
+	FullName     string    `json:"full_name"`
 
 	Method      string `json:"method"`
 	Path        string `json:"path"`
@@ -35,14 +36,12 @@ type ResponseAuditLog struct {
 	IPAddress   string `json:"ip_address"`
 	UserAgent   string `json:"user_agent,omitempty"`
 
-	StatusCode   int   `json:"status_code"`
-	ResponseTime int64 `json:"response_time_ms"`
-
 	Action     string `json:"action"`
 	Resource   string `json:"resource"`
 	ResourceID string `json:"resource_id,omitempty"`
 
-	CreatedAt time.Time `json:"created_at"`
+	StatusCode   int   `json:"status_code"`
+	ResponseTime int64 `json:"response_time_ms"`
 }
 
 // ResponseAuditLogList represents the paginated response for audit logs.

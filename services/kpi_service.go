@@ -19,9 +19,9 @@ import (
 )
 
 type kpiService struct {
-	config   config.Config
 	kpiRepo  ports.KPIRepository
 	userRepo ports.UserRepository
+	config   config.Config
 }
 
 func NewKPIService(cfg config.Config, kpiRepo ports.KPIRepository, userRepo ports.UserRepository) ports.KPIService {

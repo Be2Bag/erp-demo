@@ -19,11 +19,11 @@ import (
 )
 
 type receivableService struct {
-	config           config.Config
 	receivableRepo   ports.ReceivableRepository
 	bankAccountsRepo ports.BankAccountsRepository
 	signJobRepo      ports.SignJobRepository
 	incomeRepo       ports.InComeRepository
+	config           config.Config
 }
 
 func NewReceivableService(cfg config.Config, receivableRepo ports.ReceivableRepository, bankAccountsRepo ports.BankAccountsRepository, signJobRepo ports.SignJobRepository, incomeRepo ports.InComeRepository) ports.ReceivableService {

@@ -131,7 +131,7 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		}
 	} else {
 		// มีการแนบไฟล์มา → ดำเนินการอัปโหลด
-		if err := os.MkdirAll("./tmp", 0750); err != nil {
+		if err := os.MkdirAll("./tmp", 0o750); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 				StatusCode: fiber.StatusInternalServerError,
 				MessageEN:  "Failed to create temporary directory: " + err.Error(),
@@ -537,7 +537,7 @@ func (h *UserHandler) UpdateDocuments(c *fiber.Ctx) error {
 	}
 
 	// Ensure the ./tmp/ directory exists
-	if err := os.MkdirAll("./tmp", 0750); err != nil {
+	if err := os.MkdirAll("./tmp", 0o750); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,
 			MessageEN:  "Failed to create temporary directory: " + err.Error(),

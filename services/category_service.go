@@ -18,8 +18,8 @@ import (
 )
 
 type categoryService struct {
-	config       config.Config
 	categoryRepo ports.CategoryRepository
+	config       config.Config
 }
 
 func NewCategoryService(cfg config.Config, categoryRepo ports.CategoryRepository) ports.CategoryService {

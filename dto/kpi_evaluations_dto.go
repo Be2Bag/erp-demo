@@ -8,32 +8,35 @@ type CreateKPIEvaluationRequest struct {
 	KPIID       string            `json:"kpi_id" binding:"required"`        // อ้างถึง KPITemplate
 	EvaluateeID string            `json:"evaluatee_id" binding:"required"`  // ผู้ถูกประเมิน
 	Department  string            `json:"department_id" binding:"required"` // แผนก
-	Scores      []KPIScoreRequest `json:"scores" binding:"required"`        // รายการคะแนนแต่ละ item
 	Feedback    string            `json:"feedback,omitempty"`               // คอมเมนต์รวม (ถ้ามี)
+	Scores      []KPIScoreRequest `json:"scores" binding:"required"`        // รายการคะแนนแต่ละ item
 }
 
 type UpdateKPIEvaluationRequest struct {
-	Scores   []KPIScoreRequest `json:"scores" binding:"required"` // รายการคะแนนแต่ละ item
 	Feedback string            `json:"feedback,omitempty"`        // คอมเมนต์รวม (ถ้ามี)
+	Scores   []KPIScoreRequest `json:"scores" binding:"required"` // รายการคะแนนแต่ละ item
 }
 type KPIScoreRequest struct {
 	ItemID string  `json:"item_id" binding:"required"` // อ้างถึง item ใน KPI template
-	Score  float64 `json:"score" binding:"required"`   // คะแนนที่ให้
 	Notes  string  `json:"notes,omitempty"`            // หมายเหตุเพิ่มเติม (ถ้ามี)
+	Score  float64 `json:"score" binding:"required"`   // คะแนนที่ให้
 }
 
 type RequestListKPIEvaluation struct {
-	Page       int    `query:"page"`          // หมายเลขหน้าที่ต้องการดึงข้อมูล
-	Limit      int    `query:"limit"`         // จำนวนรายการต่อหน้า
 	Search     string `query:"search"`        // คำค้นหาสำหรับกรองข้อมูล
 	Department string `query:"department_id"` // แผนก
 	SortBy     string `query:"sort_by"`       // คอลัมน์ที่ต้องการเรียงลำดับ
 	SortOrder  string `query:"sort_order"`    // ทิศทางการเรียงลำดับ (asc หรือ desc)
+	Page       int    `query:"page"`          // หมายเลขหน้าที่ต้องการดึงข้อมูล
+	Limit      int    `query:"limit"`         // จำนวนรายการต่อหน้า
 }
 
 // <===================== Response ===============================>
 
 type KPIEvaluationResponse struct {
+	FinishedAt     time.Time          `json:"finished_at"`
+	CreatedAt      time.Time          `json:"created_at"`
+	UpdatedAt      time.Time          `json:"updated_at"`
 	EvaluationID   string             `json:"evaluation_id"`
 	JobID          string             `json:"job_id"`
 	JobName        string             `json:"job_name"`
@@ -43,28 +46,25 @@ type KPIEvaluationResponse struct {
 	Description    string             `json:"description,omitempty"`
 	KPIID          string             `json:"kpi_id"`
 	KPIName        string             `json:"kpi_name"`
-	Version        int                `json:"version"`
 	EvaluatorID    string             `json:"evaluator_id"`
 	EvaluatorName  string             `json:"evaluator_name"`
 	EvaluateeID    string             `json:"evaluatee_id"`
 	EvaluateeName  string             `json:"evaluatee_name"`
 	Department     string             `json:"department_id"`
 	DepartmentName string             `json:"department_name"`
+	Feedback       string             `json:"feedback,omitempty"`
 	Scores         []KPIScoreResponse `json:"scores"`
+	Version        int                `json:"version"`
 	TotalScore     float64            `json:"total_score"`
 	IsEvaluated    bool               `json:"is_evaluated"` // ประเมินแล้วหรือยัง
-	Feedback       string             `json:"feedback,omitempty"`
-	FinishedAt     time.Time          `json:"finished_at"`
-	CreatedAt      time.Time          `json:"created_at"`
-	UpdatedAt      time.Time          `json:"updated_at"`
 }
 
 type KPIScoreResponse struct {
 	ItemID   string `json:"item_id"`
 	Name     string `json:"name"`
 	Category string `json:"category"`
+	Notes    string `json:"notes,omitempty"`
 	Weight   int    `json:"weight"`
 	MaxScore int    `json:"max_score"`
 	Score    int    `json:"score"`
-	Notes    string `json:"notes,omitempty"`
 }

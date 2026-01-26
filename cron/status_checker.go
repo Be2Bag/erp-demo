@@ -19,19 +19,19 @@ type StatusUpdateResult struct {
 	InvoiceNo string  `json:"invoice_no"` // เลขที่ใบแจ้งหนี้
 	OldStatus string  `json:"old_status"` // สถานะเดิม
 	NewStatus string  `json:"new_status"` // สถานะใหม่
+	DueDate   string  `json:"due_date"`   // วันครบกำหนด
 	Amount    float64 `json:"amount"`     // จำนวนเงินทั้งหมด
 	Balance   float64 `json:"balance"`    // ยอดคงเหลือ
-	DueDate   string  `json:"due_date"`   // วันครบกำหนด
 }
 
 // CronRunSummary สรุปผลการรัน cronjob
 type CronRunSummary struct {
 	RunAt              string               `json:"run_at"`              // เวลาที่รัน
+	UpdatedItems       []StatusUpdateResult `json:"updated_items"`       // รายการที่อัปเดต
 	TotalPayables      int                  `json:"total_payables"`      // จำนวน Payable ที่ตรวจสอบ
 	UpdatedPayables    int                  `json:"updated_payables"`    // จำนวน Payable ที่อัปเดต
 	TotalReceivables   int                  `json:"total_receivables"`   // จำนวน Receivable ที่ตรวจสอบ
 	UpdatedReceivables int                  `json:"updated_receivables"` // จำนวน Receivable ที่อัปเดต
-	UpdatedItems       []StatusUpdateResult `json:"updated_items"`       // รายการที่อัปเดต
 }
 
 // StatusChecker รับผิดชอบในการตรวจสอบและอัปเดตสถานะของ Payable และ Receivable

@@ -12,10 +12,10 @@ import (
 )
 
 type adminService struct {
-	config    config.Config
 	adminRepo ports.AdminRepository
 	authRepo  ports.AuthRepository
 	userRepo  ports.UserRepository
+	config    config.Config
 }
 
 func NewAdminService(cfg config.Config, adminRepo ports.AdminRepository, authRepo ports.AuthRepository, userRepo ports.UserRepository) ports.AdminService {

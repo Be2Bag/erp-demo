@@ -14,9 +14,9 @@ import (
 )
 
 type authService struct {
-	config   config.Config
 	authRepo ports.AuthRepository
 	userRepo ports.UserRepository
+	config   config.Config
 }
 
 func NewAuthService(cfg config.Config, authRepo ports.AuthRepository, userRepo ports.UserRepository) ports.AuthService {

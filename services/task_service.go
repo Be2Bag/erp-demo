@@ -21,7 +21,6 @@ import (
 )
 
 type taskService struct {
-	config            config.Config
 	taskRepo          ports.TaskRepository
 	userRepo          ports.UserRepository
 	workflowRepo      ports.WorkFlowRepository
@@ -29,6 +28,7 @@ type taskService struct {
 	kpiEvaluationRepo ports.KPIEvaluationRepository
 	kpiRepo           ports.KPIRepository
 	signJobRepo       ports.SignJobRepository
+	config            config.Config
 }
 
 func NewTaskService(cfg config.Config, taskRepo ports.TaskRepository, userRepo ports.UserRepository, workflowRepo ports.WorkFlowRepository, departmentRepo ports.DepartmentRepository, kpiEvaluationRepo ports.KPIEvaluationRepository, kpiRepo ports.KPIRepository, signJobRepo ports.SignJobRepository) ports.TaskService {

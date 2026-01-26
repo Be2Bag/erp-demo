@@ -6,6 +6,14 @@ import (
 
 // User ใช้เก็บข้อมูลพนักงานในระบบ HR พร้อมเชื่อมโยงตำแหน่งงาน (PositionID) และแผนก (DepartmentID) ผ่าน FK
 type User struct {
+	BirthDate         time.Time           `bson:"birth_date" json:"birth_date"` // วันเดือนปีเกิดของพนักงาน (รูปแบบ string)
+	HireDate          time.Time           `bson:"hire_date" json:"hire_date"`   // วันที่เริ่มงาน
+	CreatedAt         time.Time           `bson:"created_at" json:"created_at"` // วันที่สร้างข้อมูลนี้
+	UpdatedAt         time.Time           `bson:"updated_at" json:"updated_at"` // วันที่แก้ไขข้อมูลล่าสุด
+	DeletedAt         *time.Time          `bson:"deleted_at" json:"deleted_at"` // วันที่ลบข้อมูล (soft delete)
+	Note              *string             `bson:"note" json:"note"`
+	Address           Address             `bson:"address" json:"address"`                       // ที่อยู่ของพนักงาน
+	BankInfo          BankInfo            `bson:"bank_info" json:"bank_info"`                   // ข้อมูลบัญชีธนาคารของพนักงาน
 	UserID            string              `bson:"user_id" json:"user_id"`                       // รหัสประจำตัวผู้ใช้ (ไม่ซ้ำกัน)
 	Email             string              `bson:"email" json:"email"`                           // อีเมลของผู้ใช้
 	Password          string              `bson:"password" json:"password"`                     // รหัสผ่าน (ควรเข้ารหัสก่อนจัดเก็บ)
@@ -23,19 +31,11 @@ type User struct {
 	Status            string              `bson:"status" json:"status"`                         // สถานะของผู้ใช้ (เช่น active, inactive)
 	EmployeeCode      string              `bson:"employee_code" json:"employee_code"`           // รหัสพนักงาน (อาจใช้สำหรับอ้างอิงภายใน)
 	Gender            string              `bson:"gender" json:"gender"`                         // เพศของพนักงาน
-	BirthDate         time.Time           `bson:"birth_date" json:"birth_date"`                 // วันเดือนปีเกิดของพนักงาน (รูปแบบ string)
 	PositionID        string              `bson:"position_id" json:"position_id"`               // รหัสตำแหน่งงาน (FK ไปยัง Positions)
 	DepartmentID      string              `bson:"department_id" json:"department_id"`           // รหัสแผนก (FK ไปยัง Departments)
-	HireDate          time.Time           `bson:"hire_date" json:"hire_date"`                   // วันที่เริ่มงาน
 	EmploymentType    string              `bson:"employment_type" json:"employment_type"`       // ประเภทการจ้างงาน (เช่น full-time, part-time)
 	EmploymentHistory []EmploymentHistory `bson:"employment_history" json:"employment_history"` // ประวัติการจ้างงาน (อาจมีหลายรายการ)
-	Address           Address             `bson:"address" json:"address"`                       // ที่อยู่ของพนักงาน
-	BankInfo          BankInfo            `bson:"bank_info" json:"bank_info"`                   // ข้อมูลบัญชีธนาคารของพนักงาน
 	Documents         []Document          `bson:"documents" json:"documents"`
-	CreatedAt         time.Time           `bson:"created_at" json:"created_at"` // วันที่สร้างข้อมูลนี้
-	UpdatedAt         time.Time           `bson:"updated_at" json:"updated_at"` // วันที่แก้ไขข้อมูลล่าสุด
-	DeletedAt         *time.Time          `bson:"deleted_at" json:"deleted_at"` // วันที่ลบข้อมูล (soft delete)
-	Note              *string             `bson:"note" json:"note"`
 }
 
 const (
@@ -59,10 +59,10 @@ type BankInfo struct {
 }
 
 type Document struct {
-	Name       string     `bson:"name"`                 // ชื่อเอกสาร
-	FileURL    string     `bson:"file_url"`             // ลิงก์ไฟล์เอกสาร
-	Type       string     `bson:"type"`                 // ประเภทเอกสาร เช่น "id_card", "degree"
 	CreatedAt  time.Time  `bson:"created_at"`           // วันที่สร้างเอกสาร
 	UploadedAt time.Time  `bson:"uploaded_at"`          // วันที่อัปโหลดเอกสาร
 	DeletedAt  *time.Time `bson:"deleted_at,omitempty"` // วันที่ลบเอกสาร (soft delete)
+	Name       string     `bson:"name"`                 // ชื่อเอกสาร
+	FileURL    string     `bson:"file_url"`             // ลิงก์ไฟล์เอกสาร
+	Type       string     `bson:"type"`                 // ประเภทเอกสาร เช่น "id_card", "degree"
 }

@@ -18,7 +18,6 @@ import (
 )
 
 type kpiEvaluationRepoService struct {
-	config            config.Config
 	kpiRepo           ports.KPIRepository
 	userRepo          ports.UserRepository
 	kpiEvaluationRepo ports.KPIEvaluationRepository
@@ -26,6 +25,7 @@ type kpiEvaluationRepoService struct {
 	departmentRepo    ports.DepartmentRepository
 	projectRepo       ports.ProjectRepository
 	signJobRepo       ports.SignJobRepository
+	config            config.Config
 }
 
 func NewKPIEvaluationService(cfg config.Config, kpiRepo ports.KPIRepository, userRepo ports.UserRepository, kpiEvaluationRepo ports.KPIEvaluationRepository, taskRepo ports.TaskRepository, departmentRepo ports.DepartmentRepository, projectRepo ports.ProjectRepository, signJobRepo ports.SignJobRepository) ports.KPIEvaluationService {

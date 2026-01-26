@@ -12,11 +12,11 @@ import (
 )
 
 type UpLoadService struct {
-	config                   config.Config
 	authRepo                 ports.AuthRepository
 	upLoadRepo               ports.UpLoadRepository
-	storageCloudflareService *storage.CloudflareStorage
 	userRepo                 ports.UserRepository
+	storageCloudflareService *storage.CloudflareStorage
+	config                   config.Config
 }
 
 func NewUpLoadService(cfg config.Config, authRepo ports.AuthRepository, upLoadRepo ports.UpLoadRepository, userRepo ports.UserRepository, storageCloudflareService *storage.CloudflareStorage) ports.UpLoadService {

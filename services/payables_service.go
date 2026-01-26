@@ -19,10 +19,10 @@ import (
 )
 
 type payablesService struct {
-	config           config.Config
 	payablesRepo     ports.PayableRepository
 	bankAccountsRepo ports.BankAccountsRepository
 	expenseRepo      ports.ExpenseRepository
+	config           config.Config
 }
 
 func NewPayablesService(cfg config.Config, payablesRepo ports.PayableRepository, bankAccountsRepo ports.BankAccountsRepository, expenseRepo ports.ExpenseRepository) ports.PayableService {
