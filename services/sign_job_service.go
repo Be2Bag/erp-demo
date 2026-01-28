@@ -468,6 +468,7 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 	wasWaitingForPrice := existing.WaitPrice
 
 	// เก็บสถานะ IsDeposit เดิมไว้ เพื่อตรวจสอบว่าเปลี่ยนจากไม่มีมัดจำเป็นมีมัดจำหรือไม่
+	// (ถ้า IsDeposit เดิมเป็น true -> wasNotDeposit จะเป็น false)
 	wasNotDeposit := !existing.IsDeposit
 
 	// เก็บ job_name เดิมไว้สำหรับอัพเดท Income
@@ -804,9 +805,24 @@ func (s *signJobService) UpdateSignJobByJobID(ctx context.Context, jobID string,
 		rec.Phone = existing.Phone
 		rec.Address = existing.Address
 		rec.Amount = existing.PriceTHB
-		rec.Balance = existing.OutstandingAmount
+		rec.Balance = existing.OutstandingAmount // อัพเดท Balance ล่าสุด (ถ้าเปลี่ยนเป็นไม่มัดจำ ยอดนี้น่าจะเป็น 0)
 		rec.Note = existing.JobName
 		rec.UpdatedAt = now
+
+		// ---------------------------------------------------------------------
+		// [Logic ใหม่] ตรวจสอบการเปลี่ยนจาก "มีมัดจำ" เป็น "ไม่มีมัดจำ"
+		// ---------------------------------------------------------------------
+		wasDeposit := !wasNotDeposit       // สถานะเดิม (ถ้าเดิมเป็น IsDeposit=true, wasNotDeposit=false -> wasDeposit=true)
+		isNowNoDeposit := !existing.IsDeposit // สถานะใหม่ (IsDeposit=false)
+
+		if wasDeposit && isNowNoDeposit {
+			// เช็คว่ายอดคงเหลือเป็น 0 หรือไม่ (ใช้ < 0.01 เพื่อรองรับเศษทศนิยม)
+			if rec.Balance < 0.01 {
+				rec.Status = "paid" // ปรับสถานะเป็นจ่ายแล้ว
+				rec.Balance = 0.0   // ปรับยอดเป็น 0 ให้สะอาด
+			}
+		}
+		// ---------------------------------------------------------------------
 
 		if _, errOnUpdateReceivable := s.receivableRepo.UpdateReceivableByID(ctx, rec.IDReceivable, *rec); errOnUpdateReceivable != nil {
 			return errOnUpdateReceivable
