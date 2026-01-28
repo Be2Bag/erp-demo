@@ -559,7 +559,10 @@ definitions:
         description: รอราคา
         type: boolean
       width:
-        description: ความกว้าง (ซม.)
+        description: |-
+          ---------- เมต้า ----------
+          Status    string `json:"status"`     // สถานะงาน (อาจให้ระบบตั้ง)
+          CreatedBy string `json:"created_by"` // ผู้สร้าง (อาจให้ระบบตั้ง)
         type: number
     type: object
   dto.CreateSignTypeDTO:

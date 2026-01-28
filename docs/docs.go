@@ -8546,7 +8546,7 @@ const docTemplate = `{
                     "type": "boolean"
                 },
                 "width": {
-                    "description": "ความกว้าง (ซม.)",
+                    "description": "---------- เมต้า ----------\nStatus    string ` + "`" + `json:\"status\"` + "`" + `     // สถานะงาน (อาจให้ระบบตั้ง)\nCreatedBy string ` + "`" + `json:\"created_by\"` + "`" + ` // ผู้สร้าง (อาจให้ระบบตั้ง)",
                     "type": "number"
                 }
             }
