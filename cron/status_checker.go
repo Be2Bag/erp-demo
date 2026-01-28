@@ -108,9 +108,6 @@ func (sc *StatusChecker) checkPayableStatus(ctx context.Context) ([]StatusUpdate
 		"status": bson.M{
 			"$in": []string{"pending", "partial"},
 		},
-		"balance": bson.M{
-			"$gte": 0.01, // มากกว่า 1 สตางค์
-		},
 	}
 
 	payables, err := sc.payableRepo.GetAllPayablesByFilter(ctx, filter, nil)
@@ -123,7 +120,12 @@ func (sc *StatusChecker) checkPayableStatus(ctx context.Context) ([]StatusUpdate
 		oldStatus := payable.Status
 
 		// ตรวจสอบว่าเลยกำหนดชำระหรือไม่
-		if !payable.DueDate.IsZero() && payable.DueDate.Before(now) {
+		if payable.Balance < 0.01 {
+            if payable.Status != "paid" {
+                payable.Status = "paid"
+                needUpdate = true
+            }
+        } else if !payable.DueDate.IsZero() && payable.DueDate.Before(now) {
 			// เลยกำหนดและยังมียอดคงเหลือ (มากกว่า 1 สตางค์)
 			if util.IsPositiveAmount(payable.Balance) {
 				payable.Status = "overdue"
@@ -187,9 +189,6 @@ func (sc *StatusChecker) checkReceivableStatus(ctx context.Context) ([]StatusUpd
 		"status": bson.M{
 			"$in": []string{"pending", "partial"},
 		},
-		"balance": bson.M{
-			"$gte": 0.01, // มากกว่า 1 สตางค์
-		},
 	}
 
 	receivables, err := sc.receivableRepo.GetAllReceivablesByFilter(ctx, filter, nil)
@@ -202,7 +201,12 @@ func (sc *StatusChecker) checkReceivableStatus(ctx context.Context) ([]StatusUpd
 		oldStatus := receivable.Status
 
 		// ตรวจสอบว่าเลยกำหนดรับชำระหรือไม่
-		if !receivable.DueDate.IsZero() && receivable.DueDate.Before(now) {
+		if receivable.Balance < 0.01 {
+            if receivable.Status != "paid" {
+                receivable.Status = "paid"
+                needUpdate = true
+            }
+        } else if !receivable.DueDate.IsZero() && receivable.DueDate.Before(now) {
 			// เลยกำหนดและยังมียอดคงเหลือ (มากกว่า 1 สตางค์)
 			if util.IsPositiveAmount(receivable.Balance) {
 				receivable.Status = "overdue"
