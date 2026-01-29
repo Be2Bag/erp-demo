@@ -119,7 +119,7 @@ func (s *receiptService) CreateReceipt(ctx context.Context, in dto.CreateReceipt
 	issuer := models.IssuerInfo{
 		Name:       "อาร์เคพี มีเดีย แอดเวอร์ไทซิ่ง จำกัด",
 		Address:    "241 ถ.ศรีกุญชร อ.พนัสนิคม จ.ชลบุรี 20140",
-		Contact:    "086-5207688 (ครูพงษ์) ,083-9019537 (คุณรัญ)",
+		Contact:    "095-9198949 (ครูพงษ์) ,095-4491944 (คุณรัญ)",
 		Email:      "krupong14rkp@gmail.com",
 		PreparedBy: preparedBy,
 	}
