@@ -78,8 +78,19 @@ func (h *UpLoadHandler) Upload(c *fiber.Ctx) error {
 		})
 	}
 
+	// Ensure the ./tmp/ directory exists
+	if err := os.MkdirAll("./tmp", 0o750); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
+			StatusCode: fiber.StatusInternalServerError,
+			MessageEN:  "Failed to create temporary directory: " + err.Error(),
+			MessageTH:  "ไม่สามารถสร้างโฟลเดอร์ชั่วคราวได้",
+			Status:     "error",
+			Data:       nil,
+		})
+	}
+
 	// Save the file temporarily
-	tempFilePath := fmt.Sprintf("./temp/%s", fileHeader.Filename)
+	tempFilePath := fmt.Sprintf("./tmp/%s", fileHeader.Filename)
 	if err := c.SaveFile(fileHeader, tempFilePath); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(dto.BaseResponse{
 			StatusCode: fiber.StatusInternalServerError,

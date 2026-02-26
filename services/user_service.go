@@ -96,7 +96,7 @@ func (s *userService) Create(ctx context.Context, req dto.RequestCreateUser) err
 		return errOnGetByIDCard
 	}
 
-	if checkUser != nil {
+	if len(checkUser) > 0 {
 		return fmt.Errorf("user with ID card %s already exists", user.IDCard)
 	}
 
@@ -150,28 +150,25 @@ func (s *userService) GetByID(ctx context.Context, id string) (*dto.ResponseGetU
 	if errOnGetProvinces != nil {
 		return nil, fmt.Errorf("failed to get province: %w", errOnGetProvinces)
 	}
-	if len(provinces) == 0 {
-		return nil, fmt.Errorf("province not found")
+	if len(provinces) > 0 {
+		provincesName = provinces[0].NameTH
 	}
-	provincesName = provinces[0].NameTH
 
 	districts, errOnGetDistricts := s.dropDownRepo.GetDistricts(ctx, bson.M{"id": user.Address.District}, bson.M{"_id": 0, "name_th": 1})
 	if errOnGetDistricts != nil {
 		return nil, fmt.Errorf("failed to get district: %w", errOnGetDistricts)
 	}
-	if len(districts) == 0 {
-		return nil, fmt.Errorf("district not found")
+	if len(districts) > 0 {
+		districtsName = districts[0].NameTH
 	}
-	districtsName = districts[0].NameTH
 
 	subDistricts, errOnGetSubDistricts := s.dropDownRepo.GetSubDistricts(ctx, bson.M{"id": user.Address.Subdistrict}, bson.M{"_id": 0, "name_th": 1})
 	if errOnGetSubDistricts != nil {
 		return nil, fmt.Errorf("failed to get subdistrict: %w", errOnGetSubDistricts)
 	}
-	if len(subDistricts) == 0 {
-		return nil, fmt.Errorf("subdistrict not found")
+	if len(subDistricts) > 0 {
+		subDistrictsName = subDistricts[0].NameTH
 	}
-	subDistrictsName = subDistricts[0].NameTH
 
 	var dtoDocuments []dto.Document
 	for _, doc := range user.Documents {

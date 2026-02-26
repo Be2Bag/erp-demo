@@ -138,7 +138,7 @@ func AuditLogMiddleware(auditSvc ports.AuditLogService, jwtSecret string) fiber.
 			email = claims.Email
 			employeeCode = claims.EmployeeCode
 			role = claims.Role
-			fullName = claims.TitleTH + claims.FirstNameTH + " " + claims.LastNameTH
+			fullName = claims.TitleTH + " " + claims.FirstNameTH + " " + claims.LastNameTH
 		}
 
 		// Skip if no user (unauthenticated request)
@@ -233,20 +233,63 @@ func extractResourceInfo(method, path, paramID string) (resource, action, resour
 
 // sanitizeRequestBody removes sensitive fields from request body
 func sanitizeRequestBody(body string) string {
-	// Simple sanitization - replace common sensitive field patterns
-	sensitivePatterns := []string{
-		`"password"`, `"Password"`,
-		`"secret"`, `"Secret"`,
-		`"token"`, `"Token"`,
-		`"credit_card"`, `"creditCard"`,
+	// Simple sanitization - replace sensitive key-value pairs with [REDACTED]
+	sensitiveKeys := []string{
+		"password", "Password",
+		"secret", "Secret",
+		"token", "Token",
+		"credit_card", "creditCard",
 	}
 
 	result := body
-	for _, pattern := range sensitivePatterns {
+	for _, key := range sensitiveKeys {
+		// Match "key":"<any value>" or "key": "<any value>" patterns
+		// Handles both quoted string values and unquoted values
+		pattern := `"` + key + `"`
 		if strings.Contains(result, pattern) {
-			// Replace the value after the sensitive key with [REDACTED]
-			// This is a simple approach; for production, use proper JSON parsing
-			result = strings.ReplaceAll(result, pattern, pattern[:len(pattern)-1]+`":"[REDACTED]"`)
+			// Find and replace the key-value pair: "key":"value" -> "key":"[REDACTED]"
+			idx := 0
+			for {
+				pos := strings.Index(result[idx:], pattern)
+				if pos == -1 {
+					break
+				}
+				pos += idx
+				afterKey := pos + len(pattern)
+				// Skip optional whitespace and colon
+				i := afterKey
+				for i < len(result) && (result[i] == ' ' || result[i] == '\t') {
+					i++
+				}
+				if i >= len(result) || result[i] != ':' {
+					idx = afterKey
+					continue
+				}
+				i++ // skip ':'
+				for i < len(result) && (result[i] == ' ' || result[i] == '\t') {
+					i++
+				}
+				if i >= len(result) {
+					idx = afterKey
+					continue
+				}
+				// Replace the value
+				if result[i] == '"' {
+					// String value: find closing quote
+					end := i + 1
+					for end < len(result) && result[end] != '"' {
+						if result[end] == '\\' {
+							end++ // skip escaped char
+						}
+						end++
+					}
+					if end < len(result) {
+						end++ // include closing quote
+					}
+					result = result[:i] + `"[REDACTED]"` + result[end:]
+				}
+				idx = i + len(`"[REDACTED]"`)
+			}
 		}
 	}
 

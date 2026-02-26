@@ -270,7 +270,7 @@ func (s *kpiService) ListKPITemplates(ctx context.Context, claims *dto.JWTClaims
 		safe := regexp.QuoteMeta(search)
 		re := primitive.Regex{Pattern: safe, Options: "i"}
 		filter["$or"] = []bson.M{
-			{"workflow_name": re},
+			{"kpi_name": re},
 		}
 	}
 
@@ -278,9 +278,9 @@ func (s *kpiService) ListKPITemplates(ctx context.Context, claims *dto.JWTClaims
 
 	// sort
 	allowedSortFields := map[string]string{
-		"created_at":    "created_at",
-		"updated_at":    "updated_at",
-		"workflow_name": "workflow_name",
+		"created_at": "created_at",
+		"updated_at": "updated_at",
+		"kpi_name":   "kpi_name",
 	}
 	field, ok := allowedSortFields[sortBy]
 	if !ok || field == "" {

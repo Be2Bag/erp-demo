@@ -43,7 +43,7 @@ func (s *adminService) UpdateUserStatus(ctx context.Context, req dto.RequestUpda
 	update := bson.M{"$set": bson.M{"status": req.Status, "updated_at": time.Now()}}
 
 	if req.Status == "deleted" {
-		update = bson.M{"$set": bson.M{"status": req.Status, "deleted_at": time.Now()}}
+		update = bson.M{"$set": bson.M{"status": req.Status, "deleted_at": time.Now(), "updated_at": time.Now()}}
 	}
 
 	_, errOnUpdateStatus := s.userRepo.UpdateUserByFilter(ctx, filter, update)
